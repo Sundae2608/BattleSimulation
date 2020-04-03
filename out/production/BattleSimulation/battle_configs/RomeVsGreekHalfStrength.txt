@@ -1,0 +1,219 @@
+// ----------------
+// Roman first line
+// ----------------
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: -480
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 120
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 720
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 1320
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 1920
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+// -----------------
+// Roman second line
+// -----------------
+{
+    type: swordmen
+    org: unit
+    x: -350
+    y: -780
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -350
+    y: -180
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -350
+    y: 420
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -350
+    y: 1020
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -350
+    y: 1620
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 10
+},
+
+// ----------------
+// Roman third line
+// ----------------
+{
+    type: swordmen
+    org: unit
+    x: -800
+    y: -480
+    angle: 0
+    size: 20
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -800
+    y: 120
+    angle: 0
+    size: 20
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -800
+    y: 720
+    angle: 0
+    size: 20
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -800
+    y: 1320
+    angle: 0
+    size: 20
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -800
+    y: 1920
+    angle: 0
+    size: 20
+    faction: ROME
+    width: 10
+},
+// ----------
+// Roman cavs
+// ----------
+{
+    type: cavalry
+    org: unit
+    x: 100
+    y: -1800
+    angle: 0
+    size: 300
+    faction: ROME
+    width: 15
+},
+{
+    type: cavalry
+    org: unit
+    x: 100
+    y: 3000
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 15
+},
+// -------------
+// Greek phalanx
+// -------------
+{
+    type: phalanx
+    org: unit
+    x: 1900
+    y: 570
+    angle: 180
+    size: 600
+    faction: GAUL
+    width: 120
+},
+// ---------------
+// Greek cavalries
+// ---------------
+{
+    type: cavalry
+    org: unit
+    x: 1900
+    y: -1800
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 15
+},
+{
+    type: cavalry
+    org: unit
+    x: 1900
+    y: 3000
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 15
+}

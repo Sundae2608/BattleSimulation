@@ -1,0 +1,278 @@
+// ----------------
+// Roman first line
+// ----------------
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: -3180
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: -1380
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 420
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 2220
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 4020
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+// -----------------
+// Roman second line
+// -----------------
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: -3180
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: -1380
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: 420
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: 2220
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: 4020
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+// -----------------
+// Roman skirmishers
+// -----------------
+{
+    type: archer
+    org: unit
+    x: 750
+    y: -780
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+{
+    type: archer
+    org: unit
+    x: 750
+    y: 1420
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 48
+},
+// ----------
+// Roman cavs
+// ----------
+{
+    type: cavalry
+    org: unit
+    x: 100
+    y: -5180
+    angle: 0
+    size: 280
+    faction: ROME
+    width: 40
+},
+{
+    type: cavalry
+    org: unit
+    x: 100
+    y: 6020
+    angle: 0
+    size: 280
+    faction: ROME
+    width: 40
+},
+// -------------
+// Gaul infantry
+// -------------
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: -4180
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: -3180
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: -2180
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: -1180
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: -180
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: 820
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: 1820
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: 2820
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: 3820
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+{
+    type: swordmen
+    org: unit
+    x: 7900
+    y: 4820
+    angle: 180
+    size: 360
+    faction: GAUL
+    width: 24
+},
+// ---------------
+// Greek cavalries
+// ---------------
+{
+    type: cavalry
+    org: unit
+    x: 7900
+    y: -6180
+    angle: 180
+    size: 240
+    faction: GAUL
+    width: 40
+},
+{
+    type: cavalry
+    org: unit
+    x: 7900
+    y: 6820
+    angle: 180
+    size: 240
+    faction: GAUL
+    width: 40
+}

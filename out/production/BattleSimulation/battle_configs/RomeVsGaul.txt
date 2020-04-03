@@ -1,0 +1,262 @@
+// ----------------
+// Roman first line
+// ----------------
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: -480
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: -480
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 120
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 720
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 1320
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: 100
+    y: 1920
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+// -----------------
+// Roman second line
+// -----------------
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: -780
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: -180
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: 420
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: 1020
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+{
+    type: swordmen
+    org: unit
+    x: -550
+    y: 1620
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 10
+},
+
+// ----------------
+// Roman third line
+// ----------------
+{
+    type: phalanx
+    org: unit
+    x: -1200
+    y: -480
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: phalanx
+    org: unit
+    x: -1200
+    y: 120
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: phalanx
+    org: unit
+    x: -1200
+    y: 720
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: phalanx
+    org: unit
+    x: -1200
+    y: 1320
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: phalanx
+    org: unit
+    x: -1200
+    y: 1920
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+// ----------
+// Roman cavs
+// ----------
+{
+    type: cavalry
+    org: unit
+    x: 100
+    y: -2200
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 15
+},
+{
+    type: cavalry
+    org: unit
+    x: 100
+    y: 3400
+    angle: 0
+    size: 120
+    faction: ROME
+    width: 15
+},
+// -------------
+// Roman archers
+// -------------
+{
+    type: archer
+    org: unit
+    x: 500
+    y: 570
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 60
+},
+// -------------
+// Greek phalanx
+// -------------
+{
+    type: phalanx
+    org: unit
+    x: 2500
+    y: -730
+    angle: 180
+    size: 480
+    faction: ATHENS
+    width: 40
+},
+{
+    type: phalanx
+    org: unit
+    x: 2500
+    y: 570
+    angle: 180
+    size: 480
+    faction: ATHENS
+    width: 40
+},
+{
+    type: phalanx
+    org: unit
+    x: 2500
+    y: 1870
+    angle: 180
+    size: 480
+    faction: ATHENS
+    width: 40
+},
+// ---------------
+// Greek cavalries
+// ---------------
+{
+    type: cavalry
+    org: unit
+    x: 2500
+    y: -2200
+    angle: 180
+    size: 120
+    faction: ATHENS
+    width: 15
+},
+{
+    type: cavalry
+    org: unit
+    x: 2500
+    y: 3400
+    angle: 180
+    size: 120
+    faction: ATHENS
+    width: 15
+}

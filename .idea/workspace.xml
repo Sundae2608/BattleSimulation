@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="c83910a2-ef9c-4ab8-93f8-b57fb75dce0f" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1a0j7TKob3PuyixZBTzWW6wtODl" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../JavaLibs/commons-math3-3.6.1/commons-math3-3.6.1.jar!/" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.customizations" />
+  </component>
+  <component name="RunManager">
+    <configuration name="MainSimulation" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="MainSimulation" />
+      <module name="BattleSimulation" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.MainSimulation" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c83910a2-ef9c-4ab8-93f8-b57fb75dce0f" name="Default Changelist" comment="" />
+      <created>1585879238176</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1585879238176</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="791" y="509" key="FileChooserDialogImpl" timestamp="1585882579810">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="791" y="509" key="FileChooserDialogImpl/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585882579810" />
+    <state width="1590" height="266" key="GridCell.Tab.0.bottom" timestamp="1585887018733">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state width="1590" height="266" key="GridCell.Tab.0.bottom/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585887018733" />
+    <state width="1590" height="266" key="GridCell.Tab.0.center" timestamp="1585887018733">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state width="1590" height="266" key="GridCell.Tab.0.center/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585887018733" />
+    <state width="1590" height="266" key="GridCell.Tab.0.left" timestamp="1585887018732">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state width="1590" height="266" key="GridCell.Tab.0.left/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585887018732" />
+    <state width="1590" height="266" key="GridCell.Tab.0.right" timestamp="1585887018733">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state width="1590" height="266" key="GridCell.Tab.0.right/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585887018733" />
+    <state x="565" y="342" key="SettingsEditor" timestamp="1585882583469">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="565" y="342" key="SettingsEditor/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585882583469" />
+    <state x="981" y="524" key="com.intellij.ide.util.TipDialog" timestamp="1585879241112">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="981" y="524" key="com.intellij.ide.util.TipDialog/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585879241112" />
+  </component>
+</project>
