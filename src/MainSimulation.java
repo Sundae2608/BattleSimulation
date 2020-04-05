@@ -161,7 +161,7 @@ public class MainSimulation extends PApplet {
     public void settings() {
 
         // Window size
-        size(INPUT_WIDTH, INPUT_HEIGHT, P3D);
+        size(INPUT_WIDTH, INPUT_HEIGHT, OPENGL);
 
         // ----------------
         // Graphic settings
