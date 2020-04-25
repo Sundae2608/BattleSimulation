@@ -24,7 +24,14 @@
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="settings.editor.selected.configurable" value="preferences.customizations" />
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.DeadMorphTest">
+    <configuration name="DeadMorphTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="DeadMorphTest" />
+      <module name="BattleSimulation" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="MainSimulation" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="MainSimulation" />
       <module name="BattleSimulation" />
@@ -34,6 +41,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.DeadMorphTest" />
         <item itemvalue="Application.MainSimulation" />
       </list>
     </recent_temporary>
@@ -88,10 +96,17 @@
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
     <state x="565" y="342" key="SettingsEditor/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585882583469" />
-    <state x="981" y="524" key="com.intellij.ide.util.TipDialog" timestamp="1586154844263">
-      <screen x="0" y="0" width="2560" height="1400" />
+    <state x="-1184" y="751" key="com.intellij.ide.util.TipDialog" timestamp="1587822026322">
+      <screen x="-1920" y="362" width="1920" height="1040" />
     </state>
     <state x="981" y="524" key="com.intellij.ide.util.TipDialog/0.0.2560.1400/-1920.-1080.1920.1040@0.0.2560.1400" timestamp="1586154844263" />
     <state x="981" y="524" key="com.intellij.ide.util.TipDialog/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1586035489481" />
+    <state x="-1184" y="751" key="com.intellij.ide.util.TipDialog/0.0.2560.1400/-1920.362.1920.1040@-1920.362.1920.1040" timestamp="1587822026322" />
+    <state x="-1184" y="762" key="com.intellij.ide.util.TipDialog/0.0.2560.1400/-1920.373.1920.1040@-1920.373.1920.1040" timestamp="1586456584170" />
+    <state x="981" y="524" key="com.intellij.ide.util.TipDialog/0.0.2560.1400/-1920.373.1920.1040@0.0.2560.1400" timestamp="1586192898507" />
+    <state x="252" y="334" key="run.anything.popup" timestamp="1586224949354">
+      <screen x="0" y="0" width="2560" height="1400" />
+    </state>
+    <state x="252" y="334" key="run.anything.popup/0.0.2560.1400/-1920.373.1920.1040@0.0.2560.1400" timestamp="1586224949354" />
   </component>
 </project>

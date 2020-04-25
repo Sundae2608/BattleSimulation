@@ -1,1 +1,2 @@
-# BS (Battle Simulation)
+# Battle Simulation
+

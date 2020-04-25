@@ -116,7 +116,7 @@ public class MainSimulation extends PApplet {
     PImage banner, bannerShadow, bannerSelected, bannerTexture;
 
     // Tiles
-    // TODO(sonpham): This is depreecated
+    // TODO(sonpham): This is deprcated
     PImage tileGrass;
 
     // List of all tiles
