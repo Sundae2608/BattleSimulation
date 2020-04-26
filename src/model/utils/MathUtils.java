@@ -219,4 +219,17 @@ public final class MathUtils {
         return new Pair<>(newX, newY);
     }
 
+    /**
+      Cap the length of the
+     */
+    public static double capMinMax(double x, double min, double max) {
+        if (x < min) {
+            return min;
+        } else if (x > max) {
+            return max;
+        } else {
+            return x;
+        }
+    }
+
 }

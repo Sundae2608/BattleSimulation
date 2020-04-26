@@ -8,6 +8,7 @@ import model.objects.Arrow;
 import model.objects.BaseObject;
 import model.settings.GameSettings;
 import model.singles.*;
+import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.enums.UnitState;
 import model.utils.MathUtils;
@@ -26,18 +27,19 @@ public class UnitModifier {
     private HashSet<BaseUnit> unitToBeRemoved;
     ArrayList<BaseUnit> unitList;
     GameSettings gameSettings;
+    Terrain terrain;
 
     // Memoization of distance between model.units.
     private double[][] distanceMemo;
 
-    public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, GameSettings inputSettings) {
+    public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain, GameSettings inputSettings) {
         objectHasher = new ObjectHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV);
         troopHasher = new TroopHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, inputSettings);
         deadContainer = inputDeadContainer;
         unitToBeRemoved = new HashSet<>();
         unitList = new ArrayList<>();
-
         gameSettings = inputSettings;
+        terrain = inputTerrain;
 
         // Initialize distance memo
         distanceMemo = new double[8][8];
@@ -64,10 +66,22 @@ public class UnitModifier {
         objectHasher.hashObjects();
 
         // Then apply modifiers
+        modifyTroopSpeedByTerrain();
         modifyObjectsCollision();
         modifyTroopsCollision();
         modifyCombat();
         modifyUnitState();
+    }
+
+    /**
+     * Modify the speed of the troop based on the slope of the terrain.
+     */
+    private void modifyTroopSpeedByTerrain() {
+        for (BaseUnit unit : troopHasher.getActiveUnits()) {
+            for (BaseSingle single : unit.getAliveTroopsSet()) {
+
+            }
+        }
     }
 
     /**

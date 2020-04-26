@@ -7,13 +7,12 @@ import model.objects.BaseObject;
 import model.units.BaseUnit;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
-import model.universal_interface.Updatable;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
 
 import java.util.HashMap;
 
-public class BaseSingle implements Updatable {
+public class BaseSingle {
 
     // Political attribute
     PoliticalFaction politicalFaction;

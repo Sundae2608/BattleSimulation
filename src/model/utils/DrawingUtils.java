@@ -20,6 +20,8 @@ public final class DrawingUtils {
     public final static int[] COLOR_HEALTH = {183, 62, 50, 255};    // #B73E32
     public final static int[] COLOR_MORALE = {209, 170, 47, 255};  // #D1AA2F
 
+    public final static int[] COLOR_TERRAIN_DOT = {0, 0, 0, 128};  // #7E7260, 12%
+
     // Drawing boundary
     public final static double DRAWING_OUTER_BOUNDARY = 20;
 

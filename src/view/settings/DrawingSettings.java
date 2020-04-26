@@ -13,9 +13,12 @@ public class DrawingSettings {
     private boolean drawDamageSustained;
     private boolean drawGrid;
     private boolean drawMap;
+    private boolean drawHeightField;
     private boolean drawTroopShadow;
     private boolean drawSimplifiedTroopShape;
     private boolean drawIcon;
+    private boolean drawTroopInDanger;
+    private boolean drawTroopInPosition;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -113,6 +116,13 @@ public class DrawingSettings {
         this.drawMap = drawMap;
     }
 
+    public boolean isDrawHeightField() {
+        return drawHeightField;
+    }
+    public void setDrawHeightField(boolean drawHeightField) {
+        this.drawHeightField = drawHeightField;
+    }
+
     public boolean isDrawTroopShadow() {
         return drawTroopShadow;
     }
@@ -147,5 +157,19 @@ public class DrawingSettings {
     }
     public void setSmoothPlanShowingSteps(int smoothPlanShowingSteps) {
         this.smoothPlanShowingSteps = smoothPlanShowingSteps;
+    }
+
+    public boolean isDrawTroopInDanger() {
+        return drawTroopInDanger;
+    }
+    public void setDrawTroopInDanger(boolean drawTroopInDanger) {
+        this.drawTroopInDanger = drawTroopInDanger;
+    }
+
+    public boolean isDrawTroopInPosition() {
+        return drawTroopInPosition;
+    }
+    public void setDrawTroopInPosition(boolean drawTroopInPosition) {
+        this.drawTroopInPosition = drawTroopInPosition;
     }
 }

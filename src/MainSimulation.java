@@ -1,6 +1,8 @@
 import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
+import model.settings.GameSettings;
+import model.terrain.Terrain;
 import view.drawer.UIDrawer;
 import view.drawer.ShapeDrawer;
 import javafx.util.Pair;
@@ -43,9 +45,8 @@ public class MainSimulation extends PApplet {
     // -------------------
     // Universal Constants
     // -------------------
-    private final static int INPUT_WIDTH = 2560;
-    private final static int INPUT_HEIGHT = 1440;
-
+    private final static int INPUT_WIDTH = 2500;
+    private final static int INPUT_HEIGHT = 1380;
     // ------------------
     // Drawers
     // This helps store each special shape at size to save time.
@@ -132,6 +133,7 @@ public class MainSimulation extends PApplet {
     // Game variables
     // Variable necessary for the running of the game
     // --------------------
+    GameSettings gameSettings;
     GameEnvironment env;
 
     // Cameraqwe
@@ -163,8 +165,14 @@ public class MainSimulation extends PApplet {
         // Window size
         size(INPUT_WIDTH, INPUT_HEIGHT, OPENGL);
 
+        // -------------
+        // Game settings
+        // -------------
+        gameSettings = new GameSettings();
+        gameSettings.setApplyTerrainModifier(true);
+
         // ----------------
-        // Graphic model.settings
+        // Graphic settings
         // ----------------
         drawingSettings = new DrawingSettings();
         drawingSettings.setRenderMode(RenderMode.MINIMALISTIC);
@@ -177,7 +185,8 @@ public class MainSimulation extends PApplet {
         drawingSettings.setSmoothCameraSteps(100);
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
-        drawingSettings.setDrawMap(true);
+        drawingSettings.setDrawMap(false);
+        drawingSettings.setDrawHeightField(true);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
@@ -207,7 +216,7 @@ public class MainSimulation extends PApplet {
         // Audio model.settings
         // --------------
         audioSettings = new AudioSettings();
-        audioSettings.setBackgroundMusic(false);
+        audioSettings.setBackgroundMusic(true);
         audioSettings.setSoundEffect(true);
 
         // ------------------------
@@ -289,8 +298,9 @@ public class MainSimulation extends PApplet {
 
         // Create a new game based on the input configurations.
         String battleConfig = "src/configs/battle_configs/BattleConfig.txt";
+        String mapConfig = "src/configs/map_configs/MapConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
-        env = new GameEnvironment(gameConfig, battleConfig);
+        env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
 
         // Create a simplified image version of each unit.
         preprocessSimplifiedUnitImages();
@@ -418,9 +428,14 @@ public class MainSimulation extends PApplet {
         // Clear everything
         background(230);
 
-        // First, draw the view.map
+        // First, draw the map
         if (drawingSettings.isDrawMap()) {
             drawMapTiles(tiles, camera);
+        }
+
+        // Then, draw the dots that represents the height.
+        if (drawingSettings.isDrawHeightField()) {
+            drawTerrain(env.getTerrain(), camera);
         }
 
         // Begin loop for columns
@@ -429,9 +444,11 @@ public class MainSimulation extends PApplet {
             double drawX = drawPos[0];
             double drawY = drawPos[1];
             float spacing = (float) (DrawingConstants.GRID_SIZE * (camera.getZoom()));
+
             float[] color = DrawingConstants.GRID_COLOR;
             stroke(color[0], color[1], color[2], color[3]);
             strokeWeight(1);
+
             for (float i = (float) drawX % spacing - spacing; i <= width; i += spacing) {
                 line(i, 0, i, height);
             }
@@ -678,14 +695,14 @@ public class MainSimulation extends PApplet {
                         double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                         double posX = position[0];
                         double posY = position[1];
-                        double angle = Math.atan2(posY - env.getUnits().get(0).getAnchorY(), posX - env.getUnits().get(0).getAnchorX());
+                        double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
                         unitSelected.moveFormationKeptTo(posX, posY, angle);
                     }
                 } else {
                     double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                     double posX = position[0];
                     double posY = position[1];
-                    double angle = Math.atan2(posY - env.getUnits().get(0).getAnchorY(), posX - env.getUnits().get(0).getAnchorX());
+                    double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
                     unitSelected.moveFormationKeptTo(posX, posY, angle);
                 }
             }
@@ -726,7 +743,7 @@ public class MainSimulation extends PApplet {
     @Override
     public void keyPressed() {
         if (key == 'c') {
-            env.getGameSettings().setDrawTroopInDanger(!env.getGameSettings().isDrawTroopInDanger());
+            drawingSettings.setDrawTroopInDanger(!drawingSettings.isDrawTroopInDanger());
         }
     }
 
@@ -1070,6 +1087,45 @@ public class MainSimulation extends PApplet {
      *            |__/
      */
 
+    void drawTerrain(Terrain terrain, Camera camera) {
+
+        rectMode(CORNER);
+        double[][] cameraBoundingBox = {
+                {0, 0},
+                {camera.getWidth(), 0},
+                {camera.getWidth(), camera.getHeight()},
+                {0, camera.getHeight()}
+        };
+        double topX = terrain.getTopX();
+        double topY = terrain.getTopY();
+        double div = terrain.getDiv();
+        for (int i = 0; i < terrain.getNumX(); i++) {
+            for (int j = 0; j < terrain.getNumY(); j++) {
+                double[] drawingPos1 = camera.getDrawingPosition(topX + i * div, topY + j * div);
+                double[] drawingPos2 = camera.getDrawingPosition(topX + (i + 1) * div, topY + j * div);
+                double[] drawingPos3 = camera.getDrawingPosition(topX + i * div, topY + (j + 1) * div);
+                double[] drawingPos4 = camera.getDrawingPosition(topX + (i + 1) * div, topY + (j + 1) * div);
+                if (DrawingUtils.drawable(drawingPos1[0], drawingPos1[1], INPUT_WIDTH, INPUT_HEIGHT) ||
+                        DrawingUtils.drawable(drawingPos2[0], drawingPos2[1], INPUT_WIDTH, INPUT_HEIGHT) ||
+                        DrawingUtils.drawable(drawingPos3[0], drawingPos3[1], INPUT_WIDTH, INPUT_HEIGHT) ||
+                        DrawingUtils.drawable(drawingPos4[0], drawingPos4[1], INPUT_WIDTH, INPUT_HEIGHT)) {
+
+                    pushMatrix();
+                    translate((float) drawingPos1[0], (float) drawingPos1[1]);
+                    rotate((float) -camera.getAngle());
+                    fill(DrawingUtils.COLOR_TERRAIN_DOT[0],
+                            DrawingUtils.COLOR_TERRAIN_DOT[1],
+                            DrawingUtils.COLOR_TERRAIN_DOT[2],
+                            (float) (DrawingUtils.COLOR_TERRAIN_DOT[3] * terrain.getHeightFromTileIndex(i, j) / (terrain.getMaxZ() - terrain.getMinZ())));
+                    rect(0, 0, (float) (terrain.getDiv() * camera.getZoom()),
+                            (float) (terrain.getDiv() * camera.getZoom()));
+                    popMatrix();
+                }
+            }
+        }
+        rectMode(CENTER);
+    }
+
     void drawMapTiles(ArrayList<Tile> tiles, Camera camera) {
 
         double[][] cameraBoundingBox = {
@@ -1348,12 +1404,12 @@ public class MainSimulation extends PApplet {
         }
 
         // Modify the color if the unit is in danger of being collided
-        if (env.getGameSettings().isBorderInwardCollision() && env.getGameSettings().isDrawTroopInDanger() &&
+        if (env.getGameSettings().isBorderInwardCollision() && drawingSettings.isDrawTroopInDanger() &&
             single.getUnit().getInDanger()[single.getRow()][single.getCol()]) {
             modifiedColor = DrawingUtils.COLOR_IN_DANGER;
         }
 
-        if (env.getGameSettings().isDrawTroopInPosition() && single.isInPosition()) {
+        if (drawingSettings.isDrawTroopInPosition() && single.isInPosition()) {
             modifiedColor = DrawingUtils.COLOR_IN_POSITION;
         }
 

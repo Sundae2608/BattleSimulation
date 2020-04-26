@@ -6,14 +6,14 @@ import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
+import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
-import model.universal_interface.Updatable;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
 
 import java.util.*;
 
-public class BaseUnit implements Updatable {
+public class BaseUnit {
 
     // Troops and width
     ArrayList<BaseSingle> troops;
@@ -381,12 +381,13 @@ public class BaseUnit implements Updatable {
     /**
      * Update the intention of the unit. Intention represents how the unit desired to move forward.
      */
-    @Override
-    public void updateIntention() {
+    public void updateIntention(Terrain terrain) {
 
         // First, rotate the front line
         double distanceToGoal = MathUtils.quickRoot1((float)((anchorX - goalX) * (anchorX - goalX) + (anchorY - goalY) * (anchorY - goalY)));
         double moveAngle, moveSpeed;
+        double moveUnitX, moveUnitY;
+        double[] deltaVel;
         switch (state) {
             case FIGHTING:
                 // TODO(sonpham): Come up with a way to change FIGHTING to IN_POSITION when comebat with a unit is over.
@@ -403,10 +404,15 @@ public class BaseUnit implements Updatable {
                 // If army still rotating, half the speed
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
                 moveSpeed = speed / 2;
+//                moveUnitX = Math.cos(moveAngle);
+//                moveUnitY = Math.sin(moveAngle);
+//                deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
+//                moveSpeed += MathUtils.quickRoot2((float) (
+//                        MathUtils.square(deltaVel[0] * moveUnitX) + MathUtils.square(deltaVel[1] * moveUnitY)));
 
                 if (distanceToGoal > moveSpeed) {
-                    double moveUnitX = Math.cos(moveAngle);
-                    double moveUnitY = Math.sin(moveAngle);
+                    moveUnitX = Math.cos(moveAngle);
+                    moveUnitY = Math.sin(moveAngle);
                     anchorX += moveUnitX * moveSpeed;
                     anchorY += moveUnitY * moveSpeed;
                 } else {
@@ -417,11 +423,16 @@ public class BaseUnit implements Updatable {
             case MOVING:
                 // If army still rotating, half the speed
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
+                moveSpeed = speed;
+                // Move speed modifier
+//                moveUnitX = Math.cos(moveAngle);
+//                moveUnitY = Math.sin(moveAngle);
+//                deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
+//                moveSpeed += MathUtils.quickRoot2((float) (
+//                        MathUtils.square(deltaVel[0] * moveUnitX) + MathUtils.square(deltaVel[1] * moveUnitY)));
                 if (MathUtils.equal(moveAngle, anchorAngle)) {
-                    moveSpeed = speed;
                     isTurning = false;
                 } else {
-                    moveSpeed = speed;
                     isTurning = true;
                 }
 
@@ -429,8 +440,8 @@ public class BaseUnit implements Updatable {
                 anchorAngle = MovementUtils.rotate(anchorAngle, moveAngle, unitStats.rotationSpeed);
 
                 if (distanceToGoal > moveSpeed) {
-                    double moveUnitX = Math.cos(anchorAngle);
-                    double moveUnitY = Math.sin(anchorAngle);
+                    moveUnitX = Math.cos(anchorAngle);
+                    moveUnitY = Math.sin(anchorAngle);
                     anchorX += moveUnitX * moveSpeed;
                     anchorY += moveUnitY * moveSpeed;
                 } else {
@@ -487,7 +498,6 @@ public class BaseUnit implements Updatable {
      * Update the state of the unit. This include updating the state of all individual troops as well as recalculate
      * the average position and the bounding box.
      */
-    @Override
     public void updateState() {
 
         // Update the state of each single and the average position

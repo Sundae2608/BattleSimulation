@@ -6,6 +6,7 @@ import model.constants.UniversalConstants;
 import model.enums.PoliticalFaction;
 import model.enums.UnitType;
 import model.singles.SingleStats;
+import model.terrain.Terrain;
 import model.units.*;
 import model.units.unit_stats.UnitStats;
 
@@ -18,10 +19,12 @@ import java.util.HashMap;
 
 public final class ConfigUtils {
     /**
-     * Create battle configuration from config file
+     * Read the battle config, which defines the position and size of each unit that participate in the games.
      * @param filePath Path leading to the config
-     * @param hasher ObjectHasher object. This is required so that certain model.units such as Archer or HorseArcher can
-     *               shoot arrows.
+     * @param hasher ObjectHasher object. This is required so that certain units such as Archer or HorseArcher can have
+     *               arrows interact with the environment.
+     * @return A list of units that participates in the battle.
+     * @throws IOException if the read fails.
      */
     public static ArrayList<BaseUnit> readBattleConfigs(String filePath, GameStats gameStats, ObjectHasher hasher) throws IOException {
 
@@ -83,6 +86,12 @@ public final class ConfigUtils {
         return units;
     }
 
+    /**
+     * Read the game statistics, which defines statistics of each unit that participates in the game.
+     * @param filePath path to file that contains the battle config.
+     * @return GameStats object which contains the unit statistics
+     * @throws IOException if the read fails.
+     */
     public static GameStats readGameStats(String filePath) throws IOException {
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
@@ -150,6 +159,7 @@ public final class ConfigUtils {
             // Additional stats based on the unit type.
             UnitStats unitStats = new UnitStats();
             switch (unitType) {
+                case SLINGER:
                 case ARCHER:
                     unitStats.widthVariation = Double.parseDouble(d.get("width_variation"));
                     unitStats.depthVariation = Double.parseDouble(d.get("depth_variation"));
@@ -162,11 +172,6 @@ public final class ConfigUtils {
                     unitStats.offAngleFirstRow = Double.parseDouble(d.get("off_angle_first_row"));
                     break;
                 case SKIRMISHER:
-                    break;
-                case SLINGER:
-                    unitStats.widthVariation = Double.parseDouble(d.get("width_variation"));
-                    unitStats.depthVariation = Double.parseDouble(d.get("depth_variation"));
-                    break;
                 case SWORDMAN:
                 default:
                     break;
@@ -181,5 +186,44 @@ public final class ConfigUtils {
             gameStats.addUnitStats(unitType, faction, unitStats);
         }
         return gameStats;
+    }
+
+    /**
+     * Create a terrain based on configs input from a file.
+     * @param filePath path that contains the input configs.
+     * @return a terrain generated from the config.
+     * @throws IOException if the file is unavailable.
+     */
+    public static Terrain createTerrainFromConfig(String filePath) throws IOException {
+        // Get all text from file location
+        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
+        String s = new String(encoded, StandardCharsets.UTF_8);
+
+        // Read all data of the config first
+        String[] infoLines = s.split("\n");
+        HashMap<String, String> d = new HashMap<>();
+        for (String line : infoLines) {
+            line = line.trim();
+            String[] data = line.split(":");
+            if (data.length < 2) continue;
+            String key = data[0].trim();
+            String value = data[1].trim();
+            d.put(key, value);
+        }
+
+        // Extract the input configs
+        double topX = Double.parseDouble(d.get("top_x"));
+        double topY = Double.parseDouble(d.get("top_x"));
+        double div = Double.parseDouble(d.get("div"));
+        int numX = Integer.parseInt(d.get("num_x"));
+        int numY = Integer.parseInt(d.get("num_y"));
+        int taper = Integer.parseInt(d.get("taper"));
+        double minHeight = Double.parseDouble(d.get("min_height"));
+        double maxHeight = Double.parseDouble(d.get("max_height"));
+
+        // Return terrain from the input configs
+        return new Terrain(
+            topX, topY, div, numX, numY, taper, minHeight, maxHeight
+        );
     }
 }

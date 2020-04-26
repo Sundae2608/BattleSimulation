@@ -2,6 +2,7 @@ package model;
 
 import model.algorithms.UnitModifier;
 import model.singles.BaseSingle;
+import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.utils.ConfigUtils;
 import model.settings.GameSettings;
@@ -19,18 +20,27 @@ public class GameEnvironment {
     UnitModifier unitModifier;
     ArrayList<BaseSingle> deadContainer;
 
+    // Terrain
+    Terrain terrain;
+
     // Game model.settings
     GameSettings gameSettings;
     GameStats gameStats;
 
     /**
      *
-     * @param configPath Path to the txt file that contains all the game information
+     * @param battleConfig Path to the txt file that contains all the game information
      */
-    public GameEnvironment(String gameConfig, String configPath) {
-        gameSettings = new GameSettings();
+    public GameEnvironment(String gameConfig, String terrainConfig, String battleConfig,
+                           GameSettings inputGameSettings) {
+        gameSettings = inputGameSettings;
         deadContainer = new ArrayList<>();
-        unitModifier = new UnitModifier(deadContainer, gameSettings);
+        try {
+            terrain = ConfigUtils.createTerrainFromConfig(terrainConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        unitModifier = new UnitModifier(deadContainer, terrain, gameSettings);
         // Read game stats
         try {
             gameStats = ConfigUtils.readGameStats(gameConfig);
@@ -39,7 +49,7 @@ public class GameEnvironment {
         }
         // Read battle configuration
         try {
-            units = ConfigUtils.readBattleConfigs(configPath, gameStats, unitModifier.getObjectHasher());
+            units = ConfigUtils.readBattleConfigs(battleConfig, gameStats, unitModifier.getObjectHasher());
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -54,7 +64,7 @@ public class GameEnvironment {
     public void step() {
         unitModifier.getObjectHasher().updateObjects();
         for (BaseUnit unit : units) {
-            unit.updateIntention();
+            unit.updateIntention(terrain);
         }
         unitModifier.modifyObjects();
         for (BaseUnit unit : units) {
@@ -77,31 +87,18 @@ public class GameEnvironment {
         return unitModifier;
     }
 
-    public void setUnitModifier(UnitModifier unitModifier) {
-        this.unitModifier = unitModifier;
-    }
-
     public ArrayList<BaseSingle> getDeadContainer() {
         return deadContainer;
     }
 
-    public void setDeadContainer(ArrayList<BaseSingle> deadContainer) {
-        this.deadContainer = deadContainer;
+    public Terrain getTerrain() {
+        return terrain;
     }
 
     public GameSettings getGameSettings() {
         return gameSettings;
     }
-
-    public void setGameSettings(GameSettings gameSettings) {
-        this.gameSettings = gameSettings;
-    }
-
     public GameStats getGameStats() {
         return gameStats;
-    }
-
-    public void setGameStats(GameStats gameStats) {
-        this.gameStats = gameStats;
     }
 }

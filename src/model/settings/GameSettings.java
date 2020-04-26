@@ -8,11 +8,8 @@ public class GameSettings {
     // Check collision from border inward. This helps reduce the number of objects checking for collision, but also
     private boolean borderInwardCollision;
 
-    // Draw troops in danger with different color
-    private boolean drawTroopInDanger;  // Applicable only if borderInwardCollision == true
-
-    // Draw troops in position with different color
-    private boolean drawTroopInPosition;
+    // Apply change in speed based on terrain
+    private boolean applyTerrainModifier;
 
     public GameSettings() {}
 
@@ -30,17 +27,10 @@ public class GameSettings {
         this.borderInwardCollision = borderInwardCollision;
     }
 
-    public boolean isDrawTroopInDanger() {
-        return drawTroopInDanger;
+    public boolean isApplyTerrainModifier() {
+        return applyTerrainModifier;
     }
-    public void setDrawTroopInDanger(boolean drawTroopInDanger) {
-        this.drawTroopInDanger = drawTroopInDanger;
-    }
-
-    public boolean isDrawTroopInPosition() {
-        return drawTroopInPosition;
-    }
-    public void setDrawTroopInPosition(boolean drawTroopInPosition) {
-        this.drawTroopInPosition = drawTroopInPosition;
+    public void setApplyTerrainModifier(boolean applyTerrainModifier) {
+        this.applyTerrainModifier = applyTerrainModifier;
     }
 }
