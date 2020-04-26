@@ -3,12 +3,12 @@
 These are the tasks that have to be done too improve the game
 
 ## High priorities
-* Determine a good system of constants. Eventually, most constants should be local to the unit.
+* Determine a good system of model.constants. Eventually, most model.constants should be local to the unit.
 * Create the fighting stance for the unit
     * This goes with the fighting system.
-* Camera system. This is critical if any documentary is to be successful. A freewheeling camera allows watching the
+* Camera system. This is critical if any documentary is to be successful. A freewheeling view.camera allows watching the
 battle from different angle and also a lighter rendering of the army.
-* Mouse control of all units in the army.
+* Mouse control of all model.units in the army.
 * Dead soldier should stack on top of each other instead of 
 
 ## Medium priorities

@@ -1,26 +1,35 @@
 import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
-import drawer.UIDrawer;
-import drawer.ShapeDrawer;
+import view.drawer.UIDrawer;
+import view.drawer.ShapeDrawer;
 import javafx.util.Pair;
-import map.Tile;
-import algorithms.UnitModifier;
-import camera.Camera;
-import constants.*;
+import view.map.Tile;
+import model.GameEnvironment;
+import view.camera.Camera;
+import model.constants.*;
+import model.enums.PoliticalFaction;
+import model.enums.SingleState;
+import model.enums.UnitState;
+import model.enums.UnitType;
+import model.objects.Arrow;
+import model.objects.BaseObject;
 import processing.core.PGraphics;
-import settings.*;
-import drawer.DrawingVertices;
+import view.drawer.DrawingVertices;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
 import processing.sound.SoundFile;
-import singles.*;
-import units.*;
-import utils.*;
+import model.singles.*;
+import model.units.*;
+import model.utils.*;
+import view.constants.DrawingConstants;
+import view.settings.AudioSettings;
+import view.settings.DrawingMode;
+import view.settings.DrawingSettings;
+import view.settings.RenderMode;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -76,9 +85,6 @@ public class MainSimulation extends PApplet {
     HashMap<Double, double[]> cavalrySizeMap;
     double[] currSizeCavalry;
 
-    HashMap<Double, double[]> horseArcherSizeMap;
-    double[] currSizeHorseArcher;
-
     HashMap<BaseUnit, Pair<PImage, IntMatrix2D>> unitSimplifiedImageMap;
     HashMap<BaseUnit, Pair<PImage, IntMatrix2D>> unitShadowSimplifiedImageMap;
 
@@ -126,11 +132,7 @@ public class MainSimulation extends PApplet {
     // Game variables
     // Variable necessary for the running of the game
     // --------------------
-
-    // Troops and Objects
-    ArrayList<BaseUnit> units;
-    UnitModifier unitModifier;
-    ArrayList<BaseSingle> deadContainer;
+    GameEnvironment env;
 
     // Cameraqwe
     Camera camera;
@@ -138,8 +140,6 @@ public class MainSimulation extends PApplet {
     // Some drawingSettings
     DrawingSettings drawingSettings;
     AudioSettings audioSettings;
-    GameSettings gameSettings;
-    ExperimentSettings experimentSettings;
     int zoomCounter;
     double zoomGoal;
     int angleCounter;
@@ -164,7 +164,7 @@ public class MainSimulation extends PApplet {
         size(INPUT_WIDTH, INPUT_HEIGHT, OPENGL);
 
         // ----------------
-        // Graphic settings
+        // Graphic model.settings
         // ----------------
         drawingSettings = new DrawingSettings();
         drawingSettings.setRenderMode(RenderMode.MINIMALISTIC);
@@ -199,34 +199,19 @@ public class MainSimulation extends PApplet {
         skirmisherSizeMap = new HashMap<>();
         swordmanSizeMap = new HashMap<>();
         cavalrySizeMap = new HashMap<>();
-        horseArcherSizeMap = new HashMap<>();
 
         unitSimplifiedImageMap = new HashMap<>();
         unitShadowSimplifiedImageMap = new HashMap<>();
 
         // --------------
-        // Audio settings
+        // Audio model.settings
         // --------------
         audioSettings = new AudioSettings();
-        audioSettings.setBackgroundMusic(true);
+        audioSettings.setBackgroundMusic(false);
         audioSettings.setSoundEffect(true);
 
-        // -------------
-        // Game Settings
-        // -------------
-        // TODO: Add game settings here
-
-        // -------------------
-        // Experiment settings
-        // -------------------
-        experimentSettings = new ExperimentSettings();
-        experimentSettings.setCavalryCollision(false);
-        experimentSettings.setBorderInwardCollision(true);
-        experimentSettings.setDrawTroopInDanger(false);
-        experimentSettings.setDrawTroopInPosition(false);
-
         // ------------------------
-        // Post processing settings
+        // Post processing model.settings
         // ------------------------
         if (!drawingSettings.isDrawSmooth()) noSmooth();
         else {
@@ -262,7 +247,7 @@ public class MainSimulation extends PApplet {
 
         tileGrass = loadImage("imgs/SelectedTiles/grassTile128.png");
 
-        // Load all tiles in the map
+        // Load all tiles in the view.map
         loadMapTiles(-9000, -18000, "imgs/MapTiles/pharsalus", 1080);
 
         // ---------------
@@ -302,25 +287,15 @@ public class MainSimulation extends PApplet {
         // Preprocesing troops
         // -------------------
 
-        // Create the Collision Modifier
-        deadContainer = new ArrayList<>();
-        unitModifier = new UnitModifier(deadContainer, experimentSettings);
-
-        // Create troops from config file and add to collision modifier
-        String configFile = "src/battle_configs/RomeVsGaulComplicated.txt";
-        try {
-            units = ConfigUtils.readConfigs(configFile, unitModifier.getObjectHasher());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for (BaseUnit unit : units) {
-            unitModifier.addUnit(unit);
-        }
+        // Create a new game based on the input configurations.
+        String battleConfig = "src/configs/battle_configs/BattleConfig.txt";
+        String gameConfig = "src/configs/game_configs/GameConfig.txt";
+        env = new GameEnvironment(gameConfig, battleConfig);
 
         // Create a simplified image version of each unit.
         preprocessSimplifiedUnitImages();
 
-        // Add unit to camera
+        // Add unit to view.camera
         camera = new Camera(INPUT_WIDTH / 2, INPUT_HEIGHT / 2, INPUT_WIDTH, INPUT_HEIGHT);
         zoomGoal = camera.getZoom();  // To ensure consistency
         angleGoal = camera.getAngle();
@@ -332,6 +307,9 @@ public class MainSimulation extends PApplet {
         rectMode(CENTER);
     }
 
+    /**
+     * Looping method required for a Processing Applet.
+     */
     public void draw() {
 
         // -------------------
@@ -342,11 +320,8 @@ public class MainSimulation extends PApplet {
         lastTime = System.currentTimeMillis();
 
         if (!currentlyPaused) {
-            // Update backend
-            unitModifier.getObjectHasher().updateObjects();
-            for (BaseUnit unit : units) unit.updateIntention();
-            unitModifier.modifyObjects();
-            for (BaseUnit unit : units) unit.updateState();
+            // The environment makes one step forward in processing.
+            env.step();
         }
 
         // Record backend time
@@ -364,7 +339,7 @@ public class MainSimulation extends PApplet {
         // Frame skipper
         if (drawingSettings.getFrameSkips() != 0 & frameCount % (drawingSettings.getFrameSkips() + 1) == 0) return;
 
-        // Update camera smooth zoom
+        // Update view.camera smooth zoom
         if (drawingSettings.isSmoothCameraMovement()) {
             if (zoomCounter >= 0) {
                 zoomCounter -= 1;
@@ -377,7 +352,7 @@ public class MainSimulation extends PApplet {
             }
         }
 
-        // Update camera keyboard movement
+        // Update view.camera keyboard movement
         double screenMoveAngle;
         if (keyPressed) {
             if (key == 'a') {
@@ -424,8 +399,8 @@ public class MainSimulation extends PApplet {
         // Pick the closest to the mouse
         double[] mousePositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
         double minDist = Double.MAX_VALUE;
-        closestUnit = units.get(0);
-        for (BaseUnit unit : units) {
+        closestUnit = env.getUnits().get(0);
+        for (BaseUnit unit : env.getUnits()) {
             double dist = MathUtils.squareDistance(unit.getAverageX(),
                     unit.getAverageY(),
                     mousePositions[0],
@@ -443,7 +418,7 @@ public class MainSimulation extends PApplet {
         // Clear everything
         background(230);
 
-        // First, draw the map
+        // First, draw the view.map
         if (drawingSettings.isDrawMap()) {
             drawMapTiles(tiles, camera);
         }
@@ -482,7 +457,7 @@ public class MainSimulation extends PApplet {
 
         // Dead troops
         noStroke();
-        for (BaseSingle single : deadContainer) {
+        for (BaseSingle single : env.getDeadContainer()) {
             portrayDeadSingle(single, camera, drawingSettings);
         }
 
@@ -494,7 +469,7 @@ public class MainSimulation extends PApplet {
         }
 
         if (planCounter > 0) {
-            for (BaseUnit unit : units) {
+            for (BaseUnit unit : env.getUnits()) {
                 if (unit.getState() == UnitState.MOVING) {
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
@@ -506,7 +481,7 @@ public class MainSimulation extends PApplet {
 
         if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_TROOP) {
             // Alive troop
-            for (BaseUnit unit : units) {
+            for (BaseUnit unit : env.getUnits()) {
                 boolean unitHovered = unit == closestUnit;
                 // First, draw the optimize masked version for troops in position
                 if (drawingSettings.isInPositionOptimization() &&
@@ -521,7 +496,7 @@ public class MainSimulation extends PApplet {
             }
         } else {
             // Draw unit block
-            for (BaseUnit unit : units) {
+            for (BaseUnit unit : env.getUnits()) {
                 // TODO: Change to using UnitState instead for consistency
                 if (unit.getNumAlives() == 0) continue;
                 drawUnitBlock(unit, camera, drawingSettings, false);
@@ -529,7 +504,7 @@ public class MainSimulation extends PApplet {
         }
 
         // Draw the objects
-        ArrayList<BaseObject> objects = unitModifier.getObjectHasher().getObjects();
+        ArrayList<BaseObject> objects = env.getUnitModifier().getObjectHasher().getObjects();
         for (BaseObject obj : objects) {
             if (obj.isAlive()) drawObject(obj, camera, drawingSettings);
         }
@@ -537,14 +512,14 @@ public class MainSimulation extends PApplet {
         // -------------------
         // Procecss unit sound
         // -------------------
-        if (audioSettings.isSoundEffect()) processUnitSound(units, camera);
+        if (audioSettings.isSoundEffect()) processUnitSound(env.getUnits(), camera);
 
         // -----------
         // Draw the UI
         // -----------
 
         // Draw all the unit icon
-        ArrayList<BaseUnit> unitsSortedByPosition = (ArrayList) units.clone();
+        ArrayList<BaseUnit> unitsSortedByPosition = (ArrayList) env.getUnits().clone();
         Collections.sort(unitsSortedByPosition, new Comparator<BaseUnit>() {
             @Override
             public int compare(BaseUnit o1, BaseUnit o2) {
@@ -559,13 +534,14 @@ public class MainSimulation extends PApplet {
                 double[] drawingPos = camera.getDrawingPosition(unit.getAverageX(), unit.getAverageY());
                 int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
 
+                rectMode(CORNER);
+
                 imageMode(CORNER);
                 blendMode(NORMAL);
                 image(unit == unitSelected ? bannerSelected : bannerShadow,
                         (float) (drawingPos[0] - 42),
                         (float) (drawingPos[1] - 220), 84, 220);
                 fill(color[0], color[1], color[2], 255);
-                rectMode(CORNER);
                 rect((float) (drawingPos[0] - 30), (float) (drawingPos[1] - 186),
                         60, 94);
                 image(banner,
@@ -605,6 +581,7 @@ public class MainSimulation extends PApplet {
                 }
             }
         }
+        rectMode(CENTER);
 
         // Information about the unit
         fill(0, 0, 0, 200);
@@ -692,7 +669,7 @@ public class MainSimulation extends PApplet {
                     double[] screenPos = camera.getDrawingPosition(
                             closestUnit.getAverageX(),
                             closestUnit.getAverageY());
-                    // If it's an archer unit, check the faction and distance from the closest unit from camera
+                    // If it's an archer unit, check the faction and distance from the closest unit from view.camera
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
@@ -701,14 +678,14 @@ public class MainSimulation extends PApplet {
                         double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                         double posX = position[0];
                         double posY = position[1];
-                        double angle = Math.atan2(posY - units.get(0).getAnchorY(), posX - units.get(0).getAnchorX());
+                        double angle = Math.atan2(posY - env.getUnits().get(0).getAnchorY(), posX - env.getUnits().get(0).getAnchorX());
                         unitSelected.moveFormationKeptTo(posX, posY, angle);
                     }
                 } else {
                     double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                     double posX = position[0];
                     double posY = position[1];
-                    double angle = Math.atan2(posY - units.get(0).getAnchorY(), posX - units.get(0).getAnchorX());
+                    double angle = Math.atan2(posY - env.getUnits().get(0).getAnchorY(), posX - env.getUnits().get(0).getAnchorX());
                     unitSelected.moveFormationKeptTo(posX, posY, angle);
                 }
             }
@@ -749,7 +726,7 @@ public class MainSimulation extends PApplet {
     @Override
     public void keyPressed() {
         if (key == 'c') {
-            experimentSettings.setDrawTroopInDanger(!experimentSettings.isDrawTroopInDanger());
+            env.getGameSettings().setDrawTroopInDanger(!env.getGameSettings().isDrawTroopInDanger());
         }
     }
 
@@ -839,7 +816,7 @@ public class MainSimulation extends PApplet {
 
     /**
      * Create a simplified image and shadow image of the unit. This helps with drawer optimization since troop that is
-     * roughly in their supposed position can just be drawn using an image map instead of being drawn individually
+     * roughly in their supposed position can just be drawn using an image view.map instead of being drawn individually
      */
     private PImage createSimplifiedUnitImage(BaseUnit unit) {
         double singleSpacing = unit.getSpacing() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
@@ -912,7 +889,7 @@ public class MainSimulation extends PApplet {
     void preprocessSimplifiedUnitImages() {
         // Create an image version of troops. This helps with drawer optimization when ther are a lot of troops in
         // the field.
-        for (BaseUnit unit : units) {
+        for (BaseUnit unit : env.getUnits()) {
             PImage img = createSimplifiedUnitImage(unit);
             int[][] alpha = DrawingUtils.getAlphaArray(img);
             IntMatrix2D alphaArray = new DenseIntMatrix2D(alpha);
@@ -926,10 +903,10 @@ public class MainSimulation extends PApplet {
     }
 
     /**
-     * Load all tile from map, given the top left position.
+     * Load all tile from view.map, given the top left position.
      * Path must contains tile images
      * Each image file name must be in the format IMG-i-j.png, in which i and j is the row and column position of each
-     * tile when all tile is laid out into the map.
+     * tile when all tile is laid out into the view.map.
      * @param x top left x position.
      * @param y top left y position.
      * @param path path to the folder containing images of all tiles.
@@ -958,7 +935,7 @@ public class MainSimulation extends PApplet {
     }
 
     /**
-     * Update the size map baseded on camera zoom
+     * Update the size view.map baseded on view.camera zoom
      */
     private void updateSizeMaps() {
 
@@ -971,7 +948,8 @@ public class MainSimulation extends PApplet {
         // Swordman
         if (!swordmanSizeMap.containsKey(camera.getZoom())) {
             double[] newSize = new double[4];
-            newSize[0] = SwordmanConstants.SINGLE_SIZE * camera.getZoom();
+            double size = env.getGameStats().getSingleStats(UnitType.SWORDMAN, PoliticalFaction.ROME).radius;
+            newSize[0] = size * camera.getZoom();
             newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
             newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
             newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
@@ -982,7 +960,8 @@ public class MainSimulation extends PApplet {
         // Phalanx
         if (!phalanxSizeMap.containsKey(camera.getZoom())) {
             double[] newSize = new double[4];
-            newSize[0] = PhalanxConstants.SINGLE_SIZE * camera.getZoom();
+            double size = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.ROME).radius;
+            newSize[0] = size * camera.getZoom();
             newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
             newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
             newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
@@ -993,7 +972,8 @@ public class MainSimulation extends PApplet {
         // Slinger
         if (!slingerSizeMap.containsKey(camera.getZoom())) {
             double[] newSize = new double[4];
-            newSize[0] = SlingerConstants.SINGLE_SIZE * camera.getZoom();
+            double size = env.getGameStats().getSingleStats(UnitType.SLINGER, PoliticalFaction.ROME).radius;
+            newSize[0] = size * camera.getZoom();
             newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
             newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
             newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
@@ -1004,7 +984,8 @@ public class MainSimulation extends PApplet {
         // Archer
         if (!archerSizeMap.containsKey(camera.getZoom())) {
             double[] newSize = new double[4];
-            newSize[0] = ArcherConstants.SINGLE_SIZE * camera.getZoom();
+            double size = env.getGameStats().getSingleStats(UnitType.ARCHER, PoliticalFaction.ROME).radius;
+            newSize[0] = size * camera.getZoom();
             newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
             newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
             newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
@@ -1015,7 +996,8 @@ public class MainSimulation extends PApplet {
         // Skirmisher
         if (!skirmisherSizeMap.containsKey(camera.getZoom())) {
             double[] newSize = new double[4];
-            newSize[0] = SkirmisherConstants.SINGLE_SIZE * camera.getZoom();
+            double size = env.getGameStats().getSingleStats(UnitType.SKIRMISHER, PoliticalFaction.ROME).radius;
+            newSize[0] = size * camera.getZoom();
             newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
             newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
             newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
@@ -1026,24 +1008,14 @@ public class MainSimulation extends PApplet {
         // Cavalry
         if (!cavalrySizeMap.containsKey(camera.getZoom())) {
             double[] newSize = new double[4];
-            newSize[0] = CavalryConstants.SINGLE_SIZE * camera.getZoom();
+            double size = env.getGameStats().getSingleStats(UnitType.CAVALRY, PoliticalFaction.ROME).radius;
+            newSize[0] = size * camera.getZoom();
             newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
             newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
             newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
             cavalrySizeMap.put(camera.getZoom(), newSize);
         }
         currSizeCavalry = cavalrySizeMap.get(camera.getZoom());
-
-        // Horse Archer
-        if (!horseArcherSizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            newSize[0] = HorseArcherConstants.SINGLE_SIZE * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            horseArcherSizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizeHorseArcher = horseArcherSizeMap.get(camera.getZoom());
     }
 
     /**
@@ -1063,7 +1035,7 @@ public class MainSimulation extends PApplet {
         footMarchAmplitude = AudioConstants.MIN_AMPLITUDE;
         cavalryMarchAplitude = AudioConstants.MIN_AMPLITUDE;
 
-        // for each unit, calculate distance to camera.
+        // for each unit, calculate distance to view.camera.
         for (BaseUnit unit : units) {
             if (unit.getNumAlives() == 0) continue;
             double distance = MathUtils.magnitude(
@@ -1073,7 +1045,7 @@ public class MainSimulation extends PApplet {
             if (unit.isInContactWithEnemy()) {
                 combatAmplitude += volumeAdded;
             } else if (unit.getState() == UnitState.MOVING) {
-                if (unit instanceof CavalryUnit || unit instanceof HorseArcherUnit) {
+                if (unit instanceof CavalryUnit) {
                     cavalryMarchAplitude += volumeAdded;
                 } else {
                     footMarchAmplitude += volumeAdded;
@@ -1138,7 +1110,7 @@ public class MainSimulation extends PApplet {
 
     void drawObject(BaseObject object, Camera camera, DrawingSettings settings) {
 
-        // Recalculate position and shape based on the camera position
+        // Recalculate position and shape based on the view.camera position
         double[] position = camera.getDrawingPosition(object.getX(), object.getY());
         double drawX = position[0];
         double drawY = position[1];
@@ -1161,7 +1133,7 @@ public class MainSimulation extends PApplet {
         // Recalculate object actual position
         Pair<Double, Double> rotatedVector = MathUtils.rotate(object.getX(), object.getY(), single.getAngle());
 
-        // Recalculate position and shape based on the camera position
+        // Recalculate position and shape based on the view.camera position
         double[] position = camera.getDrawingPosition(
                 rotatedVector.getKey() + single.getX(),
                 rotatedVector.getValue() + single.getY());
@@ -1304,7 +1276,7 @@ public class MainSimulation extends PApplet {
      * Portray alive troop. The troop is only portrayable if
      */
     void portrayAliveSingle(BaseSingle single, Camera camera, DrawingSettings settings, boolean hovered) {
-        // Recalculate position and shape based on the camera position
+        // Recalculate position and shape based on the view.camera position
         double[] position = camera.getDrawingPosition(single.getX(), single.getY());
         double drawX = position[0];
         double drawY = position[1];
@@ -1376,12 +1348,12 @@ public class MainSimulation extends PApplet {
         }
 
         // Modify the color if the unit is in danger of being collided
-        if (experimentSettings.isBorderInwardCollision() && experimentSettings.isDrawTroopInDanger() &&
+        if (env.getGameSettings().isBorderInwardCollision() && env.getGameSettings().isDrawTroopInDanger() &&
             single.getUnit().getInDanger()[single.getRow()][single.getCol()]) {
             modifiedColor = DrawingUtils.COLOR_IN_DANGER;
         }
 
-        if (experimentSettings.isDrawTroopInPosition() && single.isInPosition()) {
+        if (env.getGameSettings().isDrawTroopInPosition() && single.isInPosition()) {
             modifiedColor = DrawingUtils.COLOR_IN_POSITION;
         }
 
@@ -1417,39 +1389,13 @@ public class MainSimulation extends PApplet {
             // Cavalry Sword
             if (settings.getDrawWeapon() == DrawingMode.DRAW) {
                 fill(50, 50, 50);
-                double diaRightUnitX = MathUtils.quickCos((float)(angle + Math.PI / 2));
-                double diaRightUnitY = MathUtils.quickSin((float)(angle + Math.PI / 2));
+                double diaRightUnitX = MathUtils.quickCos((float) (angle + Math.PI / 2));
+                double diaRightUnitY = MathUtils.quickSin((float) (angle + Math.PI / 2));
                 shapeDrawer.sword(g, (float) (drawX + (diaRightUnitX * currSizeCavalry[INDEX_TROOP_SIZE] * 0.45)),
                         (float) (drawY + (diaRightUnitY * currSizeCavalry[INDEX_TROOP_SIZE] * 0.45)),
                         (float) angle,
                         (float) camera.getZoom(),
                         settings);
-            }
-        } else if (single instanceof HorseArcherSingle) {
-            // Calvary shadow
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.cavalryShape(g,
-                        (float) (drawX + shadowXOffset),
-                        (float) (drawY + shadowYOffset),
-                        (float) angle,
-                        (float) (currSizeHorseArcher[INDEX_SHADOW_SIZE]),
-                        camera);
-            }
-
-            // Calvary shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.cavalryShape(g,
-                    (float) drawX, (float) drawY, (float) angle,
-                    (float) (currSizeHorseArcher[INDEX_TROOP_SIZE]), camera);
-
-            // Eye
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                fill(0, 0, 0, 128);
-                ellipse((float) (drawX + (unitX * currSizeHorseArcher[INDEX_TROOP_SIZE] * 0.25)),
-                        (float) (drawY + (unitY * currSizeHorseArcher[INDEX_TROOP_SIZE] * 0.25)),
-                        (float) (currSizeEye),
-                        (float) (currSizeEye));
             }
         } else if (single instanceof ArcherSingle) {
             // Archer shadow
@@ -1616,7 +1562,7 @@ public class MainSimulation extends PApplet {
      * Portray dead unit
      */
     void portrayDeadSingle(BaseSingle single, Camera camera, DrawingSettings settings) {
-        // Recalculate position and shape based on the camera position
+        // Recalculate position and shape based on the view.camera position
         double[] position = camera.getDrawingPosition(single.getX(), single.getY());
         double drawX = position[0];
         double drawY = position[1];
@@ -1659,8 +1605,6 @@ public class MainSimulation extends PApplet {
 
         if (single instanceof CavalrySingle) {
             shapeDrawer.cavalryShape(g, (float) drawX, (float) drawY, (float) angle, (float) currSizeCavalry[INDEX_TROOP_SIZE], camera);
-        } else if (single instanceof HorseArcherSingle) {
-            shapeDrawer.cavalryShape(g, (float) drawX, (float) drawY, (float) angle, (float) currSizeHorseArcher[INDEX_TROOP_SIZE], camera);
         } else if (single instanceof PhalanxSingle) {
             shapeDrawer.infantryShape(g, (float) drawX, (float) drawY, (float) currSizePhalanx[INDEX_TROOP_SIZE], (float) currSizePhalanx[INDEX_TROOP_SIMPLIED_SIZE], camera);
         } else if (single instanceof SwordmanSingle) {

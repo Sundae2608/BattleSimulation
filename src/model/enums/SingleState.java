@@ -1,0 +1,5 @@
+package model.enums;
+
+public enum SingleState {
+    IN_POSITION, MOVING, DECELERATING, BRACING, FIGHTING, FIRE_AT_WILL, UNCONTROLLABLE, DEAD;
+}

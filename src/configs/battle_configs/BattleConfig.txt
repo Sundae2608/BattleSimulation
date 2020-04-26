@@ -1,0 +1,100 @@
+{
+    type: PHALANX
+    org: unit
+    x: -500
+    y: -930
+    angle: 0
+    size: 600
+    faction: ROME
+    width: 40
+},
+{
+    type: PHALANX
+    org: unit
+    x: -500
+    y: 570
+    angle: 0
+    size: 600
+    faction: ROME
+    width: 40
+},
+{
+    type: PHALANX
+    org: unit
+    x: -500
+    y: 2070
+    angle: 0
+    size: 600
+    faction: ROME
+    width: 40
+},
+{
+    type: CAVALRY
+    org: unit
+    x: -500
+    y: 3270
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 12
+},
+{
+    type: CAVALRY
+    org: unit
+    x: -500
+    y: -2130
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 12
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 1900
+    y: -730
+    angle: 180
+    size: 640
+    faction: GAUL
+    width: 32
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 1900
+    y: 570
+    angle: 180
+    size: 640
+    faction: GAUL
+    width: 32
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 1900
+    y: 1870
+    angle: 180
+    size: 640
+    faction: GAUL
+    width: 32
+},
+{
+    type: CAVALRY
+    org: unit
+    x: 1900
+    y: 3270
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 12
+},
+{
+    type: CAVALRY
+    org: unit
+    x: 1900
+    y: -2130
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 12
+},
