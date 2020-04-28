@@ -79,7 +79,12 @@ public class UnitModifier {
     private void modifyTroopSpeedByTerrain() {
         for (BaseUnit unit : troopHasher.getActiveUnits()) {
             for (BaseSingle single : unit.getAliveTroopsSet()) {
-
+                double[] deltaVel = terrain.getDeltaVelFromPos(single.getX(), single.getY());
+                double speedModifier = MathUtils.ratioProjection(
+                        deltaVel[0], deltaVel[1], single.getxVel(), single.getyVel());
+                speedModifier = MathUtils.capMinMax(speedModifier, -0.8, 0.8);
+                single.setxVel(single.getxVel() * (1 + speedModifier));
+                single.setyVel(single.getyVel() * (1 + speedModifier));
             }
         }
     }

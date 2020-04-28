@@ -386,7 +386,8 @@ public class BaseUnit {
         // First, rotate the front line
         double distanceToGoal = MathUtils.quickRoot1((float)((anchorX - goalX) * (anchorX - goalX) + (anchorY - goalY) * (anchorY - goalY)));
         double moveAngle, moveSpeed;
-        double moveUnitX, moveUnitY;
+        double moveSpeedX, moveSpeedY;
+        double speedModifier;
         double[] deltaVel;
         switch (state) {
             case FIGHTING:
@@ -404,15 +405,19 @@ public class BaseUnit {
                 // If army still rotating, half the speed
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
                 moveSpeed = speed / 2;
-//                moveUnitX = Math.cos(moveAngle);
-//                moveUnitY = Math.sin(moveAngle);
-//                deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
-//                moveSpeed += MathUtils.quickRoot2((float) (
-//                        MathUtils.square(deltaVel[0] * moveUnitX) + MathUtils.square(deltaVel[1] * moveUnitY)));
+
+                // Apply speed modifier by terrain
+                moveSpeedX = Math.cos(moveAngle) * moveSpeed;
+                moveSpeedY = Math.sin(moveAngle) * moveSpeed;
+                deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
+                speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
+                speedModifier = MathUtils.capMinMax(speedModifier, -0.3, 0.3);
+                moveSpeed *= (1 + speedModifier);
+
 
                 if (distanceToGoal > moveSpeed) {
-                    moveUnitX = Math.cos(moveAngle);
-                    moveUnitY = Math.sin(moveAngle);
+                    double moveUnitX = Math.cos(moveAngle);
+                    double moveUnitY = Math.sin(moveAngle);
                     anchorX += moveUnitX * moveSpeed;
                     anchorY += moveUnitY * moveSpeed;
                 } else {
@@ -424,12 +429,15 @@ public class BaseUnit {
                 // If army still rotating, half the speed
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
                 moveSpeed = speed;
-                // Move speed modifier
-//                moveUnitX = Math.cos(moveAngle);
-//                moveUnitY = Math.sin(moveAngle);
-//                deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
-//                moveSpeed += MathUtils.quickRoot2((float) (
-//                        MathUtils.square(deltaVel[0] * moveUnitX) + MathUtils.square(deltaVel[1] * moveUnitY)));
+
+                // Apply speed modifier by terrain
+                moveSpeedX = Math.cos(moveAngle) * moveSpeed;
+                moveSpeedY = Math.sin(moveAngle) * moveSpeed;
+                deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
+                speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
+                speedModifier = MathUtils.capMinMax(speedModifier, -0.3, 0.3);
+                moveSpeed *= (1 + speedModifier);
+
                 if (MathUtils.equal(moveAngle, anchorAngle)) {
                     isTurning = false;
                 } else {
@@ -440,8 +448,8 @@ public class BaseUnit {
                 anchorAngle = MovementUtils.rotate(anchorAngle, moveAngle, unitStats.rotationSpeed);
 
                 if (distanceToGoal > moveSpeed) {
-                    moveUnitX = Math.cos(anchorAngle);
-                    moveUnitY = Math.sin(anchorAngle);
+                    double moveUnitX = Math.cos(anchorAngle);
+                    double moveUnitY = Math.sin(anchorAngle);
                     anchorX += moveUnitX * moveSpeed;
                     anchorY += moveUnitY * moveSpeed;
                 } else {
@@ -460,7 +468,7 @@ public class BaseUnit {
 
         // Update troop intentions
         for (BaseSingle single : troops) {
-            single.updateIntention();
+            single.updateIntention(terrain);
         }
     }
 

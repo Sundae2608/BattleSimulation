@@ -4,6 +4,7 @@ import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
 import model.objects.BaseObject;
+import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
@@ -73,7 +74,7 @@ public class BaseSingle {
      * Update intention of the troop. The intention represents the potential move of the soldier, if unopposed, through
      * xVel and yVel;
      */
-    public void updateIntention() {
+    public void updateIntention(Terrain terrain) {
 
         // Can't have intention if already dead
         if (state == SingleState.DEAD) return;
@@ -84,6 +85,14 @@ public class BaseSingle {
         if (speed < speedGoal) speed = Math.min(speed + UniversalConstants.SPEED_ACC, speedGoal);
         else if (speed > speedGoal) speed = Math.max(speed - UniversalConstants.SPEED_ACC, speedGoal);
         speed *= variation;
+
+        // Apply speed modifier by terrain
+        double moveSpeedX = Math.cos(angle) * speed;
+        double moveSpeedY = Math.sin(angle) * speed;
+        double[] deltaVel = terrain.getDeltaVelFromPos(x, y);
+        double speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
+        speedModifier = MathUtils.capMinMax(speedModifier, -0.3, 0.3);
+        speed *= (1 + speedModifier);
 
         // Calculate intended step
         xVel = MathUtils.quickCos((float) angle) * speed;

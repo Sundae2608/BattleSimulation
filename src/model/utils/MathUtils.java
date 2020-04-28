@@ -232,4 +232,24 @@ public final class MathUtils {
         }
     }
 
+    /**
+     * Ratio projection of v onto u
+     */
+    public static double ratioProjection(double vx, double vy, double ux, double uy) {
+        if (ux == 0.0 && uy == 0) {
+            return 0.0;
+        }
+        return (vx * ux + vy * uy) / (ux * ux + uy * uy);
+    }
+
+    /**
+     * Project vector v on to u
+     */
+    public static double[] vectorProjection(double vx, double vy, double ux, double uy) {
+        if (ux == 0.0 && uy == 0) {
+            return new double[] {0.0};
+        }
+        double normal_projection = (vx * ux + vy * uy) / (ux * ux + uy * uy);
+        return new double[] {normal_projection * ux, normal_projection * uy};
+    }
 }
