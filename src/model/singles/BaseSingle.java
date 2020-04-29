@@ -91,7 +91,9 @@ public class BaseSingle {
         double moveSpeedY = Math.sin(angle) * speed;
         double[] deltaVel = terrain.getDeltaVelFromPos(x, y);
         double speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
-        speedModifier = MathUtils.capMinMax(speedModifier, -0.3, 0.3);
+        speedModifier = MathUtils.capMinMax(speedModifier,
+                UniversalConstants.MINIMUM_TERRAIN_EFFECT,
+                UniversalConstants.MAXIMUM_TERRAIN_EFFECT);;
         speed *= (1 + speedModifier);
 
         // Calculate intended step

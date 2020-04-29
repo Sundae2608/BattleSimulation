@@ -1,7 +1,7 @@
 {
     top_x: -9000
-    top_y: -18000
-    div: 135
+    top_y: -1800
+    div: 300
     num_x: 192
     num_y: 256
     taper: 10

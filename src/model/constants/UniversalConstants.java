@@ -36,6 +36,10 @@ public class UniversalConstants {
     public final static int CARRIED_OBJECT_LIFETIME = 300;
     public final static int CARRIED_OBJECT_FADEAWAY = 50;
 
+    // Maximum speed modification effect incurred by terrain
+    public final static double MINIMUM_TERRAIN_EFFECT = -0.1;
+    public final static double MAXIMUM_TERRAIN_EFFECT = 0.4;
+
     // ----------------
     // Camera Constants
     // ----------------

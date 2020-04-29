@@ -411,7 +411,9 @@ public class BaseUnit {
                 moveSpeedY = Math.sin(moveAngle) * moveSpeed;
                 deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
                 speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
-                speedModifier = MathUtils.capMinMax(speedModifier, -0.3, 0.3);
+                speedModifier = MathUtils.capMinMax(speedModifier,
+                        UniversalConstants.MINIMUM_TERRAIN_EFFECT,
+                        UniversalConstants.MAXIMUM_TERRAIN_EFFECT);
                 moveSpeed *= (1 + speedModifier);
 
 
@@ -435,7 +437,9 @@ public class BaseUnit {
                 moveSpeedY = Math.sin(moveAngle) * moveSpeed;
                 deltaVel = terrain.getDeltaVelFromPos(anchorX, anchorY);
                 speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
-                speedModifier = MathUtils.capMinMax(speedModifier, -0.3, 0.3);
+                speedModifier = MathUtils.capMinMax(speedModifier,
+                        UniversalConstants.MINIMUM_TERRAIN_EFFECT,
+                        UniversalConstants.MAXIMUM_TERRAIN_EFFECT);
                 moveSpeed *= (1 + speedModifier);
 
                 if (MathUtils.equal(moveAngle, anchorAngle)) {
