@@ -26,10 +26,10 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../JavaLibs/commons-math3-3.6.1/commons-math3-3.6.1.jar!/" />
-    <property name="project.structure.last.edited" value="Modules" />
+    <property name="project.structure.last.edited" value="Libraries" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="preferences.customizations" />
+    <property name="settings.editor.selected.configurable" value="configurable.group.build" />
   </component>
   <component name="RunManager" selected="Application.MainSimulation">
     <configuration name="DeadMorphTest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
@@ -125,10 +125,11 @@
     <state width="1237" height="29" key="GridCell.Tab.0.right/0.0.1280.680/-1920.249.1920.1040@0.0.1280.680" timestamp="1586051800442" />
     <state width="2517" height="211" key="GridCell.Tab.0.right/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1586069669373" />
     <state width="2517" height="211" key="GridCell.Tab.0.right/0.0.2560.1400/-1920.362.1920.1040@0.0.2560.1400" timestamp="1588128815660" />
-    <state x="565" y="342" key="SettingsEditor" timestamp="1585882583469">
-      <screen x="0" y="0" width="2560" height="1400" />
+    <state x="-1337" y="365" key="SettingsEditor" timestamp="1588229906364">
+      <screen x="-1920" y="362" width="1920" height="1040" />
     </state>
     <state x="565" y="342" key="SettingsEditor/0.0.2560.1400/-1920.249.1920.1040@0.0.2560.1400" timestamp="1585882583469" />
+    <state x="-1337" y="365" key="SettingsEditor/0.0.2560.1400/-1920.362.1920.1040@0.0.2560.1400" timestamp="1588229906364" />
     <state x="981" y="524" key="com.intellij.ide.util.TipDialog" timestamp="1588229515269">
       <screen x="0" y="0" width="2560" height="1400" />
     </state>
