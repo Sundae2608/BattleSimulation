@@ -45,8 +45,8 @@ public class MainSimulation extends PApplet {
     // -------------------
     // Universal Constants
     // -------------------
-    private final static int INPUT_WIDTH = 2500;
-    private final static int INPUT_HEIGHT = 1380;
+    private final static int INPUT_WIDTH = 2560;
+    private final static int INPUT_HEIGHT = 1440;
     // ------------------
     // Drawers
     // This helps store each special shape at size to save time.
