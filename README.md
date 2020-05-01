@@ -9,3 +9,5 @@ Required library:
 * [processing](https://processing.org/)
   * sound
   * core
+  
+Recommend setting up using IntelliJ
