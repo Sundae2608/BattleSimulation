@@ -11,3 +11,10 @@ Required library:
   * core
   
 Recommend setting up using IntelliJ
+
+## Roadmap
+
+May: 
+
+* Finish terrain height visualization
+* Design simpler flag
