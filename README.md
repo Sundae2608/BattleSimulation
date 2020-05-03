@@ -18,3 +18,4 @@ May:
 
 * Finish terrain height visualization
 * Design simpler flag
+* Visualize the troops with respect to height.
