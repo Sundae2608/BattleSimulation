@@ -1,10 +1,10 @@
 {
-    top_x: -9000
-    top_y: -1800
-    div: 300
+    top_x: -4500
+    top_y: -4500
+    div: 50
     num_x: 192
-    num_y: 256
+    num_y: 192
     taper: 10
-    min_height: 0
-    max_height: 50
+    min_height: -300
+    max_height: 40
 }

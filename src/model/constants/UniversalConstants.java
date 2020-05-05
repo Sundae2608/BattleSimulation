@@ -53,6 +53,8 @@ public class UniversalConstants {
 
     // Minimum zoom and zoom speed
     public final static double MINIMUM_ZOOM = 0.05;
+    public final static double MAXIMUM_ZOOM = 5.0;
+    public final static double HEIGHT_AT_MAX_ZOOM = 100;
     public final static double ZOOM_PER_SCROLL = 1.1;
 
     // Zoom rendering level

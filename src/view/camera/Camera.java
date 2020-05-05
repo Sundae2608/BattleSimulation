@@ -1,5 +1,6 @@
 package view.camera;
 
+import model.constants.UniversalConstants;
 import model.singles.BaseSingle;
 import model.utils.MathUtils;
 
@@ -9,7 +10,7 @@ import java.util.HashSet;
 public class Camera {
 
     // Boundary extension
-    // Extend the boundary by a small amount is a good practice to ensure no "sudden apperance" at the boundary
+    // Extend the boundary by a small amount is a good practice to ensure no "sudden appearance" at the boundary
     private final static double EXTENSION = 20;
 
     // Position
@@ -65,6 +66,23 @@ public class Camera {
         double drawX = drawX90 * cosAngle + drawY90 * sinAngle + width / 2;
         double drawY = -drawX90 * sinAngle + drawY90 * cosAngle + height / 2;
         return new double[] {drawX, drawY};
+    }
+
+    public double[] getDrawingPosition(double inputX, double inputY, double inputZ) {
+        float cosAngle = MathUtils.quickCos((float) angle);
+        float sinAngle = MathUtils.quickSin((float) angle);
+        double zAdjustedZoom =getZoomAtHeight(inputZ);
+        double drawX90 = ((inputX - x)) * zAdjustedZoom;
+        double drawY90 = ((inputY - y)) * zAdjustedZoom;
+        double drawX = drawX90 * cosAngle + drawY90 * sinAngle + width / 2;
+        double drawY = -drawX90 * sinAngle + drawY90 * cosAngle + height / 2;
+        return new double[]{drawX, drawY};
+    }
+
+    public double getZoomAtHeight(double inputZ) {
+        double cameraHeight = (UniversalConstants.MAXIMUM_ZOOM / zoom) * UniversalConstants.HEIGHT_AT_MAX_ZOOM - inputZ;
+        double zAdjustedZoom = UniversalConstants.HEIGHT_AT_MAX_ZOOM / cameraHeight * UniversalConstants.MAXIMUM_ZOOM;
+        return zAdjustedZoom;
     }
 
     /**
