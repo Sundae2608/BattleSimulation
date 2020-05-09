@@ -79,42 +79,42 @@ public class ShapeDrawer extends PApplet {
     /**
      * Draw a sword
      */
-    public void sword(PGraphics g, float x, float y, float angle, float size, DrawingSettings settings) {
+    public void sword(PGraphics g, double x, double y, double angle, double size, DrawingSettings settings) {
         if (!swordMap.containsKey(size)) {
             float[][] swordShape;
             if (size > UniversalConstants.ZOOM_RENDER_LEVEL_NORMAL) {
                 swordShape = new float[][] {
                         {0, 0},
-                        {0, -1.5f * size},
-                        {2 * size, -1.5f * size},
-                        {2 * size, -3 * size},
-                        {3 * size, -3 * size},
-                        {3 * size, -1.5f * size},
-                        {20 * size, -1.5f * size},
-                        {21.5f * size, 0},
-                        {20 * size, 1.5f * size},
-                        {3 * size, 1.5f * size},
-                        {3 * size, 3 * size},
-                        {2 * size, 3 * size},
-                        {2 * size, 1.5f * size},
-                        {0 * size, 1.5f * size}
+                        {0, (float) (-1.5f * size)},
+                        {(float) (2 * size), (float) (-1.5f * size)},
+                        {(float) (2 * size), (float) (-3 * size)},
+                        {(float) (3 * size), (float) (-3 * size)},
+                        {(float) (3 * size), (float) (-1.5f * size)},
+                        {(float) (20 * size), (float) (-1.5f * size)},
+                        {(float) (21.5f * size), 0},
+                        {(float) (20 * size), (float) (1.5f * size)},
+                        {(float) (3 * size), (float) (1.5f * size)},
+                        {(float) (3 * size), (float) (3 * size)},
+                        {(float) (2 * size), (float) (3 * size)},
+                        {(float) (2 * size), (float) (1.5f * size)},
+                        {(float) (0 * size), (float) (1.5f * size)}
                 };
             } else if (size > UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE) {
                 swordShape = new float[][] {
-                        {0, -1.5f * size},
-                        {21.5f * size, -1.5f * size},
-                        {21.5f * size, 1.5f * size},
-                        {0 * size, 1.5f * size}
+                        {0, (float) (-1.5f * size)},
+                        {(float) (21.5f * size), (float) (-1.5f * size)},
+                        {(float) (21.5f * size), (float) (1.5f * size)},
+                        {(float) (0 * size), (float) (1.5f * size)}
                 };
             } else {
                 swordShape = new float[][] {};
             }
-            swordMap.put((double) size, new DrawingVertices(swordShape));
+            swordMap.put( size, new DrawingVertices(swordShape));
         }
-        float[][] vertices = swordMap.get((double) size).getVertices();
+        float[][] vertices = swordMap.get(size).getVertices();
         g.pushMatrix();
-        g.translate(x, y);
-        g.rotate(angle);
+        g.translate((float)x, (float)y);
+        g.rotate((float) angle);
         g.beginShape();
         for (int i = 0; i < vertices.length; i++) {
             g.vertex(vertices[i][0], vertices[i][1]);
@@ -207,40 +207,48 @@ public class ShapeDrawer extends PApplet {
      *             the infantry is drawn as a square.
      * @param camera The view.camera.
      */
-    public void infantryShape(PGraphics g, float x, float y, float size, float sizeSimplfied, Camera camera) {
+    public void infantryShape(PGraphics g, double x, double y, double size, double sizeSimplfied, Camera camera) {
         if (camera.getZoom() < UniversalConstants.ZOOM_RENDER_LEVEL_SIMPLIFY_TROOP_SHAPE) {
-            g.rect(x, y, sizeSimplfied, sizeSimplfied);
+            g.rect(
+                    (float) x,
+                    (float) y,
+                    (float) sizeSimplfied,
+                    (float) sizeSimplfied);
         } else {
-            g.ellipse(x, y, size, size);
+            g.ellipse(
+                    (float) x,
+                    (float) y,
+                    (float) size,
+                    (float) size);
         }
     }
 
     /**
      * Draw the shape of calvary
      */
-    public void cavalryShape(PGraphics g, float x, float y, float angle, float size, Camera camera) {
+    public void cavalryShape(PGraphics g, double x, double y, double angle, double size, Camera camera) {
         float[][] cavShape;
         if (!cavalryShapeMap.containsKey(size)) {
             if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_CAV_PERCEPTIVE) {
                 cavShape = new float[][] {
-                        {0.75f * size, 0},
-                        {-0.375f * size, 0.5f * size},
-                        {-0.625f * size, 0},
-                        {-0.375f * size, -0.5f * size},
+                        {(float) (0.75f * size), 0},
+                        {(float) (-0.375f * size), (float) (0.5f * size)},
+                        {(float) (-0.625f * size), 0},
+                        {(float) (-0.375f * size), (float) (-0.5f * size)},
                 };
             } else {
                 cavShape = new float[][] {
-                        {0.75f * size, 0},
-                        {-0.375f * size, 0.5f * size},
-                        {-0.375f * size, -0.5f * size},
+                        {(float) (0.75f * size), 0},
+                        {(float) (-0.375f * size), (float) (0.5f * size)},
+                        {(float) (-0.375f * size), (float) (-0.5f * size)},
                 };
             }
-            cavalryShapeMap.put((double)size, new DrawingVertices(cavShape));
+            cavalryShapeMap.put(size, new DrawingVertices(cavShape));
         }
-        float[][] vertices = cavalryShapeMap.get((double) size).getVertices();
+        float[][] vertices = cavalryShapeMap.get(size).getVertices();
         g.pushMatrix();
-        g.translate(x, y);
-        g.rotate(angle);
+        g.translate((float) x, (float) y);
+        g.rotate((float) angle);
         g.beginShape();
         for (int i = 0; i < vertices.length; i++) {
             g.vertex(vertices[i][0], vertices[i][1]);

@@ -1424,18 +1424,18 @@ public class MainSimulation extends PApplet {
                 // Calvary shadow
                 fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
                 shapeDrawer.cavalryShape(g,
-                        (float) (drawX + shadowXOffset * zoomAdjustment),
-                        (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (float) angle,
-                        (float) (currSizeCavalry[INDEX_SHADOW_SIZE] * zoomAdjustment),
+                        (drawX + shadowXOffset * zoomAdjustment),
+                        (drawY + shadowYOffset * zoomAdjustment),
+                         angle,
+                        (currSizeCavalry[INDEX_SHADOW_SIZE] * zoomAdjustment),
                         camera);
             }
 
             // Calvary shape
             fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
             shapeDrawer.cavalryShape(g,
-                    (float) drawX, (float) drawY,
-                    (float) angle, (float) (currSizeCavalry[0] * zoomAdjustment),
+                    drawX, drawY,
+                    angle, (currSizeCavalry[0] * zoomAdjustment),
                     camera);
 
             // Eye
@@ -1452,10 +1452,11 @@ public class MainSimulation extends PApplet {
                 fill(50, 50, 50);
                 double diaRightUnitX = MathUtils.quickCos((float) (angle + Math.PI / 2));
                 double diaRightUnitY = MathUtils.quickSin((float) (angle + Math.PI / 2));
-                shapeDrawer.sword(g, (float) (drawX + (diaRightUnitX * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        (float) (drawY + (diaRightUnitY * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        (float) angle,
-                        (float) (camera.getZoom() * zoomAdjustment),
+                shapeDrawer.sword(g,
+                        (drawX + (diaRightUnitX * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
+                        (drawY + (diaRightUnitY * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
+                        angle,
+                        (camera.getZoom() * zoomAdjustment),
                         settings);
             }
         } else if (single instanceof ArcherSingle) {
@@ -1463,15 +1464,15 @@ public class MainSimulation extends PApplet {
             if (drawingSettings.isDrawTroopShadow()) {
                 fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
                 shapeDrawer.infantryShape(g, (float) (drawX + shadowXOffset * zoomAdjustment), (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (float) (currSizeArcher[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (float) (currSizeArcher[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                        (currSizeArcher[INDEX_SHADOW_SIZE] * zoomAdjustment),
+                        (currSizeArcher[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
             }
 
             // Archer circle shape
             fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
             shapeDrawer.infantryShape(g, (float) drawX, (float) drawY,
-                    (float) (currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeArcher[INDEX_TROOP_SIMPLIED_SIZE]  * zoomAdjustment), camera);
+                    (currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment),
+                    (currSizeArcher[INDEX_TROOP_SIMPLIED_SIZE]  * zoomAdjustment), camera);
 
             // Eye
             fill(0, 0, 0, 128);
@@ -1545,19 +1546,19 @@ public class MainSimulation extends PApplet {
             if (drawingSettings.isDrawTroopShadow()) {
                 fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
                 shapeDrawer.infantryShape(g,
-                        (float) (drawX + shadowXOffset * zoomAdjustment),
-                        (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (float) (currSizePhalanx[INDEX_SHADOW_SIZE]  * zoomAdjustment),
-                        (float) (currSizePhalanx[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                        (drawX + shadowXOffset * zoomAdjustment),
+                        (drawY + shadowYOffset * zoomAdjustment),
+                        (currSizePhalanx[INDEX_SHADOW_SIZE]  * zoomAdjustment),
+                        (currSizePhalanx[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
             }
 
             // Phalanx circle shape
             fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizePhalanx[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment),
+                    drawX,
+                    drawY,
+                    (currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment),
+                    (currSizePhalanx[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment),
                     camera);
 
             // Eye
@@ -1588,19 +1589,19 @@ public class MainSimulation extends PApplet {
             if (drawingSettings.isDrawTroopShadow()) {
                 fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
                 shapeDrawer.infantryShape(g,
-                        (float) (drawX + shadowXOffset * zoomAdjustment),
-                        (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (float) (currSizeSwordman[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (float) (currSizeSwordman[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                        (drawX + shadowXOffset * zoomAdjustment),
+                        (drawY + shadowYOffset * zoomAdjustment),
+                        (currSizeSwordman[INDEX_SHADOW_SIZE] * zoomAdjustment),
+                        (currSizeSwordman[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
             }
 
             // Swordman circle shape
             fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    (currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment),
+                    (currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
 
             // Eye
             fill(0, 0, 0, 128);
@@ -1617,10 +1618,10 @@ public class MainSimulation extends PApplet {
                 double diaRightUnitX = MathUtils.quickCos((float)(angle + Math.PI / 2));
                 double diaRightUnitY = MathUtils.quickSin((float)(angle + Math.PI / 2));
                 shapeDrawer.sword(g,
-                        (float) (drawX + (diaRightUnitX * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        (float) (drawY + (diaRightUnitY * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        (float) angle,
-                        (float) (camera.getZoom() * zoomAdjustment),
+                        (drawX + (diaRightUnitX * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
+                        (drawY + (diaRightUnitY * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
+                        angle,
+                        (camera.getZoom() * zoomAdjustment),
                         settings);
             }
         } else {
@@ -1628,19 +1629,19 @@ public class MainSimulation extends PApplet {
             if (drawingSettings.isDrawTroopShadow()) {
                 fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
                 shapeDrawer.infantryShape(g,
-                        (float) (drawX + shadowXOffset * zoomAdjustment),
-                        (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (float) (currSizeSwordman[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (float) (currSizeSwordman[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                        (drawX + shadowXOffset * zoomAdjustment),
+                        (drawY + shadowYOffset * zoomAdjustment),
+                        (currSizeSwordman[INDEX_SHADOW_SIZE] * zoomAdjustment),
+                        (currSizeSwordman[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment), camera);
             }
 
             // Swordman circle shape
             fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    (currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment),
+                    (currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
 
             // Eye
             fill(0, 0, 0, 128);
@@ -1707,40 +1708,40 @@ public class MainSimulation extends PApplet {
 
         if (single instanceof CavalrySingle) {
             shapeDrawer.cavalryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) angle,
-                    (float) (currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    angle,
+                    currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment, camera);
         } else if (single instanceof PhalanxSingle) {
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizePhalanx[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment,
+                    currSizePhalanx[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
         } else if (single instanceof SwordmanSingle) {
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment,
+                    currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
         } else if (single instanceof ArcherSingle) {
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeArcher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment,
+                    currSizeArcher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
         } else if (single instanceof SlingerSingle) {
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeSlinger[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeSlinger[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    currSizeSlinger[INDEX_TROOP_SIZE] * zoomAdjustment,
+                    currSizeSlinger[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
         } else if (single instanceof SkirmisherSingle) {
             shapeDrawer.infantryShape(g,
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeSkirmisher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment), camera);
+                    drawX,
+                    drawY,
+                    currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment,
+                    currSizeSkirmisher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
         }
     }
 }
