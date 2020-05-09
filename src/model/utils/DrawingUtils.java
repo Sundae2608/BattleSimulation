@@ -1,7 +1,12 @@
 package model.utils;
 
+import model.terrain.Terrain;
 import processing.core.PImage;
 import model.enums.PoliticalFaction;
+import view.camera.Camera;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public final class DrawingUtils {
 
@@ -69,6 +74,49 @@ public final class DrawingUtils {
             }
         }
         return alpha;
+    }
+
+    private static void spread(int i, int j, Terrain terrain, Camera camera, HashSet<Integer> visited, int[] gridLimits) {
+        // Return if the position is already visited.
+        int key = i * terrain.getNumY() + j;
+        if (visited.contains(key)) return;
+
+        // Otherwise, mark the position as visited.
+        visited.add(key);
+        if (i < gridLimits[0]) gridLimits[0] = i;
+        if (i > gridLimits[1]) gridLimits[1] = i;
+        if (j < gridLimits[2]) gridLimits[2] = j;
+        if (j > gridLimits[3]) gridLimits[3] = j;
+
+        // Stop spreading if the new position is not visible from the camera
+        double x = i * terrain.getDiv() + terrain.getTopX();
+        double y = j * terrain.getDiv() + terrain.getTopY();
+        if (!camera.positionIsVisible(x, y, terrain.getHeightFromTileIndex(i, j))) return;
+
+        // Else, spread the point in 4 directions
+        spread(i + 1, j, terrain, camera, visited, gridLimits);
+        spread(i - 1, j, terrain, camera, visited, gridLimits);
+        spread(i, j - 1, terrain, camera, visited, gridLimits);
+        spread(i, j + 1, terrain, camera, visited, gridLimits);
+    }
+
+    /**
+     * Return the following four numbers in order:
+     * - Lowest visible row.
+     * - Highest visible row.
+     * - Lowest visible column.
+     * - Highest visible column.
+     */
+    public static int[] getVisibleGridBoundary(Terrain terrain, Camera camera) {
+        // The anchor point close to the camera is guaranteed to be visible on camera
+        int i = (int) ((camera.getX() - terrain.getTopX()) / terrain.getDiv());
+        int j = (int) ((camera.getY() - terrain.getTopY()) / terrain.getDiv());
+
+        // Use BFS to generate the list of all points
+        HashSet<Integer> integerSet = new HashSet<>();
+        int[] gridLimits = {i, i, j , j};
+        spread(i, j, terrain, camera, integerSet, gridLimits);
+        return gridLimits;
     }
 
 }

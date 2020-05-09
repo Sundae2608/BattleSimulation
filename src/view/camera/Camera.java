@@ -79,6 +79,28 @@ public class Camera {
         return new double[]{drawX, drawY};
     }
 
+    /**
+     * Return whether the input position is visible in the camera.
+     * @param inputX
+     * @param inputY
+     * @param inputZ
+     * @return
+     */
+    public boolean positionIsVisible(double inputX, double inputY, double inputZ) {
+        double[] drawingPos = getDrawingPosition(inputX, inputY, inputZ);
+        return drawingPos[0] > 0 && drawingPos[0] < height && drawingPos[1] > 0 && drawingPos[1] < width;
+    }
+
+    public boolean positionIsVisible(double inputX, double inputY) {
+        double[] drawingPos = getDrawingPosition(inputX, inputY, 0.0);
+        return drawingPos[0] > 0 && drawingPos[0] < height && drawingPos[1] > 0 && drawingPos[1] < width;
+    }
+
+    /**
+     * Get the zoom level at a specific height.
+     * @param inputZ
+     * @return
+     */
     public double getZoomAtHeight(double inputZ) {
         double cameraHeight = (UniversalConstants.MAXIMUM_ZOOM / zoom) * UniversalConstants.HEIGHT_AT_MAX_ZOOM - inputZ;
         double zAdjustedZoom = UniversalConstants.HEIGHT_AT_MAX_ZOOM / cameraHeight * UniversalConstants.MAXIMUM_ZOOM;
