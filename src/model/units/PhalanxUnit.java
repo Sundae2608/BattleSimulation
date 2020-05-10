@@ -4,6 +4,7 @@ import model.enums.PoliticalFaction;
 import model.singles.BaseSingle;
 import model.singles.PhalanxSingle;
 import model.singles.SingleStats;
+import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 
@@ -13,8 +14,8 @@ import java.util.HashSet;
 public class PhalanxUnit extends BaseUnit{
 
     public PhalanxUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction,
-                       UnitStats unitStats, SingleStats singleStats, int unitWidth) {
-        super(unitStats);
+                       UnitStats unitStats, SingleStats singleStats, int unitWidth, Terrain terrain) {
+        super(unitStats, terrain);
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;

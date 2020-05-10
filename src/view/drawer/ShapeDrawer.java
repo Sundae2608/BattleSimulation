@@ -155,8 +155,7 @@ public class ShapeDrawer extends PApplet {
     /**
      * Draw an arrow
      */
-    public void arrow(PGraphics g, float x, float y, float angle, float zoom, DrawingSettings settings) {
-        float arrowSize = (float) DrawingConstants.PLAN_ARROW_SIZE;
+    public void arrow(PGraphics g, float x, float y, float angle, float zoom, float arrowSize, DrawingSettings settings) {
         if (!arrowShapeMap.containsKey(zoom)) {
             float[][] arrowShape;
             if (zoom > UniversalConstants.ZOOM_RENDER_LEVEL_ARROW_DETAIL) {

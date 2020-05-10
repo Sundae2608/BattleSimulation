@@ -13,5 +13,6 @@ public class DrawingConstants {
     public final static double TERRAIN_HEIGHT_SCALE = 150;
 
     // Plan arrow size
-    public final static double PLAN_ARROW_SIZE = 100;
+    public final static double ARROW_SIZE = 30;
+    public final static double BALISTA_SIZE = 100;
 }

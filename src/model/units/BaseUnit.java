@@ -42,10 +42,14 @@ public class BaseUnit {
     // The average position of each unit
     double averageX;
     double averageY;
+    double averageZ;
 
     // Collision attributes
     protected double[][] boundingBox;
     protected boolean[][] inDanger;
+
+    //
+    Terrain terrain;
 
     // Patience until fighting
     // When two model.units contact each other, there will be a delay of certain time steps until the unit lose "patience" and
@@ -58,10 +62,11 @@ public class BaseUnit {
     /**
      * Initialize BaseUnit
      */
-    public BaseUnit(UnitStats inputUnitStats) {
+    public BaseUnit(UnitStats inputUnitStats, Terrain inputTerrain) {
         boundingBox = new double[6][2];
         inContactWithEnemy = false;
         unitStats = inputUnitStats;
+        terrain = inputTerrain;
     }
 
     /**
@@ -515,15 +520,18 @@ public class BaseUnit {
         // Update the state of each single and the average position
         double sumX = 0;
         double sumY = 0;
+        double sumZ = 0;
         int count = 0;
         for (BaseSingle single : aliveTroopsSet) {
             single.updateState();
             sumX += single.getX();
             sumY += single.getY();
+            sumZ += terrain.getHeightFromPos(single.getX(), single.getY());
             count += 1;
         }
         averageX = sumX / count;
         averageY = sumY / count;
+        averageZ = sumZ / count;
 
         // Update the bounding box.
         // Convert angle to unit vector
@@ -681,6 +689,7 @@ public class BaseUnit {
     public double getAverageY() {
         return averageY;
     }
+    public double getAverageZ() { return averageZ; }
 
     public PoliticalFaction getPoliticalFaction() {
         return politicalFaction;

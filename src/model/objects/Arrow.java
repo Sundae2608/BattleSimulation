@@ -1,6 +1,7 @@
 package model.objects;
 
 import model.utils.MathUtils;
+import model.utils.PhysicUtils;
 
 public class Arrow extends BaseObject {
 
@@ -11,6 +12,7 @@ public class Arrow extends BaseObject {
     // Positions
     // Precalculate array positions for all its life type
     protected double[][] pos;
+    protected double[] heightOverTime;
     protected boolean[] impact;
     protected int index;
 
@@ -34,6 +36,7 @@ public class Arrow extends BaseObject {
                 (int) Math.abs(Math.ceil((goalX - inputX) / dx)),
                 (int) Math.abs(Math.ceil((goalY - inputY) / dy))) + 1;
         int impactTime = (int) Math.max(lifeTime - impactLifeTime, 0);
+        heightOverTime = PhysicUtils.calculateProjectileArch(speed, lifeTime);
 
         // Precalculate all positions
         pos = new double[lifeTime][2];
@@ -55,6 +58,7 @@ public class Arrow extends BaseObject {
         impactful = impact[index];
         x = pos[0][0];
         y = pos[0][1];
+        height = heightOverTime[0];
     }
 
     /**
@@ -70,6 +74,7 @@ public class Arrow extends BaseObject {
         }
         x = pos[index][0];
         y = pos[index][1];
+        height = heightOverTime[index];
     }
 
     /**

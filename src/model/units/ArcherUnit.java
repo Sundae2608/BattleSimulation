@@ -5,6 +5,7 @@ import model.enums.PoliticalFaction;
 import model.singles.ArcherSingle;
 import model.singles.BaseSingle;
 import model.singles.SingleStats;
+import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 
@@ -24,8 +25,9 @@ public class ArcherUnit extends BaseUnit {
     private int iteratorIndex;
 
     public ArcherUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
-                      SingleStats singleStats, int unitWidth, ObjectHasher hasher) {
-        super(unitStats);
+                      SingleStats singleStats, int unitWidth, ObjectHasher hasher, Terrain terrain) {
+        super(unitStats, terrain);
+
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;
@@ -35,6 +37,9 @@ public class ArcherUnit extends BaseUnit {
         // Assign composition attribute
         width = unitWidth;
         depth = unitSize / width;
+
+        // Assign physical attributes
+        speed = unitStats.speed;
 
         // Assign anchor position and direction with given x, y, angle. This will be the position of two front soldiers.
         anchorX = x;

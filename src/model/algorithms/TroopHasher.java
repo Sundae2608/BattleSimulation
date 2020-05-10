@@ -1,10 +1,12 @@
 package model.algorithms;
 
+import model.objects.Balista;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.singles.CavalrySingle;
 import model.enums.SingleState;
 import model.units.ArcherUnit;
+import model.units.BalistaUnit;
 import model.units.BaseUnit;
 import model.utils.PhysicUtils;
 
@@ -79,8 +81,8 @@ public class TroopHasher {
         int yHash = (int)y / yDiv;
 
         ArrayList<BaseSingle> collideList = new ArrayList<>();
-        for (int i = -1; i < 2; i++) {
-            for (int j = -1; j < 2; j++) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
                 long key = pairHash(xHash + i, yHash + j);
                 if (!hashMap.containsKey(key)) continue;
                 for (BaseSingle otherObj : hashMap.get(key)) {
@@ -88,6 +90,33 @@ public class TroopHasher {
                 }
             }
         }
+        return collideList;
+    }
+
+    /**
+     * Return the list of potential collision candidates based on x, y positions and impactDistance
+     */
+    public ArrayList<BaseSingle> getCollisionObjects(double x, double y, double impactDistance) {
+        System.out.println("Get collision object");
+        int xHash = (int)x / xDiv;
+        int yHash = (int)y / yDiv;
+        int extensionX = (int) (impactDistance / xDiv) + 1;
+        int extensionY = (int) (impactDistance / yDiv) + 1;
+
+        System.out.println(extensionX);
+        System.out.println(extensionY);
+
+        ArrayList<BaseSingle> collideList = new ArrayList<>();
+        for (int i = -extensionX; i <= extensionX; i++) {
+            for (int j = -extensionY; j <= extensionY; j++) {
+                long key = pairHash(xHash + i, yHash + j);
+                if (!hashMap.containsKey(key)) continue;
+                for (BaseSingle otherObj : hashMap.get(key)) {
+                    collideList.add(otherObj);
+                }
+            }
+        }
+        System.out.println(collideList.size());
         return collideList;
     }
 
@@ -111,7 +140,7 @@ public class TroopHasher {
             if (troop.getState() == SingleState.DEAD) continue;
             else newTroops.add(troop);
 
-            // Don't hash non-active troops/
+            // Don't hash non-active troops
             // Experiment might allow the hashing of cavalry
             if (!activeUnits.contains(troop.getUnit()) &&
                     !(gameSettings.isCavalryCollision() && (troop instanceof CavalrySingle))) continue;
@@ -153,6 +182,10 @@ public class TroopHasher {
                 activeUnits.add(((ArcherUnit) unit).getUnitFiredAgainst());
             }
 
+            if (unit instanceof BalistaUnit && ((BalistaUnit) unit).getUnitFiredAgainst() != null) {
+                activeUnits.add(((BalistaUnit) unit).getUnitFiredAgainst());
+            }
+
             // Being in combat
             if (unit.isInContactWithEnemy() || unit.getUnitFoughtAgainst() != null) {
                 activeUnits.add(unit);
@@ -160,7 +193,7 @@ public class TroopHasher {
         }
 
         // Collide with an enemy bounding box.
-        // Stick with O(n ^ 2) check for now, but should change it to an O(n log n) check later.
+        // TODO: Stick with O(n ^ 2) check for now, but should change it to an O(n log n) check later.
         for (BaseUnit unit1 : units) {
             for (BaseUnit unit2 : units) {
                 // A unit can't collide with itself

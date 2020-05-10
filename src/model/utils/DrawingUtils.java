@@ -25,7 +25,11 @@ public final class DrawingUtils {
     public final static int[] COLOR_HEALTH = {183, 62, 50, 255};    // #B73E32
     public final static int[] COLOR_MORALE = {209, 170, 47, 255};  // #D1AA2F
 
-    public final static int[] COLOR_TERRAIN_DOT = {0, 0, 0, 128};  // #7E7260, 12%
+    public final static int[] COLOR_TERRAIN_DOT = {0, 0, 0, 128};  // #000000, 12%
+    public final static int[] COLOR_TERRAIN_LINE = {0, 0, 0};
+    public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 128;
+    public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 13;
+    public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
 
     // Drawing boundary
     public final static double DRAWING_OUTER_BOUNDARY = 20;
@@ -63,9 +67,6 @@ public final class DrawingUtils {
      */
     public static int[][] getAlphaArray(PImage image) {
         int[] pixels = image.pixels;
-        System.out.println(image.height);
-        System.out.println(image.width);
-        System.out.println();
         int[][] alpha = new int[image.height][image.width];
         for (int i = 0; i < image.height; i++) {
             for (int j = 0; j < image.width; j++) {
@@ -76,30 +77,6 @@ public final class DrawingUtils {
         return alpha;
     }
 
-    private static void spread(int i, int j, Terrain terrain, Camera camera, HashSet<Integer> visited, int[] gridLimits) {
-        // Return if the position is already visited.
-        int key = i * terrain.getNumY() + j;
-        if (visited.contains(key)) return;
-
-        // Otherwise, mark the position as visited.
-        visited.add(key);
-        if (i < gridLimits[0]) gridLimits[0] = i;
-        if (i > gridLimits[1]) gridLimits[1] = i;
-        if (j < gridLimits[2]) gridLimits[2] = j;
-        if (j > gridLimits[3]) gridLimits[3] = j;
-
-        // Stop spreading if the new position is not visible from the camera
-        double x = i * terrain.getDiv() + terrain.getTopX();
-        double y = j * terrain.getDiv() + terrain.getTopY();
-        if (!camera.positionIsVisible(x, y, terrain.getHeightFromTileIndex(i, j))) return;
-
-        // Else, spread the point in 4 directions
-        spread(i + 1, j, terrain, camera, visited, gridLimits);
-        spread(i - 1, j, terrain, camera, visited, gridLimits);
-        spread(i, j - 1, terrain, camera, visited, gridLimits);
-        spread(i, j + 1, terrain, camera, visited, gridLimits);
-    }
-
     /**
      * Return the following four numbers in order:
      * - Lowest visible row.
@@ -108,15 +85,30 @@ public final class DrawingUtils {
      * - Highest visible column.
      */
     public static int[] getVisibleGridBoundary(Terrain terrain, Camera camera) {
-        // The anchor point close to the camera is guaranteed to be visible on camera
-        int i = (int) ((camera.getX() - terrain.getTopX()) / terrain.getDiv());
-        int j = (int) ((camera.getY() - terrain.getTopY()) / terrain.getDiv());
+        // The top left, top right, bottom left, bottom right represents the furthest point still visible to the cam
+        double[] topLeft = camera.getActualPositionFromScreenPosition(0, 0, terrain.getMinZ());
+        double[] topRight = camera.getActualPositionFromScreenPosition(0, camera.getHeight(), terrain.getMinZ());
+        double[] botLeft = camera.getActualPositionFromScreenPosition(camera.getWidth(), 0, terrain.getMinZ());
+        double[] botRight = camera.getActualPositionFromScreenPosition(camera.getWidth(), camera.getHeight(), terrain.getMinZ());
 
         // Use BFS to generate the list of all points
-        HashSet<Integer> integerSet = new HashSet<>();
-        int[] gridLimits = {i, i, j , j};
-        spread(i, j, terrain, camera, integerSet, gridLimits);
-        return gridLimits;
+        double minX = Math.min(topLeft[0], Math.min(topRight[0], Math.min(botLeft[0], botRight[0])));
+        double maxX = Math.max(topLeft[0], Math.max(topRight[0], Math.max(botLeft[0], botRight[0])));
+        double minY = Math.min(topLeft[1], Math.min(topRight[1], Math.min(botLeft[1], botRight[1])));
+        double maxY = Math.max(topLeft[1], Math.max(topRight[1], Math.max(botLeft[1], botRight[1])));
+
+        // Calculate the 4 points
+        int minI = (int) ((minX - terrain.getTopX()) / terrain.getDiv());
+        int maxI = (int) ((maxX - terrain.getTopX()) / terrain.getDiv());
+        int minJ = (int) ((minY - terrain.getTopY()) / terrain.getDiv());
+        int maxJ = (int) ((maxY - terrain.getTopY()) / terrain.getDiv());
+
+        minI = Math.max(minI, 0);
+        maxI = Math.min(maxI, terrain.getNumX() - 1);
+        minJ = Math.max(minJ, 0);
+        maxJ = Math.min(maxJ, terrain.getNumY() - 1);
+
+        return new int[] {minI, maxI, minJ, maxJ};
     }
 
 }

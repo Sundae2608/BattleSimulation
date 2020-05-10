@@ -29,6 +29,36 @@
     width: 30
 },
 {
+    type: ARCHER
+    org: unit
+    x: -1000
+    y: 2070
+    angle: 0
+    size: 150
+    faction: ROME
+    width: 30
+},
+{
+    type: BALISTA
+    org: unit
+    x: -1500
+    y: 2070
+    angle: 0
+    size: 10
+    faction: ROME
+    width: 10
+},
+{
+    type: BALISTA
+    org: unit
+    x: 0
+    y: 4070
+    angle: 90
+    size: 10
+    faction: ROME
+    width: 10
+},
+{
     type: CAVALRY
     org: unit
     x: -500

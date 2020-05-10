@@ -20,14 +20,15 @@ public class UniversalConstants {
     public final static double OUT_OF_REACH_NUM_STEP = 5;
     public final static double OUT_OF_REACH_SPEED_MULTIPLIER = 1.35;
 
+    // Sliding tolerance
+    public final static double STOP_SLIDING_DIST = 0.1;
+    public final static double SLIDING_FRICTION = 0.7;
+
     // The size of the eye that indicates direction
     public final static double EYE_SIZE = 6.5;
 
     // Acceleration of speed.
     public final static double SPEED_ACC = 0.1;
-
-    // Standing distance
-    public final static double STANDING_DIST_RATIO = 1.4;
 
     // Non u-turn angle. (If the army is ordered to rotate less than this angle, it will not perform U-Turn)
     public static final double NON_UTURN_ANGLE = Math.PI * 3 / 5;

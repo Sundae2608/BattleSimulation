@@ -36,8 +36,8 @@ public class Camera {
     public Camera(double inputX, double inputY, double inputWidth, double inputHeight) {
         x = inputX;
         y = inputY;
-        height = inputHeight;
         width = inputWidth;
+        height = inputHeight;
         angle = 0;
         zoom = 1.0;
         resize = 1.0;
@@ -88,12 +88,12 @@ public class Camera {
      */
     public boolean positionIsVisible(double inputX, double inputY, double inputZ) {
         double[] drawingPos = getDrawingPosition(inputX, inputY, inputZ);
-        return drawingPos[0] > 0 && drawingPos[0] < height && drawingPos[1] > 0 && drawingPos[1] < width;
+        return drawingPos[0] > 0 && drawingPos[0] < width && drawingPos[1] > 0 && drawingPos[1] < height;
     }
 
     public boolean positionIsVisible(double inputX, double inputY) {
         double[] drawingPos = getDrawingPosition(inputX, inputY, 0.0);
-        return drawingPos[0] > 0 && drawingPos[0] < height && drawingPos[1] > 0 && drawingPos[1] < width;
+        return drawingPos[0] > 0 && drawingPos[0] < width && drawingPos[1] > 0 && drawingPos[1] < height;
     }
 
     /**
@@ -118,13 +118,23 @@ public class Camera {
      * Get click position
      * Transform from mouse click position to actual backend position
      */
-    public double[] getActualPositionFromScreenPosition(int screenX, int screenY) {
+    public double[] getActualPositionFromScreenPosition(double screenX, double screenY) {
         float cosAngle = MathUtils.quickCos((float) angle);
         float sinAngle = MathUtils.quickSin((float) angle);
         double posX = screenX - width / 2;
         double posY = screenY - height / 2;
         double posX2 = (posX * cosAngle - posY * sinAngle) / zoom + x;
         double posY2 = (posX * sinAngle + posY * cosAngle) / zoom + y;
+        return new double[] {posX2, posY2};
+    }
+
+    public double[] getActualPositionFromScreenPosition(double screenX, double screenY, double posZ) {
+        float cosAngle = MathUtils.quickCos((float) angle);
+        float sinAngle = MathUtils.quickSin((float) angle);
+        double posX = screenX - width / 2;
+        double posY = screenY - height / 2;
+        double posX2 = (posX * cosAngle - posY * sinAngle) / getZoomAtHeight(posZ) + x;
+        double posY2 = (posX * sinAngle + posY * cosAngle) / getZoomAtHeight(posZ) + y;
         return new double[] {posX2, posY2};
     }
 

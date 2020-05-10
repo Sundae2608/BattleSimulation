@@ -79,6 +79,9 @@ public class BaseSingle {
         // Can't have intention if already dead
         if (state == SingleState.DEAD) return;
 
+        // Can't change intention if still sliding
+        if (state == SingleState.SLIDING) return;
+
         // Calculate intended speed
         double variation = 1;
         if (speed != 0) variation = MathUtils.randDouble(0.95, 1.05);
@@ -154,6 +157,13 @@ public class BaseSingle {
         if (state != SingleState.DEAD) {
             x += xVel;
             y += yVel;
+            if (state == SingleState.SLIDING) {
+                xVel *= UniversalConstants.SLIDING_FRICTION;
+                yVel *= UniversalConstants.SLIDING_FRICTION;
+                if (MathUtils.quickRoot2((float) (xVel * xVel + yVel * yVel)) < UniversalConstants.STOP_SLIDING_DIST) {
+                    switchState(SingleState.MOVING);
+                }
+            }
         }
         damageSustain -= UniversalConstants.SUSTAIN_COOLDOWN;
         if (damageSustain < 0) damageSustain = 0;
@@ -192,6 +202,7 @@ public class BaseSingle {
         // Can only switch state if the unit is not DEAD or not UNCONTROLLABLE
         switch (state) {
             case IN_POSITION:
+            case SLIDING:
             case MOVING:
             case DECELERATING:
             case BRACING:

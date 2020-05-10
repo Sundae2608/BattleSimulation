@@ -4,6 +4,7 @@ import model.enums.PoliticalFaction;
 import model.singles.BaseSingle;
 import model.singles.SingleStats;
 import model.singles.SkirmisherSingle;
+import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 
@@ -17,8 +18,8 @@ public class SkirmisherUnit extends BaseUnit {
     double[] depthVariation;
 
     public SkirmisherUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction,
-                          UnitStats unitStats, SingleStats singleStats, int unitWidth) {
-        super(unitStats);
+                          UnitStats unitStats, SingleStats singleStats, int unitWidth, Terrain terrain) {
+        super(unitStats, terrain);
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;

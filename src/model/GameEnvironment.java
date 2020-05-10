@@ -49,7 +49,7 @@ public class GameEnvironment {
         }
         // Read battle configuration
         try {
-            units = ConfigUtils.readBattleConfigs(battleConfig, gameStats, unitModifier.getObjectHasher());
+            units = ConfigUtils.readBattleConfigs(battleConfig, gameStats, unitModifier.getObjectHasher(), terrain);
         } catch (IOException e){
             e.printStackTrace();
         }

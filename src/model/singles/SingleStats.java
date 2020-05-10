@@ -31,6 +31,7 @@ public class SingleStats {
     public double sustainRecovery;
 
     // Archer stats
+    // TODO: All archer-specific variables should have an archer prefix.
     public int reloadDelay;
     public int boredDelay;
     public double arrowSpeed;
@@ -40,4 +41,11 @@ public class SingleStats {
     public double firingRange;
     public double squaredFiringRange;
     public double arrowSize;
+
+    // Balista stats
+    public double balistaDamage;
+    public double balistaSpeed;
+    public double explosionDamage;
+    public double explosionRange;
+    public double explosionPush;
 }

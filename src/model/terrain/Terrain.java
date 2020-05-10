@@ -4,6 +4,8 @@ import processing.core.PApplet;
 public class Terrain {
 
     public double PERLIN_SCALE = 0.02;
+    public double PERLIN_DETAIL_SCALE = 0.2;
+    public double PERLIN_DETAIL_HEIGHT_RATIO = 0.05;
 
     double topX;
     double topY;
@@ -31,7 +33,10 @@ public class Terrain {
         for (int i = 0; i < numX; i++) {
             for (int j = 0; j < numY; j++) {
                 heightField[i][j] = PerlinNoise.noise(i * PERLIN_SCALE, j * PERLIN_SCALE, 0) *
-                        (maxHeight - minHeight) + minHeight;
+                        (maxHeight - minHeight) + minHeight +
+                        PERLIN_DETAIL_HEIGHT_RATIO * PerlinNoise.noise(i * PERLIN_DETAIL_SCALE, j * PERLIN_DETAIL_SCALE, 0) *
+                                (maxHeight - minHeight)
+                ;
             }
         }
         for (int i = 0; i < numX - 1; i++) {
@@ -68,6 +73,10 @@ public class Terrain {
         return heightField[i][j];
     }
 
+    public double[] getPosFromTileIndex(int i, int j) {
+        return new double[] {topX + i * div, topY + j * div};
+    }
+
     public double getMinZ() {
         return minZ;
     }
@@ -77,16 +86,13 @@ public class Terrain {
     }
 
     public double getHeightFromPos(double x, double y) {
-        // TODO: Make it a bit more specific with interpolation.
-        //       If the object is not in the exact height of the terrain, then the object should be somewhere in the
-        //       middle of the position.
         int i = (int) ((x - topX) / div);
         int j = (int) ((y - topY) / div);
         double offsetPortionX = ((x - topX) - i * div) / div;
         double offsetPortionY = ((y - topY) - j * div) / div;
         double weightTL = (1 - offsetPortionX) * (1 - offsetPortionY);
-        double weightTR = offsetPortionX * (1 - offsetPortionY);
-        double weightBL = (1 - offsetPortionX) * offsetPortionY;
+        double weightTR = (1 - offsetPortionX) * offsetPortionY;
+        double weightBL = offsetPortionX * (1 - offsetPortionY);
         double weightBR = offsetPortionX * offsetPortionY;
         if ((i >= 0) && (i < numX - 1) && (j >= 0) && (j < numY - 1)) {
             double topLeft = heightField[i][j];

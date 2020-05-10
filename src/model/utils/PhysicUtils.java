@@ -84,4 +84,23 @@ public final class PhysicUtils {
         }
         return true;
     }
+
+    /**
+     * Give the speed and lifeTime of the projectile, and the speed of the projectile.
+     * The current height function is (-x^2 / 4 + 1) * 0.05, ranging from -2 to +2.
+     * @param speed
+     * @param lifeTime
+     * @return An array list of number showing the height of the projectiles overtime.
+     */
+    public static double[] calculateProjectileArch(double speed, int lifeTime) {
+        double distance = speed * lifeTime;
+        double maxHeight = distance / 4 * 0.20;
+        double[] arr = new double[lifeTime];
+        for (int i = 0; i < lifeTime; i++) {
+            double x = 4.0 * i / lifeTime - 2;
+            double height = (-x * x / 4.0 + 1) * maxHeight;
+            arr[i] = height;
+        }
+        return arr;
+    }
 }

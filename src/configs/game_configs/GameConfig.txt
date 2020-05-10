@@ -67,6 +67,49 @@
 {
     // Type and faction information
     faction: ROME
+    unit_type: BALISTA
+
+    // Single stats
+    radius: 70
+    speed: 4
+    hp: 100
+    deceleration: 0.1
+    acceleration: 0.1
+    rotation_speed: 0.2
+
+    standing_dist: 5
+    non_rotation_dist: 17
+
+    attack: 3
+    combat_range: 15
+    combat_delay: 15
+    sustain_recovery: 0.5
+
+    // Unit stats
+    unit_spacing: 120
+    unit_speed: 4
+    unit_rotation_speed: 0.02
+    unit_patience: 50
+
+    // Projectile stats
+    width_variation: 18
+    depth_variation: 10
+    reload_delay: 40
+    firing_range: 1800
+    bored_delay: 50
+    angle_variation: 0.03
+    impact_lifetime: 14
+
+    // Balista stats
+    balista_speed: 60
+    balista_damage: 200
+    explosion_damage: 50
+    explosion_range: 70
+    explosion_push: 40
+},
+{
+    // Type and faction information
+    faction: ROME
     unit_type: CAVALRY
 
     // Single stats

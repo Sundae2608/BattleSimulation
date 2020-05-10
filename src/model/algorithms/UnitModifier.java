@@ -5,6 +5,7 @@ import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
 import model.objects.Arrow;
+import model.objects.Balista;
 import model.objects.BaseObject;
 import model.settings.GameSettings;
 import model.singles.*;
@@ -126,6 +127,65 @@ public class UnitModifier {
                         // The soldier will absorb the arrow and carry it for a while
                         closestCandidate.absorbObject(obj);
                     } else {
+                        // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
+                        deadContainer.add(closestCandidate);
+                        closestCandidate.getUnit().deadMorph(closestCandidate);
+                    }
+                }
+            } else if (obj instanceof Balista) {
+                boolean balistaHit = closestDistance < MathUtils.square(closestCandidate.getSize()) / 4;
+
+                if (balistaHit) {
+                    // Inflict explosion damage damage
+                    ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
+                            obj.getX(), obj.getY(),
+                            ((Balista) obj).getExplosionRange());
+                    double squareExplosionRange =
+                            ((Balista) obj).getExplosionRange() * ((Balista) obj).getExplosionRange();
+                    for (BaseSingle candidate : explosionCandidates) {
+                        double dx = candidate.getX() - obj.getX();
+                        double dy = candidate.getY() - obj.getY();
+                        double squareDistance = dx * dx + dy * dy;
+                        if (squareDistance < squareExplosionRange) {
+                            // Apply damage and send the objects flying
+                            double angle = MathUtils.atan2(dy, dx);
+                            candidate.setxVel(candidate.getxVel() +
+                                    MathUtils.quickCos((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE);
+                            candidate.setyVel(candidate.getyVel() +
+                                    MathUtils.quickSin((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE);
+                            candidate.switchState(SingleState.SLIDING);
+
+                            candidate.receiveDamage(((Balista) obj).getExplosionDamage());
+                            if (candidate.getState() == SingleState.DEAD) {
+                                // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
+                                deadContainer.add(candidate);
+                                candidate.getUnit().deadMorph(candidate);
+                            }
+                        }
+                    }
+
+                    // If distance to object is smaller than the diameter, count as an arrow hit
+                    // Inflict some damage to the candidate
+                    closestCandidate.receiveDamage(((Balista) obj).getDamage());
+                    // Once hit, the arrow becomes dead
+                    obj.setAlive(false);
+                    if (closestCandidate.getState() != SingleState.DEAD) {
+                        // Cause extra delay if unit still alive
+                        // TODO: Internalize this to the soldier, count it as "injury delay"
+                        // closestCandidate.setCombatDelay(closestCandidate.getCombatDelay() + 5);
+
+                        // Apply arrow force
+                        double angle = obj.getAngle();
+                        // TODO: Replace this arrow with the push distance from the stat read from the config
+                        double dx = MathUtils.quickCos((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE;
+                        double dy = MathUtils.quickSin((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE;
+                        closestCandidate.setxVel(closestCandidate.getxVel() + dx);
+                        closestCandidate.setyVel(closestCandidate.getyVel() + dy);
+
+                        // The soldier will absorb the arrow and carry it for a while
+                        closestCandidate.absorbObject(obj);
+                    } else {
+                        System.out.println("the one who got hit gets killed");
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                         deadContainer.add(closestCandidate);
                         closestCandidate.getUnit().deadMorph(closestCandidate);

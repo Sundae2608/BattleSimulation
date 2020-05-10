@@ -5,6 +5,7 @@ public class BaseObject {
     // Positional attributes
     protected double x;
     protected double y;
+    protected double height;
     protected double angle;
     protected boolean alive;
     protected boolean impactful;
@@ -42,6 +43,14 @@ public class BaseObject {
     }
     public void setImpactful(boolean impactful) {
         this.impactful = impactful;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
     }
 
     public void update() { }

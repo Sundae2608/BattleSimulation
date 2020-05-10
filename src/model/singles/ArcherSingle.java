@@ -4,7 +4,9 @@ import model.algorithms.ObjectHasher;
 import model.constants.UniversalConstants;
 import model.enums.SingleState;
 import model.enums.PoliticalFaction;
+import model.enums.UnitState;
 import model.objects.Arrow;
+import model.terrain.Terrain;
 import model.units.ArcherUnit;
 import model.units.BaseUnit;
 import model.utils.MathUtils;
@@ -63,7 +65,14 @@ public class ArcherSingle extends BaseSingle {
         boredDelay = singleStats.boredDelay;
     }
 
-    public void updateIntention() {
+    @Override
+    public void updateIntention(Terrain terrain) {
+
+        // Can't have intention if already dead
+        if (state == SingleState.DEAD) return;
+
+        // Can't change intention if still sliding
+        if (state == SingleState.SLIDING) return;
 
         // Calculate intended speed
         double variation = 1;
@@ -71,6 +80,16 @@ public class ArcherSingle extends BaseSingle {
         if (speed < speedGoal) speed = Math.min(speed + UniversalConstants.SPEED_ACC, speedGoal);
         else if (speed > speedGoal) speed = Math.max(speed - UniversalConstants.SPEED_ACC, speedGoal);
         speed *= variation;
+
+        // Apply speed modifier by terrain
+        double moveSpeedX = Math.cos(angle) * speed;
+        double moveSpeedY = Math.sin(angle) * speed;
+        double[] deltaVel = terrain.getDeltaVelFromPos(x, y);
+        double speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
+        speedModifier = MathUtils.capMinMax(speedModifier,
+                UniversalConstants.MINIMUM_TERRAIN_EFFECT,
+                UniversalConstants.MAXIMUM_TERRAIN_EFFECT);;
+        speed *= (1 + speedModifier);
 
         // Calculate intended step
         xVel = MathUtils.quickCos((float) angle) * speed;
@@ -84,22 +103,18 @@ public class ArcherSingle extends BaseSingle {
                 angle = MathUtils.atan2(yGoal - y, xGoal - x);
 
                 // Out of position if it takes more than 3 steps to reach
-                if (distanceToGoal > 20 * singleStats.speed) {
-                    speedGoal = 1.5 * singleStats.speed;
+                if (distanceToGoal > singleStats.outOfReachDist) {
+                    speedGoal = singleStats.outOfReachSpeed;
                 } else if ((distanceToGoal > singleStats.standingDist) && (distanceToGoal < 10 * singleStats.speed)) {
                     speedGoal = singleStats.speed;
                 } else if (distanceToGoal < singleStats.standingDist) {
-                    state = SingleState.DECELERATING;
-                    speedGoal = 0;
-                }
-                break;
-            case DECELERATING:
-                if (distanceToGoal < singleStats.standingDist) {
                     state = SingleState.IN_POSITION;
-                    boredDelay = singleStats.boredDelay;
                 }
+                boredDelay = singleStats.boredDelay;
+                break;
             case IN_POSITION:
-                speed = 0;
+                speed = unit.isTurning() ? 0 : unit.getState() == UnitState.MOVING ? singleStats.speed : 0;
+                speedGoal = unit.getState() == UnitState.MOVING ? singleStats.speed : 0;
                 if (distanceToGoal > singleStats.standingDist) {
                     state = SingleState.MOVING;
                     speedGoal = singleStats.speed;
@@ -114,7 +129,7 @@ public class ArcherSingle extends BaseSingle {
                 break;
             case FIRE_AT_WILL:
                 speed = 0;
-                if (distanceToGoal > UniversalConstants.STANDING_DIST_RATIO) {
+                if (distanceToGoal > singleStats.standingDist) {
                     state = SingleState.MOVING;
                     speedGoal = singleStats.speed;
                 }
