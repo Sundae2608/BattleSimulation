@@ -121,7 +121,7 @@ public class MainSimulation extends PApplet {
     // -----------
 
     // UI Icons
-    PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher;
+    PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista;
     PImage iconCavUnsel, iconSpearUnsel, iconSwordUnsel, iconArcherUnsel,
             iconSlingerUnsel, iconHorseArcherUnsel, iconSkirmisherUnsel;
     PImage banner, bannerShadow, bannerSelected, bannerTexture;
@@ -222,7 +222,7 @@ public class MainSimulation extends PApplet {
         // --------------
         audioSettings = new AudioSettings();
         audioSettings.setBackgroundMusic(false);
-        audioSettings.setSoundEffect(false);
+        audioSettings.setSoundEffect(true);
 
         // ------------------------
         // Post processing model.settings
@@ -245,6 +245,7 @@ public class MainSimulation extends PApplet {
         iconHorseArcher = loadImage("imgs/BannerArt/iconHorseArcher.png");
         iconSlinger = loadImage("imgs/BannerArt/iconSlinger.png");
         iconSkirmisher = loadImage("imgs/BannerArt/iconSkirmisher.png");
+        iconBallista = loadImage("imgs/BannerArt/iconBallista.png");
 
         iconSwordUnsel = loadImage("imgs/SelectedIcons/SwordUnsel.png");
         iconSpearUnsel = loadImage("imgs/SelectedIcons/SpearUnsel.png");
@@ -580,23 +581,27 @@ public class MainSimulation extends PApplet {
                 if (unit instanceof CavalryUnit) {
                     image(iconCav,
                             (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 90, 60, 60);
+                            (float) drawingPos[1] - 92, 60, 60);
                 } else if (unit instanceof PhalanxUnit) {
                     image(iconSpear,
                             (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 90, 60, 60);
+                            (float) drawingPos[1] - 92, 60, 60);
                 } else if (unit instanceof SwordmenUnit) {
                     image(iconSword,
                             (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 90, 60, 60);
+                            (float) drawingPos[1] - 92, 60, 60);
                 } else if (unit instanceof ArcherUnit) {
                     image(iconArcher,
                             (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 90, 60, 60);
+                            (float) drawingPos[1] - 92, 60, 60);
                 } else if (unit instanceof SkirmisherUnit) {
                     image(iconSkirmisher,
                             (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 90, 60, 60);
+                            (float) drawingPos[1] - 92, 60, 60);
+                } else if (unit instanceof BalistaUnit) {
+                    image(iconBallista,
+                            (float) drawingPos[0] - 30,
+                            (float) drawingPos[1] - 92, 60, 60);
                 }
             }
         }

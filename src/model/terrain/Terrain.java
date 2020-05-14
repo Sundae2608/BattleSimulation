@@ -3,8 +3,8 @@ import processing.core.PApplet;
 
 public class Terrain {
 
-    public double PERLIN_SCALE = 0.02;
-    public double PERLIN_DETAIL_SCALE = 0.2;
+    public double PERLIN_SCALE = 0.08;
+    public double PERLIN_DETAIL_SCALE = 0.8;
     public double PERLIN_DETAIL_HEIGHT_RATIO = 0.05;
 
     double topX;

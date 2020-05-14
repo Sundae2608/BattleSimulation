@@ -11,6 +11,7 @@ public class Balista extends BaseObject {
     double explosionDamage;
     double explosionRange;
     double explosionPush;
+    double pushForce;
 
     // Positions
     // Precalculate array positions for all its life type
@@ -24,12 +25,14 @@ public class Balista extends BaseObject {
      */
     public Balista(double inputX, double inputY,
                    double goalX, double goalY, double speed,
-                   double inputDamage, double inputExplosionDamage, double inputExplosionRange, double inputExplosionPush,
+                   double inputDamage, double inputExplosionDamage, double inputExplosionRange,
+                   double inputExplosionPush, double inputPushForce,
                    double angleVariation, double impactLifeTime) {
         damage = inputDamage;
         explosionRange = inputExplosionRange;
         explosionPush = inputExplosionPush;
         explosionDamage = inputExplosionDamage;
+        pushForce = inputPushForce;
         angle = MathUtils.atan2(goalY - inputY, goalX - inputX);
         index = 0;
         if (angleVariation != 0) {
@@ -124,5 +127,7 @@ public class Balista extends BaseObject {
         return explosionPush;
     }
 
-
+    public double getPushForce() {
+        return pushForce;
+    }
 }

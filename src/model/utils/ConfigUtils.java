@@ -141,13 +141,14 @@ public final class ConfigUtils {
                 case ARCHER:
                     singleStats.reloadDelay = Integer.parseInt(d.get("reload_delay"));
                     singleStats.boredDelay = Integer.parseInt(d.get("bored_delay"));
-                    singleStats.arrowSpeed = Double.parseDouble(d.get("arrow_speed"));
                     singleStats.angleVariation = Double.parseDouble(d.get("angle_variation"));
                     singleStats.firingRange = Double.parseDouble(d.get("firing_range"));
                     singleStats.squaredFiringRange = singleStats.firingRange * singleStats.firingRange;
                     singleStats.impactLifetime = Integer.parseInt(d.get("impact_lifetime"));
+                    singleStats.arrowSpeed = Double.parseDouble(d.get("arrow_speed"));
                     singleStats.arrowSize = Double.parseDouble(d.get("arrow_size"));
                     singleStats.arrowDamage = Double.parseDouble(d.get("arrow_damage"));
+                    singleStats.arrowPushDist = Double.parseDouble(d.get("arrow_push_dist"));
                     break;
                 case BALISTA:
                     singleStats.reloadDelay = Integer.parseInt(d.get("reload_delay"));
@@ -156,11 +157,12 @@ public final class ConfigUtils {
                     singleStats.firingRange = Double.parseDouble(d.get("firing_range"));
                     singleStats.squaredFiringRange = singleStats.firingRange * singleStats.firingRange;
                     singleStats.impactLifetime = Integer.parseInt(d.get("impact_lifetime"));
-                    singleStats.balistaSpeed = Double.parseDouble(d.get("balista_speed"));
-                    singleStats.balistaDamage = Double.parseDouble(d.get("balista_damage"));
-                    singleStats.explosionDamage = Double.parseDouble(d.get("explosion_damage"));
-                    singleStats.explosionPush = Double.parseDouble(d.get("explosion_push"));
-                    singleStats.explosionRange = Double.parseDouble(d.get("explosion_range"));
+                    singleStats.ballistaSpeed = Double.parseDouble(d.get("ballista_speed"));
+                    singleStats.ballistaDamage = Double.parseDouble(d.get("ballista_damage"));
+                    singleStats.ballistaExplosionDamage = Double.parseDouble(d.get("ballista_explosion_damage"));
+                    singleStats.ballistaExplosionPush = Double.parseDouble(d.get("ballista_explosion_push"));
+                    singleStats.ballistaExplosionRange = Double.parseDouble(d.get("ballista_explosion_range"));
+                    singleStats.ballistaPushForce = Double.parseDouble(d.get("ballista_push_force"));
                     break;
                 case CAVALRY:
                 case HORSE_ARCHER:

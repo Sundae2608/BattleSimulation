@@ -27,8 +27,8 @@ public final class DrawingUtils {
 
     public final static int[] COLOR_TERRAIN_DOT = {0, 0, 0, 128};  // #000000, 12%
     public final static int[] COLOR_TERRAIN_LINE = {0, 0, 0};
-    public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 128;
-    public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 13;
+    public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 160;
+    public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 50;
     public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
 
     // Drawing boundary

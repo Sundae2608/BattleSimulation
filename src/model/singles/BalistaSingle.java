@@ -146,11 +146,12 @@ public class BalistaSingle extends BaseSingle {
 
                         // Shoot an arrow into the world
                         hasher.addObject(new Balista(x, y, shootingTarget.getX(), shootingTarget.getY(),
-                                singleStats.balistaSpeed,
-                                singleStats.balistaDamage,
-                                singleStats.explosionDamage,
-                                singleStats.explosionRange,
-                                singleStats.explosionPush,
+                                singleStats.ballistaSpeed,
+                                singleStats.ballistaDamage,
+                                singleStats.ballistaExplosionDamage,
+                                singleStats.ballistaExplosionRange,
+                                singleStats.ballistaExplosionPush,
+                                singleStats.ballistaPushForce,
                                 singleStats.angleVariation,
                                 singleStats.impactLifetime));
 

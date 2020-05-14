@@ -1,5 +1,8 @@
 package model.terrain;
 
+/**
+ * TODO(sonpham): Write credit to the author of the algorithm.
+ */
 public final class PerlinNoise {
     static final int p[] = new int[512];
     static final int PERMUTATION[] = { 151,160,137,91,90,15,

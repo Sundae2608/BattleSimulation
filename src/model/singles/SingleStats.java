@@ -34,18 +34,20 @@ public class SingleStats {
     // TODO: All archer-specific variables should have an archer prefix.
     public int reloadDelay;
     public int boredDelay;
-    public double arrowSpeed;
     public double angleVariation;
-    public double arrowDamage;
     public int impactLifetime;
     public double firingRange;
     public double squaredFiringRange;
     public double arrowSize;
+    public double arrowDamage;
+    public double arrowSpeed;
+    public double arrowPushDist;
 
     // Balista stats
-    public double balistaDamage;
-    public double balistaSpeed;
-    public double explosionDamage;
-    public double explosionRange;
-    public double explosionPush;
+    public double ballistaDamage;
+    public double ballistaSpeed;
+    public double ballistaPushForce;
+    public double ballistaExplosionDamage;
+    public double ballistaExplosionRange;
+    public double ballistaExplosionPush;
 }

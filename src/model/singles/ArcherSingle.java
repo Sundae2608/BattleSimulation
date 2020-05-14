@@ -148,6 +148,7 @@ public class ArcherSingle extends BaseSingle {
                         hasher.addObject(new Arrow(x, y, shootingTarget.getX(), shootingTarget.getY(),
                                 singleStats.arrowSpeed,
                                 singleStats.arrowDamage,
+                                singleStats.arrowPushDist,
                                 singleStats.angleVariation,
                                 singleStats.impactLifetime));
 

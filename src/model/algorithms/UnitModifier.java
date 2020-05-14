@@ -119,8 +119,8 @@ public class UnitModifier {
 
                         // Apply arrow force
                         double angle = obj.getAngle();
-                        double dx = MathUtils.quickCos((float) angle) * ObjectConstants.ARROW_PUSH_DIST;
-                        double dy = MathUtils.quickSin((float) angle) * ObjectConstants.ARROW_PUSH_DIST;
+                        double dx = MathUtils.quickCos((float) angle) * ((Arrow) obj).getPushDist();
+                        double dy = MathUtils.quickSin((float) angle) * ((Arrow) obj).getPushDist();
                         closestCandidate.setxVel(closestCandidate.getxVel() + dx);
                         closestCandidate.setyVel(closestCandidate.getyVel() + dy);
 
@@ -150,9 +150,9 @@ public class UnitModifier {
                             // Apply damage and send the objects flying
                             double angle = MathUtils.atan2(dy, dx);
                             candidate.setxVel(candidate.getxVel() +
-                                    MathUtils.quickCos((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE);
+                                    MathUtils.quickCos((float) angle) * ((Balista) obj).getPushForce());
                             candidate.setyVel(candidate.getyVel() +
-                                    MathUtils.quickSin((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE);
+                                    MathUtils.quickSin((float) angle) * ((Balista) obj).getPushForce());
                             candidate.switchState(SingleState.SLIDING);
 
                             candidate.receiveDamage(((Balista) obj).getExplosionDamage());
@@ -170,15 +170,10 @@ public class UnitModifier {
                     // Once hit, the arrow becomes dead
                     obj.setAlive(false);
                     if (closestCandidate.getState() != SingleState.DEAD) {
-                        // Cause extra delay if unit still alive
-                        // TODO: Internalize this to the soldier, count it as "injury delay"
-                        // closestCandidate.setCombatDelay(closestCandidate.getCombatDelay() + 5);
-
                         // Apply arrow force
                         double angle = obj.getAngle();
-                        // TODO: Replace this arrow with the push distance from the stat read from the config
-                        double dx = MathUtils.quickCos((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE;
-                        double dy = MathUtils.quickSin((float) angle) * ObjectConstants.BALISTA_PUSH_FORCE;
+                        double dx = MathUtils.quickCos((float) angle) * ((Balista) obj).getPushForce();
+                        double dy = MathUtils.quickSin((float) angle) * ((Balista) obj).getPushForce();
                         closestCandidate.setxVel(closestCandidate.getxVel() + dx);
                         closestCandidate.setyVel(closestCandidate.getyVel() + dy);
 

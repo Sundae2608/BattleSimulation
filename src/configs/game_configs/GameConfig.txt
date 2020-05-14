@@ -58,11 +58,12 @@
     reload_delay: 40
     firing_range: 1800
     bored_delay: 50
-    arrow_speed: 30
     angle_variation: 0.03
     impact_lifetime: 14
+    arrow_speed: 30
     arrow_size: 30
     arrow_damage: 10
+    arrow_push_dist: 5
 },
 {
     // Type and faction information
@@ -71,7 +72,7 @@
 
     // Single stats
     radius: 70
-    speed: 4
+    speed: 0.2
     hp: 100
     deceleration: 0.1
     acceleration: 0.1
@@ -101,11 +102,12 @@
     impact_lifetime: 14
 
     // Balista stats
-    balista_speed: 60
-    balista_damage: 200
-    explosion_damage: 50
-    explosion_range: 70
-    explosion_push: 40
+    ballista_speed: 60
+    ballista_damage: 200
+    ballista_explosion_damage: 50
+    ballista_explosion_range: 70
+    ballista_explosion_push: 40
+    ballista_push_force: 5
 },
 {
     // Type and faction information
@@ -288,6 +290,7 @@
     impact_lifetime: 14
     arrow_size: 30
     arrow_damage: 10
+    arrow_push_dist: 5
 },
 {
     // Type and faction information

@@ -8,6 +8,7 @@ public class Arrow extends BaseObject {
     // Arrow speed
     protected double speed;
     protected double damage;
+    protected double pushDist;
 
     // Positions
     // Precalculate array positions for all its life type
@@ -21,8 +22,9 @@ public class Arrow extends BaseObject {
      */
     public Arrow(double inputX, double inputY,
                  double goalX, double goalY, double speed,
-                 double inputDamage, double angleVariation, double impactLifeTime) {
+                 double inputDamage, double inputPushDist, double angleVariation, double impactLifeTime) {
         damage = inputDamage;
+        pushDist = inputPushDist;
         angle = MathUtils.atan2(goalY - inputY, goalX - inputX);
         index = 0;
         if (angleVariation != 0) {
@@ -103,5 +105,9 @@ public class Arrow extends BaseObject {
 
     public double getDamage() {
         return damage;
+    }
+
+    public double getPushDist() {
+        return pushDist;
     }
 }
