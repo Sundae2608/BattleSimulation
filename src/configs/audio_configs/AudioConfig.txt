@@ -1,0 +1,24 @@
+{
+    audio_type: LEFT_CLICK
+    file: audios/click/click2.mp3
+    broadcast_type: BURST
+},
+{
+    audio_type: RIGHT_CLICK
+    file: audios/click/click1.mp3
+    broadcast_type: BURST
+},
+{
+    audio_type: COMBAT
+    file: audios/unit_sound/medieval_combat.mp3
+    broadcast_type: AMBIENT
+},
+{
+    audio_type: MARCHING
+    file: audios/unit_sound/footrunning.mp3
+    broadcast_type: AMBIENT
+},
+{
+    audio_type: CAVALRY_RUNNING
+    file: audios/unit_sound/cavalrymarch.mp3
+},
