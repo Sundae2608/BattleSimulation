@@ -1,13 +1,17 @@
 package view.camera;
 
 import model.constants.UniversalConstants;
+import model.events.Event;
+import model.events.EventBroadcaster;
+import model.events.EventListener;
+import model.events.EventType;
 import model.singles.BaseSingle;
 import model.utils.MathUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Camera {
+public class Camera extends EventListener {
 
     // Boundary extension
     // Extend the boundary by a small amount is a good practice to ensure no "sudden appearance" at the boundary
@@ -16,6 +20,9 @@ public class Camera {
     // Position
     private double x;
     private double y;
+    private double xVariation;
+    private double yVariation;
+    private int zoomFrame;
 
     // Zoom (1.0 = original scale)
     private double zoom;
@@ -33,15 +40,39 @@ public class Camera {
     /**
      * Initialize view.camera
      */
-    public Camera(double inputX, double inputY, double inputWidth, double inputHeight) {
+    public Camera(double inputX, double inputY, double inputWidth, double inputHeight, EventBroadcaster inputBroadcaster) {
+        super(inputBroadcaster);
         x = inputX;
         y = inputY;
+
         width = inputWidth;
         height = inputHeight;
         angle = 0;
         zoom = 1.0;
         resize = 1.0;
         troops = new ArrayList<>();
+    }
+
+    @Override
+    protected void listenEvent(Event e) {
+        if (e.getEventType() == EventType.CAVALRY_CHARGE) {
+            zoomFrame = CameraConstants.NUM_FRAME_OF_ZOOM;
+        }
+    }
+
+    /**
+     * Update the stats of the camera (mainly for overtime effect such as charge)
+     */
+    public void update() {
+        if (zoomFrame > 0) {
+            zoomFrame -= 1;
+        }
+        xVariation = 1.0 * zoomFrame /
+                CameraConstants.NUM_FRAME_OF_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
+        xVariation = MathUtils.randDouble(-xVariation, xVariation);
+        yVariation = 1.0 * zoomFrame /
+                CameraConstants.NUM_FRAME_OF_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
+        yVariation = MathUtils.randDouble(-yVariation, yVariation);
     }
 
     /**
@@ -72,8 +103,8 @@ public class Camera {
         float cosAngle = MathUtils.quickCos((float) angle);
         float sinAngle = MathUtils.quickSin((float) angle);
         double zAdjustedZoom =getZoomAtHeight(inputZ);
-        double drawX90 = ((inputX - x)) * zAdjustedZoom;
-        double drawY90 = ((inputY - y)) * zAdjustedZoom;
+        double drawX90 = ((inputX - this.getX())) * zAdjustedZoom;
+        double drawY90 = ((inputY - this.getY())) * zAdjustedZoom;
         double drawX = drawX90 * cosAngle + drawY90 * sinAngle + width / 2;
         double drawY = -drawX90 * sinAngle + drawY90 * cosAngle + height / 2;
         return new double[]{drawX, drawY};
@@ -94,6 +125,13 @@ public class Camera {
     public boolean positionIsVisible(double inputX, double inputY) {
         double[] drawingPos = getDrawingPosition(inputX, inputY, 0.0);
         return drawingPos[0] > 0 && drawingPos[0] < width && drawingPos[1] > 0 && drawingPos[1] < height;
+    }
+
+    /*
+     * Get camera z
+     */
+    public double getZ() {
+        return (UniversalConstants.MAXIMUM_ZOOM / zoom) * UniversalConstants.HEIGHT_AT_MAX_ZOOM;
     }
 
     /**
@@ -146,17 +184,11 @@ public class Camera {
     }
 
     public double getX() {
-        return x;
-    }
-    public void setX(double x) {
-        this.x = x;
+        return x + xVariation;
     }
 
     public double getY() {
-        return y;
-    }
-    public void setY(double y) {
-        this.y = y;
+        return y + yVariation;
     }
 
     public double getHeight() {

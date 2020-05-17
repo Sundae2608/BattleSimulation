@@ -5,6 +5,6 @@ public enum AudioType {
     RIGHT_CLICK,
     CAVALRY_RUNNING,
     CAVALRY_CHARGE,
-    COMBAT,
-    MARCHING,
+    SOLDIER_FIGHTING,
+    SOLDIER_MARCHING,
 }

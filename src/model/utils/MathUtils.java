@@ -86,6 +86,13 @@ public final class MathUtils {
     }
 
     /**
+     * Magnitude of vector (vx, vy, vz)
+     */
+    public static double magnitude(double vx, double vy, double vz) {
+        return Math.sqrt(vx * vx + vy * vy + vz * vz);
+    }
+
+    /**
      * Signed angle difference
      */
     public static double signedAngleDifference(double angle, double angleGoal) {

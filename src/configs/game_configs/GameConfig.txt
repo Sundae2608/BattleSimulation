@@ -134,7 +134,7 @@
     unit_spacing: 44
     unit_speed: 8
     unit_rotation_speed: 0.02
-    unit_patience: 50
+    unit_patience: 150
 },
 {
     // Type and faction information
@@ -317,7 +317,7 @@
     unit_spacing: 44
     unit_speed: 8
     unit_rotation_speed: 0.02
-    unit_patience: 50
+    unit_patience: 150
 },
 {
     // Type and faction information

@@ -4,6 +4,9 @@ import model.constants.ObjectConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
+import model.events.Event;
+import model.events.EventBroadcaster;
+import model.events.EventType;
 import model.objects.Arrow;
 import model.objects.Balista;
 import model.objects.BaseObject;
@@ -12,6 +15,7 @@ import model.singles.*;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.enums.UnitState;
+import model.units.CavalryUnit;
 import model.utils.MathUtils;
 import model.utils.SingleUtils;
 
@@ -26,6 +30,7 @@ public class UnitModifier {
     private TroopHasher troopHasher;
     private ArrayList<BaseSingle> deadContainer;
     private HashSet<BaseUnit> unitToBeRemoved;
+    private EventBroadcaster broadcaster;
     ArrayList<BaseUnit> unitList;
     GameSettings gameSettings;
     Terrain terrain;
@@ -33,7 +38,9 @@ public class UnitModifier {
     // Memoization of distance between model.units.
     private double[][] distanceMemo;
 
-    public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain, GameSettings inputSettings) {
+    public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain, GameSettings inputSettings,
+                        EventBroadcaster inputBroadcaster) {
+        broadcaster = inputBroadcaster;
         objectHasher = new ObjectHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV);
         troopHasher = new TroopHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, inputSettings);
         deadContainer = inputDeadContainer;
@@ -355,11 +362,22 @@ public class UnitModifier {
 
         // Clear remove list and reset unit contact
         unitToBeRemoved.clear();
-        for (BaseUnit unit : unitList) unit.setInContactWithEnemy(false);
+        HashSet<BaseUnit> previouslyEngagedUnits = new HashSet<>();
+        for (BaseUnit unit : unitList) {
+            if (unit.isInContactWithEnemy()) {
+                previouslyEngagedUnits.add(unit);
+            }
+            unit.setInContactWithEnemy(false);
+        }
 
         // Set any unit touching the enemy as in contact and decrease the patience of that unit.
         // Decrease the patience of any unit that already touches enemy
         for (BaseUnit unit : unitTouchEnemy.keySet()) {
+            // If the unit is previously now engaged, but is now engaging
+            if (!previouslyEngagedUnits.contains(unit) && unit instanceof CavalryUnit) {
+                broadcaster.broadcastEvent(new Event(
+                        EventType.CAVALRY_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+            }
             unit.setInContactWithEnemy(true);
             unit.setCurrUnitPatience(unit.getCurrUnitPatience() - 1);
             if (unit.getCurrUnitPatience() == 0 && unit.getState() != UnitState.FIGHTING) {
@@ -422,8 +440,6 @@ public class UnitModifier {
                 obj.setCombatDelay(obj.getCombatDelayStat());
 
                 if (attackCandidate.getState() != SingleState.DEAD) {
-                    // Cause extra delay if unit still alive
-                    // attackCandidate.setCombatDelay(attackCandidate.getCombatDelay() + 5);
                 } else {
                     // Cause the unit to perform "deadMorph", which is to rearange troops to match the frontline.
                     deadContainer.add(attackCandidate);

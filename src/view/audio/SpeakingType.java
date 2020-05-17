@@ -1,6 +1,7 @@
 package view.audio;
 
-public enum BroadcastType {
+public enum SpeakingType {
     BURST,
     AMBIENT,
+    OVERLAY,
 }

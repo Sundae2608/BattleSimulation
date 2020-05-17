@@ -4,6 +4,7 @@ import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
+import model.events.EventBroadcaster;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
 import model.terrain.Terrain;
@@ -48,25 +49,29 @@ public class BaseUnit {
     protected double[][] boundingBox;
     protected boolean[][] inDanger;
 
-    //
+    // The terrain in which the unit operates on
     Terrain terrain;
 
     // Patience until fighting
     // When two model.units contact each other, there will be a delay of certain time steps until the unit lose "patience" and
     // is forced to switch to fighting mode. This will be a clock that counts down until it happens.
-    protected int currUnitPatience;
-    protected BaseUnit unitFoughtAgainst;
-    protected boolean inContactWithEnemy;
-    protected boolean isTurning;
+    int currUnitPatience;
+    BaseUnit unitFoughtAgainst;
+    boolean inContactWithEnemy;
+    boolean isTurning;
+
+    // Event broadcaster
+    EventBroadcaster broadcaster;
 
     /**
      * Initialize BaseUnit
      */
-    public BaseUnit(UnitStats inputUnitStats, Terrain inputTerrain) {
+    public BaseUnit(UnitStats inputUnitStats, Terrain inputTerrain, EventBroadcaster inputBroadcaster) {
         boundingBox = new double[6][2];
         inContactWithEnemy = false;
         unitStats = inputUnitStats;
         terrain = inputTerrain;
+        broadcaster = inputBroadcaster;
     }
 
     /**
@@ -386,7 +391,7 @@ public class BaseUnit {
     /**
      * Update the intention of the unit. Intention represents how the unit desired to move forward.
      */
-    public void updateIntention(Terrain terrain) {
+    public void updateIntention() {
 
         // First, rotate the front line
         double distanceToGoal = MathUtils.quickRoot1((float)((anchorX - goalX) * (anchorX - goalX) + (anchorY - goalY) * (anchorY - goalY)));

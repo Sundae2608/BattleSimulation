@@ -1,14 +1,19 @@
-package model.utils;
+package utils;
 
 import model.GameStats;
 import model.algorithms.ObjectHasher;
 import model.constants.UniversalConstants;
 import model.enums.PoliticalFaction;
 import model.enums.UnitType;
+import model.events.EventBroadcaster;
 import model.singles.SingleStats;
 import model.terrain.Terrain;
 import model.units.*;
 import model.units.unit_stats.UnitStats;
+import model.utils.MathUtils;
+import processing.core.PApplet;
+import view.audio.*;
+import view.camera.Camera;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +24,29 @@ import java.util.HashMap;
 
 public final class ConfigUtils {
     /**
+     * This helper function parse a string proto that is in the following form:
+     * {
+     *     key: value
+     * }
+     * @param s the input string.
+     * @return a hash map containing key and value
+     */
+    private static HashMap<String, String> parseProtoString(String s) {
+        // Read all data of the audio config first
+        String[] infoLines = s.split("\n");
+        HashMap<String, String> d = new HashMap<>();
+        for (String line : infoLines) {
+            line = line.trim();
+            String[] data = line.split(":");
+            if (data.length < 2) continue;
+            String key = data[0].trim();
+            String value = data[1].trim();
+            d.put(key, value);
+        }
+        return d;
+    }
+
+    /**
      * Read the battle config, which defines the position and size of each unit that participate in the games.
      * @param filePath Path leading to the config
      * @param hasher ObjectHasher object. This is required so that certain units such as Archer or HorseArcher can have
@@ -26,7 +54,7 @@ public final class ConfigUtils {
      * @return A list of units that participates in the battle.
      * @throws IOException if the read fails.
      */
-    public static ArrayList<BaseUnit> readBattleConfigs(String filePath, GameStats gameStats, ObjectHasher hasher, Terrain terrain) throws IOException {
+    public static ArrayList<BaseUnit> readBattleConfigs(String filePath, GameStats gameStats, ObjectHasher hasher, Terrain terrain, EventBroadcaster broadcaster) throws IOException {
 
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
@@ -62,26 +90,26 @@ public final class ConfigUtils {
             BaseUnit unit;
             switch (unitType) {
                 case PHALANX:
-                    unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain);
+                    unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
                     break;
                 case SKIRMISHER:
-                    unit = new SkirmisherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain);
+                    unit = new SkirmisherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
                     break;
                 case ARCHER:
-                    unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain);
+                    unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
                     break;
                 case BALISTA:
-                    unit = new BalistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain);
+                    unit = new BalistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
                     break;
                 case SLINGER:
-                    unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain);
+                    unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
                     break;
                 case CAVALRY:
-                    unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain);
+                    unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
                     break;
                 case SWORDMAN:
                 default:
-                    unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain);
+                    unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain,broadcaster);
                     break;
             }
             units.add(unit);
@@ -204,6 +232,37 @@ public final class ConfigUtils {
             gameStats.addUnitStats(unitType, faction, unitStats);
         }
         return gameStats;
+    }
+
+    /**
+     * Read audio configs
+     * @param filePath
+     * @param applet
+     * @return An audio broadcaster with the configs.
+     * @throws IOException
+     */
+    public static AudioSpeaker readAudioConfigs(String filePath, Camera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+        // Get all text from file location
+        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
+        String s = new String(encoded, StandardCharsets.UTF_8);
+        String[] unitsInfo = s.split(",");
+
+        // Read each information
+        AudioSpeaker speaker = new AudioSpeaker(camera, applet, eventBroadcaster);
+        for (String info : unitsInfo) {
+
+            // Read all data of the audio config first
+            HashMap<String, String> d = parseProtoString(info);
+            String audioPath = d.get("file");
+            AudioType audioType = AudioType.valueOf(d.get("audio_type"));
+            SpeakingType speakingType = SpeakingType.valueOf(d.get("broadcast_type"));
+            float baseVolume = Float.parseFloat(d.get("base_volume"));
+            Audio audio = new Audio(
+                audioPath, audioType, speakingType, baseVolume, applet
+            );
+            speaker.addAudio(audioType, audio);
+        }
+        return speaker;
     }
 
     /**

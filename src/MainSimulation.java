@@ -4,6 +4,10 @@ import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import model.objects.Balista;
 import model.settings.GameSettings;
 import model.terrain.Terrain;
+import utils.ConfigUtils;
+import view.audio.AudioConstants;
+import view.audio.AudioSpeaker;
+import view.audio.AudioType;
 import view.drawer.UIDrawer;
 import view.drawer.ShapeDrawer;
 import javafx.util.Pair;
@@ -33,6 +37,7 @@ import view.settings.DrawingSettings;
 import view.settings.RenderMode;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,17 +107,7 @@ public class MainSimulation extends PApplet {
     // Sound files
     // -----------
 
-    SoundFile soundLeftClick, soundRightClick;
-    SoundFile soundArgh;
-
-    SoundFile soundCombat;
-    float combatAmplitude;
-
-    SoundFile soundFootMarch;
-    float footMarchAmplitude;
-
-    SoundFile soundCavalryMarch;
-    float cavalryMarchAplitude;
+    AudioSpeaker audioSpeaker;
 
     SoundFile backgroundMusic;
 
@@ -174,6 +169,7 @@ public class MainSimulation extends PApplet {
         // -------------
         gameSettings = new GameSettings();
         gameSettings.setApplyTerrainModifier(true);
+        gameSettings.setBorderInwardCollision(true);
 
         // ----------------
         // Graphic settings
@@ -265,31 +261,36 @@ public class MainSimulation extends PApplet {
         // Load all tiles in the view.map
         loadMapTiles(-9000, -18000, "imgs/MapTiles/pharsalus", 1080);
 
+        // -------------------
+        // Preprocesing troops
+        // -------------------
+
+        // Create a new game based on the input configurations.
+        String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
+        String mapConfig = "src/configs/map_configs/MapConfig.txt";
+        String gameConfig = "src/configs/game_configs/GameConfig.txt";
+        env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
+
+        // ------
+        // Camera
+        // ------
+        // Add unit to view.camera
+        camera = new Camera(INPUT_WIDTH / 2, INPUT_HEIGHT / 2, INPUT_WIDTH, INPUT_HEIGHT,
+                env.getBroadcaster());
+        zoomGoal = camera.getZoom();  // To ensure consistency
+        angleGoal = camera.getAngle();
+
         // ---------------
         // Load sound file
         // ---------------
-        soundLeftClick = new SoundFile(this, "audios/click/click2.mp3");
-        soundLeftClick.amp(0.7f);
-
-        soundRightClick = new SoundFile(this, "audios/click/click1.mp3");
-        soundRightClick.amp(0.7f);
-
-        soundArgh = new SoundFile(this, "audios/argh/argh1_extreme.mp3");
-
-        soundCombat = new SoundFile(this, "audios/unit_sound/medieval_combat.mp3");
-        combatAmplitude = AudioConstants.MIN_AMPLITUDE;
-        soundCombat.amp(combatAmplitude);
-        soundCombat.loop();
-
-        soundFootMarch = new SoundFile(this, "audios/unit_sound/footrunning.mp3");
-        footMarchAmplitude = AudioConstants.MIN_AMPLITUDE;
-        soundFootMarch.amp(footMarchAmplitude);
-        soundFootMarch.loop();
-
-        soundCavalryMarch = new SoundFile(this, "audios/unit_sound/cavalrymarch.mp3");
-        cavalryMarchAplitude = AudioConstants.MIN_AMPLITUDE;
-        soundCavalryMarch.amp(cavalryMarchAplitude);
-        soundCavalryMarch.loop();
+        try {
+            audioSpeaker = ConfigUtils.readAudioConfigs(
+                    "src/configs/audio_configs/AudioConfig.txt",
+                    camera, this, env.getBroadcaster()
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // Load background music
         if (audioSettings.isBackgroundMusic()) {
@@ -298,23 +299,9 @@ public class MainSimulation extends PApplet {
             backgroundMusic.loop();
         }
 
-        // -------------------
-        // Preprocesing troops
-        // -------------------
-
-        // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/BattleConfig.txt";
-        String mapConfig = "src/configs/map_configs/MapConfig.txt";
-        String gameConfig = "src/configs/game_configs/GameConfig.txt";
-        env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
 
         // Create a simplified image version of each unit.
         preprocessSimplifiedUnitImages();
-
-        // Add unit to view.camera
-        camera = new Camera(INPUT_WIDTH / 2, INPUT_HEIGHT / 2, INPUT_WIDTH, INPUT_HEIGHT);
-        zoomGoal = camera.getZoom();  // To ensure consistency
-        angleGoal = camera.getAngle();
 
         // Playing state
         currentlyPaused = false;
@@ -338,6 +325,7 @@ public class MainSimulation extends PApplet {
         if (!currentlyPaused) {
             // The environment makes one step forward in processing.
             env.step();
+            camera.update();
         }
 
         // Record backend time
@@ -535,7 +523,7 @@ public class MainSimulation extends PApplet {
         // -------------------
         // Procecss unit sound
         // -------------------
-        if (audioSettings.isSoundEffect()) processUnitSound(env.getUnits(), camera);
+        if (audioSettings.isSoundEffect()) audioSpeaker.processEvents();
 
         // -----------
         // Draw the UI
@@ -666,17 +654,13 @@ public class MainSimulation extends PApplet {
                 currentlyPaused = false;
                 if (audioSettings.isBackgroundMusic()) backgroundMusic.loop();
                 if (audioSettings.isSoundEffect()) {
-                    soundCombat.loop();
-                    soundFootMarch.loop();
-                    soundCavalryMarch.loop();
+                    audioSpeaker.resumeAllAmbientSounds();
                 }
             } else {
                 currentlyPaused = true;
                 if (audioSettings.isBackgroundMusic()) backgroundMusic.pause();
                 if (audioSettings.isSoundEffect()) {
-                    soundCombat.pause();
-                    soundFootMarch.pause();
-                    soundCavalryMarch.pause();
+                    audioSpeaker.pauseAllAmbientSounds();
                 }
             }
         }
@@ -684,9 +668,9 @@ public class MainSimulation extends PApplet {
         //
         if (mouseButton == LEFT) {
             unitSelected = closestUnit;
-            soundLeftClick.play();
+            audioSpeaker.broadcastOverlaySound(AudioType.LEFT_CLICK);
         } else if (mouseButton == RIGHT) {
-            soundRightClick.play();
+            audioSpeaker.broadcastOverlaySound(AudioType.RIGHT_CLICK);
             if (unitSelected != null) {
                 if (unitSelected instanceof ArcherUnit) {
                     // Convert closest unit to click
@@ -1073,47 +1057,6 @@ public class MainSimulation extends PApplet {
         currSizeCavalry = cavalrySizeMap.get(camera.getZoom());
     }
 
-    /**
-     *   _____                       _                                     _
-     *  / ____|                     | |                                   (_)
-     * | (___   ___  _   _ _ __   __| |  _ __  _ __ ___   ___ ___  ___ ___ _ _ __   __ _
-     *  \___ \ / _ \| | | | '_ \ / _` | | '_ \| '__/ _ \ / __/ _ \/ __/ __| | '_ \ / _` |
-     *  ____) | (_) | |_| | | | | (_| | | |_) | | | (_) | (_|  __/\__ \__ \ | | | | (_| |
-     * |_____/ \___/ \__,_|_| |_|\__,_| | .__/|_|  \___/ \___\___||___/___/_|_| |_|\__, |
-     *                                  | |                                         __/ |
-     *                                  |_|                                        |___/
-     */
-    void processUnitSound(ArrayList<BaseUnit> units, Camera camera) {
-
-        // Reset sound amplitudes
-        combatAmplitude = AudioConstants.MIN_AMPLITUDE;
-        footMarchAmplitude = AudioConstants.MIN_AMPLITUDE;
-        cavalryMarchAplitude = AudioConstants.MIN_AMPLITUDE;
-
-        // for each unit, calculate distance to view.camera.
-        for (BaseUnit unit : units) {
-            if (unit.getNumAlives() == 0) continue;
-            double distance = MathUtils.magnitude(
-                    camera.getX() - unit.getAverageX(),
-                    camera.getY() - unit.getAverageY()) * camera.getZoom();
-            double volumeAdded = AudioConstants.MAX_VOLUME_DISTANCE / Math.max(distance, AudioConstants.MAX_VOLUME_DISTANCE);
-            if (unit.isInContactWithEnemy()) {
-                combatAmplitude += volumeAdded;
-            } else if (unit.getState() == UnitState.MOVING) {
-                if (unit instanceof CavalryUnit) {
-                    cavalryMarchAplitude += volumeAdded;
-                } else {
-                    footMarchAmplitude += volumeAdded;
-                }
-            }
-        }
-        combatAmplitude = (float) Math.min((Math.min(combatAmplitude, 1) * camera.getZoom()), 1);
-        footMarchAmplitude = (float) Math.min((Math.min(footMarchAmplitude, 1) * camera.getZoom()), 1);
-        cavalryMarchAplitude = (float) Math.min((Math.min(cavalryMarchAplitude, 1) * camera.getZoom()), 1);
-        soundCombat.amp(combatAmplitude);
-        soundFootMarch.amp(footMarchAmplitude);
-        soundCavalryMarch.amp(cavalryMarchAplitude);
-    }
     /**
      *   ____  _     _           _     _____
      *  / __ \| |   (_)         | |   |  __ \

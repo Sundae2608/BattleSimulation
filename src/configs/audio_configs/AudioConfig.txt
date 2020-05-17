@@ -1,24 +1,36 @@
 {
     audio_type: LEFT_CLICK
     file: audios/click/click2.mp3
-    broadcast_type: BURST
+    broadcast_type: OVERLAY
+    base_volume: 0.7
 },
 {
     audio_type: RIGHT_CLICK
     file: audios/click/click1.mp3
-    broadcast_type: BURST
+    broadcast_type: OVERLAY
+    base_volume: 0.7
 },
 {
-    audio_type: COMBAT
+    audio_type: SOLDIER_FIGHTING
     file: audios/unit_sound/medieval_combat.mp3
     broadcast_type: AMBIENT
+    base_volume: 0.7
 },
 {
-    audio_type: MARCHING
+    audio_type: SOLDIER_MARCHING
     file: audios/unit_sound/footrunning.mp3
     broadcast_type: AMBIENT
+    base_volume: 0.35
 },
 {
     audio_type: CAVALRY_RUNNING
     file: audios/unit_sound/cavalrymarch.mp3
+    broadcast_type: AMBIENT
+    base_volume: 0.7
+},
+{
+    audio_type: CAVALRY_CHARGE
+    file: audios/unit_sound/cavalrycharge.mp3
+    broadcast_type: BURST
+    base_volume: 1.0
 },
