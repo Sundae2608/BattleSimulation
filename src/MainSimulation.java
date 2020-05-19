@@ -116,6 +116,7 @@ public class MainSimulation extends PApplet {
     // -----------
 
     // UI Icons
+    // TODO(sonpham): Change this to a UnitType to icon model.
     PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista;
     PImage iconCavUnsel, iconSpearUnsel, iconSwordUnsel, iconArcherUnsel,
             iconSlingerUnsel, iconHorseArcherUnsel, iconSkirmisherUnsel;
@@ -266,7 +267,7 @@ public class MainSimulation extends PApplet {
         // -------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
+        String battleConfig = "src/configs/battle_configs/BattleConfig.txt";
         String mapConfig = "src/configs/map_configs/MapConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);

@@ -6,5 +6,5 @@
     num_y: 96
     taper: 10
     min_height: 40
-    max_height: -40
+    max_height: -300
 }
