@@ -300,7 +300,6 @@ public class MainSimulation extends PApplet {
             backgroundMusic.loop();
         }
 
-
         // Create a simplified image version of each unit.
         preprocessSimplifiedUnitImages();
 
