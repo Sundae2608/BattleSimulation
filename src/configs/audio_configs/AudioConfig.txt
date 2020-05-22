@@ -34,3 +34,9 @@
     broadcast_type: BURST
     base_volume: 1.0
 },
+{
+    audio_type: EXPLOSION
+    file: audios/explosions/explosion.mp3
+    broadcast_type: BURST
+    base_volume: 0.3
+},

@@ -107,7 +107,7 @@
     ballista_explosion_damage: 50
     ballista_explosion_range: 70
     ballista_explosion_push: 40
-    ballista_push_force: 5
+    ballista_push_force: 15
 },
 {
     // Type and faction information

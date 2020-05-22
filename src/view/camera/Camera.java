@@ -55,8 +55,11 @@ public class Camera extends EventListener {
 
     @Override
     protected void listenEvent(Event e) {
-        if (e.getEventType() == EventType.CAVALRY_CHARGE) {
-            zoomFrame = CameraConstants.NUM_FRAME_OF_ZOOM;
+        switch (e.getEventType()) {
+            case CAVALRY_CHARGE:
+                zoomFrame += CameraConstants.NUM_FRAME_OF_CHARGE_ZOOM;
+            case EXPLOSION:
+                zoomFrame += CameraConstants.NUM_FRAME_OF_EXPLOSION_ZOOM;
         }
     }
 
@@ -68,10 +71,10 @@ public class Camera extends EventListener {
             zoomFrame -= 1;
         }
         xVariation = 1.0 * zoomFrame /
-                CameraConstants.NUM_FRAME_OF_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
+                CameraConstants.NUM_FRAME_OF_CHARGE_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
         xVariation = MathUtils.randDouble(-xVariation, xVariation);
         yVariation = 1.0 * zoomFrame /
-                CameraConstants.NUM_FRAME_OF_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
+                CameraConstants.NUM_FRAME_OF_CHARGE_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
         yVariation = MathUtils.randDouble(-yVariation, yVariation);
     }
 

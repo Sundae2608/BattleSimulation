@@ -7,4 +7,5 @@ public enum AudioType {
     CAVALRY_CHARGE,
     SOLDIER_FIGHTING,
     SOLDIER_MARCHING,
+    EXPLOSION,
 }

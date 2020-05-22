@@ -78,6 +78,10 @@ public class AudioSpeaker extends EventListener {
                     audio = audioMap.get(AudioType.CAVALRY_CHARGE);
                     audio.playSound();
                     break;
+                case EXPLOSION:
+                    audio = audioMap.get(AudioType.EXPLOSION);
+                    audio.playSound();
+                    break;
                 case SOLDIER_FIGHTING:
                     audio = audioMap.get(AudioType.SOLDIER_FIGHTING);
                     break;
@@ -88,7 +92,7 @@ public class AudioSpeaker extends EventListener {
                     break;
             }
             // If there is an audio accompanying the event
-            if (audio != null)  audio.addVolume(volumePortionAdded * audio.getBaseVolume());
+            if (audio != null && audio.speakingType == SpeakingType.AMBIENT) audio.addVolume(volumePortionAdded * audio.getBaseVolume());
         }
         // After processing, clear the event list
         eventList.clear();

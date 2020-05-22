@@ -16,6 +16,8 @@ the [Installation Guide page](docs/InstallationGuide.md).
 
 May: 
 
-* Finish terrain height visualization
-* Design simpler flag
-* Visualize the troops with respect to height.
+* Finish terrain height visualization (Done)
+* Design simpler flag (Done)
+* Visualize the troops with respect to height (Done)
+* Add sound effect for Cavalry charge.
+* Support multiple Burst sound effect at the same time.

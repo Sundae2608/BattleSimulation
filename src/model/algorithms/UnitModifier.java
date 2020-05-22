@@ -174,6 +174,9 @@ public class UnitModifier {
                     // If distance to object is smaller than the diameter, count as an arrow hit
                     // Inflict some damage to the candidate
                     closestCandidate.receiveDamage(((Balista) obj).getDamage());
+                    broadcaster.broadcastEvent(new Event(
+                            EventType.EXPLOSION, obj.getX(), obj.getY(),
+                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
                     // Once hit, the arrow becomes dead
                     obj.setAlive(false);
                     if (closestCandidate.getState() != SingleState.DEAD) {
