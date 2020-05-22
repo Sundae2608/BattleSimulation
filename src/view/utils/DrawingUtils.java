@@ -1,4 +1,4 @@
-package model.utils;
+package view.utils;
 
 import model.terrain.Terrain;
 import processing.core.PImage;

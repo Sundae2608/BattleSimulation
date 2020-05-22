@@ -4,7 +4,6 @@ import model.constants.UniversalConstants;
 import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventListener;
-import model.events.EventType;
 import model.singles.BaseSingle;
 import model.utils.MathUtils;
 
@@ -22,7 +21,7 @@ public class Camera extends EventListener {
     private double y;
     private double xVariation;
     private double yVariation;
-    private int zoomFrame;
+    private double cameraShakeLevel;
 
     // Zoom (1.0 = original scale)
     private double zoom;
@@ -57,9 +56,11 @@ public class Camera extends EventListener {
     protected void listenEvent(Event e) {
         switch (e.getEventType()) {
             case CAVALRY_CHARGE:
-                zoomFrame += CameraConstants.NUM_FRAME_OF_CHARGE_ZOOM;
+                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_CHARGE;
+                break;
             case EXPLOSION:
-                zoomFrame += CameraConstants.NUM_FRAME_OF_EXPLOSION_ZOOM;
+                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_EXPLOSION;
+                break;
         }
     }
 
@@ -67,14 +68,14 @@ public class Camera extends EventListener {
      * Update the stats of the camera (mainly for overtime effect such as charge)
      */
     public void update() {
-        if (zoomFrame > 0) {
-            zoomFrame -= 1;
+        if (cameraShakeLevel > 0) {
+            cameraShakeLevel -= CameraConstants.SHAKE_LEVEL_DROP;
         }
-        xVariation = 1.0 * zoomFrame /
-                CameraConstants.NUM_FRAME_OF_CHARGE_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
+        xVariation = 1.0 * cameraShakeLevel /
+                CameraConstants.SHAKE_LEVEL_AT_BASE * CameraConstants.CAMERA_SHAKE_BASE;
         xVariation = MathUtils.randDouble(-xVariation, xVariation);
-        yVariation = 1.0 * zoomFrame /
-                CameraConstants.NUM_FRAME_OF_CHARGE_ZOOM * CameraConstants.CAMERA_SHAKE_VARIATION_AT_NO_ZOOM;
+        yVariation = 1.0 * cameraShakeLevel /
+                CameraConstants.SHAKE_LEVEL_AT_BASE * CameraConstants.CAMERA_SHAKE_BASE;
         yVariation = MathUtils.randDouble(-yVariation, yVariation);
     }
 
@@ -205,9 +206,14 @@ public class Camera extends EventListener {
     public double getZoom() {
         return zoom;
     }
+
     public void setZoom(double zoom) {
         this.zoom = zoom;
         this.resize = 1 / zoom;
+    }
+
+    public double getCameraShakeLevel() {
+        return cameraShakeLevel;
     }
 
     public double getResize() {

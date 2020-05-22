@@ -5,14 +5,14 @@ import model.constants.UniversalConstants;
 import model.enums.SingleState;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
-import model.objects.Balista;
+import model.objects.Stone;
 import model.terrain.Terrain;
-import model.units.BalistaUnit;
 import model.units.BaseUnit;
+import model.units.CatapultUnit;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
 
-public class BalistaSingle extends BaseSingle {
+public class CatapultSingle extends BaseSingle {
 
     // These two delays are unique to archer.
     // - Reload delay: time waited before archer can fire
@@ -27,13 +27,13 @@ public class BalistaSingle extends BaseSingle {
     // Shooting target
     BaseSingle shootingTarget;
 
-    public BalistaSingle(double xInit,
-                        double yInit,
-                        PoliticalFaction faction,
-                        BaseUnit inputUnit,
-                        SingleStats inputSingleStats,
-                        int index,
-                        ObjectHasher inputHasher) {
+    public CatapultSingle(double xInit,
+                         double yInit,
+                         PoliticalFaction faction,
+                         BaseUnit inputUnit,
+                         SingleStats inputSingleStats,
+                         int index,
+                         ObjectHasher inputHasher) {
         // Parent constructor
         super(inputSingleStats);
 
@@ -134,26 +134,25 @@ public class BalistaSingle extends BaseSingle {
                     speedGoal = singleStats.speed;
                 }
                 // Constantly reload and fire if there is a target in sight.
-                BaseUnit unitFiredAt = ((BalistaUnit)unit).getUnitFiredAgainst();
+                BaseUnit unitFiredAt = ((CatapultUnit)unit).getUnitFiredAgainst();
                 if (unitFiredAt != null) {
                     reloadDelay -= 1;
                     if (reloadDelay == 0) {
                         // Pick a random target
-                        shootingTarget = ((BalistaUnit) unit).pickNextTarget();
+                        shootingTarget = ((CatapultUnit) unit).pickNextTarget();
 
                         // Don't fire target if there is nothing to fire at.
                         if (shootingTarget == null) break;
 
                         // Shoot an arrow into the world
-                        hasher.addObject(new Balista(x, y, shootingTarget.getX(), shootingTarget.getY(),
-                                singleStats.ballistaSpeed,
-                                singleStats.ballistaDamage,
-                                singleStats.ballistaExplosionDamage,
-                                singleStats.ballistaExplosionRange,
-                                singleStats.ballistaExplosionPush,
-                                singleStats.ballistaPushForce,
-                                singleStats.angleVariation,
-                                singleStats.impactLifetime));
+                        hasher.addObject(new Stone(x, y, shootingTarget.getX(), shootingTarget.getY(),
+                                singleStats.catapultSpeed,
+                                singleStats.catapultDamage,
+                                singleStats.catapultExplosionDamage,
+                                singleStats.catapultExplosionRange,
+                                singleStats.catapultExplosionPush,
+                                singleStats.catapultPushForce,
+                                singleStats.angleVariation));
 
                         // Reload arrow
                         reloadDelay = singleStats.reloadDelay;

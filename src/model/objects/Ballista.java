@@ -3,7 +3,7 @@ package model.objects;
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 
-public class Balista extends BaseObject {
+public class Ballista extends BaseObject {
 
     // Arrow speed
     double speed;
@@ -23,11 +23,11 @@ public class Balista extends BaseObject {
     /**
      * Initialize instances of arrow with all positions pre-calculated.
      */
-    public Balista(double inputX, double inputY,
-                   double goalX, double goalY, double speed,
-                   double inputDamage, double inputExplosionDamage, double inputExplosionRange,
-                   double inputExplosionPush, double inputPushForce,
-                   double angleVariation, double impactLifeTime) {
+    public Ballista(double inputX, double inputY,
+                    double goalX, double goalY, double speed,
+                    double inputDamage, double inputExplosionDamage, double inputExplosionRange,
+                    double inputExplosionPush, double inputPushForce,
+                    double angleVariation, double impactLifeTime) {
         damage = inputDamage;
         explosionRange = inputExplosionRange;
         explosionPush = inputExplosionPush;

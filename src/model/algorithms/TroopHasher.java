@@ -1,13 +1,13 @@
 package model.algorithms;
 
-import model.objects.Balista;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.singles.CavalrySingle;
 import model.enums.SingleState;
 import model.units.ArcherUnit;
-import model.units.BalistaUnit;
+import model.units.BallistaUnit;
 import model.units.BaseUnit;
+import model.units.CatapultUnit;
 import model.utils.PhysicUtils;
 
 import java.util.*;
@@ -97,7 +97,6 @@ public class TroopHasher {
      * Return the list of potential collision candidates based on x, y positions and impactDistance
      */
     public ArrayList<BaseSingle> getCollisionObjects(double x, double y, double impactDistance) {
-        System.out.println("Get collision object");
         int xHash = (int)x / xDiv;
         int yHash = (int)y / yDiv;
         int extensionX = (int) (impactDistance / xDiv) + 1;
@@ -116,7 +115,6 @@ public class TroopHasher {
                 }
             }
         }
-        System.out.println(collideList.size());
         return collideList;
     }
 
@@ -182,8 +180,12 @@ public class TroopHasher {
                 activeUnits.add(((ArcherUnit) unit).getUnitFiredAgainst());
             }
 
-            if (unit instanceof BalistaUnit && ((BalistaUnit) unit).getUnitFiredAgainst() != null) {
-                activeUnits.add(((BalistaUnit) unit).getUnitFiredAgainst());
+            if (unit instanceof BallistaUnit && ((BallistaUnit) unit).getUnitFiredAgainst() != null) {
+                activeUnits.add(((BallistaUnit) unit).getUnitFiredAgainst());
+            }
+
+            if (unit instanceof CatapultUnit && ((CatapultUnit) unit).getUnitFiredAgainst() != null) {
+                activeUnits.add(((CatapultUnit) unit).getUnitFiredAgainst());
             }
 
             // Being in combat

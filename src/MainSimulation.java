@@ -1,7 +1,8 @@
 import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
-import model.objects.Balista;
+import model.objects.Ballista;
+import model.objects.Stone;
 import model.settings.GameSettings;
 import model.terrain.Terrain;
 import utils.ConfigUtils;
@@ -35,6 +36,7 @@ import view.settings.AudioSettings;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
 import view.settings.RenderMode;
+import view.utils.DrawingUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +53,8 @@ public class MainSimulation extends PApplet {
     // -------------------
     // Universal Constants
     // -------------------
-    private final static int INPUT_WIDTH = 2560;
-    private final static int INPUT_HEIGHT = 1440;
+    private final static int INPUT_WIDTH = 1920;
+    private final static int INPUT_HEIGHT = 1080;
     // ------------------
     // Drawers
     // This helps store each special shape at size to save time.
@@ -117,9 +119,7 @@ public class MainSimulation extends PApplet {
 
     // UI Icons
     // TODO(sonpham): Change this to a UnitType to icon model.
-    PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista;
-    PImage iconCavUnsel, iconSpearUnsel, iconSwordUnsel, iconArcherUnsel,
-            iconSlingerUnsel, iconHorseArcherUnsel, iconSkirmisherUnsel;
+    PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista, iconCatapult;
     PImage banner, bannerShadow, bannerSelected, bannerTexture;
 
     // Tiles
@@ -243,14 +243,7 @@ public class MainSimulation extends PApplet {
         iconSlinger = loadImage("imgs/BannerArt/iconSlinger.png");
         iconSkirmisher = loadImage("imgs/BannerArt/iconSkirmisher.png");
         iconBallista = loadImage("imgs/BannerArt/iconBallista.png");
-
-        iconSwordUnsel = loadImage("imgs/SelectedIcons/SwordUnsel.png");
-        iconSpearUnsel = loadImage("imgs/SelectedIcons/SpearUnsel.png");
-        iconCavUnsel = loadImage("imgs/SelectedIcons/CavUnsel.png");
-        iconArcherUnsel = loadImage("imgs/SelectedIcons/ArcherUnsel.png");
-        iconHorseArcherUnsel = loadImage("imgs/SelectedIcons/HorseArcherUnsel.png");
-        iconSlingerUnsel = loadImage("imgs/SelectedIcons/SlingerUnsel.png");
-        iconSkirmisherUnsel = loadImage("imgs/SelectedIcons/SkirmisherUnsel.png");
+        iconCatapult = loadImage("imgs/BannerArt/iconCatapult.png");
 
         banner = loadImage("imgs/BannerArt/SimplifiedBanner-01.png");
         bannerShadow = loadImage("imgs/BannerArt/SimplifiedBanner-02.png");
@@ -586,8 +579,12 @@ public class MainSimulation extends PApplet {
                     image(iconSkirmisher,
                             (float) drawingPos[0] - 30,
                             (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof BalistaUnit) {
+                } else if (unit instanceof BallistaUnit) {
                     image(iconBallista,
+                            (float) drawingPos[0] - 30,
+                            (float) drawingPos[1] - 92, 60, 60);
+                } else if (unit instanceof CatapultUnit) {
+                    image(iconCatapult,
                             (float) drawingPos[0] - 30,
                             (float) drawingPos[1] - 92, 60, 60);
                 }
@@ -608,6 +605,7 @@ public class MainSimulation extends PApplet {
         fill(0, 0, 0);
         graphicTime = System.currentTimeMillis() - lastTime - backEndTime;
         textAlign(LEFT);
+        text("Camera shake level: " + Double.toString(camera.getCameraShakeLevel()), 5, INPUT_HEIGHT - 65);
         text("Zoom level: " + Double.toString(camera.getZoom()), 5, INPUT_HEIGHT - 50);
         text("Backends: " + Long.toString(backEndTime) + "ms", 5, INPUT_HEIGHT - 35);
         text("Graphics: " + Long.toString(graphicTime) + "ms", 5, INPUT_HEIGHT - 20);
@@ -689,7 +687,7 @@ public class MainSimulation extends PApplet {
                         double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
                         unitSelected.moveFormationKeptTo(posX, posY, angle);
                     }
-                } else if (unitSelected instanceof BalistaUnit) {
+                } else if (unitSelected instanceof BallistaUnit) {
                     // Convert closest unit to click
                     double[] screenPos = camera.getDrawingPosition(
                             closestUnit.getAverageX(),
@@ -698,7 +696,24 @@ public class MainSimulation extends PApplet {
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
-                        ((BalistaUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        ((BallistaUnit) unitSelected).setUnitFiredAt(closestUnit);
+                    } else {
+                        double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                        double posX = position[0];
+                        double posY = position[1];
+                        double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
+                        unitSelected.moveFormationKeptTo(posX, posY, angle);
+                    }
+                } else if (unitSelected instanceof CatapultUnit) {
+                    // Convert closest unit to click
+                    double[] screenPos = camera.getDrawingPosition(
+                            closestUnit.getAverageX(),
+                            closestUnit.getAverageY());
+                    // If it's an archer unit, check the faction and distance from the closest unit from view.camera
+                    if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
+                            MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
+                                    UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                        ((CatapultUnit) unitSelected).setUnitFiredAt(closestUnit);
                     } else {
                         double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                         double posX = position[0];
@@ -1022,7 +1037,7 @@ public class MainSimulation extends PApplet {
         // Balista
         if (!balistaSizeMap.containsKey(camera.getZoom())) {
             double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.BALISTA, PoliticalFaction.ROME).radius;
+            double size = env.getGameStats().getSingleStats(UnitType.BALLISTA, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
             newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
             newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
@@ -1225,11 +1240,17 @@ public class MainSimulation extends PApplet {
                     (float) drawX, (float) drawY, (float) angle,
                     (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.ARROW_SIZE, settings);
         }
-        if (object instanceof Balista) {
+        if (object instanceof Ballista) {
             fill(50, 50, 50);
             shapeDrawer.arrow(g,
                     (float) drawX, (float) drawY, (float) angle,
                     (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.BALISTA_SIZE, settings);
+        }
+        if (object instanceof Stone) {
+            fill(50, 50, 50);
+            shapeDrawer.circleShape(g,
+                    (float) drawX, (float) drawY,
+                    (float) (camera.getZoomAtHeight(z) * DrawingConstants.CATAPULT_SIZE), camera);
         }
     }
 
@@ -1257,7 +1278,7 @@ public class MainSimulation extends PApplet {
             shapeDrawer.arrow(g,
                     (float) drawX, (float) drawY, (float) angle,
                     (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.ARROW_SIZE, settings);
-        } else if (object instanceof Balista) {
+        } else if (object instanceof Ballista) {
             fill(50, 50, 50, opacity);
             shapeDrawer.arrow(g,
                     (float) drawX, (float) drawY, (float) angle,
@@ -1545,7 +1566,7 @@ public class MainSimulation extends PApplet {
             shapeDrawer.bow(g, (float) drawX, (float) drawY, (float) angle,
                     (float) (currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment), settings);
 
-        } else if (single instanceof BalistaSingle) {
+        } else if (single instanceof BallistaSingle) {
             // Balista shadow
             // TODO: Change the shape to the balista shape
             if (drawingSettings.isDrawTroopShadow()) {
@@ -1819,7 +1840,7 @@ public class MainSimulation extends PApplet {
                     drawY,
                     currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment,
                     currSizeArcher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
-        } else if (single instanceof BalistaSingle) {
+        } else if (single instanceof BallistaSingle) {
             shapeDrawer.infantryShape(g,
                     drawX,
                     drawY,

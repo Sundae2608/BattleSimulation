@@ -98,8 +98,11 @@ public final class ConfigUtils {
                 case ARCHER:
                     unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
                     break;
-                case BALISTA:
-                    unit = new BalistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
+                case BALLISTA:
+                    unit = new BallistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
+                    break;
+                case CATAPULT:
+                    unit = new CatapultUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
                     break;
                 case SLINGER:
                     unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
@@ -178,7 +181,7 @@ public final class ConfigUtils {
                     singleStats.arrowDamage = Double.parseDouble(d.get("arrow_damage"));
                     singleStats.arrowPushDist = Double.parseDouble(d.get("arrow_push_dist"));
                     break;
-                case BALISTA:
+                case BALLISTA:
                     singleStats.reloadDelay = Integer.parseInt(d.get("reload_delay"));
                     singleStats.boredDelay = Integer.parseInt(d.get("bored_delay"));
                     singleStats.angleVariation = Double.parseDouble(d.get("angle_variation"));
@@ -191,6 +194,19 @@ public final class ConfigUtils {
                     singleStats.ballistaExplosionPush = Double.parseDouble(d.get("ballista_explosion_push"));
                     singleStats.ballistaExplosionRange = Double.parseDouble(d.get("ballista_explosion_range"));
                     singleStats.ballistaPushForce = Double.parseDouble(d.get("ballista_push_force"));
+                    break;
+                case CATAPULT:
+                    singleStats.reloadDelay = Integer.parseInt(d.get("reload_delay"));
+                    singleStats.boredDelay = Integer.parseInt(d.get("bored_delay"));
+                    singleStats.angleVariation = Double.parseDouble(d.get("angle_variation"));
+                    singleStats.firingRange = Double.parseDouble(d.get("firing_range"));
+                    singleStats.squaredFiringRange = singleStats.firingRange * singleStats.firingRange;
+                    singleStats.catapultSpeed = Double.parseDouble(d.get("catapult_speed"));
+                    singleStats.catapultDamage = Double.parseDouble(d.get("catapult_damage"));
+                    singleStats.catapultExplosionDamage = Double.parseDouble(d.get("catapult_explosion_damage"));
+                    singleStats.catapultExplosionPush = Double.parseDouble(d.get("catapult_explosion_push"));
+                    singleStats.catapultExplosionRange = Double.parseDouble(d.get("catapult_explosion_range"));
+                    singleStats.catapultPushForce = Double.parseDouble(d.get("catapult_push_force"));
                     break;
                 case CAVALRY:
                 case HORSE_ARCHER:

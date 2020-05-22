@@ -1,5 +1,5 @@
 {
-    type: BALISTA
+    type: BALLISTA
     org: unit
     x: -1500
     y: 2070
@@ -9,7 +9,7 @@
     width: 2
 },
 {
-    type: BALISTA
+    type: CATAPULT
     org: unit
     x: 0
     y: 4070
@@ -24,9 +24,9 @@
     x: -500
     y: 570
     angle: 0
-    size: 1200
+    size: 600
     faction: ROME
-    width: 60
+    width: 40
 },
 {
     type: SWORDMAN
@@ -34,7 +34,7 @@
     x: 1900
     y: 570
     angle: 180
-    size: 1800
+    size: 600
     faction: GAUL
-    width: 180
+    width: 60
 },

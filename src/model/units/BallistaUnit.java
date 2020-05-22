@@ -3,7 +3,7 @@ package model.units;
 import model.algorithms.ObjectHasher;
 import model.enums.PoliticalFaction;
 import model.events.EventBroadcaster;
-import model.singles.BalistaSingle;
+import model.singles.BallistaSingle;
 import model.singles.BaseSingle;
 import model.singles.SingleStats;
 import model.terrain.Terrain;
@@ -13,7 +13,7 @@ import model.utils.MathUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class BalistaUnit extends BaseUnit {
+public class BallistaUnit extends BaseUnit {
 
     // Unit fired against (unique to archers)
     // Indicate the model.units the archer is currently aimed at .
@@ -21,9 +21,9 @@ public class BalistaUnit extends BaseUnit {
     private ArrayList<BaseSingle> targetIterator;
     private int iteratorIndex;
 
-    public BalistaUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
-                      SingleStats singleStats, int unitWidth, ObjectHasher hasher, Terrain terrain,
-                       EventBroadcaster broadcaster) {
+    public BallistaUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
+                        SingleStats singleStats, int unitWidth, ObjectHasher hasher, Terrain terrain,
+                        EventBroadcaster broadcaster) {
         super(unitStats, terrain, broadcaster);
 
         // Assign default attributes
@@ -59,7 +59,7 @@ public class BalistaUnit extends BaseUnit {
                     + ((i / width) * unitStats.spacing) * downUnitX;
             double singleY = topY + (i % width) * unitStats.spacing * sideUnitY
                     + ((i / width) * unitStats.spacing) * downUnitY;
-            troops.add(new BalistaSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher));
+            troops.add(new BallistaSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher));
         }
         aliveTroopsSet = new HashSet<>(troops);
 

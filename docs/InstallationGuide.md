@@ -19,7 +19,8 @@ You will also need to download the following Java packages to resolve dependenci
 * [javafx](https://openjfx.io/)
 * [parallel_colt](https://sites.google.com/site/piotrwendykier/software/parallelcolt)
 * [processing-3.5.4](https://processing.org/) core library
-* [processing-sound-2.2.3](https://github.com/processing/processing-sound/releases/tag/v2.2.3)
+* [processing-sound-2.2.3](https://github.com/processing/processing-sound/releases/tag/v2.2.3). Remember to get 
+`sound.zip` which contains the .jar files.
 
 ## Step 2: Setting up IntellJ development environment
 

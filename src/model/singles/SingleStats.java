@@ -50,4 +50,12 @@ public class SingleStats {
     public double ballistaExplosionDamage;
     public double ballistaExplosionRange;
     public double ballistaExplosionPush;
+
+    // Catapult stats
+    public double catapultDamage;
+    public double catapultSpeed;
+    public double catapultPushForce;
+    public double catapultExplosionDamage;
+    public double catapultExplosionRange;
+    public double catapultExplosionPush;
 }

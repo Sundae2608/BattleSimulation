@@ -1,6 +1,5 @@
 package model.algorithms;
 
-import model.constants.ObjectConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
@@ -8,8 +7,9 @@ import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventType;
 import model.objects.Arrow;
-import model.objects.Balista;
+import model.objects.Ballista;
 import model.objects.BaseObject;
+import model.objects.Stone;
 import model.settings.GameSettings;
 import model.singles.*;
 import model.terrain.Terrain;
@@ -111,8 +111,8 @@ public class UnitModifier {
             }
 
             // Process based on the type of objects
-            if (closestCandidate == null) continue;
             if (obj instanceof Arrow) {
+                if (closestCandidate == null) continue;
                 if (closestDistance < MathUtils.square(closestCandidate.getSize()) / 4) {
                     // If distance to object is smaller than the diameter, count as an arrow hit
                     // Inflict some damage to the candidate
@@ -139,16 +139,17 @@ public class UnitModifier {
                         closestCandidate.getUnit().deadMorph(closestCandidate);
                     }
                 }
-            } else if (obj instanceof Balista) {
+            } else if (obj instanceof Ballista) {
+                if (closestCandidate == null) continue;
                 boolean balistaHit = closestDistance < MathUtils.square(closestCandidate.getSize()) / 4;
 
                 if (balistaHit) {
                     // Inflict explosion damage damage
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
                             obj.getX(), obj.getY(),
-                            ((Balista) obj).getExplosionRange());
+                            ((Ballista) obj).getExplosionRange());
                     double squareExplosionRange =
-                            ((Balista) obj).getExplosionRange() * ((Balista) obj).getExplosionRange();
+                            ((Ballista) obj).getExplosionRange() * ((Ballista) obj).getExplosionRange();
                     for (BaseSingle candidate : explosionCandidates) {
                         double dx = candidate.getX() - obj.getX();
                         double dy = candidate.getY() - obj.getY();
@@ -157,12 +158,12 @@ public class UnitModifier {
                             // Apply damage and send the objects flying
                             double angle = MathUtils.atan2(dy, dx);
                             candidate.setxVel(candidate.getxVel() +
-                                    MathUtils.quickCos((float) angle) * ((Balista) obj).getPushForce());
+                                    MathUtils.quickCos((float) angle) * ((Ballista) obj).getPushForce());
                             candidate.setyVel(candidate.getyVel() +
-                                    MathUtils.quickSin((float) angle) * ((Balista) obj).getPushForce());
+                                    MathUtils.quickSin((float) angle) * ((Ballista) obj).getPushForce());
                             candidate.switchState(SingleState.SLIDING);
 
-                            candidate.receiveDamage(((Balista) obj).getExplosionDamage());
+                            candidate.receiveDamage(((Ballista) obj).getExplosionDamage());
                             if (candidate.getState() == SingleState.DEAD) {
                                 // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                                 deadContainer.add(candidate);
@@ -173,7 +174,7 @@ public class UnitModifier {
 
                     // If distance to object is smaller than the diameter, count as an arrow hit
                     // Inflict some damage to the candidate
-                    closestCandidate.receiveDamage(((Balista) obj).getDamage());
+                    closestCandidate.receiveDamage(((Ballista) obj).getDamage());
                     broadcaster.broadcastEvent(new Event(
                             EventType.EXPLOSION, obj.getX(), obj.getY(),
                             terrain.getHeightFromPos(obj.getX(), obj.getY())));
@@ -182,8 +183,8 @@ public class UnitModifier {
                     if (closestCandidate.getState() != SingleState.DEAD) {
                         // Apply arrow force
                         double angle = obj.getAngle();
-                        double dx = MathUtils.quickCos((float) angle) * ((Balista) obj).getPushForce();
-                        double dy = MathUtils.quickSin((float) angle) * ((Balista) obj).getPushForce();
+                        double dx = MathUtils.quickCos((float) angle) * ((Ballista) obj).getPushForce();
+                        double dy = MathUtils.quickSin((float) angle) * ((Ballista) obj).getPushForce();
                         closestCandidate.setxVel(closestCandidate.getxVel() + dx);
                         closestCandidate.setyVel(closestCandidate.getyVel() + dy);
 
@@ -194,6 +195,39 @@ public class UnitModifier {
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                         deadContainer.add(closestCandidate);
                         closestCandidate.getUnit().deadMorph(closestCandidate);
+                    }
+                }
+            } else if (obj instanceof Stone) {
+                if (((Stone) obj).isTouchGround()) {
+                    System.out.println("Stone touches ground");
+                    // Inflict explosion damage damage
+                    ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
+                            obj.getX(), obj.getY(),
+                            ((Stone) obj).getExplosionRange());
+                    System.out.println("Num collisions");
+                    System.out.println(explosionCandidates.size());
+                    double squareExplosionRange =
+                            ((Stone) obj).getExplosionRange() * ((Stone) obj).getExplosionRange();
+                    for (BaseSingle candidate : explosionCandidates) {
+                        double dx = candidate.getX() - obj.getX();
+                        double dy = candidate.getY() - obj.getY();
+                        double squareDistance = dx * dx + dy * dy;
+                        if (squareDistance < squareExplosionRange) {
+                            // Apply damage and send the objects flying
+                            double angle = MathUtils.atan2(dy, dx);
+                            candidate.setxVel(candidate.getxVel() +
+                                    MathUtils.quickCos((float) angle) * ((Stone) obj).getPushForce());
+                            candidate.setyVel(candidate.getyVel() +
+                                    MathUtils.quickSin((float) angle) * ((Stone) obj).getPushForce());
+                            candidate.switchState(SingleState.SLIDING);
+
+                            candidate.receiveDamage(((Stone) obj).getExplosionDamage());
+                            if (candidate.getState() == SingleState.DEAD) {
+                                // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
+                                deadContainer.add(candidate);
+                                candidate.getUnit().deadMorph(candidate);
+                            }
+                        }
                     }
                 }
             }

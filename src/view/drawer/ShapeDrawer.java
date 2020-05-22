@@ -206,19 +206,36 @@ public class ShapeDrawer extends PApplet {
      *             the infantry is drawn as a square.
      * @param camera The view.camera.
      */
+    public void circleShape(PGraphics g, double x, double y, double size, Camera camera) {
+        g.ellipse(
+            (float) x,
+            (float) y,
+            (float) size,
+            (float) size);
+    }
+
+    /**
+     * Draw the shape of infantry
+     * @param g PGraphics object that draw the infantry shape
+     * @param x Position x
+     * @param y Position y
+     * @param size Contains two size. One size is the when the infantry is drawn as circle, the other is the size when
+     *             the infantry is drawn as a square.
+     * @param camera The view.camera.
+     */
     public void infantryShape(PGraphics g, double x, double y, double size, double sizeSimplfied, Camera camera) {
         if (camera.getZoom() < UniversalConstants.ZOOM_RENDER_LEVEL_SIMPLIFY_TROOP_SHAPE) {
             g.rect(
-                    (float) x,
-                    (float) y,
-                    (float) sizeSimplfied,
-                    (float) sizeSimplfied);
+                (float) x,
+                (float) y,
+                (float) sizeSimplfied,
+                (float) sizeSimplfied);
         } else {
             g.ellipse(
-                    (float) x,
-                    (float) y,
-                    (float) size,
-                    (float) size);
+                (float) x,
+                (float) y,
+                (float) size,
+                (float) size);
         }
     }
 

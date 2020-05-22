@@ -15,4 +15,5 @@ public class DrawingConstants {
     // Plan arrow size
     public final static double ARROW_SIZE = 30;
     public final static double BALISTA_SIZE = 100;
+    public final static double CATAPULT_SIZE = 20;
 }
