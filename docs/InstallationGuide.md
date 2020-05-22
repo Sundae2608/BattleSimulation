@@ -15,7 +15,8 @@ You will also need to download the following Java packages to resolve dependenci
 
 * [colt](https://dst.lbl.gov/ACSSoftware/colt/)
 * [commons-math3-3.6.1](https://mvnrepository.com/artifact/org.apache.commons/commons-math3/3.6.1)
-* [disiutils-2.6.3](http://fastutil.di.unimi.it/)
+* [disiutils-2.6.3](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22it.unimi.dsi%22)
+* [fastutils-8.3.1](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22it.unimi.dsi%22)
 * [javafx](https://openjfx.io/)
 * [parallel_colt](https://sites.google.com/site/piotrwendykier/software/parallelcolt)
 * [processing-3.5.4](https://processing.org/) core library
@@ -33,7 +34,7 @@ into.
 2. Go to `File > Project Structure`. 
 3. In `Project Settings > Project`, change SDK to version 11.
 4. In `Libraries`, import all the downloaded Java packages mentioned above.
-   * `colt`, `common-math`, `disiutils`, `javafx`, `parallel_colt` and `processing-sound` should exist as a `jar` file. 
+   * `colt`, `common-math`, `disiutils`, `fastutils`, `javafx`, `parallel_colt` and `processing-sound` should exist as a `jar` file. 
    You can simply import them by pressing `+ > New Java Library > Java` and select the folder containing these `.jar`
    files.
    *  To find `processing-3.5.4` core library, go to `processing-3.5.4` folder and to `core\library`. You should import
