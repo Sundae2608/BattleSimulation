@@ -62,6 +62,9 @@ public class Camera extends EventListener {
                 cameraShakeLevel += CameraConstants.SHAKE_LEVEL_EXPLOSION;
                 break;
         }
+        if (cameraShakeLevel > CameraConstants.SHAKE_LEVEL_MAX) {
+            cameraShakeLevel = CameraConstants.SHAKE_LEVEL_MAX;
+        }
     }
 
     /**

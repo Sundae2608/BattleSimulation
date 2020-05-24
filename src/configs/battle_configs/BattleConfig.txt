@@ -14,9 +14,9 @@
     x: 0
     y: 4070
     angle: 90
-    size: 2
+    size: 20
     faction: ROME
-    width: 2
+    width: 5
 },
 {
     type: CAVALRY
@@ -34,7 +34,7 @@
     x: 1900
     y: 570
     angle: 180
-    size: 600
+    size: 1200
     faction: GAUL
     width: 60
 },

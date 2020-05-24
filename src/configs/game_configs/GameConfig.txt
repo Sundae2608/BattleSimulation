@@ -148,7 +148,7 @@
     // Catapult stats
     catapult_speed: 60
     catapult_damage: 200
-    catapult_explosion_damage: 50
+    catapult_explosion_damage: 100
     catapult_explosion_range: 70
     catapult_explosion_push: 40
     catapult_push_force: 15
