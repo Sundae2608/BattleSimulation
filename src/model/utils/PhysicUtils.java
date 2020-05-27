@@ -94,18 +94,18 @@ public final class PhysicUtils {
      */
     public static double[] calculateProjectileArch(double speed, int lifeTime) {
         // These should be global variable
-        double timestep = 1; // This is the amount of realtime in one time increment
+        double timeStep = 1; // This is the amount of realtime in one time increment
         double g = 9.81*23; //m/s^2
 
         // Assuming the ground is relatively flat horizontally
         // The equation for height is z = v*sin(alpha)*t - g*t^2/2
         // The boundary condition states that z = 0, when t=0, and t=T. For t = T = lifeTime*timestep, solve for sine
-        double sineAlpha = g*(lifeTime*timestep)/(2*speed);
+        double sineAlpha = g*(lifeTime*timeStep)/(2*speed);
 
         double[] arr = new double[lifeTime];
         for (int i = 0; i < lifeTime; i++)
         {
-            double height = speed*sineAlpha*(i*timestep) - g*(i*timestep)^2/(2*speed);
+            double height = speed*sineAlpha*(i*timeStep) - g*(i*timeStep)*(i*timeStep)/(2*speed);
             arr[i] = height;
         }
         return arr;
