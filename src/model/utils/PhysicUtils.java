@@ -95,7 +95,7 @@ public final class PhysicUtils {
     public static double[] calculateProjectileArch(double speed, int lifeTime) {
         // These should be global variable
         double timestep = 1; // This is the amount of realtime in one time increment
-        double g = 9.81; //m/s^2
+        double g = 9.81*23; //m/s^2
 
         // Assuming the ground is relatively flat horizontally
         // The equation for height is z = v*sin(alpha)*t - g*t^2/2
