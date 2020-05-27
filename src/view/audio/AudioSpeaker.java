@@ -34,7 +34,7 @@ public class AudioSpeaker extends EventListener {
 
     @Override
     protected void listenEvent(Event e) {
-        // TODO: All events are currently assumed to be audio events and added here. However, preprocessing will help
+        // TODO: All events are currently assumed to be audio events and added here. However, pre-processing will help
         //  with processing speed. Implement a map from EventType to AudioType internally.
         eventList.add(e);
     }

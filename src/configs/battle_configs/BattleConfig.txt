@@ -14,14 +14,23 @@
     x: 0
     y: 4070
     angle: 90
-    size: 20
+    size: 10
     faction: ROME
-    width: 5
+    width: 10
 },
 {
     type: CAVALRY
     org: unit
     x: -500
+    y: 570
+    angle: 0
+    size: 600
+    faction: ROME
+    width: 40
+},
+    type: ARCHER
+    org: unit
+    x: -1000
     y: 570
     angle: 0
     size: 600

@@ -1,0 +1,4 @@
+{
+    type: EXPLOSION
+    video_path: videos/explosion/
+},
