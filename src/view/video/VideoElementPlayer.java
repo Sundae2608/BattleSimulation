@@ -51,13 +51,11 @@ public class VideoElementPlayer extends EventListener {
                 double[] drawingPos = camera.getDrawingPosition(element.x, element.y, element.z);
                 double zoom = camera.getZoomAtHeight(element.z);
                 PImage image = element.template.getSequence().get(element.frame);
-                applet.blendMode(PConstants.ADD);
                 applet.image(image,
                         (float) (drawingPos[0] - image.width * zoom / 2),
                         (float) (drawingPos[1] - image.height * zoom / 2),
                         (float) (image.width * zoom),
                         (float) (image.height * zoom));
-                applet.blendMode(PConstants.BLEND);
                 element.step();
 
                 // And accept this element in the new array, as the element has not ended yet
