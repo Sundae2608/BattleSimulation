@@ -1,5 +1,7 @@
 package model.utils;
 
+import org.apache.commons.math3.util.Pair;
+
 public final class PhysicUtils {
 
     /**
@@ -109,5 +111,15 @@ public final class PhysicUtils {
             arr[i] = height;
         }
         return arr;
+    }
+
+    /**
+     * Given the speed and distance that the projectile aims to shoot toward, return vx and z.
+     * @param speed the speed of the projectile
+     * @param distance the distance the projectile aims towards
+     * @return
+     */
+    public static Pair<Double, Double[]> calculateProjectileArchGivenSpeedAndDist(double speed, double distance) {
+        return new Pair<>(0.0, new Double[]{0.0});
     }
 }
