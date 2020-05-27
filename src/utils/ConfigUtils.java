@@ -12,9 +12,14 @@ import model.units.*;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 import processing.core.PApplet;
+import processing.core.PImage;
 import view.audio.*;
 import view.camera.Camera;
+import view.video.VideoElementPlayer;
+import view.video.VideoElementType;
+import view.video.VideoTemplate;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -274,11 +279,51 @@ public final class ConfigUtils {
             SpeakingType speakingType = SpeakingType.valueOf(d.get("broadcast_type"));
             float baseVolume = Float.parseFloat(d.get("base_volume"));
             Audio audio = new Audio(
-                audioPath, audioType, speakingType, baseVolume, applet
+                    audioPath, audioType, speakingType, baseVolume, applet
             );
             speaker.addAudio(audioType, audio);
         }
         return speaker;
+    }
+
+    /**
+     * Read audio configs
+     * @param filePath
+     * @param applet
+     * @return An audio broadcaster with the configs.
+     * @throws IOException
+     */
+    public static VideoElementPlayer readVideoElementConfig(String filePath, Camera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+        // Get all text from file location
+        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
+        String s = new String(encoded, StandardCharsets.UTF_8);
+        String[] unitsInfo = s.split(",");
+
+        // Read each information
+        HashMap<VideoElementType, VideoTemplate> templateMap = new HashMap<>();
+        for (String info : unitsInfo) {
+
+            HashMap<String, String> d = parseProtoString(info);
+
+            // Get the element type
+            VideoElementType elementType = VideoElementType.valueOf(d.get("type"));
+            File folder = new File(String.valueOf(Paths.get(d.get("video_path"))));
+
+            // Build the sequence
+            File[] listOfFiles = folder.listFiles();
+            ArrayList<PImage> sequence = new ArrayList<>();
+            for (int i = 0; i < listOfFiles.length; i++) {
+                PImage image = applet.loadImage(listOfFiles[i].getCanonicalPath());
+                sequence.add(image);
+            }
+
+            // Create the template and add it to the template map
+            templateMap.put(elementType, new VideoTemplate(elementType, sequence));
+        }
+
+        // Return the video element player
+        VideoElementPlayer player = new VideoElementPlayer(applet, camera, templateMap, eventBroadcaster);
+        return player;
     }
 
     /**

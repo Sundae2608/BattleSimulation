@@ -191,7 +191,6 @@ public class UnitModifier {
                         // The soldier will absorb the arrow and carry it for a while
                         closestCandidate.absorbObject(obj);
                     } else {
-                        System.out.println("the one who got hit gets killed");
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                         deadContainer.add(closestCandidate);
                         closestCandidate.getUnit().deadMorph(closestCandidate);
@@ -199,12 +198,13 @@ public class UnitModifier {
                 }
             } else if (obj instanceof Stone) {
                 if (((Stone) obj).isTouchGround()) {
-                    System.out.println("Stone touches ground");
                     // Inflict explosion damage damage
+                    broadcaster.broadcastEvent(new Event(
+                            EventType.EXPLOSION, obj.getX(), obj.getY(),
+                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
                             obj.getX(), obj.getY(),
                             ((Stone) obj).getExplosionRange());
-                    System.out.println("Num collisions");
                     System.out.println(explosionCandidates.size());
                     double squareExplosionRange =
                             ((Stone) obj).getExplosionRange() * ((Stone) obj).getExplosionRange();

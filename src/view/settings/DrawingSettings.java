@@ -19,6 +19,7 @@ public class DrawingSettings {
     private boolean drawIcon;
     private boolean drawTroopInDanger;
     private boolean drawTroopInPosition;
+    private boolean drawVideoEffect;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -157,6 +158,14 @@ public class DrawingSettings {
     }
     public void setSmoothPlanShowingSteps(int smoothPlanShowingSteps) {
         this.smoothPlanShowingSteps = smoothPlanShowingSteps;
+    }
+
+    public boolean isDrawVideoEffect() {
+        return drawVideoEffect;
+    }
+
+    public void setDrawVideoEffect(boolean drawVideoEffect) {
+        this.drawVideoEffect = drawVideoEffect;
     }
 
     public boolean isDrawTroopInDanger() {

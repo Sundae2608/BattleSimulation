@@ -37,6 +37,7 @@ import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
 import view.settings.RenderMode;
 import view.utils.DrawingUtils;
+import view.video.VideoElementPlayer;
 
 import java.io.File;
 import java.io.IOException;
@@ -110,8 +111,12 @@ public class MainSimulation extends PApplet {
     // -----------
 
     AudioSpeaker audioSpeaker;
-
     SoundFile backgroundMusic;
+
+    // --------------------
+    // Video element player
+    // --------------------
+    VideoElementPlayer videoElementPlayer;
 
     // -----------
     // Image files
@@ -194,6 +199,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawSimplifiedTroopShape(true);
         drawingSettings.setDrawIcon(true);
         drawingSettings.setInPositionOptimization(false);
+        drawingSettings.setDrawVideoEffect(true);
 
         // Initializee drawer
         uiDrawer = new UIDrawer();
@@ -273,6 +279,18 @@ public class MainSimulation extends PApplet {
                 env.getBroadcaster());
         zoomGoal = camera.getZoom();  // To ensure consistency
         angleGoal = camera.getAngle();
+
+        // -------------------------
+        // Load video element player
+        // -------------------------
+        try {
+            videoElementPlayer = ConfigUtils.readVideoElementConfig(
+                    "src/configs/graphic_configs/GraphicConfig.txt",
+                    camera, this, env.getBroadcaster()
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // ---------------
         // Load sound file
@@ -475,12 +493,44 @@ public class MainSimulation extends PApplet {
         if (planCounter > 0) {
             for (BaseUnit unit : env.getUnits()) {
                 if (unit.getState() == UnitState.MOVING) {
+                    if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
-                    drawArrowPlan(unit, camera, drawingSettings);
+                    drawArrowPlan(
+                            unit.getAverageX(), unit.getAverageY(),
+                            unit.getGoalX(), unit.getAverageY(),
+                            camera, drawingSettings);
                 }
             }
             planCounter -= 1;
+        }
+
+        // Always draw arrow of selected unit
+        // TODO(sonpham) Refactor this into unit graphics
+        if (unitSelected != null) {
+            int[] color = DrawingUtils.getFactionColor(unitSelected.getPoliticalFaction());
+            if (unitSelected.getState() == UnitState.MOVING) {
+                fill(color[0], color[1], color[2], 255);
+                drawArrowPlan(
+                        unitSelected.getAverageX(), unitSelected.getAverageY(),
+                        unitSelected.getGoalX(), unitSelected.getGoalY(), camera, drawingSettings);
+            }
+
+            // Intention arrow
+            fill(color[0], color[1], color[2], 128);
+            if ((unitSelected instanceof ArcherUnit ||
+                unitSelected instanceof BallistaUnit ||
+                unitSelected instanceof CatapultUnit) && closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction()) {
+                double[] getDrawingPositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                drawArrowPlan(
+                        unitSelected.getAverageX(), unitSelected.getAverageY(),
+                        closestUnit.getAverageX(), closestUnit.getAverageY(), camera, drawingSettings);
+            } else {
+                double[] getDrawingPositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                drawArrowPlan(
+                        unitSelected.getAverageX(), unitSelected.getAverageY(),
+                        getDrawingPositions[0], getDrawingPositions[1], camera, drawingSettings);
+            }
         }
 
         if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_TROOP) {
@@ -512,6 +562,8 @@ public class MainSimulation extends PApplet {
         for (BaseObject obj : objects) {
             if (obj.isAlive()) drawObject(obj, camera, env.getTerrain(), drawingSettings);
         }
+
+        if (drawingSettings.isDrawVideoEffect()) videoElementPlayer.processElementQueue();
 
         // -------------------
         // Procecss unit sound
@@ -680,6 +732,9 @@ public class MainSimulation extends PApplet {
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
                         ((ArcherUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        if (unitSelected.getState() == UnitState.MOVING) {
+                            unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                        }
                     } else {
                         double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                         double posX = position[0];
@@ -697,6 +752,9 @@ public class MainSimulation extends PApplet {
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
                         ((BallistaUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        if (unitSelected.getState() == UnitState.MOVING) {
+                            unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                        }
                     } else {
                         double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                         double posX = position[0];
@@ -714,6 +772,9 @@ public class MainSimulation extends PApplet {
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
                         ((CatapultUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        if (unitSelected.getState() == UnitState.MOVING) {
+                            unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                        }
                     } else {
                         double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                         double posX = position[0];
@@ -1298,11 +1359,7 @@ public class MainSimulation extends PApplet {
     /**
      * Draw unit arrow plan. This arrow indicates the potential position that the unit is moving to.
      */
-    void drawArrowPlan(BaseUnit unit, Camera camera, DrawingSettings settings) {
-        double beginX = unit.getAnchorX();
-        double beginY = unit.getAnchorY();
-        double endX = unit.getGoalX();
-        double endY = unit.getGoalY();
+    void drawArrowPlan(double beginX, double beginY, double endX, double endY, Camera camera, DrawingSettings settings) {
         double angle = MathUtils.atan2(endY - beginY, endX - beginX);
         double rightAngle = angle + Math.PI / 2;
 
