@@ -117,8 +117,8 @@ public final class PhysicUtils {
         //.... speed should be in pixels/frames
         //.... distance should be in pixels
 
-        double timeStep = 60; // frames/s This is the amount of real time between two frames
-        double g = (9.81*23)/(timeStep*timeStep); // pixels/(frames)^2; note that 23 pixels are equal to 1 m
+        double frameRate = 60; // frames/s This is the amount of real time between two frames
+        double g = (9.81*23)/(frameRate*frameRate); // pixels/(frames)^2; note that 23 pixels are equal to 1 m
 
         // Calculating the angle of shooting
         double max_distance = speed*speed/g; // pixels
