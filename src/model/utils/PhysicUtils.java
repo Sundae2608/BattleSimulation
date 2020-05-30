@@ -113,6 +113,33 @@ public final class PhysicUtils {
      * @return
      */
     public static Pair<Double, Double[]> calculateProjectileArchGivenSpeedAndDist(double speed, double distance) {
-        return new Pair<>(0.0, new Double[]{0.0});
+        // These should be global variable
+        //.... speed should be in pixels/frames
+        //.... distance should be in pixels
+
+        double timeStep = 60; // frames/s This is the amount of real time between two frames
+        double g = (9.81*23)/(timeStep*timeStep); // pixels/(frames)^2; note that 23 pixels are equal to 1 m
+
+        // Calculating the angle of shooting
+        double max_distance = speed*speed/g; // pixels
+        if (distance >= max_distance) {
+            double alpha = 45; //degrees;
+        } else {
+            double alpha = asin(distance*g/(speed*speed))/2; // degrees
+        }
+
+        // Calculating output vx
+        double vx = speed*cos(alpha); //pixels/frames
+
+        // Calculating the timeseries
+        double T = 2*speed*sin(alpha)/g; // frames; This is the flight time
+        double[] heightArr = new double[floor(T)];
+        for (int i = 0; i < T; i++) {
+            // Each i marks 1 frame
+            height = speed*sin(alpha)*(i) - g*(i*i)/2; // pixels
+            heightArr[i] = height; // pixels
+        }
+
+        return new Pair<Double, Double[]>(vx, heightArr);
     }
 }
