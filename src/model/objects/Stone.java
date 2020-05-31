@@ -2,6 +2,7 @@ package model.objects;
 
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
+import org.apache.commons.math3.util.Pair;
 
 public class Stone extends BaseObject {
 
@@ -16,7 +17,7 @@ public class Stone extends BaseObject {
     // Positions
     // Precalculate array positions for all its life type
     double[][] pos;
-    double[] heightOverTime;
+    Double[] heightOverTime;
     boolean touchGround;
     int index;
 
@@ -38,14 +39,15 @@ public class Stone extends BaseObject {
         if (angleVariation != 0) {
             angle += MathUtils.randDouble(-angleVariation, angleVariation);
         }
-        double dx = MathUtils.quickCos((float) angle) * speed;
-        double dy = MathUtils.quickSin((float) angle) * speed;
 
-        // Calculate arrow life
-        int lifeTime = Math.min(
-                (int) Math.abs(Math.ceil((goalX - inputX) / dx)),
-                (int) Math.abs(Math.ceil((goalY - inputY) / dy))) + 1;
-        heightOverTime = PhysicUtils.calculateProjectileArch(speed, lifeTime);
+        // Calculate arrow height and lifetime
+        double distance = Math.sqrt((goalX - inputX)*(goalX - inputX) + (goalY - inputY)*(goalY - inputY));
+        Pair<Double, Double[]> outputPair = PhysicUtils.calculateProjectileArchGivenSpeedAndDist(speed, distance);
+        heightOverTime = outputPair.getSecond();
+        int lifeTime = heightOverTime.length;
+
+        double dx = MathUtils.quickCos((float) angle) * outputPair.getFirst();
+        double dy = MathUtils.quickSin((float) angle) * outputPair.getFirst();
 
         // Precalculate all positions
         pos = new double[lifeTime][2];

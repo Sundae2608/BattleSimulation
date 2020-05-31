@@ -113,6 +113,37 @@ public final class PhysicUtils {
      * @return
      */
     public static Pair<Double, Double[]> calculateProjectileArchGivenSpeedAndDist(double speed, double distance) {
-        return new Pair<>(0.0, new Double[]{0.0});
+        // These should be global variable
+        //.... speed should be in pixels/frames
+        //.... distance should be in pixels
+
+        double frameRate = 60; // frames/s This is the amount of real time between two frames
+        double g = (9.81 * 23) / (frameRate * frameRate); // pixels/(frames)^2; note that 23 pixels are equal to 1 m
+
+        // Calculating the angle of shooting
+        double max_distance = speed * speed / g; // pixels
+        double alpha = 0; // radiant
+
+        if (distance >= max_distance) {
+            alpha = Math.PI / 4; //radian;
+        } else {
+            alpha = Math.asin(distance * g / (speed * speed)) / 2; // radian
+        }
+        System.out.println(Math.toDegrees(alpha));
+
+        // Calculating output vx
+        double vx = speed * Math.cos(alpha); //pixels/frames
+
+        // Calculating the time series
+        double T = 2 * speed * Math.sin(alpha) / g; // frames; This is the flight time
+        Double[] heightArr = new Double[(int) Math.floor(T)];
+        double height = 0;
+        for (int i = 0; i < Math.floor(T); i++) {
+            // Each i marks 1 frame
+            height = speed * Math.sin(alpha) * i - g * (i * i)/2; // pixels
+            heightArr[i] = height; // pixels
+        }
+
+        return new Pair<Double, Double[]>(vx, heightArr);
     }
 }

@@ -2,6 +2,7 @@ package model.objects;
 
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
+import org.apache.commons.math3.util.Pair;
 
 public class Ballista extends BaseObject {
 
@@ -16,7 +17,7 @@ public class Ballista extends BaseObject {
     // Positions
     // Precalculate array positions for all its life type
     double[][] pos;
-    double[] heightOverTime;
+    Double[] heightOverTime;
     boolean[] impact;
     int index;
 
@@ -38,15 +39,17 @@ public class Ballista extends BaseObject {
         if (angleVariation != 0) {
             angle += MathUtils.randDouble(-angleVariation, angleVariation);
         }
-        double dx = MathUtils.quickCos((float) angle) * speed;
-        double dy = MathUtils.quickSin((float) angle) * speed;
 
-        // Calculate arrow life
-        int lifeTime = Math.min(
-                (int) Math.abs(Math.ceil((goalX - inputX) / dx)),
-                (int) Math.abs(Math.ceil((goalY - inputY) / dy))) + 1;
+        // Calculate arrow height and lifetime
+        double distance = Math.sqrt((goalX - inputX)*(goalX - inputX) + (goalY - inputY)*(goalY - inputY));
+        Pair<Double, Double[]> outputPair = PhysicUtils.calculateProjectileArchGivenSpeedAndDist(speed, distance);
+        heightOverTime = outputPair.getSecond();
+
+        double dx = MathUtils.quickCos((float) angle) * outputPair.getFirst();
+        double dy = MathUtils.quickSin((float) angle) * outputPair.getFirst();
+
+        int lifeTime = heightOverTime.length;
         int impactTime = (int) Math.max(lifeTime - impactLifeTime, 0);
-        heightOverTime = PhysicUtils.calculateProjectileArch(speed, lifeTime);
 
         // Precalculate all positions
         pos = new double[lifeTime][2];
