@@ -498,7 +498,7 @@ public class MainSimulation extends PApplet {
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
                     drawArrowPlan(
                             unit.getAverageX(), unit.getAverageY(),
-                            unit.getGoalX(), unit.getAverageY(),
+                            unit.getGoalX(), unit.getGoalY(),
                             camera, drawingSettings);
                 }
             }
