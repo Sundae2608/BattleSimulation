@@ -118,25 +118,29 @@ public final class PhysicUtils {
         //.... distance should be in pixels
 
         double frameRate = 60; // frames/s This is the amount of real time between two frames
-        double g = (9.81*23)/(frameRate*frameRate); // pixels/(frames)^2; note that 23 pixels are equal to 1 m
+        double g = (9.81 * 23) / (frameRate * frameRate); // pixels/(frames)^2; note that 23 pixels are equal to 1 m
 
         // Calculating the angle of shooting
-        double max_distance = speed*speed/g; // pixels
+        double max_distance = speed * speed / g; // pixels
+        double alpha = 0; // radiant
+
         if (distance >= max_distance) {
-            double alpha = 45; //degrees;
+            alpha = Math.PI / 4; //radian;
         } else {
-            double alpha = asin(distance*g/(speed*speed))/2; // degrees
+            alpha = Math.asin(distance * g / (speed * speed)) / 2; // radian
         }
+        System.out.println(Math.toDegrees(alpha));
 
         // Calculating output vx
-        double vx = speed*cos(alpha); //pixels/frames
+        double vx = speed * Math.cos(alpha); //pixels/frames
 
-        // Calculating the timeseries
-        double T = 2*speed*sin(alpha)/g; // frames; This is the flight time
-        double[] heightArr = new double[floor(T)];
-        for (int i = 0; i < T; i++) {
+        // Calculating the time series
+        double T = 2 * speed * Math.sin(alpha) / g; // frames; This is the flight time
+        Double[] heightArr = new Double[(int) Math.floor(T)];
+        double height = 0;
+        for (int i = 0; i < Math.floor(T); i++) {
             // Each i marks 1 frame
-            height = speed*sin(alpha)*(i) - g*(i*i)/2; // pixels
+            height = speed * Math.sin(alpha) * i - g * (i * i)/2; // pixels
             heightArr[i] = height; // pixels
         }
 
