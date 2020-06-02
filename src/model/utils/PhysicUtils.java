@@ -1,6 +1,11 @@
 package model.utils;
 
+import model.constants.UniversalConstants;
+import model.terrain.Terrain;
+import model.units.BaseUnit;
 import org.apache.commons.math3.util.Pair;
+
+import java.util.ArrayList;
 
 public final class PhysicUtils {
 
@@ -110,40 +115,44 @@ public final class PhysicUtils {
      * Given the speed and distance that the projectile aims to shoot toward, return vx and z.
      * @param speed the speed of the projectile. (v)
      * @param distance the distance the projectile aims towards
-     * @return
+     * @return A pair in which the first element is the ground speed vx of the projectile, while the second element
+     *  is a double array representing the height of elements over time.
      */
     public static Pair<Double, Double[]> calculateProjectileArchGivenSpeedAndDist(double speed, double distance) {
-        // These should be global variable
-        //.... speed should be in pixels/frames
-        //.... distance should be in pixels
-
-        double frameRate = 60; // frames/s This is the amount of real time between two frames
-        double g = (9.81 * 23) / (frameRate * frameRate); // pixels/(frames)^2; note that 23 pixels are equal to 1 m
+        double g = UniversalConstants.GRAVITATIONAL_CONSTANT_FPM2;
 
         // Calculating the angle of shooting
         double max_distance = speed * speed / g; // pixels
-        double alpha = 0; // radiant
-
+        double alpha; // radiant
         if (distance >= max_distance) {
-            alpha = Math.PI / 4; //radian;
+            alpha = MathUtils.PIO4; //radian;
         } else {
             alpha = Math.asin(distance * g / (speed * speed)) / 2; // radian
         }
-        System.out.println(Math.toDegrees(alpha));
 
         // Calculating output vx
-        double vx = speed * Math.cos(alpha); //pixels/frames
+        double vx = speed * Math.cos(alpha); // pixels / frames
 
         // Calculating the time series
-        double T = 2 * speed * Math.sin(alpha) / g; // frames; This is the flight time
-        Double[] heightArr = new Double[(int) Math.floor(T)];
-        double height = 0;
-        for (int i = 0; i < Math.floor(T); i++) {
+        int flightTime = (int) Math.floor(2 * speed * MathUtils.quickSin((float) alpha) / g); // frames; This is the flight time
+        Double[] heightArr = new Double[flightTime];
+        for (int i = 0; i < flightTime; i++) {
             // Each i marks 1 frame
-            height = speed * Math.sin(alpha) * i - g * (i * i)/2; // pixels
+            double height = speed * MathUtils.quickSin((float) alpha) * i - g * (i * i) / 2; // pixels
             heightArr[i] = height; // pixels
         }
+        return new Pair<>(vx, heightArr);
+    }
 
-        return new Pair<Double, Double[]>(vx, heightArr);
+    /**
+     * Checks the vision of the unit base on where the units are on the terrain. Currently returning all units by
+     * default for the purpose of development. (all units are visible to each other)
+     * @param unit The unit whose vision we are checking.
+     * @param allUnits The list of all units alive on the battle field.
+     * @param terrain The terrain that all the units are operate on.
+     * @return An array list containing all visible units.
+     */
+    public static ArrayList<BaseUnit> checkUnitVision(BaseUnit unit, ArrayList<BaseUnit> allUnits, Terrain terrain) {
+        return allUnits;
     }
 }

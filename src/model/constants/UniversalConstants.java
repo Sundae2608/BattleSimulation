@@ -6,8 +6,16 @@ public class UniversalConstants {
     public final static int X_HASH_DIV = 25;
     public final static int Y_HASH_DIV = 25;
 
+    // ---------------------------
+    // Universal physics constants
+    // ---------------------------
+    public final static int GAME_FPS = 60;
+    public final static int SQUARED_GAME_FPS = GAME_FPS * GAME_FPS;
+    public final static double DIST_UNIT_PER_M = 23;
+    public final static double GRAVITATIONAL_CONSTANT_FPM2 = 9.81 * DIST_UNIT_PER_M / (GAME_FPS * GAME_FPS);
+
     // ---------------------------------------
-    // Universal combat and movement model.constants
+    // Universal combat and movement constants
     // ---------------------------------------
 
     // Push constant

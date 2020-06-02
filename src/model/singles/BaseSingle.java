@@ -1,5 +1,6 @@
 package model.singles;
 
+import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
@@ -99,10 +100,6 @@ public class BaseSingle {
                 UniversalConstants.MAXIMUM_TERRAIN_EFFECT);;
         speed *= (1 + speedModifier);
 
-        // Calculate intended step
-        xVel = MathUtils.quickCos((float) angle) * speed;
-        yVel = MathUtils.quickSin((float) angle) * speed;
-
         // Update based on states
         double distanceToGoal = MathUtils.quickRoot1((float)((x - xGoal) * (x - xGoal) + (y - yGoal) * (y - yGoal)));
         switch (state) {
@@ -118,6 +115,12 @@ public class BaseSingle {
                 } else if (distanceToGoal < singleStats.standingDist) {
                     switchState(SingleState.IN_POSITION);
                 }
+                break;
+            case ROUTING:
+                // Recalculate vx, vy
+                speedGoal = singleStats.speed * GameplayConstants.ROUTING_SPEED_COEFFICIENT;
+                angle = MovementUtils.rotate(angle, unit.getGoalAngle(), singleStats.rotationSpeed);
+                angle += MathUtils.randDouble(-GameplayConstants.ROUTING_ANGLE_VARIATION, GameplayConstants.ROUTING_ANGLE_VARIATION);
                 break;
             case IN_POSITION:
                 speed = unit.isTurning() ? 0 : unit.getState() == UnitState.MOVING ? singleStats.speed : 0;
@@ -148,6 +151,10 @@ public class BaseSingle {
         } else {
             facingAngleGoal = angle;
         }
+
+        // Calculate intended step
+        xVel = MathUtils.quickCos((float) angle) * speed;
+        yVel = MathUtils.quickSin((float) angle) * speed;
     }
 
     /**
@@ -161,7 +168,11 @@ public class BaseSingle {
                 xVel *= UniversalConstants.SLIDING_FRICTION;
                 yVel *= UniversalConstants.SLIDING_FRICTION;
                 if (MathUtils.quickRoot2((float) (xVel * xVel + yVel * yVel)) < UniversalConstants.STOP_SLIDING_DIST) {
-                    switchState(SingleState.MOVING);
+                    if (unit.getState() == UnitState.ROUTING) {
+                        switchState(SingleState.ROUTING);
+                    } else {
+                        switchState(SingleState.MOVING);
+                    }
                 }
             }
         }
@@ -208,6 +219,7 @@ public class BaseSingle {
             case BRACING:
             case FIGHTING:
             case FIRE_AT_WILL:
+            case ROUTING:
                 state = newState;
                 if (state == SingleState.DEAD) screamDeath = true;
                 break;

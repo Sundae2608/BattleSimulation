@@ -266,7 +266,7 @@ public class MainSimulation extends PApplet {
         // -------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/BattleConfig.txt";
+        String battleConfig = "src/configs/battle_configs/PanicTestConfig.txt";
         String mapConfig = "src/configs/map_configs/MapConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
@@ -605,7 +605,8 @@ public class MainSimulation extends PApplet {
                         (float) (drawingPos[1] - 111), 84, 111);
                 int[] moraleColor = DrawingUtils.COLOR_MORALE;
                 fill(moraleColor[0], moraleColor[1], moraleColor[2], moraleColor[3]);
-                rect((float) (drawingPos[0] - 28), (float) (drawingPos[1] - 32),56, 8);
+                rect((float) (drawingPos[0] - 28), (float) (drawingPos[1] - 32),
+                        (float) (56 * unit.getMorale() / GameplayConstants.BASE_MORALE), 8);
                 blendMode(MULTIPLY);
                 image(bannerTexture,
                         (float) (drawingPos[0] - 42),

@@ -5,8 +5,7 @@ public enum UnitState {
     STANDING("Standing"),
     DECELERATING("Decelerating"),
     FIGHTING("Fighting"),
-    ROUTING("Routing"),
-    DYING("Dying");
+    ROUTING("Routing");
 
     // String representation of the state
     String string;
