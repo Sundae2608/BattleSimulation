@@ -17,6 +17,7 @@ import model.units.BaseUnit;
 import model.enums.UnitState;
 import model.units.CavalryUnit;
 import model.utils.MathUtils;
+import model.utils.PhysicUtils;
 import model.utils.SingleUtils;
 
 import java.util.ArrayList;
@@ -136,7 +137,7 @@ public class UnitModifier {
                     } else {
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                         deadContainer.add(closestCandidate);
-                        closestCandidate.getUnit().deadMorph(closestCandidate);
+                        closestCandidate.getUnit().processDeadSingle(closestCandidate);
                     }
                 }
             } else if (obj instanceof Ballista) {
@@ -167,7 +168,7 @@ public class UnitModifier {
                             if (candidate.getState() == SingleState.DEAD) {
                                 // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                                 deadContainer.add(candidate);
-                                candidate.getUnit().deadMorph(candidate);
+                                candidate.getUnit().processDeadSingle(candidate);
                             }
                         }
                     }
@@ -193,7 +194,7 @@ public class UnitModifier {
                     } else {
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                         deadContainer.add(closestCandidate);
-                        closestCandidate.getUnit().deadMorph(closestCandidate);
+                        closestCandidate.getUnit().processDeadSingle(closestCandidate);
                     }
                 }
             } else if (obj instanceof Stone) {
@@ -225,7 +226,7 @@ public class UnitModifier {
                             if (candidate.getState() == SingleState.DEAD) {
                                 // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                                 deadContainer.add(candidate);
-                                candidate.getUnit().deadMorph(candidate);
+                                candidate.getUnit().processDeadSingle(candidate);
                             }
                         }
                     }
@@ -371,9 +372,15 @@ public class UnitModifier {
     }
 
     /**
-     * Modify the state of the unit. Specifically, decrease the fight delay
+     * Modify the state of each unit.
      */
     private void modifyUnitState() {
+
+        // Check the vision of each unit.
+        for (BaseUnit unit : unitList) {
+            unit.setVisibleUnits(PhysicUtils.checkUnitVision(unit, unitList, terrain));
+        }
+
         // Dictionary of each unit and whether they touched the enemy.
         HashMap<BaseUnit, BaseUnit> unitTouchEnemy = new HashMap<>();
 
@@ -480,7 +487,7 @@ public class UnitModifier {
                 } else {
                     // Cause the unit to perform "deadMorph", which is to rearange troops to match the frontline.
                     deadContainer.add(attackCandidate);
-                    attackCandidate.getUnit().deadMorph(attackCandidate);
+                    attackCandidate.getUnit().processDeadSingle(attackCandidate);
                 }
             }
         }

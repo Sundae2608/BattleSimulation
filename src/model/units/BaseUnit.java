@@ -1,5 +1,6 @@
 package model.units;
 
+import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.PoliticalFaction;
@@ -9,6 +10,7 @@ import model.singles.BaseSingle;
 import model.enums.SingleState;
 import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
+import model.utils.GameplayUtils;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
 
@@ -28,6 +30,8 @@ public class BaseUnit {
 
     // Unit state
     UnitState state = UnitState.STANDING;
+    double morale;
+    ArrayList<BaseUnit> visibleUnits;  // List of units visible to the troops
 
     // Variables to indicate anchored position (unused)
     double speed;
@@ -72,6 +76,7 @@ public class BaseUnit {
         unitStats = inputUnitStats;
         terrain = inputTerrain;
         broadcaster = inputBroadcaster;
+        morale = GameplayConstants.BASE_MORALE;
     }
 
     /**
@@ -86,6 +91,53 @@ public class BaseUnit {
         goalX = xGoal;
         goalY = yGoal;
         goalAngle = angleGoal;
+
+        // Change unit state to moving, reset patience and ignore unit fought against
+        state = UnitState.MOVING;
+        currUnitPatience = unitStats.patience; // Reset patience.
+        unitFoughtAgainst = null;
+
+        // Reorder the troops if the turn is bigger than 90 degree
+        // Essentially the last row of the block will become the new front row.
+        double moveAngle = Math.atan2(goalY - anchorY, goalX - anchorX);
+        if (Math.abs(MathUtils.signedAngleDifference(anchorAngle, moveAngle)) > UniversalConstants.NON_UTURN_ANGLE) {
+            uTurnFormation();
+            // Shift the anchorX,Y to the last row
+            double downUnitX = MathUtils.quickCos((float) (anchorAngle + Math.PI));
+            double downUnitY = MathUtils.quickSin((float) (anchorAngle + Math.PI));
+            anchorX += depth * unitStats.spacing * downUnitX;
+            anchorY += depth * unitStats.spacing * downUnitY;
+            // Flip the angle
+            anchorAngle += Math.PI;
+        }
+
+        if (this instanceof ArcherUnit) {
+            ((ArcherUnit) this).generatePositionalVariation(troops.size());
+        }
+
+        // Decision has a random delay until it reaches the soldiers ear.
+        for (int i = 0; i < troops.size(); i++) {
+            // Set the goal and change the state
+            BaseSingle troop = troops.get(i);
+            troop.setDecisionDelay(MathUtils.randint(2, 20));
+        }
+    }
+
+    /**
+     * Regroup a unit to a specific position after routing.
+     * @param xGoal x-coordinate of the position to go to
+     * @param yGoal y-coordinate of the position to go to
+     * @param angleGoal angle of the unit at the final position
+     */
+    private void regroupTo(double xGoal, double yGoal, double angleGoal) {
+
+        // Set the goals
+        goalX = xGoal;
+        goalY = yGoal;
+        goalAngle = angleGoal;
+        anchorX = xGoal;
+        anchorY = yGoal;
+        anchorAngle = angleGoal;
 
         // Change unit state to moving, reset patience and ignore unit fought against
         state = UnitState.MOVING;
@@ -220,14 +272,16 @@ public class BaseUnit {
     }
 
     /**
-     * Deadmorph is the rearrangement of the unit based on the dead soldier. When a troop died in battlefield, troops
-     * from behind has to move forward in certain manner to maintain the "ideal" battle composition, which maintains
-     * maximum width at front rows whenever available and keep the remaining troops in the last line in the enter.
+     * Process dead single will process the change in formation and morale when one soldier is found dead in the unit.
+     * When a troop died in battlefield, the entire morale of the unit will suffer slightly, troops from behind has to
+     * move forward in certain manner in order to maintain the front line.
+     * @param deadSingle
      */
-    public void deadMorph(BaseSingle deadSingle) {
-        // The deadSingle is supposed to be already dead. Somehow, this line still needs to be there
-        // for the algorithm to work.
-        // deadSingle.setState(SingleState.DEAD);
+    public void processDeadSingle(BaseSingle deadSingle) {
+        // Introduce a morale loss.
+        morale -= GameplayUtils.moraleLossDueToDeadSoldier(aliveTroopsSet.size());
+
+        // Change the formation of the unit to maintain the frontline.
         aliveTroopsSet.remove(deadSingle);
         int index = deadSingle.getSingleIndex();
         int row;
@@ -437,6 +491,20 @@ public class BaseUnit {
                     anchorY = goalY;
                 }
                 break;
+            case ROUTING:
+                // Update the direction that the unit ought to run away from, it should be the opposite vector of
+                // the sum of difference in unit location difference.
+                double dx = 0;
+                double dy = 0;
+                for (BaseUnit unit : visibleUnits) {
+                    if (unit.getPoliticalFaction() != politicalFaction) {
+                        dx += unit.getAliveTroopsSet().size() * (averageX - unit.averageX);
+                        dy += unit.getAliveTroopsSet().size() * (averageY - unit.averageY);
+                    }
+                }
+                // Invert dx and dy. We need to run in the opposite direction.
+                goalAngle = MathUtils.atan2(dy, dx);
+                break;
             case MOVING:
                 // If army still rotating, half the speed
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
@@ -475,6 +543,7 @@ public class BaseUnit {
             case STANDING:
                 anchorAngle = MovementUtils.rotate(anchorAngle, goalAngle, unitStats.rotationSpeed);
                 isTurning = false;
+                break;
         }
 
         // Update goal positions
@@ -522,6 +591,24 @@ public class BaseUnit {
      */
     public void updateState() {
 
+        // After each frame, the unit has a slight morale recovery, but only up to the full base morale.
+        morale = Math.min(morale + GameplayConstants.MORALE_RECOVERY, GameplayConstants.BASE_MORALE);
+        System.out.println(politicalFaction.toString() + ": " + state.toString());
+        for (BaseSingle single : aliveTroopsSet) {
+            System.out.println("Soldier state: " + single.getState().toString());
+        }
+        if (morale < GameplayConstants.PANIC_MORALE) {
+            state = UnitState.ROUTING;
+            for (BaseSingle single : aliveTroopsSet) {
+                single.switchState(SingleState.ROUTING);
+            }
+        } else if (state == UnitState.ROUTING && morale > GameplayConstants.RECOVER_MORALE) {
+            this.regroupTo(averageX, averageY, goalAngle);
+            for (BaseSingle single : aliveTroopsSet) {
+                single.switchState(SingleState.MOVING);
+            }
+        }
+
         // Update the state of each single and the average position
         double sumX = 0;
         double sumY = 0;
@@ -539,7 +626,6 @@ public class BaseUnit {
         averageZ = sumZ / count;
 
         // Update the bounding box.
-        // Convert angle to unit vector
         updateBoundingBox();
     }
 
@@ -686,6 +772,18 @@ public class BaseUnit {
     }
     public void setState(UnitState state) {
         this.state = state;
+    }
+
+    public double getMorale() {
+        return morale;
+    }
+
+    public ArrayList<BaseUnit> getVisibleUnits() {
+        return visibleUnits;
+    }
+
+    public void setVisibleUnits(ArrayList<BaseUnit> visibleUnits) {
+        this.visibleUnits = visibleUnits;
     }
 
     public double getAverageX() {
