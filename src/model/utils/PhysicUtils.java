@@ -1,6 +1,7 @@
 package model.utils;
 
 import model.constants.UniversalConstants;
+import model.singles.BaseSingle;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import org.apache.commons.math3.util.Pair;
@@ -154,5 +155,17 @@ public final class PhysicUtils {
      */
     public static ArrayList<BaseUnit> checkUnitVision(BaseUnit unit, ArrayList<BaseUnit> allUnits, Terrain terrain) {
         return allUnits;
+    }
+
+    /**
+     * Checks the vision of the unit base on where the units are on the terrain. Currently returning all units by
+     * default for the purpose of development. (all units are visible to each other)
+     * @param unit The unit whose vision we are checking.
+     * @param allSingles The list of all units alive on the battle field.
+     * @param terrain The terrain that all the units are operate on.
+     * @return An array list containing all visible units.
+     */
+    public static ArrayList<BaseSingle> checkSingleVision(BaseSingle unit, ArrayList<BaseSingle> allSingles, Terrain terrain) {
+        return allSingles;
     }
 }
