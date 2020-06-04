@@ -35,6 +35,12 @@
     base_volume: 1.0
 },
 {
+    audio_type: SOLDIER_CHARGE
+    file: audios/unit_sound/cavalrycharge.mp3
+    broadcast_type: BURST
+    base_volume: 0.5
+},
+{
     audio_type: EXPLOSION
     file: audios/explosions/explosion.mp3
     broadcast_type: BURST

@@ -418,9 +418,14 @@ public class UnitModifier {
         // Decrease the patience of any unit that already touches enemy
         for (BaseUnit unit : unitTouchEnemy.keySet()) {
             // If the unit is previously now engaged, but is now engaging
-            if (!previouslyEngagedUnits.contains(unit) && unit instanceof CavalryUnit) {
-                broadcaster.broadcastEvent(new Event(
-                        EventType.CAVALRY_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+            if (!previouslyEngagedUnits.contains(unit)) {
+                if (unit instanceof CavalryUnit) {
+                    broadcaster.broadcastEvent(new Event(
+                            EventType.CAVALRY_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+                } else {
+                    broadcaster.broadcastEvent(new Event(
+                            EventType.SOLDIER_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+                }
             }
             unit.setInContactWithEnemy(true);
             unit.setCurrUnitPatience(unit.getCurrUnitPatience() - 1);
