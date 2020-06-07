@@ -158,6 +158,7 @@ public final class ConfigUtils {
             UnitType unitType = UnitType.valueOf(d.get("unit_type"));
 
             SingleStats singleStats = new SingleStats();
+            singleStats.mass = Double.parseDouble(d.get("mass"));
             singleStats.radius = Double.parseDouble(d.get("radius"));
             singleStats.collisionRadius = UniversalConstants.PUSH_SIZE_MULTIPIER * singleStats.radius / 2;
             singleStats.speed = Double.parseDouble(d.get("speed"));
@@ -211,7 +212,6 @@ public final class ConfigUtils {
                     singleStats.catapultExplosionDamage = Double.parseDouble(d.get("catapult_explosion_damage"));
                     singleStats.catapultExplosionPush = Double.parseDouble(d.get("catapult_explosion_push"));
                     singleStats.catapultExplosionRange = Double.parseDouble(d.get("catapult_explosion_range"));
-                    singleStats.catapultPushForce = Double.parseDouble(d.get("catapult_push_force"));
                     break;
                 case CAVALRY:
                 case HORSE_ARCHER:

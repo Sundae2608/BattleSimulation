@@ -4,7 +4,7 @@ import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 import org.apache.commons.math3.util.Pair;
 
-public class Arrow extends BaseObject {
+public class Arrow extends Projectile {
 
     // Arrow speed
     protected double speed;

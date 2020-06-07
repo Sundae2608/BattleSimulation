@@ -13,6 +13,7 @@ import model.units.unit_stats.UnitStats;
 import model.utils.GameplayUtils;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
+import utils.DebugUtils;
 
 import java.util.*;
 
@@ -32,6 +33,9 @@ public class BaseUnit {
     UnitState state = UnitState.STANDING;
     double morale;
     ArrayList<BaseUnit> visibleUnits;  // List of units visible to the troops
+    int timeInFightingState;
+    int[] flankersCount;
+    int[] frontlinePatientCounters;
 
     // Variables to indicate anchored position (unused)
     double speed;
@@ -77,6 +81,17 @@ public class BaseUnit {
         terrain = inputTerrain;
         broadcaster = inputBroadcaster;
         morale = GameplayConstants.BASE_MORALE;
+        timeInFightingState = 0;
+    }
+
+    /**
+     * Bring flankers back to their supposed position. This happens when the unit needs to re-position
+     */
+    private void resetFlanker() {
+        for (int i = 0; i < width; i++) {
+            frontlinePatientCounters[i] = 0;
+            flankersCount[i] = 0;
+        }
     }
 
     /**
@@ -129,7 +144,7 @@ public class BaseUnit {
      * @param yGoal y-coordinate of the position to go to
      * @param angleGoal angle of the unit at the final position
      */
-    private void regroupTo(double xGoal, double yGoal, double angleGoal) {
+    private void regroupAfterRoutTo(double xGoal, double yGoal, double angleGoal) {
 
         // Set the goals
         goalX = xGoal;
@@ -139,23 +154,47 @@ public class BaseUnit {
         anchorY = yGoal;
         anchorAngle = angleGoal;
 
+        // Print formation before
+        System.out.println("Before");
+        System.out.println(DebugUtils.formationString(this));
+
         // Change unit state to moving, reset patience and ignore unit fought against
         state = UnitState.MOVING;
         currUnitPatience = unitStats.patience; // Reset patience.
         unitFoughtAgainst = null;
 
-        // Reorder the troops if the turn is bigger than 90 degree
-        // Essentially the last row of the block will become the new front row.
-        double moveAngle = Math.atan2(goalY - anchorY, goalX - anchorX);
-        if (Math.abs(MathUtils.signedAngleDifference(anchorAngle, moveAngle)) > UniversalConstants.NON_UTURN_ANGLE) {
-            uTurnFormation();
-            // Shift the anchorX,Y to the last row
-            double downUnitX = MathUtils.quickCos((float) (anchorAngle + Math.PI));
-            double downUnitY = MathUtils.quickSin((float) (anchorAngle + Math.PI));
-            anchorX += depth * unitStats.spacing * downUnitX;
-            anchorY += depth * unitStats.spacing * downUnitY;
-            // Flip the angle
-            anchorAngle += Math.PI;
+        // Re-order troops position.
+        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsSet);
+
+        // First, sort position from furthest forward to furthest backward.
+        MathUtils.sortSinglesByAngle(aliveArray, -angleGoal + Math.PI);
+
+        // Take each row, sort each row from furthest leftward to furthest rightward, and then put them into the correct
+        // position in the array
+        int numRows = (int) Math.ceil(1.0 * aliveArray.size() / width);
+        for (int row = 0; row < numRows; row++) {
+            // Sort the row from leftward to right ward
+            int beginIndex = row * width;
+            int endIndex = Math.min(aliveArray.size(), (row + 1) * width);
+            ArrayList<BaseSingle> rowTroops = new ArrayList<>();
+            for (int col = beginIndex; col < endIndex; col++) {
+                rowTroops.add(aliveArray.get(col));
+            }
+            MathUtils.sortSinglesByAngle(rowTroops, -angleGoal - MathUtils.PIO2);
+
+            // Assign them to the correct position
+            int offsetFromLeft = 0;
+            if (row == numRows - 1) {
+                // If it is the last row, count the number of left deaths in the last row. That would be the offset.
+                for (; offsetFromLeft < width; offsetFromLeft++) {
+                    if (troops.get(row * width + offsetFromLeft).getState() != SingleState.DEAD) {
+                        break;
+                    }
+                }
+            }
+            for (int j = 0; j < rowTroops.size(); j++) {
+                troops.set(width * row + offsetFromLeft + j, rowTroops.get(j));
+            }
         }
 
         if (this instanceof ArcherUnit) {
@@ -168,6 +207,9 @@ public class BaseUnit {
             BaseSingle troop = troops.get(i);
             troop.setDecisionDelay(MathUtils.randint(2, 20));
         }
+
+        // Reset the flankers
+        resetFlanker();
     }
 
     /**
@@ -227,6 +269,9 @@ public class BaseUnit {
             troop.setAngleGoal(angleGoal);
             troop.setDecisionDelay(MathUtils.randint(2, 20));
         }
+
+        // Reset the flankers
+        resetFlanker();
     }
 
     /**
@@ -269,6 +314,9 @@ public class BaseUnit {
         for (int i = 0; i < troops.size(); i++) {
             troops.get(i).setSingleIndex(i);
         }
+
+        // Reset the flankers
+        resetFlanker();
     }
 
     /**
@@ -286,6 +334,8 @@ public class BaseUnit {
         int index = deadSingle.getSingleIndex();
         int row;
         int col;
+        System.out.println(index / width);
+        System.out.println(index % width);
         while (true) {
             row = index / width;
             col = index % width;
@@ -354,6 +404,8 @@ public class BaseUnit {
                 break;
             }
         }
+        System.out.println(DebugUtils.formationString(this));
+        System.out.println(this.state);
     }
 
     /**
@@ -479,8 +531,6 @@ public class BaseUnit {
                         UniversalConstants.MINIMUM_TERRAIN_EFFECT,
                         UniversalConstants.MAXIMUM_TERRAIN_EFFECT);
                 moveSpeed *= (1 + speedModifier);
-
-
                 if (distanceToGoal > moveSpeed) {
                     double moveUnitX = Math.cos(moveAngle);
                     double moveUnitY = Math.sin(moveAngle);
@@ -489,6 +539,23 @@ public class BaseUnit {
                 } else {
                     anchorX = goalX;
                     anchorY = goalY;
+                }
+
+                // Update flanker status. If the flank has not engaged with the enemy for a long time, they will join
+                // the flanker, which will have a different goal position.
+                for (int i = 0; i < width; i++) {
+                    if (flankersCount[i] < troops.size() / width && troops.get(i + flankersCount[i] * width).getState() != SingleState.DEAD) {
+                        if (troops.get(i).getCombatDelay() < 0) {
+                            frontlinePatientCounters[i] += 1;
+                        } else {
+                            frontlinePatientCounters[i] = 0;
+                        }
+                    }
+                    if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
+                        // If the front-liner has waited for too long, they will join the flanker.
+                        flankersCount[i] += 1;
+                        frontlinePatientCounters[i] = 0;
+                    }
                 }
                 break;
             case ROUTING:
@@ -572,10 +639,27 @@ public class BaseUnit {
 
         // Update troops goal positions
         for (int i = 0; i < troops.size(); i++) {
-            double xGoalSingle = topX + (i % width) * unitStats.spacing * sideUnitX
-                    + (i / width) * unitStats.spacing * downUnitX;
-            double yGoalSingle = topY + (i % width) * unitStats.spacing * sideUnitY
-                    + (i / width) * unitStats.spacing * downUnitY;
+            int row = i / width;
+            int col = i % width;
+            double xGoalSingle;
+            double yGoalSingle;
+            // If the person is the flanker, go straight to the enemy position.
+            if (state == UnitState.FIGHTING) {
+                if (row < flankersCount[col]) {
+                    xGoalSingle = this.unitFoughtAgainst.getAverageX();
+                    yGoalSingle = this.unitFoughtAgainst.getAverageY();
+                } else {
+                    xGoalSingle = topX + col * unitStats.spacing * sideUnitX
+                            + (row - flankersCount[col]) * unitStats.spacing * downUnitX;
+                    yGoalSingle = topY + col * unitStats.spacing * sideUnitY
+                            + (row - flankersCount[col]) * unitStats.spacing * downUnitY;
+                }
+            } else {
+                xGoalSingle = topX + col * unitStats.spacing * sideUnitX
+                        + row * unitStats.spacing * downUnitX;
+                yGoalSingle = topY + col * unitStats.spacing * sideUnitY
+                        + row * unitStats.spacing * downUnitY;
+            }
 
             // Set the goal and change the state
             BaseSingle troop = troops.get(i);
@@ -593,17 +677,14 @@ public class BaseUnit {
 
         // After each frame, the unit has a slight morale recovery, but only up to the full base morale.
         morale = Math.min(morale + GameplayConstants.MORALE_RECOVERY, GameplayConstants.BASE_MORALE);
-        System.out.println(politicalFaction.toString() + ": " + state.toString());
-        for (BaseSingle single : aliveTroopsSet) {
-            System.out.println("Soldier state: " + single.getState().toString());
-        }
+
         if (morale < GameplayConstants.PANIC_MORALE) {
             state = UnitState.ROUTING;
             for (BaseSingle single : aliveTroopsSet) {
                 single.switchState(SingleState.ROUTING);
             }
         } else if (state == UnitState.ROUTING && morale > GameplayConstants.RECOVER_MORALE) {
-            this.regroupTo(averageX, averageY, goalAngle);
+            this.regroupAfterRoutTo(averageX, averageY, goalAngle);
             for (BaseSingle single : aliveTroopsSet) {
                 single.switchState(SingleState.MOVING);
             }

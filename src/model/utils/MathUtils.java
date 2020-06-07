@@ -2,6 +2,13 @@ package model.utils;
 
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import javafx.util.Pair;
+import model.singles.BaseSingle;
+import model.units.BaseUnit;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public final class MathUtils {
 
@@ -258,5 +265,21 @@ public final class MathUtils {
         }
         double normal_projection = (vx * ux + vy * uy) / (ux * ux + uy * uy);
         return new double[] {normal_projection * ux, normal_projection * uy};
+    }
+
+    /**
+     * Sort singles by angle
+     */
+    public static void sortSinglesByAngle(ArrayList<BaseSingle> singles, double angle) {
+        Collections.sort(singles, new Comparator<BaseSingle>() {
+            @Override
+            public int compare(BaseSingle s1, BaseSingle s2) {
+                double x1 = s1.getX() * MathUtils.quickCos((float) angle) - s1.getY() * MathUtils.quickSin((float) angle);
+                double x2 = s2.getX() * MathUtils.quickCos((float) angle) - s2.getY() * MathUtils.quickSin((float) angle);
+                if (x1 < x2) return -1;
+                else if (x1 == x2) return 0;
+                else return 1;
+            }
+        });
     }
 }

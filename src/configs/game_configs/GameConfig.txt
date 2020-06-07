@@ -4,6 +4,7 @@
     unit_type: SWORDMAN
 
     // Single stats
+    mass: 110
     radius: 23
     speed: 2.5
     hp: 350
@@ -16,7 +17,7 @@
 
     attack: 40
     combat_range: 25
-    combat_delay: 15
+    combat_delay: 150
     sustain_recovery: 0.5
 
     // Unit stats
@@ -31,6 +32,7 @@
     unit_type: ARCHER
 
     // Single stats
+    mass: 50
     radius: 23
     speed: 4
     hp: 100
@@ -43,7 +45,7 @@
 
     attack: 3
     combat_range: 15
-    combat_delay: 15
+    combat_delay: 150
     sustain_recovery: 0.5
 
     // Unit stats
@@ -71,6 +73,7 @@
     unit_type: BALLISTA
 
     // Single stats
+    mass: 400
     radius: 70
     speed: 0.2
     hp: 100
@@ -83,7 +86,7 @@
 
     attack: 3
     combat_range: 15
-    combat_delay: 15
+    combat_delay: 150
     sustain_recovery: 0.5
 
     // Unit stats
@@ -102,12 +105,12 @@
     impact_lifetime: 14
 
     // Ballista stats
-    ballista_speed: 15
+    ballista_speed: 40
     ballista_damage: 200
     ballista_explosion_damage: 50
     ballista_explosion_range: 70
-    ballista_explosion_push: 40
-    ballista_push_force: 15
+    ballista_explosion_push: 5
+    ballista_push_force: 17
 },
 
 {
@@ -116,6 +119,7 @@
     unit_type: CATAPULT
 
     // Single stats
+    mass: 400
     radius: 70
     speed: 0.2
     hp: 100
@@ -128,7 +132,7 @@
 
     attack: 3
     combat_range: 15
-    combat_delay: 15
+    combat_delay: 150
     sustain_recovery: 0.5
 
     // Unit stats
@@ -151,7 +155,6 @@
     catapult_explosion_damage: 100
     catapult_explosion_range: 70
     catapult_explosion_push: 40
-    catapult_push_force: 15
 },
 {
     // Type and faction information
@@ -159,6 +162,7 @@
     unit_type: CAVALRY
 
     // Single stats
+    mass: 500
     radius: 34
     speed: 8
     hp: 600
@@ -171,7 +175,7 @@
 
     attack: 20
     combat_range: 20
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats
@@ -186,6 +190,7 @@
     unit_type: PHALANX
 
     // Single stats
+    mass: 150
     radius: 23
     speed: 2
     hp: 500
@@ -198,7 +203,7 @@
 
     attack: 11
     combat_range: 10
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats
@@ -217,6 +222,7 @@
     unit_type: SKIRMISHER
 
     // Single stats
+    mass: 50
     radius: 23
     speed: 5
     hp: 150
@@ -229,7 +235,7 @@
 
     attack: 15
     combat_range: 10
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats
@@ -244,6 +250,7 @@
     unit_type: SLINGER
 
     // Single stats
+    mass: 50
     radius: 23
     speed: 5
     hp: 150
@@ -256,7 +263,7 @@
 
     attack: 15
     combat_range: 10
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats
@@ -275,6 +282,7 @@
     unit_type: SWORDMAN
 
     // Single stats
+    mass: 110
     radius: 23
     speed: 2.5
     hp: 350
@@ -287,7 +295,7 @@
 
     attack: 40
     combat_range: 25
-    combat_delay: 15
+    combat_delay: 150
     sustain_recovery: 0.5
 
     // Unit stats
@@ -302,6 +310,7 @@
     unit_type: ARCHER
 
     // Single stats
+    mass: 50
     radius: 23
     speed: 4
     hp: 100
@@ -314,7 +323,7 @@
 
     attack: 3
     combat_range: 15
-    combat_delay: 15
+    combat_delay: 150
     sustain_recovery: 0.5
 
     // Unit stats
@@ -342,6 +351,7 @@
     unit_type: CAVALRY
 
     // Single stats
+    mass: 500
     radius: 34
     speed: 8
     hp: 600
@@ -354,7 +364,7 @@
 
     attack: 20
     combat_range: 20
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats
@@ -369,6 +379,7 @@
     unit_type: PHALANX
 
     // Single stats
+    mass: 150
     radius: 23
     speed: 2
     hp: 500
@@ -381,7 +392,7 @@
 
     attack: 11
     combat_range: 10
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats
@@ -400,6 +411,7 @@
     unit_type: SKIRMISHER
 
     // Single stats
+    mass: 50
     radius: 23
     speed: 5
     hp: 150
@@ -412,7 +424,7 @@
 
     attack: 15
     combat_range: 10
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats
@@ -427,6 +439,7 @@
     unit_type: SLINGER
 
     // Single stats
+    mass: 50
     radius: 23
     speed: 5
     hp: 150
@@ -439,7 +452,7 @@
 
     attack: 15
     combat_range: 10
-    combat_delay: 25
+    combat_delay: 250
     sustain_recovery: 0.5
 
     // Unit stats

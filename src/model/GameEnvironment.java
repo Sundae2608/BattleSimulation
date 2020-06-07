@@ -85,6 +85,7 @@ public class GameEnvironment {
         for (BaseUnit unit : units) {
             switch (unit.getState()) {
                 case MOVING:
+                case ROUTING:
                     if (unit instanceof CavalryUnit) {
                         broadcaster.broadcastEvent(
                                 new Event(EventType.CAVALRY_RUNNING,
@@ -93,7 +94,7 @@ public class GameEnvironment {
                                         unit.getAverageZ()));
                     } else {
                         broadcaster.broadcastEvent(
-                                new Event(EventType.CAVALRY_RUNNING,
+                                new Event(EventType.SOLDIER_MARCHING,
                                         unit.getAverageX(),
                                         unit.getAverageY(),
                                         unit.getAverageZ()));

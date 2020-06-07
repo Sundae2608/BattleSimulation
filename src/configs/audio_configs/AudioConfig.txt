@@ -46,3 +46,15 @@
     broadcast_type: BURST
     base_volume: 0.3
 },
+{
+    audio_type: BALLISTA_HIT_GROUND
+    file: audios/explosions/ballista_hit.mp3
+    broadcast_type: BURST
+    base_volume: 0.3
+},
+{
+    audio_type: BALLISTA_HIT_FLESH
+    file: audios/explosions/ballista_hit_flesh.mp3
+    broadcast_type: BURST
+    base_volume: 0.3
+},

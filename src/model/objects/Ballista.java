@@ -4,7 +4,7 @@ import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 import org.apache.commons.math3.util.Pair;
 
-public class Ballista extends BaseObject {
+public class Ballista extends Projectile {
 
     // Arrow speed
     double speed;
@@ -19,6 +19,7 @@ public class Ballista extends BaseObject {
     double[][] pos;
     Double[] heightOverTime;
     boolean[] impact;
+    boolean touchGround;
     int index;
 
     /**
@@ -83,7 +84,10 @@ public class Ballista extends BaseObject {
         index++;
         if (index >= pos.length) {
             alive = false;
+            touchGround = false;
             return;
+        } else {
+            touchGround = true;
         }
         x = pos[index][0];
         y = pos[index][1];
@@ -132,5 +136,9 @@ public class Ballista extends BaseObject {
 
     public double getPushForce() {
         return pushForce;
+    }
+
+    public boolean isTouchGround() {
+        return touchGround;
     }
 }

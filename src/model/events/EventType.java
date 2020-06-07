@@ -7,4 +7,6 @@ public enum EventType {
     SOLDIER_MARCHING,
     SOLDIER_FIGHTING,
     EXPLOSION,
+    BALLISTA_HIT_GROUND,
+    BALLISTA_HIT_FLESH,
 }

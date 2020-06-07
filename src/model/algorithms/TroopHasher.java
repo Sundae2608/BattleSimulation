@@ -102,9 +102,6 @@ public class TroopHasher {
         int extensionX = (int) (impactDistance / xDiv) + 1;
         int extensionY = (int) (impactDistance / yDiv) + 1;
 
-        System.out.println(extensionX);
-        System.out.println(extensionY);
-
         ArrayList<BaseSingle> collideList = new ArrayList<>();
         for (int i = -extensionX; i <= extensionX; i++) {
             for (int j = -extensionY; j <= extensionY; j++) {
@@ -175,21 +172,25 @@ public class TroopHasher {
             if (unit.getNumAlives() == 0) continue;
             remainingUnits.add(unit);
 
-            // Being under fire
-            if (unit instanceof ArcherUnit && ((ArcherUnit) unit).getUnitFiredAgainst() != null) {
-                activeUnits.add(((ArcherUnit) unit).getUnitFiredAgainst());
-            }
+            if (gameSettings.isCollisionCheckingOnlyInCombat()) {
+                // Being under fire
+                if (unit instanceof ArcherUnit && ((ArcherUnit) unit).getUnitFiredAgainst() != null) {
+                    activeUnits.add(((ArcherUnit) unit).getUnitFiredAgainst());
+                }
 
-            if (unit instanceof BallistaUnit && ((BallistaUnit) unit).getUnitFiredAgainst() != null) {
-                activeUnits.add(((BallistaUnit) unit).getUnitFiredAgainst());
-            }
+                if (unit instanceof BallistaUnit && ((BallistaUnit) unit).getUnitFiredAgainst() != null) {
+                    activeUnits.add(((BallistaUnit) unit).getUnitFiredAgainst());
+                }
 
-            if (unit instanceof CatapultUnit && ((CatapultUnit) unit).getUnitFiredAgainst() != null) {
-                activeUnits.add(((CatapultUnit) unit).getUnitFiredAgainst());
-            }
+                if (unit instanceof CatapultUnit && ((CatapultUnit) unit).getUnitFiredAgainst() != null) {
+                    activeUnits.add(((CatapultUnit) unit).getUnitFiredAgainst());
+                }
 
-            // Being in combat
-            if (unit.isInContactWithEnemy() || unit.getUnitFoughtAgainst() != null) {
+                // Being in combat
+                if (unit.isInContactWithEnemy() || unit.getUnitFoughtAgainst() != null) {
+                    activeUnits.add(unit);
+                }
+            } else {
                 activeUnits.add(unit);
             }
         }

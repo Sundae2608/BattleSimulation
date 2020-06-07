@@ -8,6 +8,7 @@ public class SingleStats {
     public UnitType unitType;
 
     // Physical attribute
+    public double mass;
     public double radius;
     public double collisionRadius;
     public double speed;

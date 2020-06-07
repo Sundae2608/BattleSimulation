@@ -1,5 +1,6 @@
 package model.algorithms;
 
+import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
@@ -35,6 +36,7 @@ public class UnitModifier {
     ArrayList<BaseUnit> unitList;
     GameSettings gameSettings;
     Terrain terrain;
+    HashMap<BaseUnit, Integer> recentlyChargedUnit;
 
     // Memoization of distance between model.units.
     private double[][] distanceMemo;
@@ -52,6 +54,9 @@ public class UnitModifier {
 
         // Initialize distance memo
         distanceMemo = new double[8][8];
+
+        // Initialize charged unit map.
+        recentlyChargedUnit = new HashMap<>();
     }
 
     /**
@@ -137,7 +142,6 @@ public class UnitModifier {
                     } else {
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                         deadContainer.add(closestCandidate);
-                        closestCandidate.getUnit().processDeadSingle(closestCandidate);
                     }
                 }
             } else if (obj instanceof Ballista) {
@@ -145,6 +149,10 @@ public class UnitModifier {
                 boolean balistaHit = closestDistance < MathUtils.square(closestCandidate.getSize()) / 4;
 
                 if (balistaHit) {
+                    broadcaster.broadcastEvent(new Event(
+                            EventType.BALLISTA_HIT_FLESH, obj.getX(), obj.getY(),
+                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+
                     // Inflict explosion damage damage
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
                             obj.getX(), obj.getY(),
@@ -159,16 +167,14 @@ public class UnitModifier {
                             // Apply damage and send the objects flying
                             double angle = MathUtils.atan2(dy, dx);
                             candidate.setxVel(candidate.getxVel() +
-                                    MathUtils.quickCos((float) angle) * ((Ballista) obj).getPushForce());
+                                    MathUtils.quickCos((float) angle) * ((Ballista) obj).getExplosionPush());
                             candidate.setyVel(candidate.getyVel() +
-                                    MathUtils.quickSin((float) angle) * ((Ballista) obj).getPushForce());
+                                    MathUtils.quickSin((float) angle) * ((Ballista) obj).getExplosionPush());
                             candidate.switchState(SingleState.SLIDING);
 
                             candidate.receiveDamage(((Ballista) obj).getExplosionDamage());
                             if (candidate.getState() == SingleState.DEAD) {
-                                // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                                 deadContainer.add(candidate);
-                                candidate.getUnit().processDeadSingle(candidate);
                             }
                         }
                     }
@@ -176,9 +182,7 @@ public class UnitModifier {
                     // If distance to object is smaller than the diameter, count as an arrow hit
                     // Inflict some damage to the candidate
                     closestCandidate.receiveDamage(((Ballista) obj).getDamage());
-                    broadcaster.broadcastEvent(new Event(
-                            EventType.EXPLOSION, obj.getX(), obj.getY(),
-                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+
                     // Once hit, the arrow becomes dead
                     obj.setAlive(false);
                     if (closestCandidate.getState() != SingleState.DEAD) {
@@ -194,8 +198,11 @@ public class UnitModifier {
                     } else {
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                         deadContainer.add(closestCandidate);
-                        closestCandidate.getUnit().processDeadSingle(closestCandidate);
                     }
+                } else if (((Ballista) obj).isTouchGround()) {
+                    broadcaster.broadcastEvent(new Event(
+                            EventType.BALLISTA_HIT_GROUND, obj.getX(), obj.getY(),
+                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
                 }
             } else if (obj instanceof Stone) {
                 if (((Stone) obj).isTouchGround()) {
@@ -206,7 +213,6 @@ public class UnitModifier {
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
                             obj.getX(), obj.getY(),
                             ((Stone) obj).getExplosionRange());
-                    System.out.println(explosionCandidates.size());
                     double squareExplosionRange =
                             ((Stone) obj).getExplosionRange() * ((Stone) obj).getExplosionRange();
                     for (BaseSingle candidate : explosionCandidates) {
@@ -217,16 +223,15 @@ public class UnitModifier {
                             // Apply damage and send the objects flying
                             double angle = MathUtils.atan2(dy, dx);
                             candidate.setxVel(candidate.getxVel() +
-                                    MathUtils.quickCos((float) angle) * ((Stone) obj).getPushForce());
+                                    MathUtils.quickCos((float) angle) * ((Stone) obj).getExplosionPush());
                             candidate.setyVel(candidate.getyVel() +
-                                    MathUtils.quickSin((float) angle) * ((Stone) obj).getPushForce());
+                                    MathUtils.quickSin((float) angle) * ((Stone) obj).getExplosionPush());
                             candidate.switchState(SingleState.SLIDING);
 
                             candidate.receiveDamage(((Stone) obj).getExplosionDamage());
                             if (candidate.getState() == SingleState.DEAD) {
                                 // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                                 deadContainer.add(candidate);
-                                candidate.getUnit().processDeadSingle(candidate);
                             }
                         }
                     }
@@ -276,7 +281,6 @@ public class UnitModifier {
                         }
                     }
                 }
-
                 unit.setInDanger(map);
             }
         } else {
@@ -309,13 +313,26 @@ public class UnitModifier {
         double vxEnemy = vxNew;
         double vyEnemy = vyNew;
         for (BaseSingle candidate : candidates) {
-            if (candidate.getPoliticalFaction() == troop.getPoliticalFaction() &&
+            if ((!gameSettings.isAllyCollision() && candidate.getPoliticalFaction() == troop.getPoliticalFaction()) &&
                     !troop.getUnit().isInContactWithEnemy() &&
                     !(gameSettings.isCavalryCollision() && (candidate instanceof CavalrySingle))) continue;
             double dx = candidate.getX() - troop.getX();
             double dy = candidate.getY() - troop.getY();
             double squareDistance = dx*dx + dy*dy;
             double minDist = candidate.getCollisionRadius() + troop.getCollisionRadius();
+            if (candidate.getPoliticalFaction() == troop.getPoliticalFaction()) {
+                switch (candidate.getUnit().getState()) {
+                    case FIGHTING:
+                        minDist *= GameplayConstants.ALLY_COLLISION_RATIO_FIGHTING;
+                        break;
+                    case MOVING:
+                        minDist *= GameplayConstants.ALLY_COLLISION_RATIO_MOVING;
+                        break;
+                    case STANDING:
+                        minDist *= GameplayConstants.ALLY_COLLISION_RATIO_STANDING;
+                        break;
+                }
+            }
             double minSquareDist = MathUtils.square(minDist);
 
             // Calculate the deflection based on minimum distance.
@@ -332,18 +349,11 @@ public class UnitModifier {
                     ax = (targetX - candidate.getX()) * UniversalConstants.PUSH_SPRING_ALLY;
                     ay = (targetY - candidate.getY()) * UniversalConstants.PUSH_SPRING_ALLY;
                 } else {
-                    // Collision is only directly danger if it is against the enemy
                     numEnemyCollisions += 1;
                     ax = (targetX - candidate.getX()) * UniversalConstants.PUSH_SPRING_ENEMY;
                     ay = (targetY - candidate.getY()) * UniversalConstants.PUSH_SPRING_ENEMY;
                 }
-                if (candidate instanceof CavalrySingle && !(troop instanceof  CavalrySingle))  {
-                    ax *= 5;
-                    ay *= 5;
-                } else if (!(candidate instanceof CavalrySingle) && troop instanceof  CavalrySingle) {
-                    ax /= 5;
-                    ay /= 5;
-                }
+                ax *= candidate.getSingleStats().mass / troop.getSingleStats().mass;
                 vxNew -= ax;
                 vyNew -= ay;
                 if (troop.getPoliticalFaction() == candidate.getPoliticalFaction()) {
@@ -376,6 +386,20 @@ public class UnitModifier {
      */
     private void modifyUnitState() {
 
+        // Update the charge buffer maps
+        ArrayList<BaseUnit> unitsToBeMovedFromBuffer = new ArrayList<>();
+        for (BaseUnit unit : recentlyChargedUnit.keySet()) {
+            recentlyChargedUnit.put(unit, recentlyChargedUnit.get(unit) - 1);
+            if (recentlyChargedUnit.get(unit) == 0) {
+                unitsToBeMovedFromBuffer.add(unit);
+            }
+        }
+        for (BaseUnit unit : unitsToBeMovedFromBuffer) {
+            if (recentlyChargedUnit.get(unit) == 0) {
+                recentlyChargedUnit.remove(unit);
+            }
+        }
+
         // Check the vision of each unit.
         for (BaseUnit unit : unitList) {
             unit.setVisibleUnits(PhysicUtils.checkUnitVision(unit, unitList, terrain));
@@ -389,7 +413,7 @@ public class UnitModifier {
         for (BaseSingle obj : objects) {
             ArrayList<BaseSingle> candidates = troopHasher.getCollisionObjects(obj);
             for (BaseSingle candidate : candidates) {
-                // No need to check if allies
+                // Skip collision check for ally if game setting allows.
                 if (candidate.getPoliticalFaction() == obj.getPoliticalFaction()) continue;
                 // No need to check if both already loses patience
                 if (unitTouchEnemy.containsKey(candidate.getUnit()) && unitTouchEnemy.containsKey(obj.getUnit())) continue;
@@ -417,14 +441,26 @@ public class UnitModifier {
         // Set any unit touching the enemy as in contact and decrease the patience of that unit.
         // Decrease the patience of any unit that already touches enemy
         for (BaseUnit unit : unitTouchEnemy.keySet()) {
-            // If the unit is previously now engaged, but is now engaging
+            // If the unit is previously now engaged, but is now engaging and neither unit is currently routing,
+            // consider it a charge.
+            // TODO(sonpham): Needs to be much more careful about what constitute a charge here. Unit colliding is not
+            // the only reason to be called a charge.
             if (!previouslyEngagedUnits.contains(unit)) {
-                if (unit instanceof CavalryUnit) {
-                    broadcaster.broadcastEvent(new Event(
-                            EventType.CAVALRY_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+                if (recentlyChargedUnit.containsKey(unit) ||
+                        unit.getState() == UnitState.ROUTING ||
+                        unit.getState() == UnitState.FIGHTING) {
+                    // If unit simply touches another unit but doesn't fulfill a condition of being a charge. Simply
+                    // reset the charged unit buffer.
+                    recentlyChargedUnit.put(unit, GameplayConstants.CHARGE_BUFFER);
                 } else {
-                    broadcaster.broadcastEvent(new Event(
-                            EventType.SOLDIER_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+                    if (unit instanceof CavalryUnit) {
+                        broadcaster.broadcastEvent(new Event(
+                                EventType.CAVALRY_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+                    } else {
+                        broadcaster.broadcastEvent(new Event(
+                                EventType.SOLDIER_CHARGE, unit.getAverageX(), unit.getAverageY(), unit.getAverageZ()));
+                    }
+                    recentlyChargedUnit.put(unit, GameplayConstants.CHARGE_BUFFER);
                 }
             }
             unit.setInContactWithEnemy(true);
@@ -458,7 +494,6 @@ public class UnitModifier {
 
             // Single must recharge attack delay
             if (obj.getCombatDelay() > 0) {
-                obj.setCombatDelay(obj.getCombatDelay() - 1);
                 continue;
             }
 
@@ -486,13 +521,11 @@ public class UnitModifier {
                 // Inflict some damage and reset combat delay
                 // TODO: Get this into the Base Single action would be nicer.
                 attackCandidate.receiveDamage(obj.getAttackStat());
-                obj.setCombatDelay(obj.getCombatDelayStat());
+                obj.resetCombatDelay();
 
-                if (attackCandidate.getState() != SingleState.DEAD) {
-                } else {
+                if (attackCandidate.getState() == SingleState.DEAD) {
                     // Cause the unit to perform "deadMorph", which is to rearange troops to match the frontline.
                     deadContainer.add(attackCandidate);
-                    attackCandidate.getUnit().processDeadSingle(attackCandidate);
                 }
             }
         }

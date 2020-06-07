@@ -9,4 +9,6 @@ public enum AudioType {
     SOLDIER_FIGHTING,
     SOLDIER_MARCHING,
     EXPLOSION,
+    BALLISTA_HIT_GROUND,
+    BALLISTA_HIT_FLESH,
 }

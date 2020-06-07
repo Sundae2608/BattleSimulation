@@ -55,8 +55,11 @@ public class Camera extends EventListener {
     @Override
     protected void listenEvent(Event e) {
         switch (e.getEventType()) {
+            case SOLDIER_CHARGE:
+                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_SOLDIER_CHARGE;
+                break;
             case CAVALRY_CHARGE:
-                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_CHARGE;
+                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_CAVALRY_CHARGE;
                 break;
             case EXPLOSION:
                 cameraShakeLevel += CameraConstants.SHAKE_LEVEL_EXPLOSION;

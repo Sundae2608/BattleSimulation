@@ -11,7 +11,32 @@ public class GameSettings {
     // Apply change in speed based on terrain
     private boolean applyTerrainModifier;
 
+    // Apply ally collision. This option will makes the game more realistic, but at a pretty big resource cost.
+    private boolean allyCollision;
+
+    // Apply collision checking only in combat.
+    private boolean collisionCheckingOnlyInCombat;
+
+    // Apply flanking mechanics to first liner who hasn't seen battle yet.
+    private boolean flankingMechanics;
+
     public GameSettings() {}
+
+    public boolean isAllyCollision() {
+        return allyCollision;
+    }
+
+    public void setAllyCollision(boolean allyCollision) {
+        this.allyCollision = allyCollision;
+    }
+
+    public boolean isCollisionCheckingOnlyInCombat() {
+        return collisionCheckingOnlyInCombat;
+    }
+
+    public void setCollisionCheckingOnlyInCombat(boolean collisionCheckingOnlyInCombat) {
+        this.collisionCheckingOnlyInCombat = collisionCheckingOnlyInCombat;
+    }
 
     public boolean isCavalryCollision() {
         return cavalryCollision;
