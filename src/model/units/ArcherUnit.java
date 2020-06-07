@@ -32,6 +32,7 @@ public class ArcherUnit extends BaseUnit {
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;
+
         // Assign political attributes
         politicalFaction = faction;
 
@@ -73,6 +74,10 @@ public class ArcherUnit extends BaseUnit {
         goalX = anchorX;
         goalY = anchorY;
         goalAngle = anchorAngle;
+
+        // Set of flanker counts and frontline patient counters
+        frontlinePatientCounters = new int[width];
+        flankersCount = new int[width];
     }
 
     @Override

@@ -45,7 +45,7 @@ public class BaseSingle {
     double tempSquaredDistanceFromGoal;
 
     // Currents state of the single
-    double hp;
+    private double hp;
     SingleState state;
     int decisionDelay;
     int combatDelay;
@@ -194,6 +194,8 @@ public class BaseSingle {
             else carriedObjects.remove(obj);
         }
 
+        // Update combat delay
+        combatDelay -= 1;
     }
 
     /**
@@ -203,7 +205,10 @@ public class BaseSingle {
         hp -= damage;
         damageSustain += damage;
         justHit = 2;
-        if (hp < 0) switchState(SingleState.DEAD);
+        if (hp < 0 && state != SingleState.DEAD) {
+            switchState(SingleState.DEAD);
+            this.unit.processDeadSingle(this);
+        }
     }
 
     /**
@@ -211,18 +216,9 @@ public class BaseSingle {
      */
     public void switchState(SingleState newState) {
         // Can only switch state if the unit is not DEAD or not UNCONTROLLABLE
-        switch (state) {
-            case IN_POSITION:
-            case SLIDING:
-            case MOVING:
-            case DECELERATING:
-            case BRACING:
-            case FIGHTING:
-            case FIRE_AT_WILL:
-            case ROUTING:
-                state = newState;
-                if (state == SingleState.DEAD) screamDeath = true;
-                break;
+        if (state != SingleState.DEAD) {
+            state = newState;
+            if (state == SingleState.DEAD) screamDeath = true;
         }
     }
 
@@ -378,12 +374,12 @@ public class BaseSingle {
         return combatDelay;
     }
 
-    public void setCombatDelay(int combatDelay) {
-        this.combatDelay = combatDelay;
+    public void resetCombatDelay() {
+        this.combatDelay = singleStats.combatDelay;
     }
 
     public double getCombatRangeStat() {
-        return singleStats.combatDelay;
+        return singleStats.combatRange;
     }
 
     public double getAttackStat() {
@@ -392,6 +388,10 @@ public class BaseSingle {
 
     public int getCombatDelayStat() {
         return singleStats.combatDelay;
+    }
+
+    public SingleStats getSingleStats() {
+        return singleStats;
     }
 
     public BaseUnit getUnit() {
@@ -444,4 +444,6 @@ public class BaseSingle {
     public HashMap<BaseObject, Integer> getCarriedObjects() {
         return carriedObjects;
     }
+
+
 }

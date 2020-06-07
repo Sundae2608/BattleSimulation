@@ -1,6 +1,7 @@
 import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
+import model.checker.EnvironmentChecker;
 import model.objects.Ballista;
 import model.objects.Stone;
 import model.settings.GameSettings;
@@ -175,7 +176,10 @@ public class MainSimulation extends PApplet {
         // -------------
         gameSettings = new GameSettings();
         gameSettings.setApplyTerrainModifier(true);
-        gameSettings.setBorderInwardCollision(true);
+        gameSettings.setBorderInwardCollision(false);
+        gameSettings.setAllyCollision(true);
+        gameSettings.setCollisionCheckingOnlyInCombat(false);
+        gameSettings.setCavalryCollision(true);
 
         // ----------------
         // Graphic settings
@@ -266,10 +270,13 @@ public class MainSimulation extends PApplet {
         // -------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/PanicTestConfig.txt";
+        String battleConfig = "src/configs/battle_configs/WrapAroundTest.txt";
         String mapConfig = "src/configs/map_configs/MapConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
+
+        // Check to make sure that the game environment is valid
+        EnvironmentChecker.checkEnvironmentValid(env);
 
         // ------
         // Camera
@@ -492,6 +499,7 @@ public class MainSimulation extends PApplet {
 
         if (planCounter > 0) {
             for (BaseUnit unit : env.getUnits()) {
+                if (unit.getAliveTroopsSet().size() == 0) break;
                 if (unit.getState() == UnitState.MOVING) {
                     if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
@@ -742,6 +750,7 @@ public class MainSimulation extends PApplet {
                         double posY = position[1];
                         double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
                         unitSelected.moveFormationKeptTo(posX, posY, angle);
+                        ((ArcherUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else if (unitSelected instanceof BallistaUnit) {
                     // Convert closest unit to click
@@ -762,6 +771,7 @@ public class MainSimulation extends PApplet {
                         double posY = position[1];
                         double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
                         unitSelected.moveFormationKeptTo(posX, posY, angle);
+                        ((BallistaUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else if (unitSelected instanceof CatapultUnit) {
                     // Convert closest unit to click
@@ -782,6 +792,7 @@ public class MainSimulation extends PApplet {
                         double posY = position[1];
                         double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
                         unitSelected.moveFormationKeptTo(posX, posY, angle);
+                        ((CatapultUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else {
                     double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);

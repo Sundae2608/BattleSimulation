@@ -1,5 +1,4 @@
 package model.terrain;
-import processing.core.PApplet;
 
 public class Terrain {
 
@@ -9,6 +8,8 @@ public class Terrain {
 
     double topX;
     double topY;
+    double botX;
+    double botY;
     double div;
     int numX;
     int numY;
@@ -25,6 +26,8 @@ public class Terrain {
         div = inputDiv;
         numX = inputNumX;
         numY = inputNumY;
+        botX = inputTopX + div * (numX - 1);
+        botY = inputTopY + div * (numY - 1);
         heightField = new double[numX][numY];
         dx = new double[numX-1][numY-1];
         dy = new double[numX-1][numY-1];
@@ -47,14 +50,20 @@ public class Terrain {
         }
     }
 
-
-
     public double getTopX() {
         return topX;
     }
 
     public double getTopY() {
         return topY;
+    }
+
+    public double getBotX() {
+        return botX;
+    }
+
+    public double getBotY() {
+        return botY;
     }
 
     public double getDiv() {
@@ -70,7 +79,11 @@ public class Terrain {
     }
 
     public double getHeightFromTileIndex(int i, int j) {
-        return heightField[i][j];
+        if (i >= 0 && i < numX && j > 0 && j <= numY) {
+            return heightField[i][j];
+        } else {
+            return 0;
+        }
     }
 
     public double[] getPosFromTileIndex(int i, int j) {
@@ -83,6 +96,10 @@ public class Terrain {
 
     public double getMaxZ() {
         return maxZ;
+    }
+
+    public boolean isWithinTerrain(double x, double y) {
+        return (x > topX && x < botX && y > topY && y < botY);
     }
 
     public double getHeightFromPos(double x, double y) {
@@ -107,7 +124,7 @@ public class Terrain {
     public double[] getDeltaVelFromPos(double x, double y) {
         int i = (int) (x / div);
         int j = (int) (y / div);
-        if ((i >= 0) && (i < numX) && (j >= 0) && (j < numY)) {
+        if ((i >= 0) && (i < numX - 1) && (j >= 0) && (j < numY - 1)) {
             return new double[] {dx[i][j], dy[i][j]};
         }
         return new double[]{0, 0};

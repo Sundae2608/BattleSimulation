@@ -57,5 +57,9 @@ public class CavalryUnit extends BaseUnit {
         goalX = anchorX;
         goalY = anchorY;
         goalAngle = anchorAngle;
+
+        // Set of flanker counts and frontline patient counters
+        frontlinePatientCounters = new int[width];
+        flankersCount = new int[width];
     }
 }
