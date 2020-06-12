@@ -21,9 +21,8 @@ public final class EnvironmentChecker {
     }
 
     public static boolean checkEnvironmentValid(GameEnvironment env) {
-        ArrayList<BaseUnit> units = env.getUnits();
-        Terrain terrain = env.getTerrain();
         if (!checkAllSoldiersStayInTerrain(env.getUnits(), env.getTerrain())) {
+            // Check that all units stay within the boundary of the terrain
             return false;
         }
         return true;
