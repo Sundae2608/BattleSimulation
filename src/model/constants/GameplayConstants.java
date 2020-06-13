@@ -26,6 +26,6 @@ public class GameplayConstants {
     public final static double ALLY_COLLISION_RATIO_MOVING = 0.7;
     public final static double ALLY_COLLISION_RATIO_FIGHTING = 0.8;
 
-    // How many frame without engaging the enemy before the frontliner turns into a flanker.
+    // How many frame without engaging the enemy before the front-liner turns into a flanker.
     public final static double FLANKER_PATIENT = 100;
 }
