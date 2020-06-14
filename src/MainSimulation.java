@@ -6,6 +6,7 @@ import model.objects.Ballista;
 import model.objects.Stone;
 import model.settings.GameSettings;
 import model.terrain.Terrain;
+import org.opencv.core.Core;
 import utils.ConfigUtils;
 import view.audio.AudioConstants;
 import view.audio.AudioSpeaker;
@@ -37,6 +38,7 @@ import view.settings.AudioSettings;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
 import view.settings.RenderMode;
+import view.terrain.TerrainDrawer;
 import view.utils.DrawingUtils;
 import view.video.VideoElementPlayer;
 
@@ -66,6 +68,7 @@ public class MainSimulation extends PApplet {
     // All Drawers
     UIDrawer uiDrawer;
     ShapeDrawer shapeDrawer;
+    TerrainDrawer terrainDrawer;
 
     // Eye optimizer
     HashMap<Double, Double> eyeSizeMap;
@@ -195,8 +198,8 @@ public class MainSimulation extends PApplet {
         drawingSettings.setSmoothCameraSteps(100);
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
-        drawingSettings.setDrawMap(false);
         drawingSettings.setDrawHeightField(true);
+        drawingSettings.setDrawTerrainTexture(false);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
@@ -262,9 +265,6 @@ public class MainSimulation extends PApplet {
 
         tileGrass = loadImage("imgs/SelectedTiles/grassTile128.png");
 
-        // Load all tiles in the view.map
-        loadMapTiles(-9000, -18000, "imgs/MapTiles/pharsalus", 1080);
-
         // -------------------
         // Preprocesing troops
         // -------------------
@@ -276,7 +276,11 @@ public class MainSimulation extends PApplet {
         env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
 
         // Check to make sure that the game environment is valid
-        EnvironmentChecker.checkEnvironmentValid(env);
+        try {
+            EnvironmentChecker.checkEnvironmentValid(env);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // ------
         // Camera
@@ -286,6 +290,16 @@ public class MainSimulation extends PApplet {
                 env.getBroadcaster());
         zoomGoal = camera.getZoom();  // To ensure consistency
         angleGoal = camera.getAngle();
+
+        if (drawingSettings.isDrawTerrainTexture()) {
+            PImage[][] images = ConfigUtils.createTerrainTilesFromConfig(
+                    "imgs/MapTiles/pharsalus", this);
+            try {
+                terrainDrawer = new TerrainDrawer(env.getTerrain(), images, camera, this);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         // -------------------------
         // Load video element player
@@ -440,9 +454,9 @@ public class MainSimulation extends PApplet {
         // Clear everything
         background(230);
 
-        // First, draw the map
-        if (drawingSettings.isDrawMap()) {
-            drawMapTiles(tiles, camera);
+        // Then, draw the map texture
+        if (drawingSettings.isDrawTerrainTexture()) {
+            terrainDrawer.drawTerrain();
         }
 
         // Then, draw the dots that represents the height.
@@ -834,6 +848,7 @@ public class MainSimulation extends PApplet {
     }
 
     public static void main(String... args){
+        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         PApplet.main("MainSimulation");
     }
 
@@ -1175,9 +1190,9 @@ public class MainSimulation extends PApplet {
                 double[] drawingPos3 = camera.getDrawingPosition(topX + i * div, topY + (j + 1) * div);
                 double[] drawingPos4 = camera.getDrawingPosition(topX + (i + 1) * div, topY + (j + 1) * div);
                 if (DrawingUtils.drawable(drawingPos1[0], drawingPos1[1], INPUT_WIDTH, INPUT_HEIGHT) ||
-                        DrawingUtils.drawable(drawingPos2[0], drawingPos2[1], INPUT_WIDTH, INPUT_HEIGHT) ||
-                        DrawingUtils.drawable(drawingPos3[0], drawingPos3[1], INPUT_WIDTH, INPUT_HEIGHT) ||
-                        DrawingUtils.drawable(drawingPos4[0], drawingPos4[1], INPUT_WIDTH, INPUT_HEIGHT)) {
+                    DrawingUtils.drawable(drawingPos2[0], drawingPos2[1], INPUT_WIDTH, INPUT_HEIGHT) ||
+                    DrawingUtils.drawable(drawingPos3[0], drawingPos3[1], INPUT_WIDTH, INPUT_HEIGHT) ||
+                    DrawingUtils.drawable(drawingPos4[0], drawingPos4[1], INPUT_WIDTH, INPUT_HEIGHT)) {
 
                     pushMatrix();
                     translate((float) drawingPos1[0], (float) drawingPos1[1]);
@@ -1250,44 +1265,6 @@ public class MainSimulation extends PApplet {
             endShape();
         }
         strokeWeight(0);
-    }
-
-    void drawMapTiles(ArrayList<Tile> tiles, Camera camera) {
-
-        double[][] cameraBoundingBox = {
-                {0, 0},
-                {camera.getWidth(), 0},
-                {camera.getWidth(), camera.getHeight()},
-                {0, camera.getHeight()}
-        };
-
-        for (Tile tile : tiles) {
-            //
-            double[][] tileCorners = tile.getFourCorners();
-            double[][] drawCorners = new double[4][2];
-            boolean drawable = false;
-            for (int i = 0; i < tile.getFourCorners().length; i++) {
-                drawCorners[i] = camera.getDrawingPosition(tileCorners[i][0], tileCorners[i][1]);
-                if (DrawingUtils.drawable(drawCorners[i][0], drawCorners[i][1], INPUT_WIDTH, INPUT_HEIGHT)) {
-                    drawable = true;
-                    break;
-                }
-            }
-
-            // Use bounding box check
-            if (!drawable & PhysicUtils.rotatedBoundingBoxCollide(drawCorners, cameraBoundingBox)) drawable = true;
-
-            // Draw the tile only if it is actually on screen
-            if (drawable) {
-                pushMatrix();
-                translate((float) drawCorners[0][0], (float) drawCorners[0][1]);
-                rotate((float) -camera.getAngle());
-                image(tile.getTile(), 0, 0,
-                        (float) (tile.getSize() * camera.getZoom()),
-                        (float) (tile.getSize() * camera.getZoom()));
-                popMatrix();
-            }
-        }
     }
 
     void drawObject(BaseObject object, Camera camera, Terrain terrain, DrawingSettings settings) {

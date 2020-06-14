@@ -18,14 +18,11 @@ public class ImageProcessingUtils {
         // Convert PImage to Mat
         int[] iArray = new int[image.pixels.length];
         byte[] bArray = new byte[image.pixels.length * 4];
-        System.out.println(image.pixels.length);
-        System.out.println(image.width);
-        System.out.println(image.height);
         PApplet.arrayCopy(image.pixels, iArray);
         ByteBuffer bBuf = ByteBuffer.allocate(image.pixels.length * 4);
         IntBuffer iBuf = bBuf.asIntBuffer();
-        iBuf.get(iArray);
-        bBuf.put(bArray);
+        iBuf.put(iArray);
+        bBuf.get(bArray);
         Mat input = new Mat(image.height, image.width, CvType.CV_8UC4);
         input.put(0, 0, bArray);
 
@@ -70,14 +67,11 @@ public class ImageProcessingUtils {
         int[] returnIArray = new int[(int) newSize.width * (int) newSize.height];
         byte[] returnBArray = new byte[(int) newSize.width * (int) newSize.height * 4];
         ByteBuffer returnBBuf = ByteBuffer.allocate((int) newSize.width * (int) newSize.height * 4);
-        IntBuffer returnIBuf = bBuf.asIntBuffer();
+        IntBuffer returnIBuf = returnBBuf.asIntBuffer();
         dst.get(0, 0, returnBArray);
-        ByteBuffer.wrap(returnBArray).asIntBuffer().get(returnIArray);
-        PApplet.arrayCopy(iArray, ret.pixels);
-        System.out.println(ret.pixels.length);
-        for (int i = 0; i < ret.pixels.length; i++) {
-            System.out.println(PApplet.hex(ret.pixels[i]));
-        }
+        returnBBuf.put(returnBArray);
+        returnIBuf.get(returnIArray);
+        PApplet.arrayCopy(returnIArray, ret.pixels);
         return ret;
     }
 }

@@ -27,35 +27,8 @@ public class ImageStretchSimulation extends PApplet {
     public void setup() {
         inputImage = loadImage("imgs/TestImages/images.png");
         pimage = ImageProcessingUtils.transformImage(inputImage, new double[][] {
-                {0, 0}, {20, 200}, {180, 12}, {225, 225}
+                {0, 0}, {180, 12}, {20, 200},  {225, 225}
         });
-//        Imgcodecs imageCodecs = new Imgcodecs();
-//        Mat img = imageCodecs.imread("imgs/TestImages/images.png");
-//        System.out.println(img);
-//        bArray = new byte[img.height() * img.width() * 4];
-//        iArray = new int[img.height() * img.width()];
-//        dst = imageCodecs.imread("imgs/TestImages/images.png");
-//        MatOfPoint2f pts1 = new MatOfPoint2f(
-//                new Point(0, 0),
-//                new Point(0,225),
-//                new Point(225,0),
-//                new Point(225,225));
-//        MatOfPoint2f pts2 = new MatOfPoint2f(
-//                new Point(0, 0),
-//                new Point(20,200),
-//                new Point(180,12),
-//                new Point(225,225));
-//        Mat transform = Imgproc.getPerspectiveTransform(pts1, pts2);
-//        Imgproc.warpPerspective(img, dst, transform, new Size(225, 225));
-//        pimage = createImage(img.width(), img.height(), ARGB);
-//        ByteBuffer bBuf = ByteBuffer.allocate(pxCount);
-//        IntBuffer iBuf = bBuf.asIntBuffer();
-//        Imgproc.cvtColor(dst, dst, Imgproc.COLOR_BGR2BGRA);
-//        dst.get(0, 0, bArray);
-//        ByteBuffer.wrap(bArray).asIntBuffer().get(iArray);
-//        arrayCopy(iArray, pimage.pixels);
-//        convertBGRAtoRAGB(pimage.pixels);
-//        return;
     }
     private void convertBGRAtoRAGB(int[] pixels) {
         for (int i = 0; i < pixels.length; i++) {

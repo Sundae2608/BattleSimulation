@@ -2,10 +2,6 @@ package model.terrain;
 
 public class Terrain {
 
-    public double PERLIN_SCALE = 0.08;
-    public double PERLIN_DETAIL_SCALE = 0.8;
-    public double PERLIN_DETAIL_HEIGHT_RATIO = 0.05;
-
     double topX;
     double topY;
     double botX;
@@ -15,12 +11,16 @@ public class Terrain {
     int numY;
     double minZ;
     double maxZ;
+    double perlinScale;
+    double perlinDetailScale;
+    double perlinDetailHeightRatio;
     double[][] heightField;
     double[][] dx;
     double[][] dy;
 
     public Terrain(double inputTopX, double inputTopY, double inputDiv,
-                   int inputNumX, int inputNumY, int taper, double minHeight, double maxHeight) {
+                   int inputNumX, int inputNumY, int taper, double minHeight, double maxHeight,
+                   double inputPerlinScale, double inputPerlinDetailScale, double inputPerlinDetailHeightRatio) {
         topX = inputTopX;
         topY = inputTopY;
         div = inputDiv;
@@ -33,11 +33,14 @@ public class Terrain {
         dy = new double[numX-1][numY-1];
         minZ = minHeight;
         maxZ = maxHeight;
+        perlinScale = inputPerlinScale;
+        perlinDetailScale = inputPerlinDetailScale;
+        perlinDetailHeightRatio = inputPerlinDetailHeightRatio;
         for (int i = 0; i < numX; i++) {
             for (int j = 0; j < numY; j++) {
-                heightField[i][j] = PerlinNoise.noise(i * PERLIN_SCALE, j * PERLIN_SCALE, 0) *
+                heightField[i][j] = PerlinNoise.noise(i * this.perlinScale, j * this.perlinScale, 0) *
                         (maxHeight - minHeight) + minHeight +
-                        PERLIN_DETAIL_HEIGHT_RATIO * PerlinNoise.noise(i * PERLIN_DETAIL_SCALE, j * PERLIN_DETAIL_SCALE, 0) *
+                        this.perlinDetailHeightRatio * PerlinNoise.noise(i * this.perlinDetailScale, j * this.perlinDetailScale, 0) *
                                 (maxHeight - minHeight)
                 ;
             }
