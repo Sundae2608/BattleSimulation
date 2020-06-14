@@ -161,20 +161,24 @@ public final class PhysicUtils {
         double averageY = unit.getAverageY();
         double averageZ = unit.getAverageZ();
 
-        // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
-        // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
-        double[] t = new double[1000];
-        t[0] = 0;
-        for (int i = 1; i < t.length; i++) {
-            t[i] = t[i-1] + 1.0 / t.length;
-        }
-
         // Looping through the list of units
         for (BaseUnit queryUnit : allUnits) {
             // Getting the coordinate of the queryUnit
             double queryAverageX = queryUnit.getAverageX();
             double queryAverageY = queryUnit.getAverageY();
             double queryAverageZ = queryUnit.getAverageZ();
+            double div = terrain.getDiv();
+
+            // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
+            // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
+            double temp = MathUtils.squareDistance(queryAverageX, queryAverageY, averageX, averageY);
+            temp = 10 * Math.ceil(MathUtils.quickRoot2((float) temp) / div); //majik number 10
+
+            double[] t = new double[(int) temp];
+            t[0] = 0;
+            for (int i = 1; i < t.length; i++) {
+                t[i] = t[i-1] + 1.0 / t.length;
+            }
 
             // Declaring the terrain height at certain coordinate and the visibility boolean
             double[] terrainArrayZ = new double[t.length];
