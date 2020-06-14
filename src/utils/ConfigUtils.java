@@ -15,6 +15,7 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import view.audio.*;
 import view.camera.Camera;
+import view.map.Tile;
 import view.video.VideoElementPlayer;
 import view.video.VideoElementType;
 import view.video.VideoTemplate;
@@ -26,6 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class ConfigUtils {
     /**
@@ -326,6 +329,48 @@ public final class ConfigUtils {
         return player;
     }
 
+    public static PImage[][] createTerrainTilesFromConfig(String folderPath, PApplet applet) {
+        // Initialize the tile list
+        PImage[][] images;
+
+        // Inspect the file names in the folder.
+        Pattern numberPattern = Pattern.compile("[0-9]+");
+        File folder = new File(Paths.get(folderPath).toString());
+        File[] fileList = folder.listFiles();
+
+        // Find the highest row and column number, they would be used to initiate the PImage array.
+        int maxRow = 0;
+        int maxCol = 0;
+        for (File file : fileList) {
+            String fileName = file.getName();
+            Matcher m = numberPattern.matcher(fileName);
+            m.find();
+            int row = Integer.valueOf(m.group());
+            if (row > maxRow) {
+                maxRow = row;
+            }
+            m.find();
+            int col = Integer.valueOf(m.group());
+            if (col > maxCol) {
+                maxCol = col;
+            }
+        }
+        // We add one because row and column is 0-indexed.
+        images = new PImage[maxRow + 1][maxCol + 1];
+
+        // Load each images and put them into respective rol and col
+        for (File file : fileList) {
+            String fileName = file.getName();
+            Matcher m = numberPattern.matcher(fileName);
+            m.find();
+            int row = Integer.valueOf(m.group());
+            m.find();
+            int col = Integer.valueOf(m.group());
+            images[row][col] = applet.loadImage(Paths.get(folderPath, fileName).toString());
+        }
+        return images;
+    }
+
     /**
      * Create a terrain based on configs input from a file.
      * @param filePath path that contains the input configs.
@@ -358,10 +403,14 @@ public final class ConfigUtils {
         int taper = Integer.parseInt(d.get("taper"));
         double minHeight = Double.parseDouble(d.get("min_height"));
         double maxHeight = Double.parseDouble(d.get("max_height"));
+        double perlinScale = Double.parseDouble(d.get("perlin_scale"));
+        double perlinDetailScale = Double.parseDouble(d.get("perlin_detail_scale"));
+        double perlinDetailHeightRatio = Double.parseDouble(d.get("perlin_detail_height_ratio"));
 
         // Return terrain from the input configs
         return new Terrain(
-            topX, topY, div, numX, numY, taper, minHeight, maxHeight
+            topX, topY, div, numX, numY, taper, minHeight, maxHeight,
+            perlinScale, perlinDetailScale, perlinDetailHeightRatio
         );
     }
 }

@@ -20,11 +20,10 @@ public final class EnvironmentChecker {
         return true;
     }
 
-    public static boolean checkEnvironmentValid(GameEnvironment env) {
+    public static void checkEnvironmentValid(GameEnvironment env) throws Exception {
         if (!checkAllSoldiersStayInTerrain(env.getUnits(), env.getTerrain())) {
             // Check that all units stay within the boundary of the terrain
-            return false;
+            throw new Exception("Troops do not stay within the boundary of the terrain at initialization.");
         }
-        return true;
     }
 }

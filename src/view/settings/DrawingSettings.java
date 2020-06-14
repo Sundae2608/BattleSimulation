@@ -12,8 +12,8 @@ public class DrawingSettings {
     private boolean drawSmooth;
     private boolean drawDamageSustained;
     private boolean drawGrid;
-    private boolean drawMap;
     private boolean drawHeightField;
+    private boolean drawTerrainTexture;
     private boolean drawTroopShadow;
     private boolean drawSimplifiedTroopShape;
     private boolean drawIcon;
@@ -110,18 +110,18 @@ public class DrawingSettings {
         this.drawGrid = drawGrid;
     }
 
-    public boolean isDrawMap() {
-        return drawMap;
-    }
-    public void setDrawMap(boolean drawMap) {
-        this.drawMap = drawMap;
-    }
-
     public boolean isDrawHeightField() {
         return drawHeightField;
     }
     public void setDrawHeightField(boolean drawHeightField) {
         this.drawHeightField = drawHeightField;
+    }
+
+    public boolean isDrawTerrainTexture() {
+        return drawTerrainTexture;
+    }
+    public void setDrawTerrainTexture(boolean drawTerrainTexture) {
+        this.drawTerrainTexture = drawTerrainTexture;
     }
 
     public boolean isDrawTroopShadow() {
