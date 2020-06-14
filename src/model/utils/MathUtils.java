@@ -282,4 +282,31 @@ public final class MathUtils {
             }
         });
     }
+
+    /**
+     * Find the minimum of all numbers in the array
+     */
+    public static double findMin(double[] nums) {
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] < min) {
+                min = nums[i];
+            }
+        }
+        return min;
+    }
+
+    /**
+     * Find the maximum of all numbers in the array
+     */
+    public static double findMax(double[] nums) {
+        double max = Double.MIN_VALUE;
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] > max) {
+                max = nums[i];
+            }
+        }
+        return max;
+    }
+
 }
