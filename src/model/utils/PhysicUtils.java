@@ -154,7 +154,55 @@ public final class PhysicUtils {
      * @return An array list containing all visible units.
      */
     public static ArrayList<BaseUnit> checkUnitVision(BaseUnit unit, ArrayList<BaseUnit> allUnits, Terrain terrain) {
-        return allUnits;
+        ArrayList<BaseUnit> allVisibleUnits = new ArrayList<BaseUnit>();
+
+        // Getting the coordinate of the current unit
+        double averageX = unit.getAverageX();
+        double averageY = unit.getAverageY();
+        double averageZ = unit.getAverageZ();
+
+        // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
+        // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
+        double[] t = new double[1000];
+        t[0] = 0;
+        for (int i = 1; i < t.length; i++) {
+            t[i] = t[i-1] + 1.0 / t.length;
+        }
+
+        // Looping through the list of units
+        for (BaseUnit queryUnit : allUnits) {
+            // Getting the coordinate of the queryUnit
+            double queryAverageX = queryUnit.getAverageX();
+            double queryAverageY = queryUnit.getAverageY();
+            double queryAverageZ = queryUnit.getAverageZ();
+
+            // Declaring the terrain height at certain coordinate and the visibility boolean
+            double[] terrainArrayZ = new double[t.length];
+            boolean[] visibilityArray = new boolean[t.length];
+
+            // Finding the coordinate for the line of sight
+            double[] arrayX = new double[t.length];
+            double[] arrayY = new double[t.length];
+            double[] arrayZ = new double[t.length];
+
+            for (int j = 1; j < t.length; j++) {
+                // This is a line equation
+                arrayX[j] = (queryAverageX - averageX) * t[j] + averageX;
+                arrayY[j] = (queryAverageY - averageY) * t[j] + averageY;
+                arrayZ[j] = (queryAverageZ - averageZ) * t[j] + averageZ;
+                terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
+                visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
+            }
+            // Finding whether the queryUnit is visible
+            boolean visibility = true;
+            for (int j = 1; j < t.length; j++) {
+                visibility = visibility && visibilityArray[j];
+            }
+            if (visibility) {
+                allVisibleUnits.add(queryUnit);
+            }
+        }
+        return allVisibleUnits;
     }
 
     /**
