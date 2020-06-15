@@ -11,6 +11,7 @@ import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class CatapultUnit extends BaseUnit {
@@ -54,14 +55,20 @@ public class CatapultUnit extends BaseUnit {
         double topX = x - (width - 1) * unitStats.spacing * sideUnitX / 2;
         double topY = y - (width - 1) * unitStats.spacing * sideUnitY / 2;
         troops = new ArrayList<>();
+        aliveTroopsFormation = new BaseSingle[depth][width];
+        aliveTroopsMap = new HashMap<>();
         for (int i = 0; i < unitSize; i++) {
-            double singleX = topX + (i % width) * unitStats.spacing * sideUnitX
-                    + ((i / width) * unitStats.spacing) * downUnitX;
-            double singleY = topY + (i % width) * unitStats.spacing * sideUnitY
-                    + ((i / width) * unitStats.spacing) * downUnitY;
-            troops.add(new CatapultSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher));
+            int row = i / width;
+            int col = i % width;
+            double singleX = topX + col * unitStats.spacing * sideUnitX
+                    + (row * unitStats.spacing) * downUnitX;
+            double singleY = topY + col * unitStats.spacing * sideUnitY
+                    + (row * unitStats.spacing) * downUnitY;
+            BaseSingle single = new CatapultSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher);
+            troops.add(single);
+            aliveTroopsFormation[row][col] = single;
+            aliveTroopsMap.put(single, i);
         }
-        aliveTroopsSet = new HashSet<>(troops);
 
         // Goal position and direction are equal to anchor ones so that the army stand still.
         goalX = anchorX;
@@ -87,20 +94,17 @@ public class CatapultUnit extends BaseUnit {
         double topY = anchorY - (width - 1) * unitStats.spacing * sideUnitY / 2;
 
         // Update troops goal positions
-        for (int i = 0; i < troops.size(); i++) {
-
-            int row = i / width;
-            int col = i % width;
-            double xGoalSingle = topX + col * unitStats.spacing * sideUnitX
-                    + (row * unitStats.spacing) * downUnitX;
-            double yGoalSingle = topY + col * unitStats.spacing * sideUnitY
-                    + (row * unitStats.spacing) * downUnitY;
-
-            // Set the goal and change the state
-            BaseSingle troop = troops.get(i);
-            troop.setxGoal(xGoalSingle);
-            troop.setyGoal(yGoalSingle);
-            troop.setAngleGoal(anchorAngle);
+        for (int i = 0; i < aliveTroopsFormation.length; i++) {
+            for (int j = 0; j < aliveTroopsFormation[0].length; i++) {
+                if (aliveTroopsFormation[i][j] == null) continue;
+                double xGoalSingle = topX + j * unitStats.spacing * sideUnitX
+                        + (i * unitStats.spacing) * downUnitX;
+                double yGoalSingle = topY + j * unitStats.spacing * sideUnitY
+                        + (i * unitStats.spacing) * downUnitY;
+                aliveTroopsFormation[i][j].setxGoal(xGoalSingle);
+                aliveTroopsFormation[i][j].setyGoal(yGoalSingle);
+                aliveTroopsFormation[i][j].setAngleGoal(anchorAngle);
+            }
         }
     }
 

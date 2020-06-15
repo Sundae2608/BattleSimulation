@@ -5,6 +5,7 @@ import model.units.BaseUnit;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 
 public final class TestUtils {
 
@@ -15,7 +16,7 @@ public final class TestUtils {
         // Number of full rows
         int rows = unit.getNumAlives() / unit.getWidth();
         ArrayList<BaseSingle> troops = unit.getTroops();
-        HashSet<BaseSingle> troopSet = unit.getAliveTroopsSet();
+        Set<BaseSingle> troopSet = unit.getAliveTroopsSet();
 
         // Examine full rows;
         for (int i = 0; i < rows; i++) {

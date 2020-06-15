@@ -20,4 +20,21 @@ public final class DebugUtils {
         }
         return s;
     }
+
+    public static String formationStringWithAliveFormationMap(BaseUnit unit) {
+        String s = "";
+        for (int i = 0; i < unit.getAliveTroopsFormation().length; i++) {
+            for (int j = 0; j < unit.getAliveTroopsFormation()[0].length; j++) {
+                if (unit.getAliveTroopsFormation()[i][j] == null) {
+                    s += " - ";
+                } else {
+                    s += " O ";
+                }
+                if (j == unit.getWidth() - 1) {
+                    s += "\n";
+                }
+            }
+        }
+        return s;
+    }
 }

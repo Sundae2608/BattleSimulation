@@ -263,8 +263,8 @@ public class UnitModifier {
                     // If collide, all surrounding troops will also be in danger of colliding and is added to the collision
                     // queue.
                     if (numEnemyCollisions > 0 || numAllyCollisions > 5) {
-                        int row = troop.getSingleIndex() / unit.getWidth();
-                        int col = troop.getSingleIndex() % unit.getWidth();
+                        int row = unit.getTroopIndex(troop) / unit.getWidth();
+                        int col = unit.getTroopIndex(troop) % unit.getWidth();
                         int rowCandidate;
                         int colCandidate;
                         for (int i = -1; i <= 1; i++) {

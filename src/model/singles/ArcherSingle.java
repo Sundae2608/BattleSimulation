@@ -45,7 +45,6 @@ public class ArcherSingle extends BaseSingle {
         y = yInit;
         xGoal = xInit;
         yGoal = yInit;
-        singleIndex = index;
 
         // Set up political faction
         politicalFaction = faction;

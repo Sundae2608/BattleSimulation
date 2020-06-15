@@ -24,7 +24,6 @@ public class PhalanxSingle extends BaseSingle {
         // Set up political faction
         politicalFaction = faction;
         unit = inputUnit;
-        singleIndex = index;
 
         // Set default stat up stats
         singleStats = inputSingleStats;

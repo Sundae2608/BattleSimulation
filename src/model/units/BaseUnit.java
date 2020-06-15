@@ -21,7 +21,8 @@ public class BaseUnit {
 
     // Troops and width
     ArrayList<BaseSingle> troops;
-    HashSet<BaseSingle> aliveTroopsSet;
+    HashMap<BaseSingle, Integer> aliveTroopsMap;
+    BaseSingle[][] aliveTroopsFormation;
     int width;
     int depth;
 
@@ -95,6 +96,21 @@ public class BaseUnit {
     }
 
     /**
+     * Swap the troop between two positions (row1, col1) and (row2, col2)
+     */
+    private void swapTwoTroopPositions(int row1, int col1, int row2, int col2) {
+        BaseSingle temp = aliveTroopsFormation[row1][col1];
+        aliveTroopsFormation[row1][col1] = aliveTroopsFormation[row2][col2];
+        aliveTroopsFormation[row2][col2] = temp;
+        if (aliveTroopsFormation[row1][col1] != null) {
+            aliveTroopsMap.put(aliveTroopsFormation[row1][col1], row1 * width + col1);
+        }
+        if (aliveTroopsFormation[row2][col2] != null) {
+            aliveTroopsMap.put(aliveTroopsFormation[row2][col2], row2 * width + col2);
+        }
+    }
+
+    /**
      * Move the unit to a particular location, but with their formation kept
      * @param xGoal x-coordinate of the position to go to
      * @param yGoal y-coordinate of the position to go to
@@ -164,7 +180,7 @@ public class BaseUnit {
         unitFoughtAgainst = null;
 
         // Re-order troops position.
-        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsSet);
+        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsMap.keySet());
 
         // First, sort position from furthest forward to furthest backward.
         MathUtils.sortSinglesByAngle(aliveArray, -angleGoal + Math.PI);
@@ -286,33 +302,23 @@ public class BaseUnit {
      */
     public void uTurnFormation() {
         // First, move all troops down column wise
-        int index;
-        int newIndex;
-        int oldIndex;
         for (int j = 0; j < width; j ++) {
             for (int i = 0; i < depth; i++) {
-                index = i * width + j;
-                if (troops.get(index).getState() == SingleState.DEAD) {
-                    int num_steps = depth - i;
-                    for (int rev = depth - 1; rev >= num_steps; rev--) {
-                        newIndex = rev * width + j;
-                        oldIndex = (rev - num_steps) * width + j;
-                        BaseSingle alive = troops.get(oldIndex);
-                        BaseSingle dead = troops.get(newIndex);
-                        troops.set(newIndex, alive);
-                        troops.set(oldIndex, dead);
-                        dead.setSingleIndex(oldIndex);
-                        alive.setSingleIndex(newIndex);
+                if (aliveTroopsFormation[i][j] == null) {
+                    int numSteps = depth - i;
+                    for (int rev = depth - 1; rev >= numSteps; rev--) {
+                        swapTwoTroopPositions( rev - numSteps, j, rev, j);
                     }
                     break;
                 }
             }
         }
 
-        // Then reverse all the troops and there number
-        Collections.reverse(troops);
-        for (int i = 0; i < troops.size(); i++) {
-            troops.get(i).setSingleIndex(i);
+        // Then reverse the order
+        for (int index = 0; index < width * depth / 2; index++) {
+            int row = index / width;
+            int col = index % width;
+            swapTwoTroopPositions(row, col, depth - row - 1, width - col - 1);
         }
 
         // Reset the flankers
@@ -327,85 +333,54 @@ public class BaseUnit {
      */
     public void processDeadSingle(BaseSingle deadSingle) {
         // Introduce a morale loss.
-        morale -= GameplayUtils.moraleLossDueToDeadSoldier(aliveTroopsSet.size());
+        morale -= GameplayUtils.moraleLossDueToDeadSoldier(aliveTroopsMap.size());
 
         // Change the formation of the unit to maintain the frontline.
-        aliveTroopsSet.remove(deadSingle);
-        int index = deadSingle.getSingleIndex();
-        int row;
-        int col;
-        System.out.println(index / width);
-        System.out.println(index % width);
+        int index = aliveTroopsMap.get(deadSingle);
+        aliveTroopsMap.remove(deadSingle);
+        int row = index / width;
+        int col = index % width;
+        aliveTroopsFormation[row][col] = null;
+
         while (true) {
-            row = index / width;
-            col = index % width;
-            int behindIndex = (row + 1) * width + col;
-            int besideLeft = index - 1;
-            int besideRight = index + 1;
-            if (behindIndex < troops.size() && troops.get(behindIndex).getState() != SingleState.DEAD) {
+            if (row < aliveTroopsFormation.length - 1 && aliveTroopsFormation[row + 1][col] != null) {
                 // If there is someone alive behind, move that person up
-                BaseSingle alive = troops.get(behindIndex);
-                troops.set(index, alive);
-                troops.set(behindIndex, deadSingle);
-                deadSingle.setSingleIndex(alive.getSingleIndex());
-                alive.setSingleIndex(index);
-                index = behindIndex;
-            } else if ((col > 0) && (col < width / 2) && troops.get(besideLeft).getState() != SingleState.DEAD) {
-                // If there is someone alive on the left while the dead person is on the left side,
-                // move the dead person out.
-                BaseSingle alive = troops.get(besideLeft);
-                troops.set(index, alive);
-                troops.set(besideLeft, deadSingle);
-                deadSingle.setSingleIndex(alive.getSingleIndex());
-                alive.setSingleIndex(index);
-                index = besideLeft;
-            } else if ((col < width - 1) && (col >= width / 2) && troops.get(besideRight).getState() != SingleState.DEAD) {
-                // If there is someone alive on the right while the dead person is on the right side,
-                // move the dead person out.
-                BaseSingle alive = troops.get(besideRight);
-                troops.set(index, alive);
-                troops.set(besideRight, deadSingle);
-                deadSingle.setSingleIndex(alive.getSingleIndex());
-                alive.setSingleIndex(index);
-                index = besideRight;
-            } else if (aliveTroopsSet.size() >= width * (row + 1) && col == 0) {
+                swapTwoTroopPositions(row, col, row + 1, col);
+                row += 1;
+            } else if ((col > 0) && (col < width / 2) && aliveTroopsFormation[row][col - 1] != null) {
+                swapTwoTroopPositions(row, col, row, col - 1);
+                col -= 1;
+            } else if ((col < width - 1) && (col >= width / 2) && aliveTroopsFormation[row][col + 1] != null) {
+                swapTwoTroopPositions(row, col, row, col + 1);
+                col += 1;
+            } else if (aliveTroopsMap.size() >= width * (row + 1) && col == 0) {
                 // If there are still more people in the last row, we shall pick the next left-most person to fill in
                 // the spot
-                int farLeft = 0;
+                int farLeftCol = 0;
                 for (int i = 0; i < width; i++) {
-                    if (troops.get((row + 1) * width + i).getState() != SingleState.DEAD) {
-                        farLeft = (row + 1) * width + i;
+                    if (aliveTroopsFormation[row + 1][i] != null) {
+                        farLeftCol = i;
                         break;
                     }
                 }
-                BaseSingle alive = troops.get(farLeft);
-                troops.set(index, alive);
-                troops.set(farLeft, deadSingle);
-                deadSingle.setSingleIndex(alive.getSingleIndex());
-                alive.setSingleIndex(index);
+                swapTwoTroopPositions(row, col, row + 1, farLeftCol);
                 break;
-            } else if (aliveTroopsSet.size() >= width * (row + 1) && col == width - 1) {
-                // If there are still more people in the last row, we shall pick the next right-most person to fill
+            } else if (aliveTroopsMap.size() >= width * (row + 1) && col == width - 1) {
+                // If there are still more people in the last row, we shall pick the next right-most person to fill in
                 // the spot
-                int farRight = 0;
+                int farRightCol = 0;
                 for (int i = width - 1; i >= 0; i--) {
-                    if (troops.get((row + 1) * width + i).getState() != SingleState.DEAD) {
-                        farRight = (row + 1) * width + i;
+                    if (aliveTroopsFormation[row + 1][i] != null) {
+                        farRightCol = i;
                         break;
                     }
                 }
-                BaseSingle alive = troops.get(farRight);
-                troops.set(index, alive);
-                troops.set(farRight, deadSingle);
-                deadSingle.setSingleIndex(alive.getSingleIndex());
-                alive.setSingleIndex(index);
+                swapTwoTroopPositions(row, col, row + 1, farRightCol);
                 break;
             } else {
                 break;
             }
         }
-        System.out.println(DebugUtils.formationString(this));
-        System.out.println(this.state);
     }
 
     /**
@@ -422,8 +397,8 @@ public class BaseUnit {
         BaseSingle troop;
         boolean oneLineLeft = false;
         for (j = 0; j < width; j++) {
-            troop = getTroopsAtRowCol(i, j);
-            if (troop.getState() != SingleState.DEAD) {
+            troop = aliveTroopsFormation[i][j];
+            if (troop != null) {
                 borderTroops.add(troop);
                 inDanger[i][j] = true;
             } else {
@@ -435,23 +410,22 @@ public class BaseUnit {
         // Then scan downward from both sides
         int heightLeft = 0;
         int heightRight = 0;
-        int rightMost = width - 1;
         BaseSingle troopLeft;
         BaseSingle troopRight;
         for (i = 1; i < depth; i++) {
-            troopLeft = getTroopsAtRowCol(i, 0);
-            troopRight = getTroopsAtRowCol(i, rightMost);
-            if (troopLeft.getState() != SingleState.DEAD) {
+            troopLeft = aliveTroopsFormation[i][0];
+            troopRight = aliveTroopsFormation[i][width - 1];
+            if (troopLeft != null) {
                 borderTroops.add(troopLeft);
                 heightLeft += 1;
                 inDanger[i][0] = true;
             }
-            if (troopRight.getState() != SingleState.DEAD) {
+            if (troopRight != null) {
                 borderTroops.add(troopRight);
                 heightRight += 1;
-                inDanger[i][rightMost] = true;
+                inDanger[i][width - 1] = true;
             }
-            if (troopLeft.getState() == SingleState.DEAD || troopRight.getState() == SingleState.DEAD) break;
+            if (troopLeft == null || troopRight == null) break;
         }
 
         // Last line
@@ -459,16 +433,16 @@ public class BaseUnit {
         if (lastLine == depth - 1) {
             for (j = 1; j < width - 1; j++) {
                 inDanger[lastLine][j] = true;
-                borderTroops.add(getTroopsAtRowCol(lastLine, j));
+                borderTroops.add(aliveTroopsFormation[lastLine][j]);
             }
         } else {
             for (j = 1; j < width - 1; j++) {
-                if (getTroopsAtRowCol(lastLine + 1, j).getState() == SingleState.DEAD) {
+                if (aliveTroopsFormation[lastLine + 1][j] == null) {
                     inDanger[lastLine][j] = true;
-                    borderTroops.add(getTroopsAtRowCol(lastLine, j));
+                    borderTroops.add(aliveTroopsFormation[lastLine][j]);
                 } else {
                     inDanger[lastLine + 1][j] = true;
-                    borderTroops.add(getTroopsAtRowCol(lastLine + 1, j));
+                    borderTroops.add(aliveTroopsFormation[lastLine + 1][j]);
                 }
             }
         }
@@ -484,9 +458,8 @@ public class BaseUnit {
 
         for (int i = 0; i < depth; i++) {
             for (int j = 0; j < width; j++) {
-                BaseSingle single = getTroopsAtRowCol(i, j);
-                if (single.getState() == SingleState.DEAD) continue;
-                if (getTroopsAtRowCol(i, j).isInPosition() && !inDanger[i][j]) {
+                if (aliveTroopsFormation[i][j] == null) continue;
+                if (aliveTroopsFormation[i][j].isInPosition() && !inDanger[i][j]) {
                     inPositionMap[i][j] = true;
                 }
             }
@@ -543,6 +516,21 @@ public class BaseUnit {
 
                 // Update flanker status. If the flank has not engaged with the enemy for a long time, they will join
                 // the flanker, which will have a different goal position.
+                for (int i = 0; i < width; i++) {
+                    if (flankersCount[i] < troops.size() / width && aliveTroopsFormation[flankersCount[i]][i] != null) {
+                        if (aliveTroopsFormation[0][i].getCombatDelay() < 0) {
+                            frontlinePatientCounters[i] += 1;
+                        } else {
+                            frontlinePatientCounters[i] = 0;
+                        }
+                    }
+                    if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
+                        // If the front-liner has waited for too long, they will join the flanker.
+                        flankersCount[i] += 1;
+                        frontlinePatientCounters[i] = 0;
+                    }
+                }
+
                 for (int i = 0; i < width; i++) {
                     if (flankersCount[i] < troops.size() / width && troops.get(i + flankersCount[i] * width).getState() != SingleState.DEAD) {
                         if (troops.get(i).getCombatDelay() < 0) {
@@ -617,7 +605,7 @@ public class BaseUnit {
         updateGoalPositions();
 
         // Update troop intentions
-        for (BaseSingle single : troops) {
+        for (BaseSingle single : aliveTroopsMap.keySet()) {
             single.updateIntention(terrain);
         }
     }
@@ -638,34 +626,34 @@ public class BaseUnit {
         double topY = anchorY - (width - 1) * unitStats.spacing * sideUnitY / 2;
 
         // Update troops goal positions
-        for (int i = 0; i < troops.size(); i++) {
-            int row = i / width;
-            int col = i % width;
-            double xGoalSingle;
-            double yGoalSingle;
-            // If the person is the flanker, go straight to the enemy position.
-            if (state == UnitState.FIGHTING) {
-                if (row < flankersCount[col]) {
-                    xGoalSingle = this.unitFoughtAgainst.getAverageX();
-                    yGoalSingle = this.unitFoughtAgainst.getAverageY();
+        for (int row = 0; row < aliveTroopsFormation.length; row++) {
+            for (int col = 0; col < aliveTroopsFormation[0].length; col++) {
+                BaseSingle troop = aliveTroopsFormation[row][col];
+                if (troop == null) continue;
+                double xGoalSingle;
+                double yGoalSingle;
+                // If the person is the flanker, go straight to the enemy position.
+                if (state == UnitState.FIGHTING) {
+                    if (row < flankersCount[col]) {
+                        xGoalSingle = this.unitFoughtAgainst.getAverageX();
+                        yGoalSingle = this.unitFoughtAgainst.getAverageY();
+                    } else {
+                        xGoalSingle = topX + col * unitStats.spacing * sideUnitX
+                                + (row - flankersCount[col]) * unitStats.spacing * downUnitX;
+                        yGoalSingle = topY + col * unitStats.spacing * sideUnitY
+                                + (row - flankersCount[col]) * unitStats.spacing * downUnitY;
+                    }
                 } else {
                     xGoalSingle = topX + col * unitStats.spacing * sideUnitX
-                            + (row - flankersCount[col]) * unitStats.spacing * downUnitX;
+                            + row * unitStats.spacing * downUnitX;
                     yGoalSingle = topY + col * unitStats.spacing * sideUnitY
-                            + (row - flankersCount[col]) * unitStats.spacing * downUnitY;
+                            + row * unitStats.spacing * downUnitY;
                 }
-            } else {
-                xGoalSingle = topX + col * unitStats.spacing * sideUnitX
-                        + row * unitStats.spacing * downUnitX;
-                yGoalSingle = topY + col * unitStats.spacing * sideUnitY
-                        + row * unitStats.spacing * downUnitY;
+                // Set the goal and change the state
+                troop.setxGoal(xGoalSingle);
+                troop.setyGoal(yGoalSingle);
+                troop.setAngleGoal(anchorAngle);
             }
-
-            // Set the goal and change the state
-            BaseSingle troop = troops.get(i);
-            troop.setxGoal(xGoalSingle);
-            troop.setyGoal(yGoalSingle);
-            troop.setAngleGoal(anchorAngle);
         }
     }
 
@@ -680,12 +668,12 @@ public class BaseUnit {
 
         if (morale < GameplayConstants.PANIC_MORALE) {
             state = UnitState.ROUTING;
-            for (BaseSingle single : aliveTroopsSet) {
+            for (BaseSingle single : aliveTroopsMap.keySet()) {
                 single.switchState(SingleState.ROUTING);
             }
         } else if (state == UnitState.ROUTING && morale > GameplayConstants.RECOVER_MORALE) {
             this.regroupAfterRoutTo(averageX, averageY, goalAngle);
-            for (BaseSingle single : aliveTroopsSet) {
+            for (BaseSingle single : aliveTroopsMap.keySet()) {
                 single.switchState(SingleState.MOVING);
             }
         }
@@ -695,7 +683,7 @@ public class BaseUnit {
         double sumY = 0;
         double sumZ = 0;
         int count = 0;
-        for (BaseSingle single : aliveTroopsSet) {
+        for (BaseSingle single : aliveTroopsMap.keySet()) {
             single.updateState();
             sumX += single.getX();
             sumY += single.getY();
@@ -720,8 +708,8 @@ public class BaseUnit {
         double sideUnitX = MathUtils.quickCos((float) (anchorAngle + Math.PI / 2));
         double sideUnitY = MathUtils.quickSin((float) (anchorAngle + Math.PI / 2));
 
-        double aliveHeight = aliveTroopsSet.size() * 1.0 / width * unitStats.spacing;
-        double fullToAliveRatio = 1.0 * troops.size() / aliveTroopsSet.size() ;
+        double aliveHeight = aliveTroopsMap.size() * 1.0 / width * unitStats.spacing;
+        double fullToAliveRatio = 1.0 * troops.size() / aliveTroopsMap.size() ;
 
         double topLeftX = averageX - downUnitX * aliveHeight / 2 - sideUnitX * unitStats.spacing * width / 2;
         double topLeftY = averageY - downUnitY * aliveHeight / 2 - sideUnitY * unitStats.spacing * width / 2;
@@ -760,7 +748,7 @@ public class BaseUnit {
         double sideUnitX = MathUtils.quickCos((float) (goalAngle + Math.PI / 2));
         double sideUnitY = MathUtils.quickSin((float) (goalAngle + Math.PI / 2));
 
-        double aliveHeight = aliveTroopsSet.size() * 1.0 / width * unitStats.spacing;
+        double aliveHeight = aliveTroopsMap.size() * 1.0 / width * unitStats.spacing;
 
         double topLeftX = goalX - sideUnitX * unitStats.spacing * width / 2;
         double topLeftY = goalY - sideUnitY * unitStats.spacing * width / 2;
@@ -800,14 +788,21 @@ public class BaseUnit {
      * A convenient way to get troop at specific position.
      */
     public BaseSingle getTroopsAtRowCol(int i, int j) {
-        return troops.get(i * width + j);
+        return aliveTroopsFormation[i][j];
+    }
+
+    /**
+     * Get the index of troops
+     */
+    public int getTroopIndex(BaseSingle single) {
+        return aliveTroopsMap.get(single);
     }
 
     /**
      * Get number of troops alive
      */
     public int getNumAlives() {
-        return aliveTroopsSet.size();
+        return aliveTroopsMap.size();
     }
 
     public double getAnchorX() {
@@ -883,6 +878,10 @@ public class BaseUnit {
         return troops;
     }
 
+    public BaseSingle[][] getAliveTroopsFormation() {
+        return aliveTroopsFormation;
+    }
+
     public int getWidth() {
         return width;
     }
@@ -902,8 +901,8 @@ public class BaseUnit {
         this.unitFoughtAgainst = unitFoughtAgainst;
     }
 
-    public HashSet<BaseSingle> getAliveTroopsSet() {
-        return aliveTroopsSet;
+    public Set<BaseSingle> getAliveTroopsSet() {
+        return aliveTroopsMap.keySet();
     }
 
     public boolean isInContactWithEnemy() {

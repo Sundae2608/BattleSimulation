@@ -11,6 +11,7 @@ import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class BallistaUnit extends BaseUnit {
@@ -54,14 +55,20 @@ public class BallistaUnit extends BaseUnit {
         double topX = x - (width - 1) * unitStats.spacing * sideUnitX / 2;
         double topY = y - (width - 1) * unitStats.spacing * sideUnitY / 2;
         troops = new ArrayList<>();
+        aliveTroopsMap = new HashMap<>();
+        aliveTroopsFormation = new BaseSingle[depth][width];
         for (int i = 0; i < unitSize; i++) {
-            double singleX = topX + (i % width) * unitStats.spacing * sideUnitX
-                    + ((i / width) * unitStats.spacing) * downUnitX;
-            double singleY = topY + (i % width) * unitStats.spacing * sideUnitY
-                    + ((i / width) * unitStats.spacing) * downUnitY;
-            troops.add(new BallistaSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher));
+            int row = i / width;
+            int col = i % width;
+            double singleX = topX + col * unitStats.spacing * sideUnitX
+                    + (row * unitStats.spacing) * downUnitX;
+            double singleY = topY + col * unitStats.spacing * sideUnitY
+                    + (row * unitStats.spacing) * downUnitY;
+            BaseSingle single = new BallistaSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher);
+            troops.add(single);
+            aliveTroopsFormation[row][col] = single;
+            aliveTroopsMap.put(single, i);
         }
-        aliveTroopsSet = new HashSet<>(troops);
 
         // Goal position and direction are equal to anchor ones so that the army stand still.
         goalX = anchorX;
