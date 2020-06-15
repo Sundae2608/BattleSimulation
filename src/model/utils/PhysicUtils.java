@@ -163,6 +163,11 @@ public final class PhysicUtils {
 
         // Looping through the list of units
         for (BaseUnit queryUnit : allUnits) {
+            // If it is the same unit, there is no need to check.
+            if (queryUnit == unit) {
+                continue;
+            }
+
             // Getting the coordinate of the queryUnit
             double queryAverageX = queryUnit.getAverageX();
             double queryAverageY = queryUnit.getAverageY();
@@ -172,7 +177,11 @@ public final class PhysicUtils {
             // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
             // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
             double temp = MathUtils.squareDistance(queryAverageX, queryAverageY, averageX, averageY);
-            temp = 10 * Math.ceil(MathUtils.quickRoot2((float) temp) / div); //majik number 10
+            temp = 10 * Math.ceil(MathUtils.quickRoot2((float) temp) / div); // Magic number 10
+            if (temp == 0) {
+                allVisibleUnits.add(queryUnit);
+                continue;
+            }
 
             double[] t = new double[(int) temp];
             t[0] = 0;
@@ -202,6 +211,7 @@ public final class PhysicUtils {
             for (int j = 1; j < t.length; j++) {
                 visibility = visibility && visibilityArray[j];
             }
+            System.out.println(visibility);
             if (visibility) {
                 allVisibleUnits.add(queryUnit);
             }
