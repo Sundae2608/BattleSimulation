@@ -19,7 +19,6 @@ public class BaseSingle {
     // Political attribute
     PoliticalFaction politicalFaction;
     BaseUnit unit;  // The unit the individual belong to
-    int singleIndex;  // The index of the troop in the array.
 
     // Single stats
     SingleStats singleStats;
@@ -243,20 +242,6 @@ public class BaseSingle {
         carriedObjects.put(object, UniversalConstants.CARRIED_OBJECT_LIFETIME);
     }
 
-    /**
-     * Get row number
-     */
-    public int getRow() {
-        return singleIndex / unit.getWidth();
-    }
-
-    /**
-     * Get col number
-     */
-    public int getCol() {
-        return singleIndex % unit.getWidth();
-    }
-
     /** Getter and setter */
 
     public double getSpeedStat() {
@@ -397,11 +382,6 @@ public class BaseSingle {
     public BaseUnit getUnit() {
         return unit;
     }
-
-    public int getSingleIndex() {
-        return singleIndex;
-    }
-    public void setSingleIndex(int singleIndex) { this.singleIndex = singleIndex; };
 
     public double getDamageSustain() {
         return damageSustain;

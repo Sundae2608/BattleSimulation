@@ -719,7 +719,7 @@ public class MainSimulation extends PApplet {
      * Process the mouse click. The mouse click mechanism will be done as followed.
      * One click
      */
-    public void mouseClicked() {
+    public void mouseReleased() {
 
         // Check if in the range of pause button
         if (overPauseOrPlay()) {
@@ -745,6 +745,10 @@ public class MainSimulation extends PApplet {
         } else if (mouseButton == RIGHT) {
             audioSpeaker.broadcastOverlaySound(AudioType.RIGHT_CLICK);
             if (unitSelected != null) {
+                // Check distance
+
+
+                //
                 if (unitSelected instanceof ArcherUnit) {
                     // Convert closest unit to click
                     double[] screenPos = camera.getDrawingPosition(
@@ -1133,7 +1137,6 @@ public class MainSimulation extends PApplet {
             balistaSizeMap.put(camera.getZoom(), newSize);
         }
         currSizeBalista = balistaSizeMap.get(camera.getZoom());
-
 
         // Skirmisher
         if (!skirmisherSizeMap.containsKey(camera.getZoom())) {
@@ -1533,8 +1536,9 @@ public class MainSimulation extends PApplet {
         }
 
         // Modify the color if the unit is in danger of being collided
+        int index = single.getUnit().getTroopIndex(single);
         if (env.getGameSettings().isBorderInwardCollision() && drawingSettings.isDrawTroopInDanger() &&
-            single.getUnit().getInDanger()[single.getRow()][single.getCol()]) {
+            single.getUnit().getInDanger()[index / single.getUnit().getWidth()][index % single.getUnit().getWidth()]) {
             modifiedColor = DrawingUtils.COLOR_IN_DANGER;
         }
 
@@ -1728,7 +1732,7 @@ public class MainSimulation extends PApplet {
 
             // Spear
             if (settings.getDrawWeapon() == DrawingMode.DRAW) {
-                if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE || single.getRow() < 5) {
+                if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE || single.getUnit().getTroopIndex(single) / width < 5) {
                     fill(50, 50, 50);
                     double diaRightUnitX = MathUtils.quickCos((float)(angle + Math.PI / 2));
                     double diaRightUnitY = MathUtils.quickSin((float)(angle + Math.PI / 2));

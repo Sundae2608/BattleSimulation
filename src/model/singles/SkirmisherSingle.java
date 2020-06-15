@@ -19,12 +19,10 @@ public class SkirmisherSingle extends BaseSingle {
         y = yInit;
         xGoal = xInit;
         yGoal = yInit;
-        singleIndex = index;
 
         // Set up political faction
         politicalFaction = faction;
         unit = inputUnit;
-        singleIndex = index;
 
         // Set default stat up stats
         singleStats = inputSingleStats;
