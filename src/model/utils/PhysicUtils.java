@@ -211,7 +211,6 @@ public final class PhysicUtils {
             for (int j = 1; j < t.length; j++) {
                 visibility = visibility && visibilityArray[j];
             }
-            System.out.println(visibility);
             if (visibility) {
                 allVisibleUnits.add(queryUnit);
             }
