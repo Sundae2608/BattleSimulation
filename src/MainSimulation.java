@@ -167,7 +167,11 @@ public class MainSimulation extends PApplet {
 
     // Control variable
     BaseUnit unitSelected;
+    boolean rightClickedNotReleased;
+    double rightClickedX;
+    double rightClickedY;
     BaseUnit closestUnit;
+
 
     public void settings() {
 
@@ -714,10 +718,20 @@ public class MainSimulation extends PApplet {
                 INPUT_HEIGHT - 70 < mouseY && mouseY < INPUT_HEIGHT - 30);
     }
 
+    /**
+     * Process the mouse clicked.
+     */
+    public void mouseClicked() {
+        if (mouseButton == RIGHT) {
+            rightClickedNotReleased = true;
+            rightClickedX = mouseX;
+            rightClickedY = mouseY;
+        }
+    }
+
     @Override
     /**
-     * Process the mouse click. The mouse click mechanism will be done as followed.
-     * One click
+     * Process the mouse released
      */
     public void mouseReleased() {
 
@@ -746,9 +760,6 @@ public class MainSimulation extends PApplet {
             audioSpeaker.broadcastOverlaySound(AudioType.RIGHT_CLICK);
             if (unitSelected != null) {
                 // Check distance
-
-
-                //
                 if (unitSelected instanceof ArcherUnit) {
                     // Convert closest unit to click
                     double[] screenPos = camera.getDrawingPosition(
