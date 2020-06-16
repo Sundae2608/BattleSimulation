@@ -154,6 +154,57 @@ public class BaseUnit {
         }
     }
 
+    public void changeFrontlineWidth(int newWidth) {
+        // TODO: Change this to minimum width of the frontline, probably 4. Put it in GameplayConstants
+        if (newWidth <= 0 || newWidth > getNumAlives()) {
+            // Frontline can't be changed if the width or is too wide.
+            return;
+        }
+
+        // Reset the width and depth
+        width = newWidth;
+        depth = (int) Math.ceil(1.0 * troops.size() / width);
+        System.out.println(width);
+        System.out.println(depth);
+
+        // Change the troops formation
+        BaseSingle[][] newFormation = new BaseSingle[depth][width];
+        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsMap.keySet());
+        MathUtils.sortSinglesByAngle(aliveArray, anchorAngle + Math.PI);
+
+        // Take each row, sort each row from furthest leftward to furthest rightward, and then put them into the correct
+        // position in the array
+        int numRows = (int) Math.ceil(1.0 * aliveArray.size() / width);
+        for (int row = 0; row < numRows; row++) {
+            // Sort the row from leftward to right ward
+            int beginIndex = row * width;
+            int endIndex = Math.min(aliveArray.size(), (row + 1) * width);
+            ArrayList<BaseSingle> rowTroops = new ArrayList<>();
+            for (int col = beginIndex; col < endIndex; col++) {
+                rowTroops.add(aliveArray.get(col));
+            }
+            MathUtils.sortSinglesByAngle(rowTroops, anchorAngle - MathUtils.PIO2);
+
+            // Assign the troops to each row and reset their index
+            int offsetFromLeft;
+            if (row < numRows - 1) {
+                offsetFromLeft = 0;
+            } else {
+                int numLastRow = getNumAlives() - (width * (numRows - 1));
+                offsetFromLeft = (width - numLastRow) / 2;
+            }
+            for (int j = 0; j < rowTroops.size(); j++) {
+                newFormation[row][offsetFromLeft + j] = rowTroops.get(j);
+                aliveTroopsMap.put(rowTroops.get(j), row * width + offsetFromLeft + j);
+            }
+        }
+        aliveTroopsFormation = newFormation;
+
+        // Reset the flankers
+        frontlinePatientCounters = new int[width];
+        flankersCount = new int[width];
+    }
+
     /**
      * Regroup a unit to a specific position after routing.
      * @param xGoal x-coordinate of the position to go to
@@ -198,18 +249,17 @@ public class BaseUnit {
             }
             MathUtils.sortSinglesByAngle(rowTroops, -angleGoal - MathUtils.PIO2);
 
-            // Assign them to the correct position
-            int offsetFromLeft = 0;
-            if (row == numRows - 1) {
-                // If it is the last row, count the number of left deaths in the last row. That would be the offset.
-                for (; offsetFromLeft < width; offsetFromLeft++) {
-                    if (troops.get(row * width + offsetFromLeft).getState() != SingleState.DEAD) {
-                        break;
-                    }
-                }
+            // Assign the troops to each row and reset their index
+            int offsetFromLeft;
+            if (row < numRows - 1) {
+                offsetFromLeft = 0;
+            } else {
+                int numLastRow = getNumAlives() - (width * (numRows - 1));
+                offsetFromLeft = (width - numLastRow) / 2;
             }
             for (int j = 0; j < rowTroops.size(); j++) {
-                troops.set(width * row + offsetFromLeft + j, rowTroops.get(j));
+                aliveTroopsFormation[row][offsetFromLeft + j] = rowTroops.get(j);
+                aliveTroopsMap.put(rowTroops.get(j), row * width + offsetFromLeft + j);
             }
         }
 
@@ -926,5 +976,9 @@ public class BaseUnit {
 
     public boolean[][] getInDanger() {
         return inDanger;
+    }
+
+    public UnitStats getUnitStats() {
+        return unitStats;
     }
 }

@@ -125,6 +125,13 @@ public final class MathUtils {
     }
 
     /**
+     * Distance between two points
+     */
+    public static double quickDistance(double x1, double y1, double x2, double y2) {
+        return quickRoot2((float) squareDistance(x1, y1, x2, y2));
+    }
+
+    /**
      * Semi-Accurate approximation for a floating-point square root.
      * Roughly 1.4x as fast as java.lang.Math.sqrt(x);
      * Source: https://github.com/Fishrock123/Optimized-Java/blob/master/src/com/fishrock123/math/RootMath.java
