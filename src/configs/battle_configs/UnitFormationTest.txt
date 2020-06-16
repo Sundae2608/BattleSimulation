@@ -1,0 +1,10 @@
+{
+    type: SWORDMAN
+    org: unit
+    x: -1000
+    y: 570
+    angle: 0
+    size: 300
+    faction: ROME
+    width: 20
+},

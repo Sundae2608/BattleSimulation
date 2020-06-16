@@ -30,6 +30,7 @@ public final class DrawingUtils {
     public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 160;
     public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 50;
     public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
+    public final static int COLOR_ALPHA_UNIT_SELECTION = 170;
 
     // Drawing boundary
     public final static double DRAWING_OUTER_BOUNDARY = 20;

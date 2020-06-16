@@ -1,6 +1,7 @@
 import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
+import controller.ControlConstants;
 import model.checker.EnvironmentChecker;
 import model.objects.Ballista;
 import model.objects.Stone;
@@ -132,7 +133,7 @@ public class MainSimulation extends PApplet {
     PImage banner, bannerShadow, bannerSelected, bannerTexture;
 
     // Tiles
-    // TODO(sonpham): This is deprcated
+    // TODO(sonpham): This is deprecated
     PImage tileGrass;
 
     // List of all tiles
@@ -167,7 +168,14 @@ public class MainSimulation extends PApplet {
 
     // Control variable
     BaseUnit unitSelected;
+    boolean rightClickedNotReleased;
+    double rightClickedX;
+    double rightClickedY;
+    double unitEndPointX;
+    double unitEndPointY;
+    double unitEndAngle;
     BaseUnit closestUnit;
+
 
     public void settings() {
 
@@ -270,8 +278,8 @@ public class MainSimulation extends PApplet {
         // -------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/WrapAroundTest.txt";
-        String mapConfig = "src/configs/map_configs/MapConfig.txt";
+        String battleConfig = "src/configs/battle_configs/UnitFormationTest.txt";
+        String mapConfig = "src/configs/map_configs/MapConfigPlane.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
 
@@ -530,7 +538,57 @@ public class MainSimulation extends PApplet {
         // Always draw arrow of selected unit
         // TODO(sonpham) Refactor this into unit graphics
         if (unitSelected != null) {
+
+            // Get the political faction color
             int[] color = DrawingUtils.getFactionColor(unitSelected.getPoliticalFaction());
+
+            // If the mouse is being right clicked, the user can drag to select whether the goal would be. Visualize
+            // the changed formation if the new width of the front makes sense.
+            double[] actualClicked = camera.getActualPositionFromScreenPosition(rightClickedX, rightClickedY);
+            double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+            double distance = MathUtils.quickDistance(
+                    actualClicked[0], actualClicked[1], actualCurrent[0], actualCurrent[1]);
+            double drawingEndPointX;
+            double drawingEndPointY;
+            if (rightClickedNotReleased && distance >
+                    ControlConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
+                // Draw the rectangle showing unit formation selection
+                double angle = MathUtils.atan2(mouseY - rightClickedY, mouseX - rightClickedX);
+                double sideUnitX = MathUtils.quickCos((float) angle);
+                double sideUnitY = MathUtils.quickSin((float) angle);
+                double downUnitX = MathUtils.quickCos((float) (angle + Math.PI / 2));
+                double downUnitY = MathUtils.quickSin((float) (angle + Math.PI / 2));
+                double frontlineWidth = Math.min((int) (
+                        distance / unitSelected.getUnitStats().spacing),
+                        unitSelected.getNumAlives()) * unitSelected.getUnitStats().spacing;
+                double depthDistance = unitSelected.getNumAlives() * unitSelected.getUnitStats().spacing *
+                        unitSelected.getUnitStats().spacing / frontlineWidth;
+                fill(color[0], color[1], color[2], DrawingUtils.COLOR_ALPHA_UNIT_SELECTION);
+                beginShape();
+                vertex((float) rightClickedX, (float) rightClickedY);
+                vertex(mouseX, mouseY);
+                vertex((float) (mouseX + depthDistance * camera.getZoom() * downUnitX),
+                        (float) (mouseY + depthDistance * camera.getZoom() * downUnitY));
+                vertex((float) (rightClickedX + depthDistance * camera.getZoom() * downUnitX),
+                        (float) (rightClickedY + depthDistance * camera.getZoom() * downUnitY));
+                endShape(CLOSE);
+
+                // Modify end point for the unit.
+                unitEndPointX = actualClicked[0] + frontlineWidth * sideUnitX / 2;
+                unitEndPointY = actualClicked[1] + frontlineWidth * sideUnitY / 2;
+                drawingEndPointX = unitEndPointX;
+                drawingEndPointY = unitEndPointY;
+                unitEndAngle = angle - Math.PI / 2;
+            } else {
+                double[] endPoints = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                drawingEndPointX = endPoints[0];
+                drawingEndPointY = endPoints[1];
+                unitEndPointX = endPoints[0];
+                unitEndPointY = endPoints[1];
+                unitEndAngle = MathUtils.atan2(endPoints[1] - unitSelected.getAnchorY(), endPoints[0] - unitSelected.getAnchorX());
+            }
+
+            // Draw the arrow plan if the unit is current moving.
             if (unitSelected.getState() == UnitState.MOVING) {
                 fill(color[0], color[1], color[2], 255);
                 drawArrowPlan(
@@ -543,15 +601,13 @@ public class MainSimulation extends PApplet {
             if ((unitSelected instanceof ArcherUnit ||
                 unitSelected instanceof BallistaUnit ||
                 unitSelected instanceof CatapultUnit) && closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction()) {
-                double[] getDrawingPositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                 drawArrowPlan(
                         unitSelected.getAverageX(), unitSelected.getAverageY(),
                         closestUnit.getAverageX(), closestUnit.getAverageY(), camera, drawingSettings);
             } else {
-                double[] getDrawingPositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                 drawArrowPlan(
                         unitSelected.getAverageX(), unitSelected.getAverageY(),
-                        getDrawingPositions[0], getDrawingPositions[1], camera, drawingSettings);
+                        drawingEndPointX, drawingEndPointY, camera, drawingSettings);
             }
         }
 
@@ -714,12 +770,25 @@ public class MainSimulation extends PApplet {
                 INPUT_HEIGHT - 70 < mouseY && mouseY < INPUT_HEIGHT - 30);
     }
 
+    /**
+     * Process the mouse clicked.
+     */
+    public void mousePressed() {
+        if (mouseButton == RIGHT) {
+            rightClickedNotReleased = true;
+            rightClickedX = mouseX;
+            rightClickedY = mouseY;
+        }
+    }
+
     @Override
     /**
-     * Process the mouse click. The mouse click mechanism will be done as followed.
-     * One click
+     * Process the mouse released
      */
     public void mouseReleased() {
+
+        // Turn off the drag and drop functionality.
+        rightClickedNotReleased = false;
 
         // Check if in the range of pause button
         if (overPauseOrPlay()) {
@@ -746,9 +815,6 @@ public class MainSimulation extends PApplet {
             audioSpeaker.broadcastOverlaySound(AudioType.RIGHT_CLICK);
             if (unitSelected != null) {
                 // Check distance
-
-
-                //
                 if (unitSelected instanceof ArcherUnit) {
                     // Convert closest unit to click
                     double[] screenPos = camera.getDrawingPosition(
@@ -763,11 +829,7 @@ public class MainSimulation extends PApplet {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
                         }
                     } else {
-                        double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-                        double posX = position[0];
-                        double posY = position[1];
-                        double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
-                        unitSelected.moveFormationKeptTo(posX, posY, angle);
+                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
                         ((ArcherUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else if (unitSelected instanceof BallistaUnit) {
@@ -784,11 +846,7 @@ public class MainSimulation extends PApplet {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
                         }
                     } else {
-                        double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-                        double posX = position[0];
-                        double posY = position[1];
-                        double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
-                        unitSelected.moveFormationKeptTo(posX, posY, angle);
+                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
                         ((BallistaUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else if (unitSelected instanceof CatapultUnit) {
@@ -805,19 +863,21 @@ public class MainSimulation extends PApplet {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
                         }
                     } else {
-                        double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-                        double posX = position[0];
-                        double posY = position[1];
-                        double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
-                        unitSelected.moveFormationKeptTo(posX, posY, angle);
+                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
                         ((CatapultUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else {
-                    double[] position = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-                    double posX = position[0];
-                    double posY = position[1];
-                    double angle = Math.atan2(posY - unitSelected.getAnchorY(), posX - unitSelected.getAnchorX());
-                    unitSelected.moveFormationKeptTo(posX, posY, angle);
+                    unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                }
+                double[] actualClicked = camera.getActualPositionFromScreenPosition(rightClickedX, rightClickedY);
+                double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                double distance = MathUtils.quickDistance(
+                        actualClicked[0], actualClicked[1], actualCurrent[0], actualCurrent[1]);
+                if (distance > ControlConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
+                    int frontlineWidth = Math.min((int) (
+                                    distance / unitSelected.getUnitStats().spacing),
+                            unitSelected.getNumAlives());
+                    unitSelected.changeFrontlineWidth(frontlineWidth);
                 }
             }
         }
@@ -825,6 +885,10 @@ public class MainSimulation extends PApplet {
 
     @Override
     public void mouseWheel(MouseEvent event) {
+        // When scrolling, immediately cancelled the current right clicked.
+        if (rightClickedNotReleased) {
+            rightClickedNotReleased = false;
+        }
         float scrollVal = event.getCount();
         if (!drawingSettings.isSmoothCameraMovement()) {
             // Non-smooth zoom processing
