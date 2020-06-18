@@ -6,6 +6,8 @@ import model.events.EventBroadcaster;
 import model.events.EventListener;
 import model.singles.BaseSingle;
 import model.utils.MathUtils;
+import model.utils.MovementUtils;
+import model.utils.PhysicUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -184,6 +186,20 @@ public class Camera extends EventListener {
         double posX2 = (posX * cosAngle - posY * sinAngle) / getZoomAtHeight(posZ) + x;
         double posY2 = (posX * sinAngle + posY * cosAngle) / getZoomAtHeight(posZ) + y;
         return new double[] {posX2, posY2};
+    }
+
+    public double getActualAngleFromCamera(double angleInCamera) {
+        double newAngle = angleInCamera - angle;
+        if (newAngle > Math.PI) newAngle -= MathUtils.PIX2;
+        else if (newAngle < - Math.PI) newAngle +=MathUtils.PIX2;
+        return newAngle;
+    }
+
+    public double getCameraAngleFromActualAngle(double actualAngle) {
+        double newAngle = actualAngle + angle;
+        if (newAngle > Math.PI) newAngle -= MathUtils.PIX2;
+        else if (newAngle < - Math.PI) newAngle +=MathUtils.PIX2;
+        return newAngle;
     }
 
     /**
