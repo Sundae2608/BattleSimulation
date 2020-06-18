@@ -432,7 +432,7 @@ public class MainSimulation extends PApplet {
         // Circle size optimization. This is to avoid repeat calculation of troop size
         updateSizeMaps();
 
-        // Precalculate shadow, also for optimization
+        // Pre-calculate shadow, also for optimization
         if (drawingSettings.isDrawTroopShadow()) {
             shadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
             shadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
@@ -553,6 +553,8 @@ public class MainSimulation extends PApplet {
             if (rightClickedNotReleased && distance >
                     ControlConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
                 // Draw the rectangle showing unit formation selection
+                // TODO: Convert to the actual game angle, and always anchor on the actual angle on the field would be
+                //  the best way to ensure acccurate angle calculation.
                 double angle = MathUtils.atan2(mouseY - rightClickedY, mouseX - rightClickedX);
                 double sideUnitX = MathUtils.quickCos((float) angle);
                 double sideUnitY = MathUtils.quickSin((float) angle);
