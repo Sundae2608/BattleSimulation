@@ -1,6 +1,7 @@
 package view.drawer;
 
 import view.camera.Camera;
+import view.camera.CameraConstants;
 import view.constants.DrawingConstants;
 import model.constants.UniversalConstants;
 import processing.core.PApplet;
@@ -35,7 +36,7 @@ public class ShapeDrawer extends PApplet {
     public void spear(PGraphics g, float x, float y, float angle, float spearLength, float size, DrawingSettings settings) {
         if (!spearMap.containsKey(size)) {
             float[][] spearShape;
-            if (size > UniversalConstants.ZOOM_RENDER_LEVEL_NORMAL) {
+            if (size > CameraConstants.ZOOM_RENDER_LEVEL_NORMAL) {
                 spearShape = new float[][]{
                         {-spearLength / 4 * size, 0},
                         {-spearLength / 4 * size, -1 * size},
@@ -52,7 +53,7 @@ public class ShapeDrawer extends PApplet {
                         {spearLength * 3 / 4 * size, 1 * size},
                         {-spearLength / 4 * size, 1 * size}
                 };
-            } else if (size > UniversalConstants.ZOOM_RENDER_SPEAR_DISAPPEAR) {
+            } else if (size > CameraConstants.ZOOM_RENDER_SPEAR_DISAPPEAR) {
                 spearShape = new float[][]{
                         {-spearLength / 4 * size, -1 * size},
                         {(spearLength * 3 / 4 + 12.5f) * size, -1f * size},
@@ -82,7 +83,7 @@ public class ShapeDrawer extends PApplet {
     public void sword(PGraphics g, double x, double y, double angle, double size, DrawingSettings settings) {
         if (!swordMap.containsKey(size)) {
             float[][] swordShape;
-            if (size > UniversalConstants.ZOOM_RENDER_LEVEL_NORMAL) {
+            if (size > CameraConstants.ZOOM_RENDER_LEVEL_NORMAL) {
                 swordShape = new float[][] {
                         {0, 0},
                         {0, (float) (-1.5f * size)},
@@ -99,7 +100,7 @@ public class ShapeDrawer extends PApplet {
                         {(float) (2 * size), (float) (1.5f * size)},
                         {(float) (0 * size), (float) (1.5f * size)}
                 };
-            } else if (size > UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE) {
+            } else if (size > CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE) {
                 swordShape = new float[][] {
                         {0, (float) (-1.5f * size)},
                         {(float) (21.5f * size), (float) (-1.5f * size)},
@@ -129,7 +130,7 @@ public class ShapeDrawer extends PApplet {
     public void bow(PGraphics g, float x, float y, float angle, float size, DrawingSettings settings) {
         if (!bowShapeMap.containsKey(size)) {
             float[][] bowShape;
-            if (size > UniversalConstants.ZOOM_RENDER_LEVEL_NORMAL) {
+            if (size > CameraConstants.ZOOM_RENDER_LEVEL_NORMAL) {
                 bowShape = new float[][]{
                         {0.3536f * size, 0.3536f * size},
                         {0.7071f * size, 0},
@@ -158,7 +159,7 @@ public class ShapeDrawer extends PApplet {
     public void arrow(PGraphics g, float x, float y, float angle, float zoom, float arrowSize, DrawingSettings settings) {
         if (!arrowShapeMap.containsKey(zoom)) {
             float[][] arrowShape;
-            if (zoom > UniversalConstants.ZOOM_RENDER_LEVEL_ARROW_DETAIL) {
+            if (zoom > CameraConstants.ZOOM_RENDER_LEVEL_ARROW_DETAIL) {
                 arrowShape = new float[][]{
                         {0, 0},
                         {-0.16f * zoom * arrowSize, -0.06f * zoom * arrowSize},
@@ -173,7 +174,7 @@ public class ShapeDrawer extends PApplet {
                         {-0.12f * zoom * arrowSize, 0.02f * zoom * arrowSize},
                         {-0.16f * zoom * arrowSize, 0.06f * zoom * arrowSize},
                 };
-            } else if (zoom > UniversalConstants.ZOOM_RENDER_LEVEL_TROOP) {
+            } else if (zoom > CameraConstants.ZOOM_RENDER_LEVEL_TROOP) {
                 arrowShape = new float[][]{
                         {0, -0.02f * zoom * arrowSize},
                         {0, 0.02f * zoom * arrowSize},
@@ -224,7 +225,7 @@ public class ShapeDrawer extends PApplet {
      * @param camera The view.camera.
      */
     public void infantryShape(PGraphics g, double x, double y, double size, double sizeSimplfied, Camera camera) {
-        if (camera.getZoom() < UniversalConstants.ZOOM_RENDER_LEVEL_SIMPLIFY_TROOP_SHAPE) {
+        if (camera.getZoom() < CameraConstants.ZOOM_RENDER_LEVEL_SIMPLIFY_TROOP_SHAPE) {
             g.rect(
                 (float) x,
                 (float) y,
@@ -245,7 +246,7 @@ public class ShapeDrawer extends PApplet {
     public void cavalryShape(PGraphics g, double x, double y, double angle, double size, Camera camera) {
         float[][] cavShape;
         if (!cavalryShapeMap.containsKey(size)) {
-            if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_CAV_PERCEPTIVE) {
+            if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_CAV_PERCEPTIVE) {
                 cavShape = new float[][] {
                         {(float) (0.75f * size), 0},
                         {(float) (-0.375f * size), (float) (0.5f * size)},

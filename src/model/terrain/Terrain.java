@@ -47,8 +47,8 @@ public class Terrain {
         }
         for (int i = 0; i < numX - 1; i++) {
             for (int j = 0; j < numY - 1; j++) {
-                dx[i][j] = (heightField[i + 1][j] - heightField[i][j]) / div;
-                dy[i][j] = (heightField[i][j + 1] - heightField[i][j]) / div;
+                dx[i][j] = (heightField[i][j + 1] - heightField[i][j]) / div;
+                dy[i][j] = (heightField[i + 1][j] - heightField[i][j]) / div;
             }
         }
     }

@@ -162,7 +162,7 @@
     unit_type: CAVALRY
 
     // Single stats
-    mass: 500
+    mass: 1000
     radius: 34
     speed: 8
     hp: 600

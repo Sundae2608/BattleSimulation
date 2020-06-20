@@ -143,7 +143,7 @@ public class Camera extends EventListener {
      * Get camera z
      */
     public double getZ() {
-        return (UniversalConstants.MAXIMUM_ZOOM / zoom) * UniversalConstants.HEIGHT_AT_MAX_ZOOM;
+        return (CameraConstants.MAXIMUM_ZOOM / zoom) * CameraConstants.HEIGHT_AT_MAX_ZOOM;
     }
 
     /**
@@ -152,8 +152,8 @@ public class Camera extends EventListener {
      * @return
      */
     public double getZoomAtHeight(double inputZ) {
-        double cameraHeight = (UniversalConstants.MAXIMUM_ZOOM / zoom) * UniversalConstants.HEIGHT_AT_MAX_ZOOM - inputZ;
-        double zAdjustedZoom = UniversalConstants.HEIGHT_AT_MAX_ZOOM / cameraHeight * UniversalConstants.MAXIMUM_ZOOM;
+        double cameraHeight = (CameraConstants.MAXIMUM_ZOOM / zoom) * CameraConstants.HEIGHT_AT_MAX_ZOOM - inputZ;
+        double zAdjustedZoom = CameraConstants.HEIGHT_AT_MAX_ZOOM / cameraHeight * CameraConstants.MAXIMUM_ZOOM;
         return zAdjustedZoom;
     }
 
@@ -188,7 +188,7 @@ public class Camera extends EventListener {
         return new double[] {posX2, posY2};
     }
 
-    public double getActualAngleFromCamera(double angleInCamera) {
+    public double getActualAngleFromCameraAngle(double angleInCamera) {
         double newAngle = angleInCamera - angle;
         if (newAngle > Math.PI) newAngle -= MathUtils.PIX2;
         else if (newAngle < - Math.PI) newAngle +=MathUtils.PIX2;

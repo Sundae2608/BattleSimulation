@@ -12,6 +12,7 @@ import utils.ConfigUtils;
 import view.audio.AudioConstants;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
+import view.camera.CameraConstants;
 import view.drawer.UIDrawer;
 import view.drawer.ShapeDrawer;
 import javafx.util.Pair;
@@ -169,8 +170,8 @@ public class MainSimulation extends PApplet {
     // Control variable
     BaseUnit unitSelected;
     boolean rightClickedNotReleased;
-    double rightClickedX;
-    double rightClickedY;
+    double rightClickActualX;
+    double rightClickActualY;
     double unitEndPointX;
     double unitEndPointY;
     double unitEndAngle;
@@ -278,8 +279,8 @@ public class MainSimulation extends PApplet {
         // -------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/UnitFormationTest.txt";
-        String mapConfig = "src/configs/map_configs/MapConfigPlane.txt";
+        String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
+        String mapConfig = "src/configs/map_configs/MapConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
 
@@ -391,8 +392,8 @@ public class MainSimulation extends PApplet {
                 camera.setZoom(zoom);
             }
             if (keyPressed) {
-                if (key == 'q') camera.setAngle(camera.getAngle() + UniversalConstants.CAMERA_ROTATION_SPEED);
-                if (key == 'e') camera.setAngle(camera.getAngle() - UniversalConstants.CAMERA_ROTATION_SPEED);
+                if (key == 'q') camera.setAngle(camera.getAngle() + CameraConstants.CAMERA_ROTATION_SPEED);
+                if (key == 'e') camera.setAngle(camera.getAngle() - CameraConstants.CAMERA_ROTATION_SPEED);
             }
         }
 
@@ -403,29 +404,29 @@ public class MainSimulation extends PApplet {
                 screenMoveAngle = Math.PI + camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
+                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
             }
             if (key == 'd') {
                 screenMoveAngle = camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
+                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
             }
             if (key == 'w') {
                 screenMoveAngle = Math.PI * 3 / 2 + camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
+                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
             }
             if (key == 's') {
                 screenMoveAngle = Math.PI / 2 + camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        UniversalConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
+                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
             }
         }
 
@@ -544,10 +545,9 @@ public class MainSimulation extends PApplet {
 
             // If the mouse is being right clicked, the user can drag to select whether the goal would be. Visualize
             // the changed formation if the new width of the front makes sense.
-            double[] actualClicked = camera.getActualPositionFromScreenPosition(rightClickedX, rightClickedY);
             double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
             double distance = MathUtils.quickDistance(
-                    actualClicked[0], actualClicked[1], actualCurrent[0], actualCurrent[1]);
+                    rightClickActualX, rightClickActualY, actualCurrent[0], actualCurrent[1]);
             double drawingEndPointX;
             double drawingEndPointY;
             if (rightClickedNotReleased && distance >
@@ -555,7 +555,10 @@ public class MainSimulation extends PApplet {
                 // Draw the rectangle showing unit formation selection
                 // TODO: Convert to the actual game angle, and always anchor on the actual angle on the field would be
                 //  the best way to ensure acccurate angle calculation.
-                double angle = MathUtils.atan2(mouseY - rightClickedY, mouseX - rightClickedX);
+                double[] actualMouseClicked = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                double angle = MathUtils.atan2(
+                        actualMouseClicked[1] - rightClickActualY,
+                        actualMouseClicked[0] - rightClickActualX);
                 double sideUnitX = MathUtils.quickCos((float) angle);
                 double sideUnitY = MathUtils.quickSin((float) angle);
                 double downUnitX = MathUtils.quickCos((float) (angle + Math.PI / 2));
@@ -566,18 +569,27 @@ public class MainSimulation extends PApplet {
                 double depthDistance = unitSelected.getNumAlives() * unitSelected.getUnitStats().spacing *
                         unitSelected.getUnitStats().spacing / frontlineWidth;
                 fill(color[0], color[1], color[2], DrawingUtils.COLOR_ALPHA_UNIT_SELECTION);
+
+                // Formation shape
+                double[] pts1 = camera.getDrawingPosition(rightClickActualX, rightClickActualY);
+                double[] pts2 = camera.getDrawingPosition(actualMouseClicked[0], actualMouseClicked[1]);
+                double[] pts3 = camera.getDrawingPosition(
+                        actualMouseClicked[0] + depthDistance * downUnitX,
+                        actualMouseClicked[1] + depthDistance * downUnitY);
+                double[] pts4 = camera.getDrawingPosition(
+                        rightClickActualX + depthDistance * downUnitX,
+                        rightClickActualY + depthDistance * downUnitY);
+
                 beginShape();
-                vertex((float) rightClickedX, (float) rightClickedY);
-                vertex(mouseX, mouseY);
-                vertex((float) (mouseX + depthDistance * camera.getZoom() * downUnitX),
-                        (float) (mouseY + depthDistance * camera.getZoom() * downUnitY));
-                vertex((float) (rightClickedX + depthDistance * camera.getZoom() * downUnitX),
-                        (float) (rightClickedY + depthDistance * camera.getZoom() * downUnitY));
+                vertex((float) pts1[0], (float) pts1[1]);
+                vertex((float) pts2[0], (float) pts2[1]);
+                vertex((float) pts3[0], (float) pts3[1]);
+                vertex((float) pts4[0], (float) pts4[1]);
                 endShape(CLOSE);
 
                 // Modify end point for the unit.
-                unitEndPointX = actualClicked[0] + frontlineWidth * sideUnitX / 2;
-                unitEndPointY = actualClicked[1] + frontlineWidth * sideUnitY / 2;
+                unitEndPointX = rightClickActualX + frontlineWidth * sideUnitX / 2;
+                unitEndPointY = rightClickActualY + frontlineWidth * sideUnitY / 2;
                 drawingEndPointX = unitEndPointX;
                 drawingEndPointY = unitEndPointY;
                 unitEndAngle = angle - Math.PI / 2;
@@ -613,13 +625,13 @@ public class MainSimulation extends PApplet {
             }
         }
 
-        if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_TROOP) {
+        if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_TROOP) {
             // Alive troop
             for (BaseUnit unit : env.getUnits()) {
                 boolean unitHovered = unit == closestUnit;
                 // First, draw the optimize masked version for troops in position
                 if (drawingSettings.isInPositionOptimization() &&
-                        camera.getZoom() < UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE) {
+                        camera.getZoom() < CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE) {
                     drawMaskedInPositionUnit(unit, camera, drawingSettings);
                 }
                 // For troops out of position, draw them individually
@@ -778,8 +790,9 @@ public class MainSimulation extends PApplet {
     public void mousePressed() {
         if (mouseButton == RIGHT) {
             rightClickedNotReleased = true;
-            rightClickedX = mouseX;
-            rightClickedY = mouseY;
+            double[] actualRightClicked = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+            rightClickActualX = actualRightClicked[0];
+            rightClickActualY = actualRightClicked[1];
         }
     }
 
@@ -825,7 +838,7 @@ public class MainSimulation extends PApplet {
                     // If it's an archer unit, check the faction and distance from the closest unit from view.camera
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
-                                    UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                                    CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
                         ((ArcherUnit) unitSelected).setUnitFiredAt(closestUnit);
                         if (unitSelected.getState() == UnitState.MOVING) {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
@@ -842,7 +855,7 @@ public class MainSimulation extends PApplet {
                     // If it's an archer unit, check the faction and distance from the closest unit from view.camera
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
-                                    UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                                    CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
                         ((BallistaUnit) unitSelected).setUnitFiredAt(closestUnit);
                         if (unitSelected.getState() == UnitState.MOVING) {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
@@ -859,7 +872,7 @@ public class MainSimulation extends PApplet {
                     // If it's an archer unit, check the faction and distance from the closest unit from view.camera
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
-                                    UniversalConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                                    CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
                         ((CatapultUnit) unitSelected).setUnitFiredAt(closestUnit);
                         if (unitSelected.getState() == UnitState.MOVING) {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
@@ -871,10 +884,9 @@ public class MainSimulation extends PApplet {
                 } else {
                     unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
                 }
-                double[] actualClicked = camera.getActualPositionFromScreenPosition(rightClickedX, rightClickedY);
                 double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                 double distance = MathUtils.quickDistance(
-                        actualClicked[0], actualClicked[1], actualCurrent[0], actualCurrent[1]);
+                        rightClickActualX, rightClickActualY, actualCurrent[0], actualCurrent[1]);
                 if (distance > ControlConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
                     int frontlineWidth = Math.min((int) (
                                     distance / unitSelected.getUnitStats().spacing),
@@ -896,22 +908,22 @@ public class MainSimulation extends PApplet {
             // Non-smooth zoom processing
             if (scrollVal < 0) {
                 // Zoom in
-                camera.setZoom(camera.getZoom() * UniversalConstants.ZOOM_PER_SCROLL);
+                camera.setZoom(camera.getZoom() * CameraConstants.ZOOM_PER_SCROLL);
             } else if (scrollVal > 0) {
                 // Zoom out
-                camera.setZoom(camera.getZoom() / UniversalConstants.ZOOM_PER_SCROLL);
-                if (camera.getZoom() < UniversalConstants.MINIMUM_ZOOM) camera.setZoom(UniversalConstants.MINIMUM_ZOOM);
+                camera.setZoom(camera.getZoom() / CameraConstants.ZOOM_PER_SCROLL);
+                if (camera.getZoom() < CameraConstants.MINIMUM_ZOOM) camera.setZoom(CameraConstants.MINIMUM_ZOOM);
             }
         } else {
             // Smooth-zoom processing
             if (scrollVal < 0) {
                 // Zoom in
-                zoomGoal *= UniversalConstants.ZOOM_PER_SCROLL;
-                if (zoomGoal > UniversalConstants.MAXIMUM_ZOOM) zoomGoal = UniversalConstants.MAXIMUM_ZOOM;
+                zoomGoal *= CameraConstants.ZOOM_PER_SCROLL;
+                if (zoomGoal > CameraConstants.MAXIMUM_ZOOM) zoomGoal = CameraConstants.MAXIMUM_ZOOM;
             } else if (scrollVal > 0) {
                 // Zoom out
-                zoomGoal /= UniversalConstants.ZOOM_PER_SCROLL;
-                if (zoomGoal < UniversalConstants.MINIMUM_ZOOM) zoomGoal = UniversalConstants.MINIMUM_ZOOM;
+                zoomGoal /= CameraConstants.ZOOM_PER_SCROLL;
+                if (zoomGoal < CameraConstants.MINIMUM_ZOOM) zoomGoal = CameraConstants.MINIMUM_ZOOM;
             }
             zoomCounter = drawingSettings.getSmoothCameraSteps();
         }
@@ -945,7 +957,7 @@ public class MainSimulation extends PApplet {
      */
     private int[] unitMask(PImage image, IntMatrix2D alpha, BaseUnit unit) {
         boolean[][] inPositionMask = unit.getTroopsInPosition();
-        double singleSpacing = unit.getSpacing() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
+        double singleSpacing = unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
         IntMatrix2D imageMap = new DenseIntMatrix2D(image.height, image.width);
         for (int i = 0; i < unit.getDepth(); i++) {
             for (int j = 0; j < unit.getWidth(); j++) {
@@ -981,12 +993,12 @@ public class MainSimulation extends PApplet {
             double drawX = drawingPosition[0];
             double drawY = drawingPosition[1];
 
-            double relativeUnitImageScale = camera.getZoom() / UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
+            double relativeUnitImageScale = camera.getZoom() / CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
             pushMatrix();
             translate((float) (drawX + shadowXOffset), (float) (drawY + shadowYOffset));
             rotate((float) (unit.getAnchorAngle() - camera.getAngle() + Math.PI / 2));
             image(img, (float) (- img.width / 2 * relativeUnitImageScale),
-                    (float) (- unit.getSpacing() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE / 2 * relativeUnitImageScale),
+                    (float) (- unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE / 2 * relativeUnitImageScale),
                     (float) (img.width * relativeUnitImageScale),
                     (float) (img.height * relativeUnitImageScale));
             popMatrix();
@@ -1002,12 +1014,12 @@ public class MainSimulation extends PApplet {
         double drawX = drawingPosition[0];
         double drawY = drawingPosition[1];
 
-        double relativeUnitImageScale = camera.getZoom() / UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
+        double relativeUnitImageScale = camera.getZoom() / CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
         pushMatrix();
         translate((float) drawX, (float) drawY);
         rotate((float) (unit.getAnchorAngle() - camera.getAngle() + Math.PI / 2));
         image(img, (float) (- img.width / 2 * relativeUnitImageScale),
-                (float) (- unit.getSpacing() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE / 2 * relativeUnitImageScale),
+                (float) (- unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE / 2 * relativeUnitImageScale),
                 (float) (img.width * relativeUnitImageScale),
                 (float) (img.height * relativeUnitImageScale));
         popMatrix();
@@ -1018,8 +1030,8 @@ public class MainSimulation extends PApplet {
      * roughly in their supposed position can just be drawn using an image view.map instead of being drawn individually
      */
     private PImage createSimplifiedUnitImage(BaseUnit unit) {
-        double singleSpacing = unit.getSpacing() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-        double singleSize = unit.getTroops().get(0).getSize() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
+        double singleSpacing = unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
+        double singleSize = unit.getTroops().get(0).getSize() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
         double imageWidth = unit.getWidth() * singleSpacing;
         double imageHeight = unit.getDepth() * singleSpacing;
 
@@ -1046,8 +1058,8 @@ public class MainSimulation extends PApplet {
     }
 
     private PImage createSimplifiedShadowUnitImage(BaseUnit unit) {
-        double singleSpacing = unit.getSpacing() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-        double shadowSize = unit.getTroops().get(0).getSize() * UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE
+        double singleSpacing = unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
+        double shadowSize = unit.getTroops().get(0).getSize() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE
                 * UniversalConstants.SHADOW_SIZE;
         double imageWidth = unit.getWidth() * singleSpacing;
         double imageHeight = unit.getDepth() * singleSpacing;
@@ -1541,7 +1553,7 @@ public class MainSimulation extends PApplet {
         // If it's drawable, draw the alive unit and potentially add some sound
         soundAliveSingle(single);
         if (drawingSettings.isInPositionOptimization() &&
-                camera.getZoomAtHeight(singleZ) < UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE &&
+                camera.getZoomAtHeight(singleZ) < CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE &&
                 single.isInPosition() && !single.isInDanger()) {
             // Don't draw if troop is in position and zoom is small. This will be handled by a mask image to improve
             // optimization.
@@ -1798,7 +1810,7 @@ public class MainSimulation extends PApplet {
 
             // Spear
             if (settings.getDrawWeapon() == DrawingMode.DRAW) {
-                if (camera.getZoom() > UniversalConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE || single.getUnit().getTroopIndex(single) / width < 5) {
+                if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE || single.getUnit().getTroopIndex(single) / width < 5) {
                     fill(50, 50, 50);
                     double diaRightUnitX = MathUtils.quickCos((float)(angle + Math.PI / 2));
                     double diaRightUnitY = MathUtils.quickSin((float)(angle + Math.PI / 2));
