@@ -2,6 +2,9 @@ package view.constants;
 
 public class DrawingConstants {
 
+    // Default construct color
+    public final static int[] CONSTRUCT_COLOR = {25, 25, 25, 0};
+
     // Unit size color
     public final static float[] UNIT_SIZE_COLOR = {0, 0, 0, 25};
 

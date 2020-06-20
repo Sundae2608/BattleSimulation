@@ -1,5 +1,9 @@
 package model.terrain;
 
+import model.construct.Construct;
+
+import java.util.ArrayList;
+
 public class Terrain {
 
     double topX;

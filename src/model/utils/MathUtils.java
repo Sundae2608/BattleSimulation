@@ -304,7 +304,7 @@ public final class MathUtils {
     }
 
     /**
-     * Find the maximum of all numbers in the array
+     * Find the maximum of all numbers in the array.
      */
     public static double findMax(double[] nums) {
         double max = Double.MIN_VALUE;
@@ -316,4 +316,17 @@ public final class MathUtils {
         return max;
     }
 
+    /**
+     * Dot product of (x1, y1) and (x2, y2).
+     */
+    public static double dotProduct(double x1, double y1, double x2, double y2) {
+        return x1 * x2 + y1 * y2;
+    }
+
+    /**
+     * Return the length of the vector.
+     */
+    public static double norm(double x, double y) {
+        return quickRoot2((float) (x * x + y * y));
+    }
 }

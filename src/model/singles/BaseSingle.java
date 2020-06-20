@@ -424,6 +424,4 @@ public class BaseSingle {
     public HashMap<BaseObject, Integer> getCarriedObjects() {
         return carriedObjects;
     }
-
-
 }

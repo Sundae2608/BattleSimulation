@@ -3,6 +3,7 @@ import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import controller.ControlConstants;
 import model.checker.EnvironmentChecker;
+import model.construct.Construct;
 import model.objects.Ballista;
 import model.objects.Stone;
 import model.settings.GameSettings;
@@ -281,8 +282,9 @@ public class MainSimulation extends PApplet {
         // Create a new game based on the input configurations.
         String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
         String mapConfig = "src/configs/map_configs/MapConfig.txt";
+        String constructsConfig = "src/configs/construct_configs/ConstructsConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
-        env = new GameEnvironment(gameConfig, mapConfig, battleConfig, gameSettings);
+        env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, battleConfig, gameSettings);
 
         // Check to make sure that the game environment is valid
         try {
@@ -505,6 +507,20 @@ public class MainSimulation extends PApplet {
                     image(tileGrass, i, j, drawWidth, drawHeight);
                 }
             }
+        }
+
+        // Draw the construct.
+        for (Construct construct : env.getConstructs()) {
+            int[] constructColor = DrawingConstants.CONSTRUCT_COLOR;
+            fill(constructColor[0], constructColor[1], constructColor[2]);
+            double[][] pts = construct.getBoundaryPoints();
+            beginShape();
+            for (int i = 0; i < pts.length; i++) {
+                // TODO: This is an efficient part, the height of the object is recalculated all the time.
+                double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1], env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                vertex((float) drawingPts[0], (float) drawingPts[1]);
+            }
+            endShape(CLOSE);
         }
 
         // Dead troops

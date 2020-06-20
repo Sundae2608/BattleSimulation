@@ -1,6 +1,7 @@
 package model;
 
 import model.algorithms.UnitModifier;
+import model.construct.Construct;
 import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventType;
@@ -26,6 +27,7 @@ public class GameEnvironment {
 
     // Terrain
     Terrain terrain;
+    ArrayList<Construct> constructs;
 
     // Game settings
     GameSettings gameSettings;
@@ -38,7 +40,7 @@ public class GameEnvironment {
      *
      * @param battleConfig Path to the txt file that contains all the game information
      */
-    public GameEnvironment(String gameConfig, String terrainConfig, String battleConfig,
+    public GameEnvironment(String gameConfig, String terrainConfig, String constructsConfig, String battleConfig,
                            GameSettings inputGameSettings) {
         broadcaster = new EventBroadcaster();
         gameSettings = inputGameSettings;
@@ -48,7 +50,12 @@ public class GameEnvironment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        unitModifier = new UnitModifier(deadContainer, terrain, gameSettings, broadcaster);
+        try {
+            constructs = ConfigUtils.createConstructsFromConfig(constructsConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        unitModifier = new UnitModifier(deadContainer, terrain, constructs, gameSettings, broadcaster);
         // Read game stats
         try {
             gameStats = ConfigUtils.readGameStats(gameConfig);
@@ -131,6 +138,10 @@ public class GameEnvironment {
 
     public Terrain getTerrain() {
         return terrain;
+    }
+
+    public ArrayList<Construct> getConstructs() {
+        return constructs;
     }
 
     public GameSettings getGameSettings() {
