@@ -102,9 +102,7 @@ public class UnitModifier {
                     constructHasher.getCandidateConstructs(single.getX(), single.getY());
             for (Construct construct : candidateConstructs) {
                 if (PhysicUtils.checkConstructAndTroopPositionCollision(construct, single)) {
-                    double[] newPts = PhysicUtils.constructPushPoint(construct, single);
-                        single.setX(newPts[0]);
-                        single.setY(newPts[1]);
+                    PhysicUtils.constructPushSingle(construct, single);
                 }
             }
         }

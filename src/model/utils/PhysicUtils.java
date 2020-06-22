@@ -353,8 +353,8 @@ public final class PhysicUtils {
         double dp = MathUtils.dotProduct(e1[0], e1[1], e2[0], e2[1]);
 
         // Get the length of vectors.
-        double lenLine1 = MathUtils.norm(e1[0], e1[1]);
-        double lenLine2 = MathUtils.norm(e2[0], e2[0]);
+        double lenLine1 = MathUtils.quickNorm(e1[0], e1[1]);
+        double lenLine2 = MathUtils.quickNorm(e2[0], e2[0]);
         double cos = dp / (lenLine1 * lenLine2);
 
         // Length of projection length line.
@@ -366,31 +366,41 @@ public final class PhysicUtils {
     }
 
     /**
-     * Return the closest point in the boundary of construct to single. This effectively is the point in which the
-     * construct "push" the single outside, if the single center happens to collide with the construct.
+     * Using the construct to push the single outside of its boundary, and modify the velocity vector to make it
      * http://www.sunshine2k.de/coding/java/PointOnLine/PointOnLine.html
      */
-    public static double[] constructPushPoint(Construct construct, BaseSingle single) {
+    public static void constructPushSingle(Construct construct, BaseSingle single) {
         // Go through each edge of the construct, check for the collision with the single, which is treated as a circle.
         double[][] constructBoundary = construct.getBoundaryPoints();
         int numPoints = constructBoundary.length;
         double minDist = Double.MAX_VALUE;
-        double[] minPt = new double[] {0, 0};
+        int minEdge = 0;
         for (int i = 0; i < numPoints; i++) {
             // Get the two points of the edge
             double[] pt1 = constructBoundary[i];
             double[] pt2 = constructBoundary[(i + 1) % numPoints];
             double x1 = pt1[0]; double y1 = pt1[1];
             double x2 = pt2[0]; double y2 = pt2[1];
-
-            // Get the distance
+            // Select the edge that has the smallest distance to the single
             double distanceToLine = Math.abs((y2 - y1) * single.getX() - (x2 - x1) * single.getY() + x2 * y1 - y2 * x1) /
                     MathUtils.quickDistance(x1, y1, x2, y2);
             if (distanceToLine < minDist) {
                 minDist = distanceToLine;
-                minPt = projectPointToLine(single.getX(), single.getY(), x1, y1, x2, y2);
+                minEdge = i;
             }
         }
-        return minPt;
+        // Set the new position to the edge of the object, simulating the construct "pushing" the single out.
+        // Also change the velocity vector by projecting it to the edge of the object (effectively canceling the force
+        // that pushes the single into the object.
+        double[] pt1 = constructBoundary[minEdge];
+        double[] pt2 = constructBoundary[(minEdge + 1) % numPoints];
+        double x1 = pt1[0]; double y1 = pt1[1];
+        double x2 = pt2[0]; double y2 = pt2[1];
+        double [] minPt = projectPointToLine(single.getX(), single.getY(), x1, y1, x2, y2);
+        double [] minVel = MathUtils.vectorProjection(single.getxVel(), single.getyVel(), x2 - x1, y2 - y1);
+        single.setX(minPt[0]);
+        single.setY(minPt[1]);
+        single.setxVel(minVel[0]);
+        single.setyVel(minVel[1]);
     }
 }

@@ -424,4 +424,8 @@ public class BaseSingle {
     public HashMap<BaseObject, Integer> getCarriedObjects() {
         return carriedObjects;
     }
+
+    public boolean isDead() {
+        return state == SingleState.DEAD;
+    }
 }

@@ -1,7 +1,7 @@
 {
     name: Roman forum
-    boundary_points: -1000 -1000
-    boundary_points: -1000 -650
-    boundary_points: -650 -650
-    boundary_points: -650 -1000
+    boundary_points: -1400 -1000
+    boundary_points: -1400 1000
+    boundary_points: -1050 1000
+    boundary_points: -1050 -1000
 }
