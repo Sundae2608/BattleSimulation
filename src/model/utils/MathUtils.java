@@ -3,9 +3,7 @@ package model.utils;
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import javafx.util.Pair;
 import model.singles.BaseSingle;
-import model.units.BaseUnit;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -264,14 +262,14 @@ public final class MathUtils {
     }
 
     /**
-     * Project vector v on to u
+     * Project vector u on to v
      */
-    public static double[] vectorProjection(double vx, double vy, double ux, double uy) {
-        if (ux == 0.0 && uy == 0) {
-            return new double[] {0.0};
+    public static double[] vectorProjection(double ux, double uy, double vx, double vy) {
+        if (vx == 0.0 && vy == 0) {
+            return new double[] {0.0, 0.0};
         }
-        double normal_projection = (vx * ux + vy * uy) / (ux * ux + uy * uy);
-        return new double[] {normal_projection * ux, normal_projection * uy};
+        double scale = (ux * vx + uy * vy) / (vx * vx + vy * vy);
+        return new double[] {vx * scale, vy * scale};
     }
 
     /**
@@ -304,7 +302,7 @@ public final class MathUtils {
     }
 
     /**
-     * Find the maximum of all numbers in the array
+     * Find the maximum of all numbers in the array.
      */
     public static double findMax(double[] nums) {
         double max = Double.MIN_VALUE;
@@ -316,4 +314,17 @@ public final class MathUtils {
         return max;
     }
 
+    /**
+     * Dot product of (x1, y1) and (x2, y2).
+     */
+    public static double dotProduct(double x1, double y1, double x2, double y2) {
+        return x1 * x2 + y1 * y2;
+    }
+
+    /**
+     * Return the length of the vector.
+     */
+    public static double quickNorm(double x, double y) {
+        return quickRoot2((float) (x * x + y * y));
+    }
 }

@@ -3,6 +3,7 @@ package utils;
 import model.GameStats;
 import model.algorithms.ObjectHasher;
 import model.constants.UniversalConstants;
+import model.construct.Construct;
 import model.enums.PoliticalFaction;
 import model.enums.UnitType;
 import model.events.EventBroadcaster;
@@ -22,11 +23,13 @@ import view.video.VideoTemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -372,6 +375,40 @@ public final class ConfigUtils {
     }
 
     /**
+     * Create constructs from config file.
+     */
+    public static ArrayList<Construct> createConstructsFromConfig(String filePath) throws IOException {
+        // Get all text from file location
+        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
+        String s = new String(encoded, StandardCharsets.UTF_8);
+        // The first object will be the map creation parameter.
+        String[] objects = s.split(",");
+
+        // Each of the next object will be a construct with a boundary.
+        ArrayList<Construct> constructs = new ArrayList<>();
+        for (int i = 0; i < objects.length; i++) {
+            String[] infoLines = objects[i].split("\n");
+            String name = "";
+            ArrayList<double[]> pts = new ArrayList<>();
+            for (int j = 0; j < infoLines.length; j++) {
+                String line = infoLines[j];
+                String[] data = line.split(":");
+                String fieldName = data[0].trim();
+                if (data.length < 2) continue;
+                if (fieldName.equals("name")) {
+                    name = data[1].trim();
+                } else if (fieldName.equals("boundary_points")) {
+                    String[] ptData = data[1].trim().split(" ");
+                    double[] pt = new double[]{Double.valueOf(ptData[0]), Double.valueOf(ptData[1])};
+                    pts.add(pt);
+                }
+            }
+            constructs.add(new Construct(name, pts));
+        }
+        return constructs;
+    }
+
+    /**
      * Create a terrain based on configs input from a file.
      * @param filePath path that contains the input configs.
      * @return a terrain generated from the config.
@@ -382,7 +419,7 @@ public final class ConfigUtils {
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);
 
-        // Read all data of the config first
+        // The first object will be the map creation parameter.
         String[] infoLines = s.split("\n");
         HashMap<String, String> d = new HashMap<>();
         for (String line : infoLines) {
@@ -394,7 +431,7 @@ public final class ConfigUtils {
             d.put(key, value);
         }
 
-        // Extract the input configs
+        // Extract the input configs.
         double topX = Double.parseDouble(d.get("top_x"));
         double topY = Double.parseDouble(d.get("top_x"));
         double div = Double.parseDouble(d.get("div"));
@@ -407,7 +444,7 @@ public final class ConfigUtils {
         double perlinDetailScale = Double.parseDouble(d.get("perlin_detail_scale"));
         double perlinDetailHeightRatio = Double.parseDouble(d.get("perlin_detail_height_ratio"));
 
-        // Return terrain from the input configs
+        // Create a new terrain using the input configs.
         return new Terrain(
             topX, topY, div, numX, numY, taper, minHeight, maxHeight,
             perlinScale, perlinDetailScale, perlinDetailHeightRatio

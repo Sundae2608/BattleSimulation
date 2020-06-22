@@ -425,5 +425,7 @@ public class BaseSingle {
         return carriedObjects;
     }
 
-
+    public boolean isDead() {
+        return state == SingleState.DEAD;
+    }
 }

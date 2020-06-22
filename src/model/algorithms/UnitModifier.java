@@ -3,6 +3,7 @@ package model.algorithms;
 import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
+import model.construct.Construct;
 import model.enums.SingleState;
 import model.events.Event;
 import model.events.EventBroadcaster;
@@ -30,18 +31,21 @@ public class UnitModifier {
 
     private ObjectHasher objectHasher;
     private TroopHasher troopHasher;
+    private ConstructHasher constructHasher;
     private ArrayList<BaseSingle> deadContainer;
     private HashSet<BaseUnit> unitToBeRemoved;
     private EventBroadcaster broadcaster;
     ArrayList<BaseUnit> unitList;
     GameSettings gameSettings;
     Terrain terrain;
+    ArrayList<Construct> constructs;
     HashMap<BaseUnit, Integer> recentlyChargedUnit;
 
     // Memoization of distance between model.units.
     private double[][] distanceMemo;
 
-    public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain, GameSettings inputSettings,
+    public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain,
+                        ArrayList<Construct> inputConstructs, GameSettings inputSettings,
                         EventBroadcaster inputBroadcaster) {
         broadcaster = inputBroadcaster;
         objectHasher = new ObjectHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV);
@@ -51,6 +55,8 @@ public class UnitModifier {
         unitList = new ArrayList<>();
         gameSettings = inputSettings;
         terrain = inputTerrain;
+        constructs = inputConstructs;
+        constructHasher = new ConstructHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, constructs);
 
         // Initialize distance memo
         distanceMemo = new double[8][8];
@@ -83,7 +89,23 @@ public class UnitModifier {
         modifyObjectsCollision();
         modifyTroopsCollision();
         modifyCombat();
+        modifyTroopsConstructsCollision();
         modifyUnitState();
+    }
+
+    /**
+     * Modify collisions between troops and constructs
+     */
+    private void modifyTroopsConstructsCollision() {
+        for (BaseSingle single : troopHasher.getActiveTroops()) {
+            ArrayList<Construct> candidateConstructs =
+                    constructHasher.getCandidateConstructs(single.getX(), single.getY());
+            for (Construct construct : candidateConstructs) {
+                if (PhysicUtils.checkConstructAndTroopPositionCollision(construct, single)) {
+                    PhysicUtils.constructPushSingle(construct, single);
+                }
+            }
+        }
     }
 
     /**

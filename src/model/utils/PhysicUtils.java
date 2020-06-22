@@ -1,6 +1,7 @@
 package model.utils;
 
 import model.constants.UniversalConstants;
+import model.construct.Construct;
 import model.singles.BaseSingle;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
@@ -228,5 +229,178 @@ public final class PhysicUtils {
      */
     public static ArrayList<BaseSingle> checkSingleVision(BaseSingle unit, ArrayList<BaseSingle> allSingles, Terrain terrain) {
         return allSingles;
+    }
+
+    /**
+     * Check whether point (px, py) lies within the polygon constructed by vertices.
+     * @return
+     */
+    private static boolean checkPolygonPointCollision(double[][] vertices, double px, double py) {
+        boolean collision = false;
+
+        // Go through each edge
+        for (int i = 0; i < vertices.length; i++) {
+            double[] vc = vertices[i];
+            double[] vn = vertices[(i + 1) % vertices.length];
+
+            // compare position, flip 'collision' variable
+            // back and forth
+            if (((vc[1] > py && vn[1] < py) || (vc[1] < py && vn[1] > py)) &&
+                    (px < (vn[0]-vc[0]) * (py-vc[1]) / (vn[1]-vc[1]) + vc[0])) {
+                collision = !collision;
+            }
+        }
+        return collision;
+    }
+
+    /**
+     * Check whether point (px, py) is inside or outside the circle at (cx, cy) with radius r.
+     * @return true if the two collides, false otherwise.
+     */
+    private static boolean checkPointCircleCollision(double px, double py, double cx, double cy, double r) {
+        // Compare the squareDistance between the point and the center with the square of the radius.
+        // We use square since square root is a very expensive operation.
+        double squareDistance = MathUtils.squareDistance(px, py, cx, cy);
+
+        // if the distance is less than the circle's
+        // radius the point is inside!
+        if (squareDistance <= r * r) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check whether the line constructed by (x1, y1) and (x2, y2) collide with the circle with center (cx, cy) and
+     * radius r.
+     * @return true if the two collides, false otherwise.
+     */
+    private static boolean checkLineCircleCollision(double x1, double y1, double x2, double y2, double cx, double cy, double r) {
+        // is either end INSIDE the circle?
+        // if so, return true immediately
+        boolean inside1 = checkPointCircleCollision(x1, y1, cx, cy, r);
+        boolean inside2 = checkPointCircleCollision(x2, y2, cx, cy, r);
+        if (inside1 || inside2) return true;
+
+        // get length of the line
+        double squareDist = MathUtils.squareDistance(x1, y1, x2, y2);
+
+        // get dot product of the line and circle
+        double dot = (((cx-x1)*(x2-x1)) + ((cy-y1)*(y2-y1))) / squareDist;
+
+        // find the closest point on the line
+        double closestX = x1 + (dot * (x2-x1));
+        double closestY = y1 + (dot * (y2-y1));
+
+        // get distance to closest point
+        double distance = MathUtils.quickDistance(closestX, closestY, cx, cy);
+
+        // is the circle on the line?
+        if (distance <= r) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check collision between a construct and a single. This check takes area occupied by the size of the troop into
+     * account.
+     * Implementation heavily based on one by Jeffrey Thompson at:
+     * http://www.jeffreythompson.org/collision-detection/poly-circle.php
+     * I only changed variable type from float to double
+     * @return True if they collide, false otherwise.
+     */
+    public static boolean checkConstructAndTroopCollision(Construct construct, BaseSingle single) {
+
+        // Go through each edge of the construct, check for the collision with the single, which is treated as a circle.
+        double[][] constructBoundary = construct.getBoundaryPoints();
+        int numPoints = constructBoundary.length;
+        for (int i = 0; i < numPoints; i++) {
+            // Get the two points of the edge
+            double[] pt1 = constructBoundary[i];
+            double[] pt2 = constructBoundary[(i + 1) % numPoints];
+
+            // Check for collision between the troop and the edge of the construct
+            boolean collision = checkLineCircleCollision(
+                    pt1[0], pt1[1], pt2[0], pt2[1], single.getX(), single.getY(), single.getSize());
+            if (collision) return true;
+        }
+
+        // If the single does not touch any of the edge of the construct. Check whether the circle is inside the polygon
+        boolean insideTheConstruct = checkPolygonPointCollision(constructBoundary, single.getX(), single.getY());
+        return false;
+    }
+
+    /**
+     * Check collision between a construct and a single. This check is more lenient than
+     * checkConstructAndTroopCollision in that it only checks the position of the troop and ignores the space occupied
+     * by the troop, which makes this check a faster check.
+     * @return True if they collide, false otherwise.
+     */
+    public static boolean checkConstructAndTroopPositionCollision(Construct construct, BaseSingle single) {
+        return checkPolygonPointCollision(construct.getBoundaryPoints(), single.getX(), single.getY());
+    }
+
+    /**
+     * Returns the projection of point (px, py) on to the line created by (x1, y1) and (x2, y2).
+     * Based on implementation at:
+     * http://www.sunshine2k.de/coding/java/PointOnLine/PointOnLine.html
+     */
+    private static double[] projectPointToLine(double px, double py, double x1, double y1, double x2, double y2) {
+        // Dot product of e1 and e2.
+        double[] e1 = new double[] {x2 - x1, y2 - y1};
+        double[] e2 = new double[] {px - x1, py - y1};
+        double dp = MathUtils.dotProduct(e1[0], e1[1], e2[0], e2[1]);
+
+        // Get the length of vectors.
+        double lenLine1 = MathUtils.quickNorm(e1[0], e1[1]);
+        double lenLine2 = MathUtils.quickNorm(e2[0], e2[0]);
+        double cos = dp / (lenLine1 * lenLine2);
+
+        // Length of projection length line.
+        double projectionLength = cos * lenLine2;
+        return new double[] {
+                x1 + (projectionLength * e1[0]) / lenLine1,
+                y1 + (projectionLength * e1[1]) / lenLine1
+        };
+    }
+
+    /**
+     * Using the construct to push the single outside of its boundary, and modify the velocity vector to make it
+     * http://www.sunshine2k.de/coding/java/PointOnLine/PointOnLine.html
+     */
+    public static void constructPushSingle(Construct construct, BaseSingle single) {
+        // Go through each edge of the construct, check for the collision with the single, which is treated as a circle.
+        double[][] constructBoundary = construct.getBoundaryPoints();
+        int numPoints = constructBoundary.length;
+        double minDist = Double.MAX_VALUE;
+        int minEdge = 0;
+        for (int i = 0; i < numPoints; i++) {
+            // Get the two points of the edge
+            double[] pt1 = constructBoundary[i];
+            double[] pt2 = constructBoundary[(i + 1) % numPoints];
+            double x1 = pt1[0]; double y1 = pt1[1];
+            double x2 = pt2[0]; double y2 = pt2[1];
+            // Select the edge that has the smallest distance to the single
+            double distanceToLine = Math.abs((y2 - y1) * single.getX() - (x2 - x1) * single.getY() + x2 * y1 - y2 * x1) /
+                    MathUtils.quickDistance(x1, y1, x2, y2);
+            if (distanceToLine < minDist) {
+                minDist = distanceToLine;
+                minEdge = i;
+            }
+        }
+        // Set the new position to the edge of the object, simulating the construct "pushing" the single out.
+        // Also change the velocity vector by projecting it to the edge of the object (effectively canceling the force
+        // that pushes the single into the object.
+        double[] pt1 = constructBoundary[minEdge];
+        double[] pt2 = constructBoundary[(minEdge + 1) % numPoints];
+        double x1 = pt1[0]; double y1 = pt1[1];
+        double x2 = pt2[0]; double y2 = pt2[1];
+        double [] minPt = projectPointToLine(single.getX(), single.getY(), x1, y1, x2, y2);
+        double [] minVel = MathUtils.vectorProjection(single.getxVel(), single.getyVel(), x2 - x1, y2 - y1);
+        single.setX(minPt[0]);
+        single.setY(minPt[1]);
+        single.setxVel(minVel[0]);
+        single.setyVel(minVel[1]);
     }
 }
