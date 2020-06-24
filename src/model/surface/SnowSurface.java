@@ -2,8 +2,10 @@ package model.surface;
 
 import model.singles.BaseSingle;
 
+import java.util.ArrayList;
+
 public class SnowSurface extends BaseSurface {
-    public SnowSurface(double[][] points) {
+    public SnowSurface(ArrayList<double[]> points) {
         super(points);
     }
 

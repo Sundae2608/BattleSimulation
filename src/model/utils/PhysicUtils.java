@@ -3,6 +3,7 @@ package model.utils;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.singles.BaseSingle;
+import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import org.apache.commons.math3.util.Pair;
@@ -235,7 +236,7 @@ public final class PhysicUtils {
      * Check whether point (px, py) lies within the polygon constructed by vertices.
      * @return
      */
-    private static boolean checkPolygonPointCollision(double[][] vertices, double px, double py) {
+    public static boolean checkPolygonPointCollision(double[][] vertices, double px, double py) {
         boolean collision = false;
 
         // Go through each edge
@@ -303,35 +304,6 @@ public final class PhysicUtils {
     }
 
     /**
-     * Check collision between a construct and a single. This check takes area occupied by the size of the troop into
-     * account.
-     * Implementation heavily based on one by Jeffrey Thompson at:
-     * http://www.jeffreythompson.org/collision-detection/poly-circle.php
-     * I only changed variable type from float to double
-     * @return True if they collide, false otherwise.
-     */
-    public static boolean checkConstructAndTroopCollision(Construct construct, BaseSingle single) {
-
-        // Go through each edge of the construct, check for the collision with the single, which is treated as a circle.
-        double[][] constructBoundary = construct.getBoundaryPoints();
-        int numPoints = constructBoundary.length;
-        for (int i = 0; i < numPoints; i++) {
-            // Get the two points of the edge
-            double[] pt1 = constructBoundary[i];
-            double[] pt2 = constructBoundary[(i + 1) % numPoints];
-
-            // Check for collision between the troop and the edge of the construct
-            boolean collision = checkLineCircleCollision(
-                    pt1[0], pt1[1], pt2[0], pt2[1], single.getX(), single.getY(), single.getSize());
-            if (collision) return true;
-        }
-
-        // If the single does not touch any of the edge of the construct. Check whether the circle is inside the polygon
-        boolean insideTheConstruct = checkPolygonPointCollision(constructBoundary, single.getX(), single.getY());
-        return false;
-    }
-
-    /**
      * Check collision between a construct and a single. This check is more lenient than
      * checkConstructAndTroopCollision in that it only checks the position of the troop and ignores the space occupied
      * by the troop, which makes this check a faster check.
@@ -342,19 +314,49 @@ public final class PhysicUtils {
     }
 
     /**
+     * Check collision between a construct and a single. This check is more lenient than
+     * checkConstructAndTroopCollision in that it only checks the position of the troop and ignores the space occupied
+     * by the troop, which makes this check a faster check.
+     * @return True if they collide, false otherwise.
+     */
+    public static boolean checkSurfaceAndTroopPositionCollision(BaseSurface surface, BaseSingle single) {
+        return checkPolygonPointCollision(surface.getSurfaceBoundary(), single.getX(), single.getY());
+    }
+
+    /**
      * Returns the projection of point (px, py) on to the line created by (x1, y1) and (x2, y2).
      * Based on implementation at:
      * http://www.sunshine2k.de/coding/java/PointOnLine/PointOnLine.html
      */
     private static double[] projectPointToLine(double px, double py, double x1, double y1, double x2, double y2) {
+
+        // Throws error if (x1, y1) and (x2, y2) are too close to each other
+        if (MathUtils.doubleEqual(x1, x2) && MathUtils.doubleEqual(y1, y2)) {
+            throw new RuntimeException("(x1, y1) and (x2, y2) must be two different points");
+        }
+
+        // Create a third point that is the mid point of either point.
+        // If P is too close to either point, we will move that point to the mid point instead to avoid zeroth division.
+        double x3 = (x1 + x2) / 2;
+        double y3 = (y1 + y2) / 2;
+        if (MathUtils.doubleEqual(x1, px) && MathUtils.doubleEqual(y1, py)) {
+            x1 = x3;
+            y1 = y3;
+        } else if (MathUtils.doubleEqual(x2, px) && MathUtils.doubleEqual(y2, py)) {
+            x2 = x3;
+            y2 = y3;
+        }
+
         // Dot product of e1 and e2.
         double[] e1 = new double[] {x2 - x1, y2 - y1};
         double[] e2 = new double[] {px - x1, py - y1};
         double dp = MathUtils.dotProduct(e1[0], e1[1], e2[0], e2[1]);
 
         // Get the length of vectors.
-        double lenLine1 = MathUtils.quickNorm(e1[0], e1[1]);
-        double lenLine2 = MathUtils.quickNorm(e2[0], e2[0]);
+        // We don't use quick norm in this case because it actually does not project to the surface at a perpendicular
+        // angle.
+        double lenLine1 = MathUtils.norm(e1[0], e1[1]);
+        double lenLine2 = MathUtils.norm(e2[0], e2[1]);
         double cos = dp / (lenLine1 * lenLine2);
 
         // Length of projection length line.
@@ -363,6 +365,33 @@ public final class PhysicUtils {
                 x1 + (projectionLength * e1[0]) / lenLine1,
                 y1 + (projectionLength * e1[1]) / lenLine1
         };
+    }
+
+    public static double[] getClosestPointToEdge(double px, double py, double[][] boundary) {
+        int numPoints = boundary.length;
+        double minDist = Double.MAX_VALUE;
+        int minEdge = 0;
+        for (int i = 0; i < numPoints; i++) {
+            // Get the two points of the edge
+            double[] pt1 = boundary[i];
+            double[] pt2 = boundary[(i + 1) % numPoints];
+            double x1 = pt1[0]; double y1 = pt1[1];
+            double x2 = pt2[0]; double y2 = pt2[1];
+            // Select the edge that has the smallest distance to the single
+            double distanceToLine = Math.abs((y2 - y1) * px - (x2 - x1) * py + x2 * y1 - y2 * x1) /
+                    MathUtils.quickDistance(x1, y1, x2, y2);
+            if (distanceToLine < minDist) {
+                minDist = distanceToLine;
+                minEdge = i;
+            }
+        }
+        // Project the point onto the close edge
+        double[] pt1 = boundary[minEdge];
+        double[] pt2 = boundary[(minEdge + 1) % numPoints];
+        double x1 = pt1[0]; double y1 = pt1[1];
+        double x2 = pt2[0]; double y2 = pt2[1];
+        double [] minPt = projectPointToLine(px, py, x1, y1, x2, y2);
+        return minPt;
     }
 
     /**
@@ -397,7 +426,7 @@ public final class PhysicUtils {
         double x1 = pt1[0]; double y1 = pt1[1];
         double x2 = pt2[0]; double y2 = pt2[1];
         double [] minPt = projectPointToLine(single.getX(), single.getY(), x1, y1, x2, y2);
-        double [] minVel = MathUtils.vectorProjection(single.getxVel(), single.getyVel(), x2 - x1, y2 - y1);
+        double [] minVel = MathUtils.vectorProjection(single.getxVel(), single.getyVel(), x1 - x2, y1 - y2);
         single.setX(minPt[0]);
         single.setY(minPt[1]);
         single.setxVel(minVel[0]);

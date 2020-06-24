@@ -1,4 +1,16 @@
 package model.surface;
 
-public class ForestSurface {
+import model.singles.BaseSingle;
+
+import java.util.ArrayList;
+
+public class ForestSurface extends BaseSurface {
+    public ForestSurface(ArrayList<double[]> points) {
+        super(points);
+    }
+
+    @Override
+    public void impactSingle(BaseSingle single) {
+
+    }
 }

@@ -2,8 +2,10 @@ package model.surface;
 
 import model.singles.BaseSingle;
 
+import java.util.ArrayList;
+
 public class MarshSurface extends BaseSurface {
-    public MarshSurface(double[][] points) {
+    public MarshSurface(ArrayList<double[]> points) {
         super(points);
     }
 

@@ -7,6 +7,7 @@ import model.construct.Construct;
 import model.objects.Ballista;
 import model.objects.Stone;
 import model.settings.GameSettings;
+import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import org.opencv.core.Core;
 import utils.ConfigUtils;
@@ -218,7 +219,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setInPositionOptimization(false);
         drawingSettings.setDrawVideoEffect(true);
 
-        // Initializee drawer
+        // Initialize drawer
         uiDrawer = new UIDrawer();
         shapeDrawer = new ShapeDrawer();
 
@@ -283,8 +284,9 @@ public class MainSimulation extends PApplet {
         String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
         String mapConfig = "src/configs/map_configs/MapConfig.txt";
         String constructsConfig = "src/configs/construct_configs/ConstructsConfig.txt";
+        String surfaceConfig = "src/configs/surface_configs/SurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
-        env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, battleConfig, gameSettings);
+        env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
 
         // Check to make sure that the game environment is valid
         try {
@@ -510,14 +512,15 @@ public class MainSimulation extends PApplet {
         }
 
         // Draw the construct.
-        for (Construct construct : env.getConstructs()) {
-            int[] constructColor = DrawingConstants.CONSTRUCT_COLOR;
-            fill(constructColor[0], constructColor[1], constructColor[2]);
-            double[][] pts = construct.getBoundaryPoints();
+        for (BaseSurface surface : env.getSurfaces()) {
+            int[] surfaceColor = DrawingConstants.CONSTRUCT_SURFACE_COLOR;
+            fill(surfaceColor[0], surfaceColor[1], surfaceColor[2], surfaceColor[3]);
+            double[][] pts = surface.getSurfaceBoundary();
             beginShape();
             for (int i = 0; i < pts.length; i++) {
                 // TODO: This is an efficient part, the height of the object is recalculated all the time.
-                double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1], env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
+                        env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
                 vertex((float) drawingPts[0], (float) drawingPts[1]);
             }
             endShape(CLOSE);
@@ -669,6 +672,21 @@ public class MainSimulation extends PApplet {
         ArrayList<BaseObject> objects = env.getUnitModifier().getObjectHasher().getObjects();
         for (BaseObject obj : objects) {
             if (obj.isAlive()) drawObject(obj, camera, env.getTerrain(), drawingSettings);
+        }
+
+        // Draw the construct.
+        for (Construct construct : env.getConstructs()) {
+            int[] constructColor = DrawingConstants.CONSTRUCT_COLOR;
+            fill(constructColor[0], constructColor[1], constructColor[2]);
+            double[][] pts = construct.getBoundaryPoints();
+            beginShape();
+            for (int i = 0; i < pts.length; i++) {
+                // TODO: This is an efficient part, the height of the object is recalculated all the time.
+                double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
+                        env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                vertex((float) drawingPts[0], (float) drawingPts[1]);
+            }
+            endShape(CLOSE);
         }
 
         if (drawingSettings.isDrawVideoEffect()) videoElementPlayer.processElementQueue();

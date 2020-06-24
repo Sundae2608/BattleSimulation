@@ -6,6 +6,7 @@ import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventType;
 import model.singles.BaseSingle;
+import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.units.CavalryUnit;
@@ -22,6 +23,7 @@ public class GameEnvironment {
 
     // Contain all units and troops
     ArrayList<BaseUnit> units;
+    ArrayList<BaseSurface> surfaces;
     UnitModifier unitModifier;
     ArrayList<BaseSingle> deadContainer;
 
@@ -40,29 +42,37 @@ public class GameEnvironment {
      *
      * @param battleConfig Path to the txt file that contains all the game information
      */
-    public GameEnvironment(String gameConfig, String terrainConfig, String constructsConfig, String battleConfig,
-                           GameSettings inputGameSettings) {
+    public GameEnvironment(String gameConfig, String terrainConfig, String constructsConfig, String surfaceConfig,
+                           String battleConfig, GameSettings inputGameSettings) {
         broadcaster = new EventBroadcaster();
         gameSettings = inputGameSettings;
         deadContainer = new ArrayList<>();
+        // Read terrain configuration.
         try {
             terrain = ConfigUtils.createTerrainFromConfig(terrainConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // Read construct configuration.
         try {
             constructs = ConfigUtils.createConstructsFromConfig(constructsConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        unitModifier = new UnitModifier(deadContainer, terrain, constructs, gameSettings, broadcaster);
-        // Read game stats
+        // Read surface configuration.
+        try {
+            surfaces = ConfigUtils.createSurfacesFromConfig(surfaceConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        unitModifier = new UnitModifier(deadContainer, terrain, constructs, surfaces, gameSettings, broadcaster);
+        // Read game stats.
         try {
             gameStats = ConfigUtils.readGameStats(gameConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // Read battle configuration
+        // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
                     battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster);
@@ -147,10 +157,16 @@ public class GameEnvironment {
     public GameSettings getGameSettings() {
         return gameSettings;
     }
+
     public GameStats getGameStats() {
         return gameStats;
     }
+
     public EventBroadcaster getBroadcaster() {
         return broadcaster;
+    }
+
+    public ArrayList<BaseSurface> getSurfaces() {
+        return surfaces;
     }
 }
