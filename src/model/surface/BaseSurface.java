@@ -1,19 +1,21 @@
 package model.surface;
 
+import model.enums.SurfaceType;
 import model.singles.BaseSingle;
-import model.utils.PhysicUtils;
 
 import java.util.ArrayList;
 
 public abstract class BaseSurface {
     double[][] surfaceBoundary;
+    SurfaceType type;
 
-    public BaseSurface(ArrayList<double[]> points) {
+    public BaseSurface(SurfaceType inputType, ArrayList<double[]> points) {
         double[][] pts = new double[points.size()][2];
         for (int i = 0; i < points.size(); i++) {
             pts[i][0] = points.get(i)[0];
             pts[i][1] = points.get(i)[1];
         }
+        type = inputType;
         surfaceBoundary = pts;
     }
 
@@ -24,5 +26,9 @@ public abstract class BaseSurface {
 
     public double[][] getSurfaceBoundary() {
         return surfaceBoundary;
+    }
+
+    public SurfaceType getType() {
+        return type;
     }
 }

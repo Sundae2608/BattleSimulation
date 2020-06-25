@@ -15,6 +15,7 @@ import model.objects.Stone;
 import model.settings.GameSettings;
 import model.singles.*;
 import model.surface.BaseSurface;
+import model.surface.Tree;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.enums.UnitState;
@@ -61,7 +62,7 @@ public class UnitModifier {
         constructs = inputConstructs;
         surfaces = inputSurfaces;
         constructHasher = new ConstructHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, constructs);
-        surfaceHasher = new SurfaceHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, surfaces);
+        surfaceHasher = new SurfaceHasher(UniversalConstants.X_HASH_DIV_SURFACE_TREES, UniversalConstants.Y_HASH_DIV_SURFACE_TREES, surfaces);
 
         // Initialize distance memo
         distanceMemo = new double[8][8];
@@ -96,11 +97,12 @@ public class UnitModifier {
         modifyTroopsCollision();
         modifyCombat();
         modifyUnitState();
+        modifyTroopsTreesCollision();
         modifyTroopsConstructsCollision();
     }
 
     /**
-     * Modify collisions between troops and constructs
+     * Modify collisions between troops and constructs.
      */
     private void modifyTroopsConstructsCollision() {
         for (BaseSingle single : troopHasher.getActiveTroops()) {
@@ -109,6 +111,22 @@ public class UnitModifier {
             for (Construct construct : candidateConstructs) {
                 if (PhysicUtils.checkConstructAndTroopPositionCollision(construct, single)) {
                     PhysicUtils.constructPushSingle(construct, single);
+                }
+            }
+        }
+    }
+
+    /**
+     * Modify collisions between troops and trees.
+     */
+    private void modifyTroopsTreesCollision() {
+        for (BaseSingle single : troopHasher.getActiveTroops()) {
+            ArrayList<Tree> trees =
+                    surfaceHasher.getCandidateTrees(single.getX(), single.getY());
+            if (trees == null) continue;
+            for (Tree tree : trees) {
+                if (PhysicUtils.checkPointCircleCollision(single.getX(), single.getY(), tree.getX(), tree.getY(), tree.getRadius())) {
+                    PhysicUtils.treePushSingle(tree, single);
                 }
             }
         }

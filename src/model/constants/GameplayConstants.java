@@ -30,5 +30,5 @@ public class GameplayConstants {
     public final static double FLANKER_PATIENT = 100;
 
     // Slow down by different environment
-    public final static double SURFACE_BEACH_SLOWDOWN = 0.9;
+    public final static double SURFACE_BEACH_SLOWDOWN = 1.0;
 }

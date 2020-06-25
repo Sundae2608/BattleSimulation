@@ -1,14 +1,15 @@
 package model.surface;
 
 import model.constants.GameplayConstants;
+import model.enums.SurfaceType;
 import model.singles.BaseSingle;
 
 import java.util.ArrayList;
 
 public class BeachSurface extends BaseSurface {
 
-    public BeachSurface(ArrayList<double[]> points) {
-        super(points);
+    public BeachSurface(SurfaceType type, ArrayList<double[]> points) {
+        super(type, points);
     }
 
     @Override

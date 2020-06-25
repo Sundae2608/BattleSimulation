@@ -426,6 +426,10 @@ public final class ConfigUtils {
             String[] infoLines = objects[i].split("\n");
             SurfaceType type = null;
             ArrayList<double[]> pts = new ArrayList<>();
+            double averageTreeRadius = 0.0;
+            double sizeWiggling = 0.0;
+            double averageDistance = 0.0;
+            double distanceWiggling = 0.0;
             for (int j = 0; j < infoLines.length; j++) {
                 String line = infoLines[j];
                 String[] data = line.split(":");
@@ -437,6 +441,14 @@ public final class ConfigUtils {
                     String[] ptData = data[1].trim().split(" ");
                     double[] pt = new double[]{Double.valueOf(ptData[0]), Double.valueOf(ptData[1])};
                     pts.add(pt);
+                } else if (fieldName.equals("average_tree_radius")) {
+                    averageTreeRadius = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("size_wiggling")) {
+                    sizeWiggling = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("average_distance")) {
+                    averageDistance = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("distance_wiggling")) {
+                    distanceWiggling = Double.valueOf(data[1].trim());
                 }
             }
 
@@ -444,25 +456,26 @@ public final class ConfigUtils {
             BaseSurface surface = null;
             switch (type) {
                 case SNOW:
-                    surface = new SnowSurface(pts);
+                    surface = new SnowSurface(type, pts);
                     break;
                 case BEACH:
-                    surface = new BeachSurface(pts);
+                    surface = new BeachSurface(type, pts);
                     break;
                 case MARSH:
-                    surface = new MarshSurface(pts);
+                    surface = new MarshSurface(type, pts);
                     break;
                 case DESERT:
-                    surface = new DesertSurface(pts);
+                    surface = new DesertSurface(type, pts);
                     break;
                 case FOREST:
-                    surface = new ForestSurface(pts);
+                    surface = new ForestSurface(
+                            type, pts, averageTreeRadius, sizeWiggling, averageDistance, distanceWiggling);
                     break;
                 case RIVERSIDE:
-                    surface = new RiversideSurface(pts);
+                    surface = new RiversideSurface(type, pts);
                     break;
                 case SHALLOW_RIVER:
-                    surface = new ShallowRiverSurface(pts);
+                    surface = new ShallowRiverSurface(type, pts);
                     break;
                 default:
                     break;

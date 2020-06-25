@@ -4,6 +4,7 @@ import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.singles.BaseSingle;
 import model.surface.BaseSurface;
+import model.surface.Tree;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import org.apache.commons.math3.util.Pair;
@@ -258,17 +259,22 @@ public final class PhysicUtils {
      * Check whether point (px, py) is inside or outside the circle at (cx, cy) with radius r.
      * @return true if the two collides, false otherwise.
      */
-    private static boolean checkPointCircleCollision(double px, double py, double cx, double cy, double r) {
-        // Compare the squareDistance between the point and the center with the square of the radius.
-        // We use square since square root is a very expensive operation.
+    public static boolean checkPointCircleCollision(double px, double py, double cx, double cy, double r) {
         double squareDistance = MathUtils.squareDistance(px, py, cx, cy);
-
-        // if the distance is less than the circle's
-        // radius the point is inside!
         if (squareDistance <= r * r) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * If (px, py) is within the circle at (cx, cy) with radius r, return the point in which t
+     */
+    public static double[] getCirclePushPoint(double cx, double cy, double r, double px, double py) {
+        double angle = MathUtils.atan2(py - cy, px - cx);
+        double unitX = MathUtils.quickCos((float) angle);
+        double unitY = MathUtils.quickSin((float) angle);
+        return new double[] {cx + r * unitX, cy + r * unitY};
     }
 
     /**
@@ -431,5 +437,14 @@ public final class PhysicUtils {
         single.setY(minPt[1]);
         single.setxVel(minVel[0]);
         single.setyVel(minVel[1]);
+    }
+    /**
+     * Using the tree to push the single outside of its boundary.
+     */
+    public static void treePushSingle(Tree tree, BaseSingle single) {
+        // Go through each edge of the construct, check for the collision with the single, which is treated as a circle.
+        double[] newPt = getCirclePushPoint(tree.getX(), tree.getY(), tree.getRadius(), single.getX(), single.getY());
+        single.setX(newPt[0]);
+        single.setY(newPt[1]);
     }
 }

@@ -4,10 +4,13 @@ import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import controller.ControlConstants;
 import model.checker.EnvironmentChecker;
 import model.construct.Construct;
+import model.enums.*;
 import model.objects.Ballista;
 import model.objects.Stone;
 import model.settings.GameSettings;
 import model.surface.BaseSurface;
+import model.surface.ForestSurface;
+import model.surface.Tree;
 import model.terrain.Terrain;
 import org.opencv.core.Core;
 import utils.ConfigUtils;
@@ -22,10 +25,6 @@ import view.map.Tile;
 import model.GameEnvironment;
 import view.camera.Camera;
 import model.constants.*;
-import model.enums.PoliticalFaction;
-import model.enums.SingleState;
-import model.enums.UnitState;
-import model.enums.UnitType;
 import model.objects.Arrow;
 import model.objects.BaseObject;
 import processing.core.PGraphics;
@@ -511,9 +510,9 @@ public class MainSimulation extends PApplet {
             }
         }
 
-        // Draw the construct.
+        // Draw the surface.
         for (BaseSurface surface : env.getSurfaces()) {
-            int[] surfaceColor = DrawingConstants.CONSTRUCT_SURFACE_COLOR;
+            int[] surfaceColor = DrawingUtils.getSurfaceColor(surface);
             fill(surfaceColor[0], surfaceColor[1], surfaceColor[2], surfaceColor[3]);
             double[][] pts = surface.getSurfaceBoundary();
             beginShape();
@@ -524,6 +523,17 @@ public class MainSimulation extends PApplet {
                 vertex((float) drawingPts[0], (float) drawingPts[1]);
             }
             endShape(CLOSE);
+
+            if (surface.getType() == SurfaceType.FOREST) {
+                for (Tree tree : ((ForestSurface) surface).getTrees()) {
+                    int[] treeColor = DrawingConstants.TREE_COLOR;
+                    fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
+                    double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
+                            env.getTerrain().getHeightFromPos(tree.getX(), tree.getY()));
+                    circle((float) drawingPosition[0], (float) drawingPosition[1],
+                            (float) (tree.getRadius() * 2 * camera.getZoom()));
+                }
+            }
         }
 
         // Dead troops
@@ -587,7 +597,7 @@ public class MainSimulation extends PApplet {
                         unitSelected.getNumAlives()) * unitSelected.getUnitStats().spacing;
                 double depthDistance = unitSelected.getNumAlives() * unitSelected.getUnitStats().spacing *
                         unitSelected.getUnitStats().spacing / frontlineWidth;
-                fill(color[0], color[1], color[2], DrawingUtils.COLOR_ALPHA_UNIT_SELECTION);
+                fill(color[0], color[1], color[2], DrawingConstants.COLOR_ALPHA_UNIT_SELECTION);
 
                 // Formation shape
                 double[] pts1 = camera.getDrawingPosition(rightClickActualX, rightClickActualY);
@@ -729,7 +739,7 @@ public class MainSimulation extends PApplet {
                 image(banner,
                         (float) (drawingPos[0] - 42),
                         (float) (drawingPos[1] - 111), 84, 111);
-                int[] moraleColor = DrawingUtils.COLOR_MORALE;
+                int[] moraleColor = DrawingConstants.COLOR_MORALE;
                 fill(moraleColor[0], moraleColor[1], moraleColor[2], moraleColor[3]);
                 rect((float) (drawingPos[0] - 28), (float) (drawingPos[1] - 32),
                         (float) (56 * unit.getMorale() / GameplayConstants.BASE_MORALE), 8);
@@ -1312,10 +1322,10 @@ public class MainSimulation extends PApplet {
                     pushMatrix();
                     translate((float) drawingPos1[0], (float) drawingPos1[1]);
                     rotate((float) -camera.getAngle());
-                    fill(DrawingUtils.COLOR_TERRAIN_DOT[0],
-                            DrawingUtils.COLOR_TERRAIN_DOT[1],
-                            DrawingUtils.COLOR_TERRAIN_DOT[2],
-                            (float) (DrawingUtils.COLOR_TERRAIN_DOT[3] * terrain.getHeightFromTileIndex(i, j) / (terrain.getMaxZ() - terrain.getMinZ())));
+                    fill(DrawingConstants.COLOR_TERRAIN_DOT[0],
+                            DrawingConstants.COLOR_TERRAIN_DOT[1],
+                            DrawingConstants.COLOR_TERRAIN_DOT[2],
+                            (float) (DrawingConstants.COLOR_TERRAIN_DOT[3] * terrain.getHeightFromTileIndex(i, j) / (terrain.getMaxZ() - terrain.getMinZ())));
                     rect(0, 0, (float) (terrain.getDiv() * camera.getZoom()),
                             (float) (terrain.getDiv() * camera.getZoom()));
                     popMatrix();
@@ -1333,8 +1343,8 @@ public class MainSimulation extends PApplet {
         int maxY = gridLimits[3];
         noFill();
         strokeWeight(1);
-        int[] color = DrawingUtils.COLOR_TERRAIN_LINE;
-        stroke(color[0], color[1], color[2], DrawingUtils.COLOR_TERRAIN_LINE_MIN_ALPHA);
+        int[] color = DrawingConstants.COLOR_TERRAIN_LINE;
+        stroke(color[0], color[1], color[2], DrawingConstants.COLOR_TERRAIN_LINE_MIN_ALPHA);
         for (int i = minX; i < maxX; i++) {
             beginShape();
             // Begin line
@@ -1352,7 +1362,9 @@ public class MainSimulation extends PApplet {
 
                 // Draw line
                 stroke(color[0], color[1], color[2],
-                        (float) ((nextZ - terrain.getMinZ()) / (terrain.getMaxZ() - terrain.getMinZ()) * DrawingUtils.COLOR_TERRAIN_LINE_ALPHA_RANGE + DrawingUtils.COLOR_TERRAIN_LINE_MIN_ALPHA));
+                        (float) ((nextZ - terrain.getMinZ()) / (terrain.getMaxZ() - terrain.getMinZ()) *
+                                DrawingConstants.COLOR_TERRAIN_LINE_ALPHA_RANGE +
+                                DrawingConstants.COLOR_TERRAIN_LINE_MIN_ALPHA));
                 vertex((float) drawNext[0], (float) drawNext[1]);
             }
             endShape();
@@ -1374,7 +1386,10 @@ public class MainSimulation extends PApplet {
                 double[] drawNext = camera.getDrawingPosition(nextPos[0], nextPos[1], nextZ);
 
                 // Draw line
-                stroke(color[0], color[1], color[2], (float) ((nextZ - terrain.getMinZ()) / (terrain.getMaxZ() - terrain.getMinZ()) *  DrawingUtils.COLOR_TERRAIN_LINE_ALPHA_RANGE + DrawingUtils.COLOR_TERRAIN_LINE_MIN_ALPHA));
+                stroke(color[0], color[1], color[2],
+                        (float) ((nextZ - terrain.getMinZ()) / (terrain.getMaxZ() - terrain.getMinZ()) *
+                                DrawingConstants.COLOR_TERRAIN_LINE_ALPHA_RANGE +
+                                DrawingConstants.COLOR_TERRAIN_LINE_MIN_ALPHA));
                 vertex((float) drawNext[0], (float) drawNext[1]);
             }
             endShape();
@@ -1651,11 +1666,11 @@ public class MainSimulation extends PApplet {
         int index = single.getUnit().getTroopIndex(single);
         if (env.getGameSettings().isBorderInwardCollision() && drawingSettings.isDrawTroopInDanger() &&
             single.getUnit().getInDanger()[index / single.getUnit().getWidth()][index % single.getUnit().getWidth()]) {
-            modifiedColor = DrawingUtils.COLOR_IN_DANGER;
+            modifiedColor = DrawingConstants.COLOR_IN_DANGER;
         }
 
         if (drawingSettings.isDrawTroopInPosition() && single.isInPosition()) {
-            modifiedColor = DrawingUtils.COLOR_IN_POSITION;
+            modifiedColor = DrawingConstants.COLOR_IN_POSITION;
         }
 
         // Draw the single based on the type of the unit.
@@ -1975,7 +1990,7 @@ public class MainSimulation extends PApplet {
         double angle = camera.getDrawingAngle(single.getFacingAngle());
 
         // Fill with color of dead
-        int[] color = DrawingUtils.COLOR_DEAD;
+        int[] color = DrawingConstants.COLOR_DEAD;
         fill(color[0], color[1], color[2], color[3]);
 
         if (single instanceof CavalrySingle) {

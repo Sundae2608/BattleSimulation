@@ -15,35 +15,39 @@
 {
     type: FOREST
     boundary_points: -1400 700
-    boundary_points: -1400 1050
-    boundary_points: 1050 1050
-    boundary_points: 1050 800
+    boundary_points: -1400 2550
+    boundary_points: 1050 2550
+    boundary_points: 1050 700
+    average_tree_radius: 45
+    size_wiggling: 10
+    average_distance: 250
+    distance_wiggling: 60
 },
 {
     type: MARSH
-    boundary_points: -1400 1100
-    boundary_points: -1400 1450
-    boundary_points: 1050 1450
-    boundary_points: 1050 1100
+    boundary_points: -1400 2600
+    boundary_points: -1400 2950
+    boundary_points: 1050 2950
+    boundary_points: 1050 2600
 },
 {
     type: RIVERSIDE
-    boundary_points: -1400 1500
-    boundary_points: -1400 1850
-    boundary_points: 1050 1850
-    boundary_points: 1050 1500
+    boundary_points: -1400 2900
+    boundary_points: -1400 3250
+    boundary_points: 1050 3250
+    boundary_points: 1050 2900
 },
 {
     type: SHALLOW_RIVER
-    boundary_points: -1400 1900
-    boundary_points: -1400 2250
-    boundary_points: 1050 2250
-    boundary_points: 1050 1900
+    boundary_points: -1400 3400
+    boundary_points: -1400 3750
+    boundary_points: 1050 3750
+    boundary_points: 1050 3400
 },
 {
     type: SNOW
-    boundary_points: -1400 2300
-    boundary_points: -1400 2650
-    boundary_points: 1050 2650
-    boundary_points: 1050 2300
+    boundary_points: -1400 3700
+    boundary_points: -1400 4050
+    boundary_points: 1050 4050
+    boundary_points: 1050 3700
 },
