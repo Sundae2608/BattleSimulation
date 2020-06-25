@@ -1,0 +1,53 @@
+{
+    type: BEACH
+    boundary_points: -1400 -100
+    boundary_points: -1400 250
+    boundary_points: 1050 250
+    boundary_points: 1050 -100
+},
+{
+    type: DESERT
+    boundary_points: -1400 300
+    boundary_points: -1400 650
+    boundary_points: 1050 650
+    boundary_points: 1050 300
+},
+{
+    type: FOREST
+    boundary_points: -1400 700
+    boundary_points: -1400 2550
+    boundary_points: 1050 2550
+    boundary_points: 1050 700
+    average_tree_radius: 45
+    size_wiggling: 10
+    average_distance: 250
+    distance_wiggling: 60
+},
+{
+    type: MARSH
+    boundary_points: -1400 2600
+    boundary_points: -1400 2950
+    boundary_points: 1050 2950
+    boundary_points: 1050 2600
+},
+{
+    type: RIVERSIDE
+    boundary_points: -1400 2900
+    boundary_points: -1400 3250
+    boundary_points: 1050 3250
+    boundary_points: 1050 2900
+},
+{
+    type: SHALLOW_RIVER
+    boundary_points: -1400 3400
+    boundary_points: -1400 3750
+    boundary_points: 1050 3750
+    boundary_points: 1050 3400
+},
+{
+    type: SNOW
+    boundary_points: -1400 3700
+    boundary_points: -1400 4050
+    boundary_points: 1050 4050
+    boundary_points: 1050 3700
+},

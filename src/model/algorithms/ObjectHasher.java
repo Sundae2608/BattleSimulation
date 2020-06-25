@@ -11,7 +11,7 @@ public class ObjectHasher {
     private int yDiv;
     private ArrayList<BaseObject> objects;
 
-    // Hash view.map containing
+    // Hash map containing
     private HashMap<Long, ArrayList<BaseObject>> hashMap;
 
     public ObjectHasher(int xDivision, int yDivision) {

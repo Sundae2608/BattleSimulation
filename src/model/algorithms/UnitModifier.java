@@ -14,6 +14,8 @@ import model.objects.BaseObject;
 import model.objects.Stone;
 import model.settings.GameSettings;
 import model.singles.*;
+import model.surface.BaseSurface;
+import model.surface.Tree;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.enums.UnitState;
@@ -32,6 +34,7 @@ public class UnitModifier {
     private ObjectHasher objectHasher;
     private TroopHasher troopHasher;
     private ConstructHasher constructHasher;
+    private SurfaceHasher surfaceHasher;
     private ArrayList<BaseSingle> deadContainer;
     private HashSet<BaseUnit> unitToBeRemoved;
     private EventBroadcaster broadcaster;
@@ -39,14 +42,15 @@ public class UnitModifier {
     GameSettings gameSettings;
     Terrain terrain;
     ArrayList<Construct> constructs;
+    ArrayList<BaseSurface> surfaces;
     HashMap<BaseUnit, Integer> recentlyChargedUnit;
 
     // Memoization of distance between model.units.
     private double[][] distanceMemo;
 
     public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain,
-                        ArrayList<Construct> inputConstructs, GameSettings inputSettings,
-                        EventBroadcaster inputBroadcaster) {
+                        ArrayList<Construct> inputConstructs, ArrayList<BaseSurface> inputSurfaces,
+                        GameSettings inputSettings, EventBroadcaster inputBroadcaster) {
         broadcaster = inputBroadcaster;
         objectHasher = new ObjectHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV);
         troopHasher = new TroopHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, inputSettings);
@@ -56,7 +60,9 @@ public class UnitModifier {
         gameSettings = inputSettings;
         terrain = inputTerrain;
         constructs = inputConstructs;
+        surfaces = inputSurfaces;
         constructHasher = new ConstructHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, constructs);
+        surfaceHasher = new SurfaceHasher(UniversalConstants.X_HASH_DIV_SURFACE_TREES, UniversalConstants.Y_HASH_DIV_SURFACE_TREES, surfaces);
 
         // Initialize distance memo
         distanceMemo = new double[8][8];
@@ -87,14 +93,16 @@ public class UnitModifier {
 
         // Then apply modifiers
         modifyObjectsCollision();
+        modifyTroopsCollisionWithSurfaces();
         modifyTroopsCollision();
         modifyCombat();
-        modifyTroopsConstructsCollision();
         modifyUnitState();
+        modifyTroopsTreesCollision();
+        modifyTroopsConstructsCollision();
     }
 
     /**
-     * Modify collisions between troops and constructs
+     * Modify collisions between troops and constructs.
      */
     private void modifyTroopsConstructsCollision() {
         for (BaseSingle single : troopHasher.getActiveTroops()) {
@@ -103,6 +111,37 @@ public class UnitModifier {
             for (Construct construct : candidateConstructs) {
                 if (PhysicUtils.checkConstructAndTroopPositionCollision(construct, single)) {
                     PhysicUtils.constructPushSingle(construct, single);
+                }
+            }
+        }
+    }
+
+    /**
+     * Modify collisions between troops and trees.
+     */
+    private void modifyTroopsTreesCollision() {
+        for (BaseSingle single : troopHasher.getActiveTroops()) {
+            ArrayList<Tree> trees =
+                    surfaceHasher.getCandidateTrees(single.getX(), single.getY());
+            if (trees == null) continue;
+            for (Tree tree : trees) {
+                if (PhysicUtils.checkPointCircleCollision(single.getX(), single.getY(), tree.getX(), tree.getY(), tree.getRadius())) {
+                    PhysicUtils.treePushSingle(tree, single);
+                }
+            }
+        }
+    }
+
+    /**
+     * Modify collisions between objects and troops (arrow, spear tip)
+     */
+    private void modifyTroopsCollisionWithSurfaces() {
+        for (BaseSingle single : troopHasher.getActiveTroops()) {
+            ArrayList<BaseSurface> candidateSurfaces =
+                    surfaceHasher.getCandidateSurfaces(single.getX(), single.getY());
+            for (BaseSurface surface : candidateSurfaces) {
+                if (PhysicUtils.checkSurfaceAndTroopPositionCollision(surface, single)) {
+                    surface.impactSingle(single);
                 }
             }
         }

@@ -164,8 +164,6 @@ public class BaseUnit {
         // Reset the width and depth
         width = newWidth;
         depth = (int) Math.ceil(1.0 * troops.size() / width);
-        System.out.println(width);
-        System.out.println(depth);
 
         // Change the troops formation
         BaseSingle[][] newFormation = new BaseSingle[depth][width];
@@ -220,10 +218,6 @@ public class BaseUnit {
         anchorX = xGoal;
         anchorY = yGoal;
         anchorAngle = angleGoal;
-
-        // Print formation before
-        System.out.println("Before");
-        System.out.println(DebugUtils.formationString(this));
 
         // Change unit state to moving, reset patience and ignore unit fought against
         state = UnitState.MOVING;
@@ -625,7 +619,7 @@ public class BaseUnit {
                         UniversalConstants.MAXIMUM_TERRAIN_EFFECT);
                 moveSpeed *= (1 + speedModifier);
 
-                if (MathUtils.equal(moveAngle, anchorAngle)) {
+                if (MathUtils.doubleEqual(moveAngle, anchorAngle)) {
                     isTurning = false;
                 } else {
                     isTurning = true;

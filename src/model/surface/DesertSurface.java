@@ -1,10 +1,13 @@
 package model.surface;
 
+import model.enums.SurfaceType;
 import model.singles.BaseSingle;
 
+import java.util.ArrayList;
+
 public class DesertSurface extends BaseSurface {
-    public DesertSurface(double[][] points) {
-        super(points);
+    public DesertSurface(SurfaceType type, ArrayList<double[]> points) {
+        super(type, points);
     }
 
     @Override

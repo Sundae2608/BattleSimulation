@@ -28,4 +28,7 @@ public class GameplayConstants {
 
     // How many frame without engaging the enemy before the front-liner turns into a flanker.
     public final static double FLANKER_PATIENT = 100;
+
+    // Slow down by different environment
+    public final static double SURFACE_BEACH_SLOWDOWN = 1.0;
 }

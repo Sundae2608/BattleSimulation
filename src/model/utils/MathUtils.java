@@ -59,7 +59,7 @@ public final class MathUtils {
     /**
      * Compare if two doubles are equal. They are essentially equal if their diff < 1e-6
      */
-    public static boolean equal(double a, double b) {
+    public static boolean doubleEqual(double a, double b) {
         double diff = Math.abs(a - b);
         return diff < MathUtils.EPSILON;
     }
@@ -323,6 +323,13 @@ public final class MathUtils {
 
     /**
      * Return the length of the vector.
+     */
+    public static double norm(double x, double y) {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    /**
+     * Return the length of the vector using quick root function
      */
     public static double quickNorm(double x, double y) {
         return quickRoot2((float) (x * x + y * y));

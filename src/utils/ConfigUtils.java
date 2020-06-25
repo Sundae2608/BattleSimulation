@@ -5,9 +5,11 @@ import model.algorithms.ObjectHasher;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.enums.PoliticalFaction;
+import model.enums.SurfaceType;
 import model.enums.UnitType;
 import model.events.EventBroadcaster;
 import model.singles.SingleStats;
+import model.surface.*;
 import model.terrain.Terrain;
 import model.units.*;
 import model.units.unit_stats.UnitStats;
@@ -406,6 +408,82 @@ public final class ConfigUtils {
             constructs.add(new Construct(name, pts));
         }
         return constructs;
+    }
+
+    /**
+     * Create constructs from config file.
+     */
+    public static ArrayList<BaseSurface> createSurfacesFromConfig(String filePath) throws IOException {
+        // Get all text from file location
+        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
+        String s = new String(encoded, StandardCharsets.UTF_8);
+        // The first object will be the map creation parameter.
+        String[] objects = s.split(",");
+
+        // Each of the next object will be a construct with a boundary.
+        ArrayList<BaseSurface> surfaces = new ArrayList<>();
+        for (int i = 0; i < objects.length; i++) {
+            String[] infoLines = objects[i].split("\n");
+            SurfaceType type = null;
+            ArrayList<double[]> pts = new ArrayList<>();
+            double averageTreeRadius = 0.0;
+            double sizeWiggling = 0.0;
+            double averageDistance = 0.0;
+            double distanceWiggling = 0.0;
+            for (int j = 0; j < infoLines.length; j++) {
+                String line = infoLines[j];
+                String[] data = line.split(":");
+                String fieldName = data[0].trim();
+                if (data.length < 2) continue;
+                if (fieldName.equals("type")) {
+                    type = SurfaceType.valueOf(data[1].trim());
+                } else if (fieldName.equals("boundary_points")) {
+                    String[] ptData = data[1].trim().split(" ");
+                    double[] pt = new double[]{Double.valueOf(ptData[0]), Double.valueOf(ptData[1])};
+                    pts.add(pt);
+                } else if (fieldName.equals("average_tree_radius")) {
+                    averageTreeRadius = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("size_wiggling")) {
+                    sizeWiggling = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("average_distance")) {
+                    averageDistance = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("distance_wiggling")) {
+                    distanceWiggling = Double.valueOf(data[1].trim());
+                }
+            }
+
+            // Based on the surface type, create the surface and add to the surface array.
+            BaseSurface surface = null;
+            switch (type) {
+                case SNOW:
+                    surface = new SnowSurface(type, pts);
+                    break;
+                case BEACH:
+                    surface = new BeachSurface(type, pts);
+                    break;
+                case MARSH:
+                    surface = new MarshSurface(type, pts);
+                    break;
+                case DESERT:
+                    surface = new DesertSurface(type, pts);
+                    break;
+                case FOREST:
+                    surface = new ForestSurface(
+                            type, pts, averageTreeRadius, sizeWiggling, averageDistance, distanceWiggling);
+                    break;
+                case RIVERSIDE:
+                    surface = new RiversideSurface(type, pts);
+                    break;
+                case SHALLOW_RIVER:
+                    surface = new ShallowRiverSurface(type, pts);
+                    break;
+                default:
+                    break;
+            }
+            System.out.println(type);
+            if (surface != null) surfaces.add(surface);
+        }
+        return surfaces;
     }
 
     /**

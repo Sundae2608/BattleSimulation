@@ -5,6 +5,8 @@ public class UniversalConstants {
     // Hashing div
     public final static int X_HASH_DIV = 25;
     public final static int Y_HASH_DIV = 25;
+    public final static int X_HASH_DIV_SURFACE_TREES = 300;
+    public final static int Y_HASH_DIV_SURFACE_TREES = 300;
 
     // ---------------------------
     // Universal physics constants
