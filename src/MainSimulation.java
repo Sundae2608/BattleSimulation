@@ -527,11 +527,12 @@ public class MainSimulation extends PApplet {
             if (surface.getType() == SurfaceType.FOREST) {
                 for (Tree tree : ((ForestSurface) surface).getTrees()) {
                     int[] treeColor = DrawingConstants.TREE_COLOR;
+                    double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
                     fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
                     double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
-                            env.getTerrain().getHeightFromPos(tree.getX(), tree.getY()));
+                            height);
                     circle((float) drawingPosition[0], (float) drawingPosition[1],
-                            (float) (tree.getRadius() * 2 * camera.getZoom()));
+                            (float) (tree.getRadius() * 2 * camera.getZoomAtHeight(height)));
                 }
             }
         }
