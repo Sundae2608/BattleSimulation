@@ -280,7 +280,7 @@ public class MainSimulation extends PApplet {
         // -------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
+        String battleConfig = "src/configs/battle_configs/BattleConfig.txt";
         String mapConfig = "src/configs/map_configs/MapConfig.txt";
         String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
         String surfaceConfig = "src/configs/surface_configs/SurfaceConfig.txt";
@@ -989,7 +989,6 @@ public class MainSimulation extends PApplet {
     }
 
     public static void main(String... args){
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         PApplet.main("MainSimulation");
     }
 
