@@ -60,7 +60,6 @@ public class ForestSurface extends BaseSurface {
                     break;
                 }
                 currY = minY + (row % 2) * averageDistance / 2;
-                System.out.println(String.valueOf(currX) + " " + String.valueOf(currY));
             }
         }
     }

@@ -2,6 +2,9 @@ package view.constants;
 
 public class DrawingConstants {
 
+    // Good black. When in doubt, use this color
+    public final static int[] COLOR_GOOD_BLACK = {25, 25, 25, 255};
+
     // Faction colors
     public final static int[] COLOR_UNKNOWN = {128, 128, 128, 255};  // #808080
     public final static int[] COLOR_ROMAN = {191, 73, 68, 255};      // #BF4944
@@ -28,10 +31,6 @@ public class DrawingConstants {
     public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
     public final static int COLOR_ALPHA_UNIT_SELECTION = 170;
 
-
-    // Construct colors
-    public final static int[] CONSTRUCT_COLOR = {25, 25, 25, 0};
-
     // Surface colors
     public final static int[] SURFACE_COLOR_DEFAULT = {25, 25, 25, 128};
     public final static int[] SURFACE_COLOR_BEACH = {235, 215, 109, 128};
@@ -45,6 +44,9 @@ public class DrawingConstants {
 
     // Unit size color
     public final static float[] UNIT_SIZE_COLOR = {0, 0, 0, 25};
+
+    // Anchor arrow size
+    public final static int ANCHOR_ARROW_SIZE = 100;
 
     // Grid scale
     public final static float GRID_SIZE = 500;
