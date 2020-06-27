@@ -480,7 +480,6 @@ public final class ConfigUtils {
                 default:
                     break;
             }
-            System.out.println(type);
             if (surface != null) surfaces.add(surface);
         }
         return surfaces;

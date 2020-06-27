@@ -282,7 +282,7 @@ public class MainSimulation extends PApplet {
         // Create a new game based on the input configurations.
         String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
         String mapConfig = "src/configs/map_configs/MapConfig.txt";
-        String constructsConfig = "src/configs/construct_configs/ConstructsConfig.txt";
+        String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
         String surfaceConfig = "src/configs/surface_configs/SurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
@@ -527,11 +527,12 @@ public class MainSimulation extends PApplet {
             if (surface.getType() == SurfaceType.FOREST) {
                 for (Tree tree : ((ForestSurface) surface).getTrees()) {
                     int[] treeColor = DrawingConstants.TREE_COLOR;
+                    double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
                     fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
                     double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
-                            env.getTerrain().getHeightFromPos(tree.getX(), tree.getY()));
+                            height);
                     circle((float) drawingPosition[0], (float) drawingPosition[1],
-                            (float) (tree.getRadius() * 2 * camera.getZoom()));
+                            (float) (tree.getRadius() * 2 * camera.getZoomAtHeight(height)));
                 }
             }
         }
@@ -678,6 +679,20 @@ public class MainSimulation extends PApplet {
             }
         }
 
+        // Draw the arrow direction of the unit
+        for (BaseUnit unit : env.getUnits()) {
+            double unitX = MathUtils.quickCos((float) unit.getAnchorAngle());
+            double unitY = MathUtils.quickSin((float) unit.getAnchorAngle());
+            int[] color = DrawingConstants.COLOR_GOOD_BLACK;
+            fill(color[0], color[1], color[2], color[3]);
+            drawArrowPlanAtHeight(
+                    unit.getAnchorX(), unit.getAnchorY(),
+                    unit.getAnchorX() + unitX * DrawingConstants.ANCHOR_ARROW_SIZE,
+                    unit.getAnchorY() + unitY * DrawingConstants.ANCHOR_ARROW_SIZE,
+                    env.getTerrain().getHeightFromPos(unit.getAnchorX(), unit.getAnchorY()),
+                    camera, drawingSettings);
+        }
+
         // Draw the objects
         ArrayList<BaseObject> objects = env.getUnitModifier().getObjectHasher().getObjects();
         for (BaseObject obj : objects) {
@@ -686,7 +701,7 @@ public class MainSimulation extends PApplet {
 
         // Draw the construct.
         for (Construct construct : env.getConstructs()) {
-            int[] constructColor = DrawingConstants.CONSTRUCT_COLOR;
+            int[] constructColor = DrawingConstants.COLOR_GOOD_BLACK;
             fill(constructColor[0], constructColor[1], constructColor[2]);
             double[][] pts = construct.getBoundaryPoints();
             beginShape();
@@ -1474,6 +1489,37 @@ public class MainSimulation extends PApplet {
      * | |__| | | | | | |_\__ \ | |__| | | | (_| |\ V  V /  __/ |
      *  \____/|_| |_|_|\__|___/ |_____/|_|  \__,_| \_/\_/ \___|_|
      */
+
+    /**
+     * Draw unit arrow plan. This arrow indicates the potential position that the unit is moving to.
+     */
+    void drawArrowPlanAtHeight(double beginX, double beginY, double endX, double endY, double height, Camera camera,
+                               DrawingSettings settings) {
+        double angle = MathUtils.atan2(endY - beginY, endX - beginX);
+        double rightAngle = angle + Math.PI / 2;
+
+        double upUnitX = MathUtils.quickCos((float) angle) * DrawingConstants.ARROW_SIZE;
+        double upUnitY = MathUtils.quickSin((float) angle) * DrawingConstants.ARROW_SIZE;
+        double rightUnitX = MathUtils.quickCos((float) rightAngle) * DrawingConstants.ARROW_SIZE;
+        double rightUnitY = MathUtils.quickSin((float) rightAngle) * DrawingConstants.ARROW_SIZE;
+
+        double[][] arrow = {
+                {beginX + rightUnitX * 0.8, beginY + rightUnitY * 0.8},
+                {endX + rightUnitX * 0.66 - upUnitX * 2.4, endY + rightUnitY * 0.66 - upUnitY * 2.4},
+                {endX + rightUnitX * 1.66 - upUnitX * 3, endY + rightUnitY * 1.66 - upUnitY * 3},
+                {endX, endY},
+                {endX - rightUnitX * 1.66 - upUnitX * 3, endY - rightUnitY * 1.66 - upUnitY * 3},
+                {endX - rightUnitX * 0.66 - upUnitX * 2.4, endY - rightUnitY * 0.66 - upUnitY * 2.4},
+                {beginX - rightUnitX * 0.8, beginY - rightUnitY * 0.8},
+        };
+
+        beginShape();
+        for (int i = 0; i < arrow.length; i++) {
+            double[] drawingPosition = camera.getDrawingPosition(arrow[i][0], arrow[i][1], height);
+            vertex((float) drawingPosition[0], (float) drawingPosition[1]);
+        }
+        endShape(CLOSE);
+    }
 
     /**
      * Draw unit arrow plan. This arrow indicates the potential position that the unit is moving to.

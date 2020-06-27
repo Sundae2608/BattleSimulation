@@ -13,7 +13,6 @@ import model.units.unit_stats.UnitStats;
 import model.utils.GameplayUtils;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
-import utils.DebugUtils;
 
 import java.util.*;
 
@@ -146,6 +145,12 @@ public class BaseUnit {
             ((ArcherUnit) this).generatePositionalVariation(troops.size());
         }
 
+        // Reset anchor angles
+        anchorAngle = MathUtils.atan2(yGoal - averageY, xGoal - averageX);
+        anchorX = averageX + MathUtils.quickCos((float) anchorAngle) * depth * unitStats.spacing / 2;
+        anchorY = averageY + MathUtils.quickSin((float) anchorAngle) * depth * unitStats.spacing / 2;
+        reorderTroops(anchorX, anchorY, anchorAngle);
+
         // Decision has a random delay until it reaches the soldiers ear.
         for (int i = 0; i < troops.size(); i++) {
             // Set the goal and change the state
@@ -204,12 +209,80 @@ public class BaseUnit {
     }
 
     /**
-     * Regroup a unit to a specific position after routing.
+     * Reorder a unit to a specific position. Unit might reshuffle the order so that their new formation conveniently
+     * heads toward angleGoal.
      * @param xGoal x-coordinate of the position to go to
      * @param yGoal y-coordinate of the position to go to
      * @param angleGoal angle of the unit at the final position
      */
-    private void regroupAfterRoutTo(double xGoal, double yGoal, double angleGoal) {
+    private void reorderTroops(double xGoal, double yGoal, double angleGoal) {
+
+        // Set the goals
+        anchorX = xGoal;
+        anchorY = yGoal;
+        anchorAngle = angleGoal;
+
+        // Change unit state to moving, reset patience and ignore unit fought against
+        state = UnitState.MOVING;
+        currUnitPatience = unitStats.patience; // Reset patience.
+        unitFoughtAgainst = null;
+
+        // Re-order troops position.
+        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsMap.keySet());
+
+        // First, sort position from furthest forward to furthest backward.
+        MathUtils.sortSinglesByAngle(aliveArray, -angleGoal + Math.PI);
+
+        // Take each row, sort each row from furthest leftward to furthest rightward, and then put them into the correct
+        // position in the array
+        int numRows = (int) Math.ceil(1.0 * aliveArray.size() / width);
+        for (int row = 0; row < numRows; row++) {
+            // Sort the row from leftward to right ward
+            int beginIndex = row * width;
+            int endIndex = Math.min(aliveArray.size(), (row + 1) * width);
+            ArrayList<BaseSingle> rowTroops = new ArrayList<>();
+            for (int col = beginIndex; col < endIndex; col++) {
+                rowTroops.add(aliveArray.get(col));
+            }
+            MathUtils.sortSinglesByAngle(rowTroops, -angleGoal - MathUtils.PIO2);
+
+            // Assign the troops to each row and reset their index
+            int offsetFromLeft;
+            if (row < numRows - 1) {
+                offsetFromLeft = 0;
+            } else {
+                int numLastRow = getNumAlives() - (width * (numRows - 1));
+                offsetFromLeft = (width - numLastRow) / 2;
+            }
+            for (int j = 0; j < rowTroops.size(); j++) {
+                aliveTroopsFormation[row][offsetFromLeft + j] = rowTroops.get(j);
+                aliveTroopsMap.put(rowTroops.get(j), row * width + offsetFromLeft + j);
+            }
+        }
+
+        if (this instanceof ArcherUnit) {
+            ((ArcherUnit) this).generatePositionalVariation(troops.size());
+        }
+
+        // Decision has a random delay until it reaches the soldiers ear.
+        for (int i = 0; i < troops.size(); i++) {
+            // Set the goal and change the state
+            BaseSingle troop = troops.get(i);
+            troop.setDecisionDelay(MathUtils.randint(2, 20));
+        }
+
+        // Reset the flankers
+        resetFlanker();
+    }
+
+    /**
+     * Regroup a unit to a specific position. Unit might reshuffle the order so that their new formation conveniently
+     * heads toward angleGoal.
+     * @param xGoal x-coordinate of the position to go to
+     * @param yGoal y-coordinate of the position to go to
+     * @param angleGoal angle of the unit at the final position
+     */
+    private void repositionTo(double xGoal, double yGoal, double angleGoal) {
 
         // Set the goals
         goalX = xGoal;
@@ -716,7 +789,7 @@ public class BaseUnit {
                 single.switchState(SingleState.ROUTING);
             }
         } else if (state == UnitState.ROUTING && morale > GameplayConstants.RECOVER_MORALE) {
-            this.regroupAfterRoutTo(averageX, averageY, goalAngle);
+            this.repositionTo(averageX, averageY, goalAngle);
             for (BaseSingle single : aliveTroopsMap.keySet()) {
                 single.switchState(SingleState.MOVING);
             }

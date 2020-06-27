@@ -1,0 +1,139 @@
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 12530 11400
+    boundary_points: 13740 11890
+    boundary_points: 14580 12530
+    boundary_points: 15160 12650
+    boundary_points: 14740 13130
+    boundary_points: 11920 14700
+    boundary_points: 10050 15380
+    boundary_points: 8000 16380
+    boundary_points: 6970 18180
+    boundary_points: 6830 16640
+    boundary_points: 7120 15020
+    boundary_points: 9200 13960
+    boundary_points: 11000 13290
+    boundary_points: 12120 12270
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 18300 14160
+    boundary_points: 19460 14040
+    boundary_points: 20750 14840
+    boundary_points: 20980 17190
+    boundary_points: 19640 18120
+    boundary_points: 18960 19110
+    boundary_points: 17980 18840
+    boundary_points: 17880 17270
+    boundary_points: 17240 15350
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 14110 16280
+    boundary_points: 14790 18120
+    boundary_points: 15080 20380
+    boundary_points: 15890 21220
+    boundary_points: 16650 20910
+    boundary_points: 17380 21220
+    boundary_points: 17670 22220
+    boundary_points: 16800 23160
+    boundary_points: 15870 23520
+    boundary_points: 15160 24300
+    boundary_points: 13320 23520
+    boundary_points: 12990 21220
+    boundary_points: 10710 19810
+    boundary_points: 10550 18200
+    boundary_points: 11690 17730
+    boundary_points: 13050 16660
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 8370 20520
+    boundary_points: 9900 22570
+    boundary_points: 10570 25350
+    boundary_points: 11710 26470
+    boundary_points: 12770 26580
+    boundary_points: 14490 27180
+    boundary_points: 14050 28930
+    boundary_points: 13130 29650
+    boundary_points: 11260 28710
+    boundary_points: 6810 28280
+    boundary_points: 5760 27330
+    boundary_points: 5390 22540
+    boundary_points: 6470 21290
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 26290 14040
+    boundary_points: 28960 15090
+    boundary_points: 28450 16950
+    boundary_points: 26020 17480
+    boundary_points: 23420 16810
+    boundary_points: 23250 15600
+    boundary_points: 23250 14480
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 23310 19110
+    boundary_points: 25150 18740
+    boundary_points: 25850 21460
+    boundary_points: 25330 23410
+    boundary_points: 24070 23610
+    boundary_points: 22520 22930
+    boundary_points: 20780 23150
+    boundary_points: 20540 22990
+    boundary_points: 20960 21900
+    boundary_points: 21230 20260
+    boundary_points: 22520 19310
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 28130 19580
+    boundary_points: 29410 19110
+    boundary_points: 30640 21300
+    boundary_points: 30860 24640
+    boundary_points: 31300 27200
+    boundary_points: 32140 29370
+    boundary_points: 31560 31300
+    boundary_points: 30140 31100
+    boundary_points: 28380 28380
+    boundary_points: 28240 25290
+    boundary_points: 28740 22250
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 17810 25860
+    boundary_points: 20090 25600
+    boundary_points: 22220 25800
+    boundary_points: 23850 26530
+    boundary_points: 25360 26550
+    boundary_points: 25720 29540
+    boundary_points: 26240 30430
+    boundary_points: 22980 31690
+    boundary_points: 20670 31190
+    boundary_points: 18460 31300
+    boundary_points: 15560 30830
+    boundary_points: 16630 28780
+    boundary_points: 17240 26830
+},
+{
+    type: construct
+    name: Roman forum
+    boundary_points: 27330 32640
+    boundary_points: 28640 32800
+    boundary_points: 29340 34180
+    boundary_points: 28900 35460
+    boundary_points: 26880 35720
+    boundary_points: 25690 35720
+    boundary_points: 24390 33770
+    boundary_points: 24050 33910
+    boundary_points: 26000 33400
+}
