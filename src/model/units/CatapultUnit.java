@@ -95,7 +95,7 @@ public class CatapultUnit extends BaseUnit {
 
         // Update troops goal positions
         for (int i = 0; i < aliveTroopsFormation.length; i++) {
-            for (int j = 0; j < aliveTroopsFormation[0].length; i++) {
+            for (int j = 0; j < aliveTroopsFormation[0].length; j++) {
                 if (aliveTroopsFormation[i][j] == null) continue;
                 double xGoalSingle = topX + j * unitStats.spacing * sideUnitX
                         + (i * unitStats.spacing) * downUnitX;
