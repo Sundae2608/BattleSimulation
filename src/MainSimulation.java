@@ -1645,7 +1645,6 @@ public class MainSimulation extends PApplet {
         if (!DrawingUtils.drawable(drawX, drawY, INPUT_WIDTH, INPUT_HEIGHT)) return;
 
         // If it's drawable, draw the alive unit and potentially add some sound
-        soundAliveSingle(single);
         if (drawingSettings.isInPositionOptimization() &&
                 camera.getZoomAtHeight(singleZ) < CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE &&
                 single.isInPosition() && !single.isInDanger()) {
@@ -1663,25 +1662,10 @@ public class MainSimulation extends PApplet {
     }
 
     /**
-     * Add sound created by the alive troop. These will include attack, defend and pain sounds.
-     */
-    void soundAliveSingle(BaseSingle single) {
-
-        // If sound effect not turned on don't play anything
-        if (!audioSettings.isSoundEffect()) return;
-
-        // Pain sound if the unit just got hit
-        if (MathUtils.randUniform() < AudioConstants.SCREAM_TENDENCY) {
-            if (single.getJustHit() > 0) {
-                // Perform pain sound here.
-            }
-        }
-    }
-
-    /**
      * Draw alive unit
      */
-    void drawAliveSingle(double drawX, double drawY, double zoomAdjustment, BaseSingle single, Camera camera, DrawingSettings settings, boolean hovered) {
+    void drawAliveSingle(double drawX, double drawY, double zoomAdjustment, BaseSingle single, Camera camera,
+                         DrawingSettings settings, boolean hovered) {
 
         // Check if the object is drawable. If not, don't portray it.
         if (!DrawingUtils.drawable(drawX, drawY, INPUT_WIDTH, INPUT_HEIGHT)) return;
