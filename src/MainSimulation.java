@@ -12,9 +12,7 @@ import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.surface.Tree;
 import model.terrain.Terrain;
-import org.opencv.core.Core;
 import utils.ConfigUtils;
-import view.audio.AudioConstants;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.CameraConstants;
@@ -41,7 +39,6 @@ import view.settings.AudioSettings;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
 import view.settings.RenderMode;
-import view.terrain.TerrainDrawer;
 import view.utils.DrawingUtils;
 import view.video.VideoElementPlayer;
 
@@ -71,7 +68,6 @@ public class MainSimulation extends PApplet {
     // All Drawers
     UIDrawer uiDrawer;
     ShapeDrawer shapeDrawer;
-    TerrainDrawer terrainDrawer;
 
     // Eye optimizer
     HashMap<Double, Double> eyeSizeMap;
@@ -209,7 +205,6 @@ public class MainSimulation extends PApplet {
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
-        drawingSettings.setDrawTerrainTexture(false);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
@@ -302,16 +297,6 @@ public class MainSimulation extends PApplet {
                 env.getBroadcaster());
         zoomGoal = camera.getZoom();  // To ensure consistency
         angleGoal = camera.getAngle();
-
-        if (drawingSettings.isDrawTerrainTexture()) {
-            PImage[][] images = ConfigUtils.createTerrainTilesFromConfig(
-                    "imgs/MapTiles/pharsalus", this);
-            try {
-                terrainDrawer = new TerrainDrawer(env.getTerrain(), images, camera, this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
         // -------------------------
         // Load video element player
@@ -465,11 +450,6 @@ public class MainSimulation extends PApplet {
 
         // Clear everything
         background(230);
-
-        // Then, draw the map texture
-        if (drawingSettings.isDrawTerrainTexture()) {
-            terrainDrawer.drawTerrain();
-        }
 
         // Then, draw the dots that represents the height.
         if (drawingSettings.isDrawHeightField()) {
@@ -989,7 +969,6 @@ public class MainSimulation extends PApplet {
     }
 
     public static void main(String... args){
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
         PApplet.main("MainSimulation");
     }
 
@@ -1310,46 +1289,6 @@ public class MainSimulation extends PApplet {
      *             _/ |
      *            |__/
      */
-
-    void drawTerrain(Terrain terrain, Camera camera) {
-
-        rectMode(CORNER);
-        double[][] cameraBoundingBox = {
-                {0, 0},
-                {camera.getWidth(), 0},
-                {camera.getWidth(), camera.getHeight()},
-                {0, camera.getHeight()}
-        };
-        double topX = terrain.getTopX();
-        double topY = terrain.getTopY();
-        double div = terrain.getDiv();
-        for (int i = 0; i < terrain.getNumX(); i++) {
-            for (int j = 0; j < terrain.getNumY(); j++) {
-                double[] drawingPos1 = camera.getDrawingPosition(topX + i * div, topY + j * div);
-                double[] drawingPos2 = camera.getDrawingPosition(topX + (i + 1) * div, topY + j * div);
-                double[] drawingPos3 = camera.getDrawingPosition(topX + i * div, topY + (j + 1) * div);
-                double[] drawingPos4 = camera.getDrawingPosition(topX + (i + 1) * div, topY + (j + 1) * div);
-                if (DrawingUtils.drawable(drawingPos1[0], drawingPos1[1], INPUT_WIDTH, INPUT_HEIGHT) ||
-                    DrawingUtils.drawable(drawingPos2[0], drawingPos2[1], INPUT_WIDTH, INPUT_HEIGHT) ||
-                    DrawingUtils.drawable(drawingPos3[0], drawingPos3[1], INPUT_WIDTH, INPUT_HEIGHT) ||
-                    DrawingUtils.drawable(drawingPos4[0], drawingPos4[1], INPUT_WIDTH, INPUT_HEIGHT)) {
-
-                    pushMatrix();
-                    translate((float) drawingPos1[0], (float) drawingPos1[1]);
-                    rotate((float) -camera.getAngle());
-                    fill(DrawingConstants.COLOR_TERRAIN_DOT[0],
-                            DrawingConstants.COLOR_TERRAIN_DOT[1],
-                            DrawingConstants.COLOR_TERRAIN_DOT[2],
-                            (float) (DrawingConstants.COLOR_TERRAIN_DOT[3] * terrain.getHeightFromTileIndex(i, j) / (terrain.getMaxZ() - terrain.getMinZ())));
-                    rect(0, 0, (float) (terrain.getDiv() * camera.getZoom()),
-                            (float) (terrain.getDiv() * camera.getZoom()));
-                    popMatrix();
-                }
-            }
-        }
-        rectMode(CENTER);
-    }
-
     void drawTerrainLine(Terrain terrain, Camera camera) {
         int[] gridLimits = DrawingUtils.getVisibleGridBoundary(terrain, camera);
         int minX = gridLimits[0];
