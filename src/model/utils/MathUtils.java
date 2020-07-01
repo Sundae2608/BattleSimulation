@@ -3,6 +3,7 @@ package model.utils;
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import javafx.util.Pair;
 import model.singles.BaseSingle;
+import model.surface.BaseSurface;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -62,6 +63,14 @@ public final class MathUtils {
     public static boolean doubleEqual(double a, double b) {
         double diff = Math.abs(a - b);
         return diff < MathUtils.EPSILON;
+    }
+
+    /**
+     * Compare if two doubles are equal. They are essentially equal if their diff < epsilon.
+     */
+    public static boolean doubleEqual(double a, double b, double epsilon) {
+        double diff = Math.abs(a - b);
+        return diff < epsilon;
     }
 
     /**
@@ -286,6 +295,27 @@ public final class MathUtils {
                 else return 1;
             }
         });
+    }
+
+    /**
+     * Return the distance of the most forward single in the unit, according to the angle.
+     * This is calculated by:
+     * 1. Rotate all positions so that the face the input angle.
+     * 2. Calculate the average position after the transformation.
+     * 3. Find the single that has the smallest X (the most forward), and take the x-difference between them and the
+     *    average x-position.
+     */
+    public static double mostForwardDistance(ArrayList<BaseSingle> singles, double angle) {
+        double sumX = 0;
+        double minX = Double.MAX_VALUE;
+        for (BaseSingle single : singles) {
+            double x = single.getX() * MathUtils.quickCos((float) angle)
+                    - single.getY() * MathUtils.quickSin((float) angle);
+            sumX += x;
+            if (x < minX) minX = x;
+        }
+        double avgX = sumX / singles.size();
+        return avgX - minX;
     }
 
     /**

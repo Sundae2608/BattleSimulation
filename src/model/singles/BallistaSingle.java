@@ -76,8 +76,8 @@ public class BallistaSingle extends BaseSingle {
         // Calculate intended speed
         double variation = 1;
         if (speed != 0) variation = MathUtils.randDouble(0.9, 1.1);
-        if (speed < speedGoal) speed = Math.min(speed + UniversalConstants.SPEED_ACC, speedGoal);
-        else if (speed > speedGoal) speed = Math.max(speed - UniversalConstants.SPEED_ACC, speedGoal);
+        if (speed < speedGoal) speed = Math.min(speed + singleStats.acceleration, speedGoal);
+        else if (speed > speedGoal) speed = Math.max(speed - singleStats.deceleration, speedGoal);
         speed *= variation;
 
         // Apply speed modifier by terrain

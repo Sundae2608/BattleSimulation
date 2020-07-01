@@ -84,9 +84,9 @@ public class BaseSingle {
 
         // Calculate intended speed
         double variation = 1;
-        if (speed != 0) variation = MathUtils.randDouble(0.95, 1.05);
-        if (speed < speedGoal) speed = Math.min(speed + UniversalConstants.SPEED_ACC, speedGoal);
-        else if (speed > speedGoal) speed = Math.max(speed - UniversalConstants.SPEED_ACC, speedGoal);
+        if (speed != 0) variation = MathUtils.randDouble(0.99, 1.01);
+        if (speed < speedGoal) speed = Math.min(speed + singleStats.acceleration, speedGoal);
+        else if (speed > speedGoal) speed = Math.max(speed - singleStats.deceleration, speedGoal);
         speed *= variation;
 
         // Apply speed modifier by terrain
@@ -101,16 +101,44 @@ public class BaseSingle {
 
         // Update based on states
         double distanceToGoal = MathUtils.quickRoot1((float)((x - xGoal) * (x - xGoal) + (y - yGoal) * (y - yGoal)));
+        double towardAngle = MathUtils.atan2(yGoal - y, xGoal - x);
+        System.out.println(state);
         switch (state) {
             case MOVING:
-                // Recalculate vx, vy
-                angle = MathUtils.atan2(yGoal - y, xGoal - x);
-
                 // Out of position if it takes more than 3 steps to reach
-                if (distanceToGoal > singleStats.outOfReachDist) {
-                    speedGoal = singleStats.outOfReachSpeed;
-                } else if ((distanceToGoal > singleStats.standingDist) && (distanceToGoal < singleStats.outOfReachDist)) {
-                    speedGoal = singleStats.speed;
+                speedGoal = singleStats.speed;
+                if (distanceToGoal > singleStats.standingDist) {
+                    if (distanceToGoal > singleStats.outOfReachDist) {
+                        switchState(SingleState.CATCHING_UP);
+                    }
+                    if (!MathUtils.doubleEqual(angle, towardAngle, 1e-1) && distanceToGoal > singleStats.standingDist) {
+                        switchState(SingleState.ROTATING);
+                    }
+                } else if (distanceToGoal < singleStats.standingDist && unit.getState() == UnitState.STANDING) {
+                    switchState(SingleState.IN_POSITION);
+                }
+                break;
+            case CATCHING_UP:
+                speedGoal = singleStats.outOfReachSpeed;
+                if (distanceToGoal > singleStats.standingDist) {
+                    if (distanceToGoal < singleStats.outOfReachDist) {
+                        switchState(SingleState.MOVING);
+                        speed = singleStats.speed;
+                    }
+                    if (!MathUtils.doubleEqual(angle, towardAngle, 1e-1) && distanceToGoal > singleStats.standingDist) {
+                        switchState(SingleState.ROTATING);
+                    }
+                } else if (distanceToGoal < singleStats.standingDist && unit.getState() == UnitState.STANDING) {
+                    switchState(SingleState.IN_POSITION);
+                }
+                break;
+            case ROTATING:
+                angle = MovementUtils.rotate(angle, towardAngle, singleStats.rotationSpeed);
+                speedGoal = 0;
+                if (distanceToGoal > singleStats.standingDist) {
+                    if (MathUtils.doubleEqual(angle, towardAngle, 1e-1)) {
+                        switchState(SingleState.MOVING);
+                    }
                 } else if (distanceToGoal < singleStats.standingDist) {
                     switchState(SingleState.IN_POSITION);
                 }

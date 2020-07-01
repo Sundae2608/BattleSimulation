@@ -4,7 +4,7 @@
     x: -500
     y: 500
     angle: 0
-    size: 300
+    size: 390
     faction: ROME
     width: 30
 },
