@@ -1,7 +1,5 @@
 package model.monitor;
 
-import processing.core.PApplet;
-
 import java.util.HashMap;
 
 public class Monitor {
