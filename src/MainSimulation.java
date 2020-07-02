@@ -5,6 +5,8 @@ import controller.ControlConstants;
 import model.checker.EnvironmentChecker;
 import model.construct.Construct;
 import model.enums.*;
+import model.monitor.Monitor;
+import model.monitor.MonitorEnum;
 import model.objects.Ballista;
 import model.objects.Stone;
 import model.settings.GameSettings;
@@ -12,6 +14,7 @@ import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.surface.Tree;
 import model.terrain.Terrain;
+import processing.core.PFont;
 import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
@@ -137,6 +140,11 @@ public class MainSimulation extends PApplet {
     // List of all tiles
     private ArrayList<Tile> tiles;
 
+    // ---------
+    // Text font
+    // ---------
+    PFont font;
+
     // --------------------
     // Game variables
     // Variable necessary for the running of the game
@@ -173,7 +181,6 @@ public class MainSimulation extends PApplet {
     double unitEndPointY;
     double unitEndAngle;
     BaseUnit closestUnit;
-
 
     public void settings() {
 
@@ -310,6 +317,11 @@ public class MainSimulation extends PApplet {
             e.printStackTrace();
         }
 
+        // -----------
+        // Set up font
+        // -----------
+        font = createFont("Monospaced", 13);
+
         // ---------------
         // Load sound file
         // ---------------
@@ -349,7 +361,7 @@ public class MainSimulation extends PApplet {
         // -------------------
 
         // Record time
-        lastTime = System.currentTimeMillis();
+        lastTime = System.nanoTime();
 
         if (!currentlyPaused) {
             // The environment makes one step forward in processing.
@@ -358,7 +370,7 @@ public class MainSimulation extends PApplet {
         }
 
         // Record backend time
-        backEndTime = System.currentTimeMillis() - lastTime;
+        backEndTime = System.nanoTime() - lastTime;
 
         // ----------------------------------------
         // Update some graphical elements
@@ -787,17 +799,24 @@ public class MainSimulation extends PApplet {
 
         // Process graphics
         fill(0, 0, 0);
-        graphicTime = System.currentTimeMillis() - lastTime - backEndTime;
-        textAlign(LEFT);
-        text("Camera shake level: " + Double.toString(camera.getCameraShakeLevel()), 5, INPUT_HEIGHT - 65);
-        text("Zoom level: " + Double.toString(camera.getZoom()), 5, INPUT_HEIGHT - 50);
-        text("Backends: " + Long.toString(backEndTime) + "ms", 5, INPUT_HEIGHT - 35);
-        text("Graphics: " + Long.toString(graphicTime) + "ms", 5, INPUT_HEIGHT - 20);
-        if (graphicTime + backEndTime != 0) {
-            text("FPS: " + Long.toString(1000 / (graphicTime + backEndTime)), 5, INPUT_HEIGHT - 5);
-        } else {
-            text("FPS: Infinity", 5, INPUT_HEIGHT - 5);
-        }
+        graphicTime = System.nanoTime() - lastTime - backEndTime;
+
+        // Write all the interesting counters here.
+        StringBuilder s = new StringBuilder(env.getMonitor().getCounterString(
+                new MonitorEnum[] {
+                        MonitorEnum.COLLISION_TROOPS,
+                        MonitorEnum.COLLISION_TROOP_AND_TERRAIN,
+                        MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT,
+                        MonitorEnum.COLLISION_TROOP_AND_TREE,
+                        MonitorEnum.COLLISION_OBJECT,
+                }
+        ));
+        s.append("Camera shake level              : " + Double.toString(camera.getCameraShakeLevel()) + "\n");
+        s.append("Zoom level                      : " + Double.toString(camera.getZoom()) + "\n");
+        s.append("Backends                        : " + Double.toString(1.0 * backEndTime / 1000000) + "ms\n");
+        s.append("Graphics                        : " + Double.toString(1.0 * graphicTime / 1000000) + "ms\n");
+        s.append("FPS                             : " + Double.toString(1.0 * 1000000000 / (graphicTime + backEndTime)));
+        drawTextAnchorBottomLeft(s.toString(), 5, INPUT_HEIGHT - 5);
 
         // Pause / Play Button
         if (!currentlyPaused) {
@@ -2004,6 +2023,21 @@ public class MainSimulation extends PApplet {
                     drawY,
                     currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment,
                     currSizeSkirmisher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
+        }
+    }
+
+    /**
+     * Helper function which draws string s anchoring at bottom left. This helper method is used for writing a monitor
+     * on the bottom left of the screen to track important counter variables.
+     */
+    private void drawTextAnchorBottomLeft(String s, double x, double y) {
+        // Split the string into lines
+        textFont(font);
+        fill(0, 0, 0);
+        textAlign(LEFT);
+        String[] lines = s.split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            text(lines[lines.length - 1 - i], (float) x, (float) (y - 5 - 18 * i));
         }
     }
 }

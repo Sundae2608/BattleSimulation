@@ -102,7 +102,6 @@ public class BaseSingle {
         // Update based on states
         double distanceToGoal = MathUtils.quickRoot1((float)((x - xGoal) * (x - xGoal) + (y - yGoal) * (y - yGoal)));
         double towardAngle = MathUtils.atan2(yGoal - y, xGoal - x);
-        System.out.println(state);
         switch (state) {
             case MOVING:
                 // Out of position if it takes more than 3 steps to reach

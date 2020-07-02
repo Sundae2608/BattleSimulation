@@ -69,4 +69,9 @@ public class UniversalConstants {
     public final static int[] SHADOW_COLOR = {0, 0, 0, 128};
 
     public final static double SIMPLIFIED_SQUARE_SIZE_RATIO = 0.886226925453;
+
+    // ----------------
+    // Monitor constant
+    // ----------------
+    public final static int FRAME_STORAGE = 10;
 }

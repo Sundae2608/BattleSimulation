@@ -8,6 +8,8 @@ import model.enums.SingleState;
 import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventType;
+import model.monitor.Monitor;
+import model.monitor.MonitorEnum;
 import model.objects.Arrow;
 import model.objects.Ballista;
 import model.objects.BaseObject;
@@ -38,20 +40,23 @@ public class UnitModifier {
     private ArrayList<BaseSingle> deadContainer;
     private HashSet<BaseUnit> unitToBeRemoved;
     private EventBroadcaster broadcaster;
-    ArrayList<BaseUnit> unitList;
-    GameSettings gameSettings;
-    Terrain terrain;
-    ArrayList<Construct> constructs;
-    ArrayList<BaseSurface> surfaces;
-    HashMap<BaseUnit, Integer> recentlyChargedUnit;
+    private Monitor monitor;
+
+    private ArrayList<BaseUnit> unitList;
+    private GameSettings gameSettings;
+    private Terrain terrain;
+    private ArrayList<Construct> constructs;
+    private ArrayList<BaseSurface> surfaces;
+    private HashMap<BaseUnit, Integer> recentlyChargedUnit;
 
     // Memoization of distance between model.units.
     private double[][] distanceMemo;
 
     public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain,
                         ArrayList<Construct> inputConstructs, ArrayList<BaseSurface> inputSurfaces,
-                        GameSettings inputSettings, EventBroadcaster inputBroadcaster) {
+                        GameSettings inputSettings, EventBroadcaster inputBroadcaster, Monitor inputMonitor) {
         broadcaster = inputBroadcaster;
+        monitor = inputMonitor;
         objectHasher = new ObjectHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV);
         troopHasher = new TroopHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, inputSettings);
         deadContainer = inputDeadContainer;
@@ -112,6 +117,7 @@ public class UnitModifier {
                 if (PhysicUtils.checkConstructAndTroopPositionCollision(construct, single)) {
                     PhysicUtils.constructPushSingle(construct, single);
                 }
+                monitor.count(MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT);
             }
         }
     }
@@ -128,6 +134,7 @@ public class UnitModifier {
                 if (PhysicUtils.checkPointCircleCollision(single.getX(), single.getY(), tree.getX(), tree.getY(), tree.getRadius())) {
                     PhysicUtils.treePushSingle(tree, single);
                 }
+                monitor.count(MonitorEnum.COLLISION_TROOP_AND_TREE);
             }
         }
     }
@@ -143,6 +150,7 @@ public class UnitModifier {
                 if (PhysicUtils.checkSurfaceAndTroopPositionCollision(surface, single)) {
                     surface.impactSingle(single);
                 }
+                monitor.count(MonitorEnum.COLLISION_TROOP_AND_TERRAIN);
             }
         }
     }
@@ -160,21 +168,23 @@ public class UnitModifier {
             if (!obj.isImpactful()) continue;
 
             // Get the collision candidate
-            // TODO(sonpham): Potentially do this with only objects inside the hashed area.
             // This way is potentially inaccurate but can save some resource.
             ArrayList<BaseSingle> candidates = troopHasher.getCollisionObjects(obj.getX(), obj.getY());
 
             // Modify velocity information based on collision with each candidate
+            // TODO(sonpham): Now that point-vs-circle collision is available. Modify the collision code to use that
+            //  method instead.
             BaseSingle closestCandidate = null;
             double closestDistance = Double.MAX_VALUE;
             for (BaseSingle candidate : candidates) {
+                monitor.count(MonitorEnum.COLLISION_OBJECT);
                 double dx = candidate.getX() - obj.getX();
                 double dy = candidate.getY() - obj.getY();
                 double squareDistance = dx * dx + dy * dy;
-               if (squareDistance < closestDistance) {
-                   closestDistance = squareDistance;
-                   closestCandidate = candidate;
-               }
+                if (squareDistance < closestDistance) {
+                    closestDistance = squareDistance;
+                    closestCandidate = candidate;
+                }
             }
 
             // Process based on the type of objects
@@ -426,6 +436,7 @@ public class UnitModifier {
                     vyEnemy -= ay;
                 }
             }
+            monitor.count(MonitorEnum.COLLISION_TROOPS);
         }
         // Set the new speed
         troop.setxVel(vxNew);
