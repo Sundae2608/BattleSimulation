@@ -1,5 +1,6 @@
 package model.utils;
 
+import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.singles.BaseSingle;
@@ -446,5 +447,8 @@ public final class PhysicUtils {
         double[] newPt = getCirclePushPoint(tree.getX(), tree.getY(), tree.getRadius(), single.getX(), single.getY());
         single.setX(newPt[0]);
         single.setY(newPt[1]);
+        // Apply a small speed reduction
+        single.setxVel(single.getxVel() * GameplayConstants.TREE_COLLISION_SLOWDOWN);
+        single.setyVel(single.getyVel() * GameplayConstants.TREE_COLLISION_SLOWDOWN);
     }
 }

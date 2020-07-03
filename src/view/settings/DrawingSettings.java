@@ -13,11 +13,13 @@ public class DrawingSettings {
     private boolean drawDamageSustained;
     private boolean drawGrid;
     private boolean drawHeightField;
+    private boolean drawMapTexture;
     private boolean drawTroopShadow;
     private boolean drawSimplifiedTroopShape;
     private boolean drawIcon;
     private boolean drawTroopInDanger;
     private boolean drawTroopInPosition;
+    private boolean drawSurface;
     private boolean drawVideoEffect;
 
     // Smooth zoom processing
@@ -114,6 +116,22 @@ public class DrawingSettings {
     }
     public void setDrawHeightField(boolean drawHeightField) {
         this.drawHeightField = drawHeightField;
+    }
+
+    public boolean isDrawMapTexture() {
+        return drawMapTexture;
+    }
+
+    public void setDrawMapTexture(boolean drawMapTexture) {
+        this.drawMapTexture = drawMapTexture;
+    }
+
+    public boolean isDrawSurface() {
+        return drawSurface;
+    }
+
+    public void setDrawSurface(boolean drawSurface) {
+        this.drawSurface = drawSurface;
     }
 
     public boolean isDrawTroopShadow() {

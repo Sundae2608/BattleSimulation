@@ -28,7 +28,7 @@ public class UniversalConstants {
     // Standing tolerance
     // A troop is considered out of reach if the distance is this multiples of its speed.
     public final static double OUT_OF_REACH_NUM_STEP = 5;
-    public final static double OUT_OF_REACH_SPEED_MULTIPLIER = 1.75;
+    public final static double OUT_OF_REACH_SPEED_MULTIPLIER = 1.40;
 
     // Sliding tolerance
     public final static double STOP_SLIDING_DIST = 0.1;

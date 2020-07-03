@@ -133,9 +133,8 @@ public class MainSimulation extends PApplet {
     PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista, iconCatapult;
     PImage banner, bannerShadow, bannerSelected, bannerTexture;
 
-    // Tiles
-    // TODO(sonpham): This is deprecated
-    PImage tileGrass;
+    // Map texture
+    PImage mapTexture;
 
     // List of all tiles
     private ArrayList<Tile> tiles;
@@ -207,11 +206,13 @@ public class MainSimulation extends PApplet {
         drawingSettings.setProduceFootage(false);
         drawingSettings.setFrameSkips(0);
         drawingSettings.setDrawGrid(false);
+        drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
         drawingSettings.setSmoothCameraSteps(100);
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
+        drawingSettings.setDrawMapTexture(true);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
@@ -275,17 +276,17 @@ public class MainSimulation extends PApplet {
         bannerTexture = loadImage("imgs/BannerArt/SimplifiedBanner-03.png");
         bannerSelected = loadImage("imgs/BannerArt/SimplifiedBanner-04.png");
 
-        tileGrass = loadImage("imgs/SelectedTiles/grassTile128.png");
+        mapTexture = loadImage("imgs/FullMap/DemoMap.jpg");
 
         // -------------------
         // Preprocesing troops
         // -------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/BattleConfig.txt";
-        String mapConfig = "src/configs/map_configs/MapConfig.txt";
+        String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
+        String mapConfig = "src/configs/map_configs/ConfigWithTextureMap.txt";
         String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
-        String surfaceConfig = "src/configs/surface_configs/SurfaceConfig.txt";
+        String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
 
@@ -300,7 +301,7 @@ public class MainSimulation extends PApplet {
         // Camera
         // ------
         // Add unit to view.camera
-        camera = new Camera(INPUT_WIDTH / 2, INPUT_HEIGHT / 2, INPUT_WIDTH, INPUT_HEIGHT,
+        camera = new Camera(15000, 20000, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
         zoomGoal = camera.getZoom();  // To ensure consistency
         angleGoal = camera.getAngle();
@@ -346,9 +347,6 @@ public class MainSimulation extends PApplet {
 
         // Playing state
         currentlyPaused = false;
-
-        // Some graphic set up
-        rectMode(CENTER);
     }
 
     /**
@@ -463,7 +461,13 @@ public class MainSimulation extends PApplet {
         // Clear everything
         background(230);
 
+        // Default rect mode for troops
+        rectMode(CENTER);
+
         // Then, draw the dots that represents the height.
+        if (drawingSettings.isDrawMapTexture()) {
+            drawMapTexture(env.getTerrain(), mapTexture, camera);
+        }
         if (drawingSettings.isDrawHeightField()) {
             drawTerrainLine(env.getTerrain(), camera);
         }
@@ -488,43 +492,31 @@ public class MainSimulation extends PApplet {
             noStroke();
         }
 
-        // Draw the grass tile.
-        if (drawingSettings.getRenderMode() == RenderMode.REALISTIC) {
-            double[] drawPos = camera.getDrawingPosition(0.0, 0.0);
-            double drawX = drawPos[0];
-            double drawY = drawPos[1];
-            float drawWidth = (float) (tileGrass.width * (camera.getZoom()));
-            float drawHeight = (float) (tileGrass.height * (camera.getZoom()));
-            for (float i = (float) drawX % drawWidth - drawWidth; i <= width ; i += drawWidth) {
-                for (float j = (float) drawY % drawHeight - drawHeight; j <= height; j += drawHeight) {
-                    image(tileGrass, i, j, drawWidth, drawHeight);
-                }
-            }
-        }
-
         // Draw the surface.
-        for (BaseSurface surface : env.getSurfaces()) {
-            int[] surfaceColor = DrawingUtils.getSurfaceColor(surface);
-            fill(surfaceColor[0], surfaceColor[1], surfaceColor[2], surfaceColor[3]);
-            double[][] pts = surface.getSurfaceBoundary();
-            beginShape();
-            for (int i = 0; i < pts.length; i++) {
-                // TODO: This is an efficient part, the height of the object is recalculated all the time.
-                double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                        env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
-                vertex((float) drawingPts[0], (float) drawingPts[1]);
-            }
-            endShape(CLOSE);
+        if (drawingSettings.isDrawSurface()) {
+            for (BaseSurface surface : env.getSurfaces()) {
+                int[] surfaceColor = DrawingUtils.getSurfaceColor(surface);
+                fill(surfaceColor[0], surfaceColor[1], surfaceColor[2], surfaceColor[3]);
+                double[][] pts = surface.getSurfaceBoundary();
+                beginShape();
+                for (int i = 0; i < pts.length; i++) {
+                    // TODO: This is an efficient part, the height of the object is recalculated all the time.
+                    double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
+                            env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                    vertex((float) drawingPts[0], (float) drawingPts[1]);
+                }
+                endShape(CLOSE);
 
-            if (surface.getType() == SurfaceType.FOREST) {
-                for (Tree tree : ((ForestSurface) surface).getTrees()) {
-                    int[] treeColor = DrawingConstants.TREE_COLOR;
-                    double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
-                    fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
-                    double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
-                            height);
-                    circle((float) drawingPosition[0], (float) drawingPosition[1],
-                            (float) (tree.getRadius() * 2 * camera.getZoomAtHeight(height)));
+                if (surface.getType() == SurfaceType.FOREST) {
+                    for (Tree tree : ((ForestSurface) surface).getTrees()) {
+                        int[] treeColor = DrawingConstants.TREE_COLOR;
+                        double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
+                        fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
+                        double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
+                                height);
+                        circle((float) drawingPosition[0], (float) drawingPosition[1],
+                                (float) (tree.getRadius() * 2 * camera.getZoomAtHeight(height)));
+                    }
                 }
             }
         }
@@ -694,7 +686,7 @@ public class MainSimulation extends PApplet {
         // Draw the construct.
         for (Construct construct : env.getConstructs()) {
             int[] constructColor = DrawingConstants.COLOR_GOOD_BLACK;
-            fill(constructColor[0], constructColor[1], constructColor[2]);
+            fill(constructColor[0], constructColor[1], constructColor[2], 100);
             double[][] pts = construct.getBoundaryPoints();
             beginShape();
             for (int i = 0; i < pts.length; i++) {
@@ -811,11 +803,11 @@ public class MainSimulation extends PApplet {
                         MonitorEnum.COLLISION_OBJECT,
                 }
         ));
-        s.append("Camera shake level              : " + Double.toString(camera.getCameraShakeLevel()) + "\n");
-        s.append("Zoom level                      : " + Double.toString(camera.getZoom()) + "\n");
-        s.append("Backends                        : " + Double.toString(1.0 * backEndTime / 1000000) + "ms\n");
-        s.append("Graphics                        : " + Double.toString(1.0 * graphicTime / 1000000) + "ms\n");
-        s.append("FPS                             : " + Double.toString(1.0 * 1000000000 / (graphicTime + backEndTime)));
+        s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
+        s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
+        s.append("Backends                        : " + String.format("%.2f", 1.0 * backEndTime / 1000000) + "ms\n");
+        s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
+        s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
         drawTextAnchorBottomLeft(s.toString(), 5, INPUT_HEIGHT - 5);
 
         // Pause / Play Button
@@ -887,6 +879,12 @@ public class MainSimulation extends PApplet {
         } else if (mouseButton == RIGHT) {
             audioSpeaker.broadcastOverlaySound(AudioType.RIGHT_CLICK);
             if (unitSelected != null) {
+                // If the unit currently selected is in panic mode, the player does not have any control over them.
+                if (unitSelected.getState() == UnitState.ROUTING) {
+                    // During routing, unit is uncontrollable. We shall apply no command here.
+                    return;
+                }
+
                 // Check distance
                 if (unitSelected instanceof ArcherUnit) {
                     // Convert closest unit to click
@@ -1308,12 +1306,56 @@ public class MainSimulation extends PApplet {
      *             _/ |
      *            |__/
      */
+    void drawMapTexture(Terrain terrain, PImage mapTexture, Camera camera) {
+        int[] gridLimits = DrawingUtils.getVisibleGridBoundary(terrain, camera);
+        int minX = gridLimits[0];
+        int maxX = gridLimits[1];
+        int minY = gridLimits[2];
+        int maxY = gridLimits[3];
+        if (minX >= terrain.getNumX()) return;
+        if (minY >= terrain.getNumY()) return;
+        if (maxX < 0) return;
+        if (maxY < 0) return;
+        strokeWeight(2);
+        noFill();
+        textureMode(NORMAL);
+        for (int i = minX; i < maxX - 1; i++) {
+            beginShape(TRIANGLE_STRIP);
+            texture(mapTexture);
+            for (int j = minY; j < maxY; j++) {
+                // Get drawing position of the two points
+                double[] pos1 = terrain.getPosFromTileIndex(i, j);
+                double height1 = terrain.getHeightFromTileIndex(i, j);
+                double[] draw1 = camera.getDrawingPosition(pos1[0], pos1[1], height1);
+
+                double[] pos2 = terrain.getPosFromTileIndex(i + 1, j);
+                double height2 = terrain.getHeightFromTileIndex(i + 1, j);
+                double[] draw2 = camera.getDrawingPosition(pos2[0], pos2[1], height2);
+
+                // Get uv position
+                float u1 = map(i, 0, terrain.getNumX(), 0, 1);
+                float u2 = map(i + 1, 0, terrain.getNumX(), 0, 1);
+                float v = map(j, 0, terrain.getNumY(), 0, 1);
+
+                // Draw the two vertex
+                vertex((float) draw1[0], (float) draw1[1], u1, v);
+                vertex((float) draw2[0], (float) draw2[1], u2, v);
+            }
+            endShape();
+        }
+
+    }
+
     void drawTerrainLine(Terrain terrain, Camera camera) {
         int[] gridLimits = DrawingUtils.getVisibleGridBoundary(terrain, camera);
         int minX = gridLimits[0];
         int maxX = gridLimits[1];
         int minY = gridLimits[2];
         int maxY = gridLimits[3];
+        if (minX >= terrain.getNumX()) return;
+        if (minY >= terrain.getNumY()) return;
+        if (maxX < 0) return;
+        if (maxY < 0) return;
         noFill();
         strokeWeight(1);
         int[] color = DrawingConstants.COLOR_TERRAIN_LINE;
@@ -2033,9 +2075,14 @@ public class MainSimulation extends PApplet {
     private void drawTextAnchorBottomLeft(String s, double x, double y) {
         // Split the string into lines
         textFont(font);
-        fill(0, 0, 0);
         textAlign(LEFT);
         String[] lines = s.split("\n");
+
+        // Draw a white rectangle underneath to make the text pops out
+        fill(255, 255, 255, 100);
+        rectMode(CORNER);
+        rect((float) x - 5, (float) y - 5 - 18 * lines.length, (float) 500, (float) 18 * lines.length + 10);
+        fill(0, 0, 0);
         for (int i = 0; i < lines.length; i++) {
             text(lines[lines.length - 1 - i], (float) x, (float) (y - 5 - 18 * i));
         }
