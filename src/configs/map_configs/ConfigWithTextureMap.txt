@@ -1,0 +1,13 @@
+{
+    top_x: -10000
+    top_y: 6000
+    div: 768
+    num_x: 64
+    num_y: 48
+    taper: 10
+    min_height: 80
+    max_height: -80
+    perlin_scale: 0.2
+    perlin_detail_scale: 0.4
+    perlin_detail_height_ratio: 0.05
+}

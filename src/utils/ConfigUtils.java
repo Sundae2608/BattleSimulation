@@ -414,14 +414,19 @@ public final class ConfigUtils {
      * Create constructs from config file.
      */
     public static ArrayList<BaseSurface> createSurfacesFromConfig(String filePath) throws IOException {
+        ArrayList<BaseSurface> surfaces = new ArrayList<>();
+
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);
+        if (s.equals("")) {
+            return surfaces;
+        }
+
         // The first object will be the map creation parameter.
         String[] objects = s.split(",");
 
         // Each of the next object will be a construct with a boundary.
-        ArrayList<BaseSurface> surfaces = new ArrayList<>();
         for (int i = 0; i < objects.length; i++) {
             String[] infoLines = objects[i].split("\n");
             SurfaceType type = null;
@@ -510,7 +515,7 @@ public final class ConfigUtils {
 
         // Extract the input configs.
         double topX = Double.parseDouble(d.get("top_x"));
-        double topY = Double.parseDouble(d.get("top_x"));
+        double topY = Double.parseDouble(d.get("top_y"));
         double div = Double.parseDouble(d.get("div"));
         int numX = Integer.parseInt(d.get("num_x"));
         int numY = Integer.parseInt(d.get("num_y"));
@@ -520,6 +525,7 @@ public final class ConfigUtils {
         double perlinScale = Double.parseDouble(d.get("perlin_scale"));
         double perlinDetailScale = Double.parseDouble(d.get("perlin_detail_scale"));
         double perlinDetailHeightRatio = Double.parseDouble(d.get("perlin_detail_height_ratio"));
+        String texture = d.get("texture");
 
         // Create a new terrain using the input configs.
         return new Terrain(

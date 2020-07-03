@@ -94,10 +94,10 @@ public final class DrawingUtils {
         double maxY = Math.max(topLeft[1], Math.max(topRight[1], Math.max(botLeft[1], botRight[1])));
 
         // Calculate the 4 points
-        int minI = (int) ((minX - terrain.getTopX()) / terrain.getDiv());
-        int maxI = (int) ((maxX - terrain.getTopX()) / terrain.getDiv());
-        int minJ = (int) ((minY - terrain.getTopY()) / terrain.getDiv());
-        int maxJ = (int) ((maxY - terrain.getTopY()) / terrain.getDiv());
+        int minI = (int) Math.floor((minX - terrain.getTopX()) / terrain.getDiv()) - 1;
+        int maxI = (int) Math.ceil((maxX - terrain.getTopX()) / terrain.getDiv()) + 2;
+        int minJ = (int) Math.floor((minY - terrain.getTopY()) / terrain.getDiv()) - 1;
+        int maxJ = (int) Math.ceil((maxY - terrain.getTopY()) / terrain.getDiv()) + 2;
 
         minI = Math.max(minI, 0);
         maxI = Math.min(maxI, terrain.getNumX() - 1);

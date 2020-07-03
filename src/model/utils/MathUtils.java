@@ -132,10 +132,17 @@ public final class MathUtils {
     }
 
     /**
-     * Distance between two points
+     * Distance between two points, using quick root method
      */
     public static double quickDistance(double x1, double y1, double x2, double y2) {
         return quickRoot2((float) squareDistance(x1, y1, x2, y2));
+    }
+
+    /**
+     * Distance between two points
+     */
+    public static double distance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(squareDistance(x1, y1, x2, y2));
     }
 
     /**

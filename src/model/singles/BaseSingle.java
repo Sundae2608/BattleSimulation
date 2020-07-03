@@ -100,7 +100,7 @@ public class BaseSingle {
         speed *= (1 + speedModifier);
 
         // Update based on states
-        double distanceToGoal = MathUtils.quickRoot1((float)((x - xGoal) * (x - xGoal) + (y - yGoal) * (y - yGoal)));
+        double distanceToGoal = MathUtils.quickDistance(x, y, xGoal, yGoal);
         double towardAngle = MathUtils.atan2(yGoal - y, xGoal - x);
         switch (state) {
             case MOVING:
@@ -122,7 +122,6 @@ public class BaseSingle {
                 if (distanceToGoal > singleStats.standingDist) {
                     if (distanceToGoal < singleStats.outOfReachDist) {
                         switchState(SingleState.MOVING);
-                        speed = singleStats.speed;
                     }
                     if (!MathUtils.doubleEqual(angle, towardAngle, 1e-1) && distanceToGoal > singleStats.standingDist) {
                         switchState(SingleState.ROTATING);
