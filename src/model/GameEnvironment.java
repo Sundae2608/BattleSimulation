@@ -1,6 +1,8 @@
 package model;
 
+import javafx.util.Pair;
 import model.algorithms.UnitModifier;
+import model.algorithms.pathfinding.Graph;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.events.Event;
@@ -32,6 +34,7 @@ public class GameEnvironment {
     // Terrain
     Terrain terrain;
     ArrayList<Construct> constructs;
+    Graph graph;
 
     // Game settings
     GameSettings gameSettings;
@@ -61,7 +64,9 @@ public class GameEnvironment {
         }
         // Read construct configuration.
         try {
-            constructs = ConfigUtils.createConstructsFromConfig(constructsConfig);
+            Pair<Graph, ArrayList<Construct>> pair = ConfigUtils.createConstructsAndGraphsFromConfig(constructsConfig);
+            graph = pair.getKey();
+            constructs = pair.getValue();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -158,6 +163,10 @@ public class GameEnvironment {
 
     public Terrain getTerrain() {
         return terrain;
+    }
+
+    public Graph getGraph() {
+        return graph;
     }
 
     public ArrayList<Construct> getConstructs() {

@@ -2,6 +2,8 @@ import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import controller.ControlConstants;
+import model.algorithms.pathfinding.Graph;
+import model.algorithms.pathfinding.Node;
 import model.checker.EnvironmentChecker;
 import model.construct.Construct;
 import model.enums.*;
@@ -696,6 +698,15 @@ public class MainSimulation extends PApplet {
                 vertex((float) drawingPts[0], (float) drawingPts[1]);
             }
             endShape(CLOSE);
+        }
+
+        // Draw the node of the graph.
+        for (Integer id : env.getGraph().getNodes().keySet()) {
+            Node node = env.getGraph().getNodes().get(id);
+            fill(245, 121, 74);
+            double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
+            double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
+            circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
         }
 
         if (drawingSettings.isDrawVideoEffect()) videoElementPlayer.processElementQueue();
