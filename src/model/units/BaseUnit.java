@@ -1,5 +1,6 @@
 package model.units;
 
+import model.algorithms.pathfinding.Path;
 import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
@@ -52,6 +53,10 @@ public class BaseUnit {
     double averageX;
     double averageY;
     double averageZ;
+
+    // Path finding variables.
+    Path path;
+    int nodeIndex;
 
     // Collision attributes
     protected double[][] boundingBox;
