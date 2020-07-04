@@ -2,6 +2,9 @@ import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import controller.ControlConstants;
+import model.algorithms.pathfinding.Graph;
+import model.algorithms.pathfinding.Node;
+import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
 import model.construct.Construct;
 import model.enums.*;
@@ -48,10 +51,7 @@ import view.video.VideoElementPlayer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,7 +65,6 @@ public class MainSimulation extends PApplet {
     // ------------------
     // Drawers
     // This helps store each special shape at size to save time.
-    // TODO: Wrap around this into an optimizer object for scalability
     // ------------------
 
     // All Drawers
@@ -129,7 +128,6 @@ public class MainSimulation extends PApplet {
     // -----------
 
     // UI Icons
-    // TODO(sonpham): Change this to a UnitType to icon model.
     PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista, iconCatapult;
     PImage banner, bannerShadow, bannerSelected, bannerTexture;
 
@@ -144,6 +142,11 @@ public class MainSimulation extends PApplet {
     // ---------
     PFont font;
 
+    // -----------
+    // Key pressed
+    // -----------
+    HashSet<Character> keyPressedSet;
+
     // --------------------
     // Game variables
     // Variable necessary for the running of the game
@@ -153,6 +156,9 @@ public class MainSimulation extends PApplet {
 
     // Camera
     Camera camera;
+    double cameraRotationSpeed;
+    double cameraDx;
+    double cameraDy;
 
     // Some drawingSettings
     DrawingSettings drawingSettings;
@@ -204,7 +210,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawEye(DrawingMode.NOT_DRAW);
         drawingSettings.setDrawWeapon(DrawingMode.DRAW);
         drawingSettings.setProduceFootage(false);
-        drawingSettings.setFrameSkips(0);
+        drawingSettings.setFrameSkips(10);
         drawingSettings.setDrawGrid(false);
         drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
@@ -212,7 +218,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
-        drawingSettings.setDrawMapTexture(true);
+        drawingSettings.setDrawMapTexture(false);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
@@ -297,12 +303,20 @@ public class MainSimulation extends PApplet {
             e.printStackTrace();
         }
 
+        // --------
+        // Keyboard
+        // --------
+        keyPressedSet = new HashSet<>();
+
         // ------
         // Camera
         // ------
         // Add unit to view.camera
         camera = new Camera(15000, 20000, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
+        cameraRotationSpeed = 0;
+        cameraDx = 0;
+        cameraDy = 0;
         zoomGoal = camera.getZoom();  // To ensure consistency
         angleGoal = camera.getAngle();
 
@@ -363,7 +377,12 @@ public class MainSimulation extends PApplet {
 
         if (!currentlyPaused) {
             // The environment makes one step forward in processing.
-            env.step();
+            for (int i = 0; i < drawingSettings.getFrameSkips() + 1; i++) {
+                env.step();
+            }
+        }
+
+        if (!currentlyPaused) {
             camera.update();
         }
 
@@ -379,54 +398,65 @@ public class MainSimulation extends PApplet {
         // - Update nearest unit to mouse cursor
         // ----------------------------------------
 
-        // Frame skipper
-        if (drawingSettings.getFrameSkips() != 0 & frameCount % (drawingSettings.getFrameSkips() + 1) == 0) return;
-
-        // Update view.camera smooth zoom
         if (drawingSettings.isSmoothCameraMovement()) {
+
+            // Update the camera zoom.
             if (zoomCounter >= 0) {
                 zoomCounter -= 1;
                 double zoom = zoomGoal + (camera.getZoom() - zoomGoal) * zoomCounter / drawingSettings.getSmoothCameraSteps();
                 camera.setZoom(zoom);
             }
+
+            // Update the camera angle.
             if (keyPressed) {
-                if (key == 'q') camera.setAngle(camera.getAngle() + CameraConstants.CAMERA_ROTATION_SPEED);
-                if (key == 'e') camera.setAngle(camera.getAngle() - CameraConstants.CAMERA_ROTATION_SPEED);
+                if (key == 'q') {
+                    cameraRotationSpeed = CameraConstants.CAMERA_ROTATION_SPEED;
+                }
+                if (key == 'e') {
+                    cameraRotationSpeed = -CameraConstants.CAMERA_ROTATION_SPEED;
+                }
             }
+            camera.setAngle(camera.getAngle() + cameraRotationSpeed);
+            cameraRotationSpeed *= CameraConstants.CAMERA_ZOOM_DECELERATION_COEFFICIENT;
         }
 
         // Update view.camera keyboard movement
         double screenMoveAngle;
         if (keyPressed) {
-            if (key == 'a') {
+            cameraDx = 0;
+            cameraDy = 0;
+            if (keyPressedSet.contains('a')) {
                 screenMoveAngle = Math.PI + camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                cameraDx += CameraConstants.CAMERA_SPEED * unitX;
+                cameraDy += CameraConstants.CAMERA_SPEED * unitY;
             }
-            if (key == 'd') {
+            if (keyPressedSet.contains('d')) {
                 screenMoveAngle = camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                cameraDx += CameraConstants.CAMERA_SPEED * unitX;
+                cameraDy += CameraConstants.CAMERA_SPEED * unitY;
             }
-            if (key == 'w') {
+            if (keyPressedSet.contains('w')) {
                 screenMoveAngle = Math.PI * 3 / 2 + camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                cameraDx += CameraConstants.CAMERA_SPEED * unitX;
+                cameraDy += CameraConstants.CAMERA_SPEED * unitY;
             }
-            if (key == 's') {
+            if (keyPressedSet.contains('s')) {
                 screenMoveAngle = Math.PI / 2 + camera.getAngle();
                 double unitX = MathUtils.quickCos((float) screenMoveAngle);
                 double unitY = MathUtils.quickSin((float) screenMoveAngle);
-                camera.move(CameraConstants.CAMERA_SPEED / camera.getZoom() * unitX,
-                        CameraConstants.CAMERA_SPEED / camera.getZoom() * unitY);
+                cameraDx += CameraConstants.CAMERA_SPEED * unitX;
+                cameraDy += CameraConstants.CAMERA_SPEED * unitY;
             }
         }
+        camera.move(cameraDx / camera.getZoom(), cameraDy  / camera.getZoom());
+        cameraDx *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
+        cameraDy *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
 
         // Circle size optimization. This is to avoid repeat calculation of troop size
         updateSizeMaps();
@@ -544,7 +574,7 @@ public class MainSimulation extends PApplet {
                     drawArrowPlan(
                             unit.getAverageX(), unit.getAverageY(),
                             unit.getGoalX(), unit.getGoalY(),
-                            camera, drawingSettings);
+                            camera, env.getTerrain(), drawingSettings);
                 }
             }
             planCounter -= 1;
@@ -621,21 +651,38 @@ public class MainSimulation extends PApplet {
                 fill(color[0], color[1], color[2], 255);
                 drawArrowPlan(
                         unitSelected.getAverageX(), unitSelected.getAverageY(),
-                        unitSelected.getGoalX(), unitSelected.getGoalY(), camera, drawingSettings);
+                        unitSelected.getGoalX(), unitSelected.getGoalY(), camera, env.getTerrain(), drawingSettings);
             }
 
             // Intention arrow
-            fill(color[0], color[1], color[2], 128);
-            if ((unitSelected instanceof ArcherUnit ||
-                unitSelected instanceof BallistaUnit ||
-                unitSelected instanceof CatapultUnit) && closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction()) {
-                drawArrowPlan(
-                        unitSelected.getAverageX(), unitSelected.getAverageY(),
-                        closestUnit.getAverageX(), closestUnit.getAverageY(), camera, drawingSettings);
-            } else {
-                drawArrowPlan(
-                        unitSelected.getAverageX(), unitSelected.getAverageY(),
-                        drawingEndPointX, drawingEndPointY, camera, drawingSettings);
+//            fill(color[0], color[1], color[2], 128);
+//            if ((unitSelected instanceof ArcherUnit ||
+//                unitSelected instanceof BallistaUnit ||
+//                unitSelected instanceof CatapultUnit) && closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction()) {
+//                drawArrowPlan(
+//                        unitSelected.getAverageX(), unitSelected.getAverageY(),
+//                        closestUnit.getAverageX(), closestUnit.getAverageY(), camera, drawingSettings);
+//            } else {
+//                drawArrowPlan(
+//                        unitSelected.getAverageX(), unitSelected.getAverageY(),
+//                        drawingEndPointX, drawingEndPointY, camera, drawingSettings);
+//            }
+
+            // Draw path finding
+            double[] endPoint = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+            Path shortestPath = env.getGraph().getShortestPath(
+                    unitSelected.getAnchorX(), unitSelected.getAnchorY(),
+                    endPoint[0], endPoint[1], env.getConstructs());
+            fill(color[0], color[1], color[2]);
+            Node prev = null;
+            for (Node node : shortestPath.getNodes()) {
+                shapeDrawer.circleShape(this.g, node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
+                        env.getTerrain().getHeightFromPos(node.getX(), node.getY())), camera);
+                if (prev != null) {
+                    drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), camera, env.getTerrain(),
+                            drawingSettings);
+                }
+                prev = node;
             }
         }
 
@@ -659,7 +706,7 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : env.getUnits()) {
                 // TODO: Change to using UnitState instead for consistency
                 if (unit.getNumAlives() == 0) continue;
-                drawUnitBlock(unit, camera, drawingSettings, false);
+                drawUnitBlock(unit, camera, env.getTerrain(), drawingSettings, false);
             }
         }
 
@@ -696,6 +743,14 @@ public class MainSimulation extends PApplet {
                 vertex((float) drawingPts[0], (float) drawingPts[1]);
             }
             endShape(CLOSE);
+        }
+
+        // Draw the node of the graph.
+        for (Node node : env.getGraph().getNodes()) {
+            fill(245, 121, 74);
+            double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
+            double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
+            circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
         }
 
         if (drawingSettings.isDrawVideoEffect()) videoElementPlayer.processElementQueue();
@@ -872,7 +927,6 @@ public class MainSimulation extends PApplet {
             }
         }
 
-        //
         if (mouseButton == LEFT) {
             unitSelected = closestUnit;
             audioSpeaker.broadcastOverlaySound(AudioType.LEFT_CLICK);
@@ -994,6 +1048,12 @@ public class MainSimulation extends PApplet {
         if (key == 'c') {
             drawingSettings.setDrawTroopInDanger(!drawingSettings.isDrawTroopInDanger());
         }
+        keyPressedSet.add(key);
+    }
+
+    @Override
+    public void keyReleased() {
+        keyPressedSet.remove(key);
     }
 
     /**
@@ -1524,7 +1584,7 @@ public class MainSimulation extends PApplet {
     /**
      * Draw unit arrow plan. This arrow indicates the potential position that the unit is moving to.
      */
-    void drawArrowPlan(double beginX, double beginY, double endX, double endY, Camera camera, DrawingSettings settings) {
+    void drawArrowPlan(double beginX, double beginY, double endX, double endY, Camera camera, Terrain terrain, DrawingSettings settings) {
         double angle = MathUtils.atan2(endY - beginY, endX - beginX);
         double rightAngle = angle + Math.PI / 2;
 
@@ -1545,7 +1605,7 @@ public class MainSimulation extends PApplet {
 
         beginShape();
         for (int i = 0; i < arrow.length; i++) {
-            double[] drawingPosition = camera.getDrawingPosition(arrow[i][0], arrow[i][1]);
+            double[] drawingPosition = camera.getDrawingPosition(arrow[i][0], arrow[i][1], terrain.getHeightFromPos(arrow[i][0], arrow[i][1]));
             vertex((float) drawingPosition[0], (float) drawingPosition[1]);
         }
         endShape(CLOSE);
@@ -1577,18 +1637,24 @@ public class MainSimulation extends PApplet {
     /**
      * Draw the block representing the entire unit.
      */
-    void drawUnitBlock(BaseUnit unit, Camera camera, DrawingSettings settings, boolean hovered) {
+    void drawUnitBlock(BaseUnit unit, Camera camera, Terrain terrain, DrawingSettings settings, boolean hovered) {
 
         // draw the bounding box.
         double[][] boundingBox = unit.getBoundingBox();
 
         // Convert to drawer points
-        double[] p1 = camera.getDrawingPosition(boundingBox[0][0], boundingBox[0][1]);
-        double[] p2 = camera.getDrawingPosition(boundingBox[1][0], boundingBox[1][1]);
-        double[] p3 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1]);
-        double[] p4 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1]);
-        double[] p5 = camera.getDrawingPosition(boundingBox[4][0], boundingBox[4][1]);
-        double[] p6 = camera.getDrawingPosition(boundingBox[5][0], boundingBox[5][1]);
+        double[] p1 = camera.getDrawingPosition(boundingBox[0][0], boundingBox[0][1],
+                terrain.getHeightFromPos(boundingBox[0][0], boundingBox[0][1]));
+        double[] p2 = camera.getDrawingPosition(boundingBox[1][0], boundingBox[1][1],
+                terrain.getHeightFromPos(boundingBox[1][0], boundingBox[1][1]));
+        double[] p3 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1],
+                terrain.getHeightFromPos(boundingBox[2][0], boundingBox[2][1]));
+        double[] p4 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1],
+                terrain.getHeightFromPos(boundingBox[3][0], boundingBox[3][1]));
+        double[] p5 = camera.getDrawingPosition(boundingBox[4][0], boundingBox[4][1],
+                terrain.getHeightFromPos(boundingBox[4][0], boundingBox[4][1]));
+        double[] p6 = camera.getDrawingPosition(boundingBox[5][0], boundingBox[5][1],
+                terrain.getHeightFromPos(boundingBox[5][0], boundingBox[5][1]));
 
         // First, draw the box indicating the unit at full strength
         fill(DrawingConstants.UNIT_SIZE_COLOR[0],

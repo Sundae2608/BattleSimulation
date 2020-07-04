@@ -1,6 +1,16 @@
 package model.utils;
 
+import model.algorithms.pathfinding.Graph;
+import model.algorithms.pathfinding.Node;
+import model.construct.Construct;
+
+import java.util.ArrayList;
+
 public final class MovementUtils {
+    /**
+     * Rotate from angle toward angleGoal with rotation speed.
+     * If the difference of two angles is smaller than rotationSpeed, we immediately snap to the angle.
+     */
     public static double rotate(double angle, double angleGoal, double rotationSpeed) {
 
         // First, calculate the signed angle
