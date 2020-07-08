@@ -99,10 +99,10 @@ public final class DrawingUtils {
         int minJ = (int) Math.floor((minY - terrain.getTopY()) / terrain.getDiv()) - 1;
         int maxJ = (int) Math.ceil((maxY - terrain.getTopY()) / terrain.getDiv()) + 2;
 
-        minI = Math.max(minI, 0);
-        maxI = Math.min(maxI, terrain.getNumX() - 1);
-        minJ = Math.max(minJ, 0);
-        maxJ = Math.min(maxJ, terrain.getNumY() - 1);
+        minI = Math.min(Math.max(minI, 0), terrain.getNumX() - 1);
+        maxI = Math.min(Math.max(maxI, 0), terrain.getNumX() - 1);
+        minJ = Math.min(Math.max(minJ, 0), terrain.getNumY() - 1);
+        maxJ = Math.min(Math.max(maxJ, 0), terrain.getNumY() - 1);
 
         return new int[] {minI, maxI, minJ, maxJ};
     }

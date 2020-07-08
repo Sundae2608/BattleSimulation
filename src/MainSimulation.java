@@ -2,13 +2,11 @@ import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
 import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import controller.ControlConstants;
-import model.algorithms.pathfinding.Graph;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
 import model.construct.Construct;
 import model.enums.*;
-import model.monitor.Monitor;
 import model.monitor.MonitorEnum;
 import model.objects.Ballista;
 import model.objects.Stone;
@@ -22,6 +20,7 @@ import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.CameraConstants;
+import view.drawer.MapDrawer;
 import view.drawer.UIDrawer;
 import view.drawer.ShapeDrawer;
 import javafx.util.Pair;
@@ -70,6 +69,7 @@ public class MainSimulation extends PApplet {
     // All Drawers
     UIDrawer uiDrawer;
     ShapeDrawer shapeDrawer;
+    MapDrawer mapDrawer;
 
     // Eye optimizer
     HashMap<Double, Double> eyeSizeMap;
@@ -166,7 +166,6 @@ public class MainSimulation extends PApplet {
     int zoomCounter;
     double zoomGoal;
     int angleCounter;
-    double angleGoal;
     int planCounter;
 
     // Time recorder
@@ -214,7 +213,6 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawGrid(false);
         drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
-        drawingSettings.setSmoothCameraSteps(100);
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
@@ -230,6 +228,7 @@ public class MainSimulation extends PApplet {
         // Initialize drawer
         uiDrawer = new UIDrawer();
         shapeDrawer = new ShapeDrawer();
+        mapDrawer = new MapDrawer(this);
 
         // Graphic storage
         cavalryShapeMap = new HashMap<>();
@@ -318,7 +317,6 @@ public class MainSimulation extends PApplet {
         cameraDx = 0;
         cameraDy = 0;
         zoomGoal = camera.getZoom();  // To ensure consistency
-        angleGoal = camera.getAngle();
 
         // -------------------------
         // Load video element player
@@ -403,7 +401,7 @@ public class MainSimulation extends PApplet {
             // Update the camera zoom.
             if (zoomCounter >= 0) {
                 zoomCounter -= 1;
-                double zoom = zoomGoal + (camera.getZoom() - zoomGoal) * zoomCounter / drawingSettings.getSmoothCameraSteps();
+                double zoom = zoomGoal + (camera.getZoom() - zoomGoal) * zoomCounter / CameraConstants.ZOOM_SMOOTHEN_STEPS;
                 camera.setZoom(zoom);
             }
 
@@ -499,7 +497,7 @@ public class MainSimulation extends PApplet {
             drawMapTexture(env.getTerrain(), mapTexture, camera);
         }
         if (drawingSettings.isDrawHeightField()) {
-            drawTerrainLine(env.getTerrain(), camera);
+            mapDrawer.drawTerrainLine(env.getTerrain(), camera);
         }
 
         // Begin loop for columns
@@ -1035,7 +1033,7 @@ public class MainSimulation extends PApplet {
                 zoomGoal /= CameraConstants.ZOOM_PER_SCROLL;
                 if (zoomGoal < CameraConstants.MINIMUM_ZOOM) zoomGoal = CameraConstants.MINIMUM_ZOOM;
             }
-            zoomCounter = drawingSettings.getSmoothCameraSteps();
+            zoomCounter = CameraConstants.ZOOM_SMOOTHEN_STEPS;
         }
     }
 
@@ -1404,72 +1402,6 @@ public class MainSimulation extends PApplet {
             endShape();
         }
 
-    }
-
-    void drawTerrainLine(Terrain terrain, Camera camera) {
-        int[] gridLimits = DrawingUtils.getVisibleGridBoundary(terrain, camera);
-        int minX = gridLimits[0];
-        int maxX = gridLimits[1];
-        int minY = gridLimits[2];
-        int maxY = gridLimits[3];
-        if (minX >= terrain.getNumX()) return;
-        if (minY >= terrain.getNumY()) return;
-        if (maxX < 0) return;
-        if (maxY < 0) return;
-        noFill();
-        strokeWeight(1);
-        int[] color = DrawingConstants.COLOR_TERRAIN_LINE;
-        stroke(color[0], color[1], color[2], DrawingConstants.COLOR_TERRAIN_LINE_MIN_ALPHA);
-        for (int i = minX; i < maxX; i++) {
-            beginShape();
-            // Begin line
-            double[] beginPos = terrain.getPosFromTileIndex(i, minY);
-            double beginZ = terrain.getHeightFromTileIndex(i, minY);
-            double[] drawBegin = camera.getDrawingPosition(beginPos[0], beginPos[1], beginZ);
-            vertex((float) drawBegin[0], (float) drawBegin[1]);
-
-            for (int j = minY; j < maxY; j++) {
-
-                // NextPoint
-                double[] nextPos = terrain.getPosFromTileIndex(i, j + 1);
-                double nextZ = terrain.getHeightFromTileIndex(i, j + 1);
-                double[] drawNext = camera.getDrawingPosition(nextPos[0], nextPos[1], nextZ);
-
-                // Draw line
-                stroke(color[0], color[1], color[2],
-                        (float) ((nextZ - terrain.getMinZ()) / (terrain.getMaxZ() - terrain.getMinZ()) *
-                                DrawingConstants.COLOR_TERRAIN_LINE_ALPHA_RANGE +
-                                DrawingConstants.COLOR_TERRAIN_LINE_MIN_ALPHA));
-                vertex((float) drawNext[0], (float) drawNext[1]);
-            }
-            endShape();
-        }
-
-        for (int j = minY; j < maxY; j++) {
-            // Begin line
-            beginShape();
-            double[] beginPos = terrain.getPosFromTileIndex(minX, j);
-            double beginZ = terrain.getHeightFromTileIndex(minX, j);
-            double[] drawBegin = camera.getDrawingPosition(beginPos[0], beginPos[1], beginZ);
-            vertex((float) drawBegin[0], (float) drawBegin[1]);
-
-            for (int i = minX; i < maxX; i++) {
-
-                // End line
-                double[] nextPos = terrain.getPosFromTileIndex(i + 1, j);
-                double nextZ = terrain.getHeightFromTileIndex(i + 1, j);
-                double[] drawNext = camera.getDrawingPosition(nextPos[0], nextPos[1], nextZ);
-
-                // Draw line
-                stroke(color[0], color[1], color[2],
-                        (float) ((nextZ - terrain.getMinZ()) / (terrain.getMaxZ() - terrain.getMinZ()) *
-                                DrawingConstants.COLOR_TERRAIN_LINE_ALPHA_RANGE +
-                                DrawingConstants.COLOR_TERRAIN_LINE_MIN_ALPHA));
-                vertex((float) drawNext[0], (float) drawNext[1]);
-            }
-            endShape();
-        }
-        strokeWeight(0);
     }
 
     void drawObject(BaseObject object, Camera camera, Terrain terrain, DrawingSettings settings) {

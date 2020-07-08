@@ -107,6 +107,9 @@ public class Graph {
         }
     }
 
+    /**
+     * Find the note with the lowest distance.
+     */
     private Node getLowestDistanceNode(Set<Node> unsettledNodes, HashMap<Node, Double> distanceMap) {
         Node lowestDistanceNode = null;
         double lowestDistance = Double.MAX_VALUE;
@@ -120,6 +123,9 @@ public class Graph {
         return lowestDistanceNode;
     }
 
+    /**
+     * Calculate the minimum distance from the source node to the evaluation node.
+     */
     private void calculateMinimumDistance(Node evaluationNode,
                                           Double edgeWeight, Node sourceNode,
                                           HashMap<Node, Double> distanceMap,

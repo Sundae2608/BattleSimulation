@@ -24,7 +24,6 @@ public class DrawingSettings {
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
-    private int smoothCameraSteps;
     private int smoothRotationSteps;
     private int smoothPlanShowingSteps;
 
@@ -74,13 +73,6 @@ public class DrawingSettings {
     }
     public void setSmoothCameraMovement(boolean smoothCameraMovement) {
         this.smoothCameraMovement = smoothCameraMovement;
-    }
-
-    public int getSmoothCameraSteps() {
-        return smoothCameraSteps;
-    }
-    public void setSmoothCameraSteps(int smoothCameraSteps) {
-        this.smoothCameraSteps = smoothCameraSteps;
     }
 
     public int getSmoothRotationSteps() {
