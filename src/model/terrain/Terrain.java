@@ -22,6 +22,26 @@ public class Terrain {
     double[][] dx;
     double[][] dy;
 
+    /**
+     * Initialize a completely plain field.
+     */
+    public Terrain(double inputTopX, double inputTopY, double inputDiv,
+                   int inputNumX, int inputNumY) {
+        topX = inputTopX;
+        topY = inputTopY;
+        div = inputDiv;
+        numX = inputNumX;
+        numY = inputNumY;
+        botX = inputTopX + div * (numX - 1);
+        botY = inputTopY + div * (numY - 1);
+        heightField = new double[numX][numY];
+        dx = new double[numX-1][numY-1];
+        dy = new double[numX-1][numY-1];
+    }
+
+    /**
+     * Initialize the terrain, using a 2-tier perlin noise to randomly generate terrain.
+     */
     public Terrain(double inputTopX, double inputTopY, double inputDiv,
                    int inputNumX, int inputNumY, int taper, double minHeight, double maxHeight,
                    double inputPerlinScale, double inputPerlinDetailScale, double inputPerlinDetailHeightRatio) {
