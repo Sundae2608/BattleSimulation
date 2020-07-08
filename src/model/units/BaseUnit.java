@@ -68,6 +68,10 @@ public class BaseUnit {
     boolean inContactWithEnemy;
     boolean isTurning;
 
+    // the "strength" of the unit, indicating how far the unit can go, or if a single in the unit can do an "action"
+    // such as moving or firing
+    double stamina;
+
     // Event broadcaster
     EventBroadcaster broadcaster;
 
@@ -82,6 +86,7 @@ public class BaseUnit {
         broadcaster = inputBroadcaster;
         morale = GameplayConstants.BASE_MORALE;
         timeInFightingState = 0;
+        stamina = inputUnitStats.stamina;
     }
 
     /**
@@ -795,6 +800,7 @@ public class BaseUnit {
             }
         }
 
+
         // Update the state of each single and the average position
         double sumX = 0;
         double sumY = 0;
@@ -813,6 +819,19 @@ public class BaseUnit {
 
         // Update the bounding box.
         updateBoundingBox();
+
+        // Update stamina
+        updateStamina();
+    }
+
+    private void updateStamina() {
+        // Stamina is depleted when the unit is in combat and is recovered if doing nothing
+        // Todo: Make it work for different actions and/or surfaces
+        if (state == UnitState.STANDING) {
+            stamina += stamina * unitStats.staminaRecoveryRate;
+        } else {
+            stamina -= stamina * unitStats.staminaDepletionRate;
+        }
     }
 
     /**

@@ -251,10 +251,16 @@ public final class ConfigUtils {
                 default:
                     break;
             }
+
             unitStats.spacing = Double.parseDouble(d.get("unit_spacing"));
             unitStats.speed = Double.parseDouble(d.get("unit_speed"));
             unitStats.rotationSpeed = Double.parseDouble(d.get("unit_rotation_speed"));
             unitStats.patience = Integer.parseInt(d.get("unit_patience"));
+            unitStats.stamina = Double.parseDouble(d.get("unit_stamina"));
+            unitStats.minStamina = Double.parseDouble(d.get("unit_min_stamina"));
+            unitStats.maxStamina = Double.parseDouble(d.get("unit_max_stamina"));
+            unitStats.staminaRecoveryRate = Double.parseDouble(d.get("unit_stamina_recovery_rate"));
+            unitStats.staminaRecoveryRate = Double.parseDouble(d.get("unit_stamina_depletion_rate"));
 
             // Add SingleStats and UnitStats to GameStats
             gameStats.addSingleStats(unitType, faction, singleStats);
