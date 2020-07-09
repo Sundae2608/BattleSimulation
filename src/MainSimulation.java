@@ -841,7 +841,6 @@ public class MainSimulation extends PApplet {
         text(UnitUtils.getUnitName(closestUnit), 8, 15);
         text("Unit state: ", 8, 35); text(closestUnit.getState().toString(), 100, 35);
         text("Strength: ", 8, 50); text(String.valueOf(closestUnit.getNumAlives()) + "/" + String.valueOf(closestUnit.getTroops().size()), 100, 50);
-
         // Process graphics
         fill(0, 0, 0);
         graphicTime = System.nanoTime() - lastTime - backEndTime;
