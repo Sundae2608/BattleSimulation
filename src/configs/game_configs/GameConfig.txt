@@ -25,9 +25,7 @@
     unit_speed: 2.5
     unit_rotation_speed: 0.02
     unit_patience: 75
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 },
@@ -58,9 +56,7 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 
@@ -104,9 +100,7 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 
@@ -155,9 +149,7 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 
@@ -203,9 +195,7 @@
     unit_speed: 8
     unit_rotation_speed: 0.02
     unit_patience: 200
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 },
@@ -236,9 +226,7 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 
@@ -273,9 +261,7 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 },
@@ -306,9 +292,7 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 
@@ -343,9 +327,7 @@
     unit_speed: 2.5
     unit_rotation_speed: 0.02
     unit_patience: 75
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 },
@@ -376,9 +358,7 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 
@@ -422,9 +402,7 @@
     unit_speed: 8
     unit_rotation_speed: 0.02
     unit_patience: 200
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 },
@@ -455,9 +433,7 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 
@@ -492,9 +468,7 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 },
@@ -525,9 +499,7 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_stamina: 100
     unit_max_stamina: 100
-    unit_min_stamina: 0
     unit_stamina_recovery_rate: 0.03
     unit_stamina_depletion_rate: 0.03
 

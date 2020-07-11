@@ -86,7 +86,7 @@ public class BaseUnit {
         broadcaster = inputBroadcaster;
         morale = GameplayConstants.BASE_MORALE;
         timeInFightingState = 0;
-        stamina = inputUnitStats.stamina;
+        stamina = inputUnitStats.maxStamina;
     }
 
     /**
@@ -830,7 +830,7 @@ public class BaseUnit {
         if (state == UnitState.STANDING) {
             stamina = Math.min(stamina + stamina * unitStats.staminaRecoveryRate, unitStats.maxStamina);
         } else {
-            stamina = Math.max(stamina - stamina * unitStats.staminaDepletionRate, unitStats.minStamina);
+            stamina = Math.max(stamina - stamina * unitStats.staminaDepletionRate, 0);
         }
     }
 
