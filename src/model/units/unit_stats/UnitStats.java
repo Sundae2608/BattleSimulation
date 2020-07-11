@@ -10,6 +10,9 @@ public class UnitStats {
     public double speed;
     public double rotationSpeed;
     public int patience;
+    public double maxStamina; // default stamina at the start of the game
+    public double staminaDepletionRate;
+    public double staminaRecoveryRate;
 
     // Archer & skirmisher stats
     public double widthVariation;
