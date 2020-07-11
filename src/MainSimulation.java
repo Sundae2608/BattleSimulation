@@ -317,7 +317,7 @@ public class MainSimulation extends PApplet {
         // ------
 
         // Initialize drawer
-        uiDrawer = new UIDrawer();
+        uiDrawer = new UIDrawer(this);
         shapeDrawer = new ShapeDrawer(this, camera);
         mapDrawer = new MapDrawer(this);
         infoDrawer = new InfoDrawer(this);
@@ -854,9 +854,9 @@ public class MainSimulation extends PApplet {
 
         // Pause / Play Button
         if (!currentlyPaused) {
-            uiDrawer.pauseButton(g,INPUT_WIDTH - 50, INPUT_HEIGHT - 50, 40);
+            uiDrawer.pauseButton(INPUT_WIDTH - 50, INPUT_HEIGHT - 50, 40);
         } else {
-            uiDrawer.playButton(g,INPUT_WIDTH - 50, INPUT_HEIGHT - 50, 40);
+            uiDrawer.playButton(INPUT_WIDTH - 50, INPUT_HEIGHT - 50, 40);
         }
 
         // -----------------
