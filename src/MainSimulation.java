@@ -1784,22 +1784,6 @@ public class MainSimulation extends PApplet {
 
         // If it's drawable, draw the alive unit and potentially add some sound
         drawDeadSingle(drawX, drawY, zoomAdjustment, single, camera, settings);
-        soundDeadSingle(single, camera);
-    }
-
-    /**
-     * Add sound created by troop that just died
-     */
-    void soundDeadSingle(BaseSingle single, Camera camera) {
-
-        // If sound effect not turned on don't play anything
-        if (!audioSettings.isSoundEffect()) return;
-
-        // Scream dead once
-        if (single.isScreamDeath()) {
-            // Play dead sound here
-            single.setScreamDeath(false);  // Only scream death once
-        }
     }
 
     /**
