@@ -4,6 +4,7 @@ import processing.core.PApplet;
 import processing.event.MouseEvent;
 import view.camera.Camera;
 import view.camera.CameraConstants;
+import view.drawer.InfoDrawer;
 import view.drawer.MapDrawer;
 
 import java.util.HashSet;
@@ -24,6 +25,7 @@ public class MapMakerSimulation extends PApplet {
 
     // Drawer
     MapDrawer mapDrawer;
+    InfoDrawer infoDrawer;
 
     // Camera
     Camera camera;
@@ -51,6 +53,7 @@ public class MapMakerSimulation extends PApplet {
         cameraDy = 0;
         zoomGoal = camera.getZoom();  // To ensure consistency
         mapDrawer = new MapDrawer(this);
+        infoDrawer = new InfoDrawer(this);
         keyPressedSet = new HashSet<>();
     }
 
@@ -118,6 +121,12 @@ public class MapMakerSimulation extends PApplet {
 
         // Drawing terrain line
         mapDrawer.drawTerrainLine(terrain, camera);
+
+        // Draw zoom information
+        StringBuilder s = new StringBuilder();
+        s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
+        s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
+        infoDrawer.drawTextAnchorBottomLeft(s.toString(), 5, INPUT_HEIGHT - 5);
     }
 
     @Override
