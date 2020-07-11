@@ -1,4 +1,4 @@
-package view.utils;
+package view.drawer;
 
 import model.surface.BaseSurface;
 import model.terrain.Terrain;

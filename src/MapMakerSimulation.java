@@ -23,6 +23,9 @@ public class MapMakerSimulation extends PApplet {
     // Key pressed set
     HashSet<Character> keyPressedSet;
 
+    // Circle screen size
+    double circleScreenSize;
+
     // Drawer
     MapDrawer mapDrawer;
     InfoDrawer infoDrawer;
@@ -43,7 +46,10 @@ public class MapMakerSimulation extends PApplet {
     }
 
     public void setup() {
+        // Set up terrain.
         terrain = new Terrain(INPUT_TOP_X, INPUT_TOP_Y, INPUT_DIV, INPUT_NUM_X, INPUT_NUM_Y);
+
+        // Set up camera.
         camera = new Camera(
                 INPUT_NUM_X * INPUT_DIV / 2,
                 INPUT_NUM_Y * INPUT_DIV / 2,
@@ -51,9 +57,13 @@ public class MapMakerSimulation extends PApplet {
         cameraRotationSpeed = 0;
         cameraDx = 0;
         cameraDy = 0;
+
+        // Set up zoom.
         zoomGoal = camera.getZoom();  // To ensure consistency
         mapDrawer = new MapDrawer(this);
         infoDrawer = new InfoDrawer(this);
+
+        // Set of keys pressed.
         keyPressedSet = new HashSet<>();
     }
 
@@ -122,11 +132,14 @@ public class MapMakerSimulation extends PApplet {
         // Drawing terrain line
         mapDrawer.drawTerrainLine(terrain, camera);
 
+        // Draw the circle that is the drawer.
+
+
         // Draw zoom information
         StringBuilder s = new StringBuilder();
         s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
         s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
-        infoDrawer.drawTextAnchorBottomLeft(s.toString(), 5, INPUT_HEIGHT - 5);
+        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
     }
 
     @Override
