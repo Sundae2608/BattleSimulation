@@ -172,6 +172,11 @@ public final class PhysicUtils {
                 continue;
             }
 
+            // If the unit is dead, it is not visible.
+            if (queryUnit.getNumAlives() == 0) {
+                continue;
+            }
+
             // Getting the coordinate of the queryUnit
             double queryAverageX = queryUnit.getAverageX();
             double queryAverageY = queryUnit.getAverageY();
@@ -188,7 +193,6 @@ public final class PhysicUtils {
             }
 
             double[] t = new double[(int) temp];
-            t[0] = 0;
             for (int i = 1; i < t.length; i++) {
                 t[i] = t[i-1] + 1.0 / t.length;
             }

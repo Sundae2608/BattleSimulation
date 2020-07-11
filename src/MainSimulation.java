@@ -20,9 +20,7 @@ import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.CameraConstants;
-import view.drawer.MapDrawer;
-import view.drawer.UIDrawer;
-import view.drawer.ShapeDrawer;
+import view.drawer.*;
 import javafx.util.Pair;
 import view.map.Tile;
 import model.GameEnvironment;
@@ -31,7 +29,6 @@ import model.constants.*;
 import model.objects.Arrow;
 import model.objects.BaseObject;
 import processing.core.PGraphics;
-import view.drawer.DrawingVertices;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
@@ -70,6 +67,7 @@ public class MainSimulation extends PApplet {
     UIDrawer uiDrawer;
     ShapeDrawer shapeDrawer;
     MapDrawer mapDrawer;
+    InfoDrawer infoDrawer;
 
     // Eye optimizer
     HashMap<Double, Double> eyeSizeMap;
@@ -229,6 +227,7 @@ public class MainSimulation extends PApplet {
         uiDrawer = new UIDrawer();
         shapeDrawer = new ShapeDrawer();
         mapDrawer = new MapDrawer(this);
+        infoDrawer = new InfoDrawer(this);
 
         // Graphic storage
         cavalryShapeMap = new HashMap<>();
@@ -841,7 +840,6 @@ public class MainSimulation extends PApplet {
         text(UnitUtils.getUnitName(closestUnit), 8, 15);
         text("Unit state: ", 8, 35); text(closestUnit.getState().toString(), 100, 35);
         text("Strength: ", 8, 50); text(String.valueOf(closestUnit.getNumAlives()) + "/" + String.valueOf(closestUnit.getTroops().size()), 100, 50);
-
         // Process graphics
         fill(0, 0, 0);
         graphicTime = System.nanoTime() - lastTime - backEndTime;
@@ -861,7 +859,7 @@ public class MainSimulation extends PApplet {
         s.append("Backends                        : " + String.format("%.2f", 1.0 * backEndTime / 1000000) + "ms\n");
         s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
         s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
-        drawTextAnchorBottomLeft(s.toString(), 5, INPUT_HEIGHT - 5);
+        infoDrawer.drawTextAnchorBottomLeft(s.toString(), 5, INPUT_HEIGHT - 5);
 
         // Pause / Play Button
         if (!currentlyPaused) {
@@ -2063,26 +2061,6 @@ public class MainSimulation extends PApplet {
                     drawY,
                     currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment,
                     currSizeSkirmisher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment, camera);
-        }
-    }
-
-    /**
-     * Helper function which draws string s anchoring at bottom left. This helper method is used for writing a monitor
-     * on the bottom left of the screen to track important counter variables.
-     */
-    private void drawTextAnchorBottomLeft(String s, double x, double y) {
-        // Split the string into lines
-        textFont(font);
-        textAlign(LEFT);
-        String[] lines = s.split("\n");
-
-        // Draw a white rectangle underneath to make the text pops out
-        fill(255, 255, 255, 100);
-        rectMode(CORNER);
-        rect((float) x - 5, (float) y - 5 - 18 * lines.length, (float) 500, (float) 18 * lines.length + 10);
-        fill(0, 0, 0);
-        for (int i = 0; i < lines.length; i++) {
-            text(lines[lines.length - 1 - i], (float) x, (float) (y - 5 - 18 * i));
         }
     }
 }
