@@ -260,7 +260,7 @@ public final class ConfigUtils {
             unitStats.minStamina = Double.parseDouble(d.get("unit_min_stamina"));
             unitStats.maxStamina = Double.parseDouble(d.get("unit_max_stamina"));
             unitStats.staminaRecoveryRate = Double.parseDouble(d.get("unit_stamina_recovery_rate"));
-            unitStats.staminaRecoveryRate = Double.parseDouble(d.get("unit_stamina_depletion_rate"));
+            unitStats.staminaDepletionRate = Double.parseDouble(d.get("unit_stamina_depletion_rate"));
 
             // Add SingleStats and UnitStats to GameStats
             gameStats.addSingleStats(unitType, faction, singleStats);

@@ -828,9 +828,9 @@ public class BaseUnit {
         // Stamina is depleted when the unit is in combat and is recovered if doing nothing
         // Todo: Make it work for different actions and/or surfaces
         if (state == UnitState.STANDING) {
-            stamina += stamina * unitStats.staminaRecoveryRate;
+            stamina = Math.min(stamina + stamina * unitStats.staminaRecoveryRate, unitStats.maxStamina);
         } else {
-            stamina -= stamina * unitStats.staminaDepletionRate;
+            stamina = Math.max(stamina - stamina * unitStats.staminaDepletionRate, unitStats.minStamina);
         }
     }
 
@@ -940,6 +940,8 @@ public class BaseUnit {
     public int getNumAlives() {
         return aliveTroopsMap.size();
     }
+
+    public double getStamina() { return stamina; }
 
     public double getAnchorX() {
         return anchorX;
