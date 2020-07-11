@@ -1,6 +1,4 @@
-import cern.colt.function.tint.IntIntFunction;
 import cern.colt.matrix.tint.IntMatrix2D;
-import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import controller.ControlConstants;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
@@ -15,20 +13,17 @@ import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.surface.Tree;
 import model.terrain.Terrain;
-import processing.core.PFont;
 import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.CameraConstants;
 import view.drawer.*;
 import javafx.util.Pair;
-import view.map.Tile;
 import model.GameEnvironment;
 import view.camera.Camera;
 import model.constants.*;
 import model.objects.Arrow;
 import model.objects.BaseObject;
-import processing.core.PGraphics;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
@@ -44,12 +39,8 @@ import view.settings.RenderMode;
 import view.drawer.DrawingUtils;
 import view.video.VideoElementPlayer;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainSimulation extends PApplet {
 
@@ -68,6 +59,7 @@ public class MainSimulation extends PApplet {
     ShapeDrawer shapeDrawer;
     MapDrawer mapDrawer;
     InfoDrawer infoDrawer;
+    BattleSignalDrawer battleSignalDrawer;
 
     // Eye optimizer
     HashMap<Double, Double> eyeSizeMap;
@@ -106,8 +98,6 @@ public class MainSimulation extends PApplet {
 
     double shadowXOffset;
     double shadowYOffset;
-    double unitShadowXOffset;
-    double unitShadowYOffset;
 
     // -----------
     // Sound files
@@ -125,20 +115,8 @@ public class MainSimulation extends PApplet {
     // Image files
     // -----------
 
-    // UI Icons
-    PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista, iconCatapult;
-    PImage banner, bannerShadow, bannerSelected, bannerTexture;
-
     // Map texture
     PImage mapTexture;
-
-    // List of all tiles
-    private ArrayList<Tile> tiles;
-
-    // ---------
-    // Text font
-    // ---------
-    PFont font;
 
     // -----------
     // Key pressed
@@ -258,21 +236,6 @@ public class MainSimulation extends PApplet {
         // ----------------------
         // Load graphic resources
         // ----------------------
-        iconSword = loadImage("imgs/BannerArt/iconSword.png");
-        iconSpear = loadImage("imgs/BannerArt/iconSpear.png");
-        iconCav = loadImage("imgs/BannerArt/iconCav.png");
-        iconArcher = loadImage("imgs/BannerArt/iconArcher.png");
-        iconHorseArcher = loadImage("imgs/BannerArt/iconHorseArcher.png");
-        iconSlinger = loadImage("imgs/BannerArt/iconSlinger.png");
-        iconSkirmisher = loadImage("imgs/BannerArt/iconSkirmisher.png");
-        iconBallista = loadImage("imgs/BannerArt/iconBallista.png");
-        iconCatapult = loadImage("imgs/BannerArt/iconCatapult.png");
-
-        banner = loadImage("imgs/BannerArt/SimplifiedBanner-01.png");
-        bannerShadow = loadImage("imgs/BannerArt/SimplifiedBanner-02.png");
-        bannerTexture = loadImage("imgs/BannerArt/SimplifiedBanner-03.png");
-        bannerSelected = loadImage("imgs/BannerArt/SimplifiedBanner-04.png");
-
         mapTexture = loadImage("imgs/FullMap/DemoMap.jpg");
 
         // -------------------
@@ -316,10 +279,11 @@ public class MainSimulation extends PApplet {
         // ------
 
         // Initialize drawer
-        uiDrawer = new UIDrawer(this);
+        uiDrawer = new UIDrawer(this, camera, drawingSettings);
         shapeDrawer = new ShapeDrawer(this, camera);
-        mapDrawer = new MapDrawer(this);
+        mapDrawer = new MapDrawer(this, camera);
         infoDrawer = new InfoDrawer(this);
+        battleSignalDrawer = new BattleSignalDrawer(this, camera, drawingSettings);
 
         // -------------------------
         // Load video element player
@@ -332,11 +296,6 @@ public class MainSimulation extends PApplet {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // -----------
-        // Set up font
-        // -----------
-        font = createFont("Monospaced", 13);
 
         // ---------------
         // Load sound file
@@ -395,6 +354,13 @@ public class MainSimulation extends PApplet {
         // - Circle Size optimization
         // - Update nearest unit to mouse cursor
         // ----------------------------------------
+
+        // Pre-process all drawers
+        uiDrawer.preprocess();
+        shapeDrawer.preprocess();
+        mapDrawer.preprocess();
+        infoDrawer.preprocess();
+        battleSignalDrawer.preprocess();
 
         if (drawingSettings.isSmoothCameraMovement()) {
 
@@ -463,8 +429,6 @@ public class MainSimulation extends PApplet {
         if (drawingSettings.isDrawTroopShadow()) {
             shadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
             shadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
-            unitShadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
-            unitShadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
         }
 
         // Pick the closest to the mouse
@@ -686,7 +650,7 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : env.getUnits()) {
                 // TODO: Change to using UnitState instead for consistency
                 if (unit.getNumAlives() == 0) continue;
-                drawUnitBlock(unit, camera, env.getTerrain(), drawingSettings, false);
+                battleSignalDrawer.drawUnitBlock(unit, env.getTerrain());
             }
         }
 
@@ -757,63 +721,10 @@ public class MainSimulation extends PApplet {
         if (drawingSettings.isDrawIcon()) {
             for (BaseUnit unit : unitsSortedByPosition) {
                 if (unit.getNumAlives() == 0) continue;
-                double[] drawingPos = camera.getDrawingPosition(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ());
-                int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
-                rectMode(CORNER);
-                imageMode(CORNER);
-                blendMode(NORMAL);
-                image(unit == unitSelected ? bannerSelected : bannerShadow,
-                        (float) (drawingPos[0] - 42),
-                        (float) (drawingPos[1] - 111), 84, 111);
-                fill(color[0], color[1], color[2], 255);
-                rect(
-                        (float) (drawingPos[0] - 30),
-                        (float) (drawingPos[1] - 93 + 60.0 * (1.0 - 1.0 * unit.getNumAlives() / unit.getTroops().size())),
-                        (float) 60, (float) (60.0 * unit.getNumAlives() / unit.getTroops().size()));
-                image(banner,
-                        (float) (drawingPos[0] - 42),
-                        (float) (drawingPos[1] - 111), 84, 111);
-                int[] moraleColor = DrawingConstants.COLOR_MORALE;
-                fill(moraleColor[0], moraleColor[1], moraleColor[2], moraleColor[3]);
-                rect((float) (drawingPos[0] - 28), (float) (drawingPos[1] - 32),
-                        (float) (56 * unit.getMorale() / GameplayConstants.BASE_MORALE), 8);
-                blendMode(MULTIPLY);
-                image(bannerTexture,
-                        (float) (drawingPos[0] - 42),
-                        (float) (drawingPos[1] - 111), 84, 111);
-                blendMode(NORMAL);
-                if (unit instanceof CavalryUnit) {
-                    image(iconCav,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof PhalanxUnit) {
-                    image(iconSpear,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof SwordmenUnit) {
-                    image(iconSword,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof ArcherUnit) {
-                    image(iconArcher,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof SkirmisherUnit) {
-                    image(iconSkirmisher,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof BallistaUnit) {
-                    image(iconBallista,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof CatapultUnit) {
-                    image(iconCatapult,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                }
+                boolean isSelected = unit == unitSelected;
+                uiDrawer.drawUnitBanner(unit, isSelected);
             }
         }
-        rectMode(CENTER);
 
         // Information about the unit
         fill(0, 0, 0, 200);
@@ -1033,38 +944,6 @@ public class MainSimulation extends PApplet {
     @Override
     public void keyReleased() {
         keyPressedSet.remove(key);
-    }
-
-    /**
-     * Load all tile from view.map, given the top left position.
-     * Path must contains tile images
-     * Each image file name must be in the format IMG-i-j.png, in which i and j is the row and column position of each
-     * tile when all tile is laid out into the view.map.
-     * @param x top left x position.
-     * @param y top left y position.
-     * @param path path to the folder containing images of all tiles.
-     * @param tileSize the size of each tile.
-     */
-    private void loadMapTiles(double x, double y, String path, double tileSize) {
-
-        // Initialize the tile list
-        tiles = new ArrayList<>();
-
-        // Load all the tiles
-        Pattern numberPattern = Pattern.compile("[0-9]+");
-        File folder = new File(Paths.get(path).toString());
-        File[] fileList = folder.listFiles();
-
-        for (File file : fileList) {
-            String fileName = file.getName();
-            Matcher m = numberPattern.matcher(fileName);
-            m.find();
-            int row = Integer.valueOf(m.group());
-            m.find();
-            int col = Integer.valueOf(m.group());
-            PImage img = loadImage(Paths.get(path, fileName).toString());
-            tiles.add(new Tile(x + col * tileSize, y + row * tileSize, tileSize, img));
-        }
     }
 
     /**
@@ -1349,67 +1228,6 @@ public class MainSimulation extends PApplet {
             double[] drawingPosition = camera.getDrawingPosition(arrow[i][0], arrow[i][1], terrain.getHeightFromPos(arrow[i][0], arrow[i][1]));
             vertex((float) drawingPosition[0], (float) drawingPosition[1]);
         }
-        endShape(CLOSE);
-    }
-
-    /**
-     * Draw the block representing the entire unit.
-     */
-    void drawUnitBlock(BaseUnit unit, Camera camera, Terrain terrain, DrawingSettings settings, boolean hovered) {
-
-        // draw the bounding box.
-        double[][] boundingBox = unit.getBoundingBox();
-
-        // Convert to drawer points
-        double[] p1 = camera.getDrawingPosition(boundingBox[0][0], boundingBox[0][1],
-                terrain.getHeightFromPos(boundingBox[0][0], boundingBox[0][1]));
-        double[] p2 = camera.getDrawingPosition(boundingBox[1][0], boundingBox[1][1],
-                terrain.getHeightFromPos(boundingBox[1][0], boundingBox[1][1]));
-        double[] p3 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1],
-                terrain.getHeightFromPos(boundingBox[2][0], boundingBox[2][1]));
-        double[] p4 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1],
-                terrain.getHeightFromPos(boundingBox[3][0], boundingBox[3][1]));
-        double[] p5 = camera.getDrawingPosition(boundingBox[4][0], boundingBox[4][1],
-                terrain.getHeightFromPos(boundingBox[4][0], boundingBox[4][1]));
-        double[] p6 = camera.getDrawingPosition(boundingBox[5][0], boundingBox[5][1],
-                terrain.getHeightFromPos(boundingBox[5][0], boundingBox[5][1]));
-
-        // First, draw the box indicating the unit at full strength
-        fill(DrawingConstants.UNIT_SIZE_COLOR[0],
-                DrawingConstants.UNIT_SIZE_COLOR[1],
-                DrawingConstants.UNIT_SIZE_COLOR[2],
-                DrawingConstants.UNIT_SIZE_COLOR[3]);
-        beginShape();
-        vertex((float) p1[0], (float) p1[1]);
-        vertex((float) p2[0], (float) p2[1]);
-        vertex((float) p5[0], (float) p5[1]);
-        vertex((float) p6[0], (float) p6[1]);
-        endShape(CLOSE);
-
-        // Then draw the box indicating the actual current scale of the the unit
-        int[] shadowColor = UniversalConstants.SHADOW_COLOR;
-        fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-        beginShape();
-        vertex((float) (p1[0] + unitShadowXOffset * 2), (float) (p1[1] + unitShadowYOffset * 2));
-        vertex((float) (p2[0] + unitShadowXOffset * 2), (float) (p2[1] + unitShadowYOffset * 2));
-        vertex((float) (p3[0] + unitShadowXOffset * 2), (float) (p3[1] + unitShadowYOffset * 2));
-        vertex((float) (p4[0] + unitShadowXOffset * 2), (float) (p4[1] + unitShadowYOffset * 2));
-        endShape(CLOSE);
-
-        int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
-        if (closestUnit == unit) {
-            fill(color[0], color[1], color[2], 255);
-        } else {
-            fill(color[0], color[1], color[2], 255);
-        }
-        if (unitSelected == unit) {
-            fill(color[0], color[1], color[2], 255);
-        }
-        beginShape();
-        vertex((float) p1[0], (float) p1[1]);
-        vertex((float) p2[0], (float) p2[1]);
-        vertex((float) p3[0], (float) p3[1]);
-        vertex((float) p4[0], (float) p4[1]);
         endShape(CLOSE);
     }
 

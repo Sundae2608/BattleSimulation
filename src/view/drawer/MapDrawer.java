@@ -5,12 +5,19 @@ import processing.core.PApplet;
 import view.camera.Camera;
 import view.constants.DrawingConstants;
 
-public class MapDrawer {
+public class MapDrawer extends BaseDrawer {
 
     PApplet applet;
+    Camera camera;
 
-    public MapDrawer(PApplet inputApplet) {
+    public MapDrawer(PApplet inputApplet, Camera inputCamera) {
         applet = inputApplet;
+        camera = inputCamera;
+    }
+
+    @Override
+    public void preprocess() {
+        return;
     }
 
     /**

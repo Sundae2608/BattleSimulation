@@ -6,6 +6,7 @@ import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
+import model.enums.UnitType;
 import model.events.EventBroadcaster;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
@@ -1068,5 +1069,9 @@ public class BaseUnit {
 
     public UnitStats getUnitStats() {
         return unitStats;
+    }
+
+    public UnitType getUnitType() {
+        return unitStats.unitType;
     }
 }

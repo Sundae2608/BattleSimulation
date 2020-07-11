@@ -13,7 +13,7 @@ import java.util.HashMap;
 /**
  * This class contains the drawer for all weapons in the games.
  */
-public class ShapeDrawer {
+public class ShapeDrawer extends BaseDrawer {
 
     // PApplet injection
     PApplet applet;
@@ -37,6 +37,11 @@ public class ShapeDrawer {
         bowShapeMap = new HashMap<>();
         arrowShapeMap = new HashMap<>();
         cavalryShapeMap = new HashMap<>();
+    }
+
+    @Override
+    public void preprocess() {
+        return;
     }
 
     /**
