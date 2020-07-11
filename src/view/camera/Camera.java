@@ -39,6 +39,22 @@ public class Camera extends EventListener {
     HashSet<BaseSingle> drawableTroops;
 
     /**
+     * Initialize camera with no broadcaster
+     */
+    public Camera(double inputX, double inputY, double inputWidth, double inputHeight) {
+        super(new EventBroadcaster());
+        x = inputX;
+        y = inputY;
+
+        width = inputWidth;
+        height = inputHeight;
+        angle = 0;
+        zoom = 1.0;
+        resize = 1.0;
+        troops = new ArrayList<>();
+    }
+
+    /**
      * Initialize view.camera
      */
     public Camera(double inputX, double inputY, double inputWidth, double inputHeight, EventBroadcaster inputBroadcaster) {

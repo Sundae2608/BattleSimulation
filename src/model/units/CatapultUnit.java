@@ -113,6 +113,7 @@ public class CatapultUnit extends BaseUnit {
      */
     public void setUnitFiredAt(BaseUnit unitFiredAgainst) {
         this.unitFiredAgainst = unitFiredAgainst;
+        if (unitFiredAgainst == null) return;
         targetIterator = new ArrayList(unitFiredAgainst.getAliveTroopsSet());
     }
 

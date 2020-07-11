@@ -136,4 +136,71 @@
     boundary_points: 24390 33770
     boundary_points: 24050 33910
     boundary_points: 26000 33400
+},
+{
+    type: graph
+    node: 1 5390 14040
+    node: 2 11380 10140
+    node: 3 18040 12040
+    node: 4 21950 13210
+    node: 5 26740 13030
+    node: 6 30140 14790
+    node: 7 4900 19800
+    node: 8 8810 17980
+    node: 9 15250 14200
+    node: 10 22440 17820
+    node: 11 26600 18970
+    node: 12 29860 17980
+    node: 13 11210 22400
+    node: 14 16620 19910
+    node: 15 19610 20520
+    node: 16 3910 26690
+    node: 17 15900 26100
+    node: 18 18730 23610
+    node: 19 22590 24610
+    node: 20 26740 24610
+    node: 21 32140 24110
+    node: 22 7510 30140
+    node: 23 13620 31790
+    node: 24 21600 32900
+    node: 25 28060 31050
+    node: 26 33550 29300
+    node: 27 23250 36350
+    node: 28 28960 36850
+    node: 29 31540 33130
+    edge: 1 2
+    edge: 2 3
+    edge: 3 4
+    edge: 4 5
+    edge: 5 6
+    edge: 6 12
+    edge: 12 21
+    edge: 21 26
+    edge: 26 29
+    edge: 29 28
+    edge: 28 27
+    edge: 27 24
+    edge: 24 23
+    edge: 23 22
+    edge: 22 16
+    edge: 16 7
+    edge: 7 1
+    edge: 7 8
+    edge: 8 9
+    edge: 9 3
+    edge: 23 17
+    edge: 17 18
+    edge: 18 15
+    edge: 15 10
+    edge: 10 4
+    edge: 8 13
+    edge: 13 17
+    edge: 9 14
+    edge: 14 15
+    edge: 10 11
+    edge: 11 12
+    edge: 18 19
+    edge: 19 20
+    edge: 11 20
+    edge: 20 25
 }

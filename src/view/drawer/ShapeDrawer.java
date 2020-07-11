@@ -13,7 +13,11 @@ import java.util.HashMap;
 /**
  * This class contains the drawer for all weapons in the games.
  */
-public class ShapeDrawer extends PApplet {
+public class ShapeDrawer {
+
+    // PApplet injection
+    PApplet applet;
+    Camera camera;
 
     // Weapon optimizers
     HashMap<Double, DrawingVertices> swordMap;
@@ -22,7 +26,12 @@ public class ShapeDrawer extends PApplet {
     HashMap<Double, DrawingVertices> arrowShapeMap;
     HashMap<Double, DrawingVertices> cavalryShapeMap;
 
-    public ShapeDrawer() {
+    public ShapeDrawer(PApplet inputApplet, Camera inputCamera) {
+        // Inject the applet
+        applet = inputApplet;
+        camera = inputCamera;
+
+        // Create 5 size maps.
         swordMap = new HashMap<>();
         spearMap = new HashMap<>();
         bowShapeMap = new HashMap<>();
@@ -33,7 +42,7 @@ public class ShapeDrawer extends PApplet {
     /**
      * Draw a spear with a specific length;
      */
-    public void spear(PGraphics g, float x, float y, float angle, float spearLength, float size, DrawingSettings settings) {
+    public void spear(float x, float y, float angle, float spearLength, float size) {
         if (!spearMap.containsKey(size)) {
             float[][] spearShape;
             if (size > CameraConstants.ZOOM_RENDER_LEVEL_NORMAL) {
@@ -66,21 +75,21 @@ public class ShapeDrawer extends PApplet {
             spearMap.put((double)size, new DrawingVertices(spearShape));
         }
         float[][] vertices = spearMap.get((double) size).getVertices();
-        g.pushMatrix();
-        g.translate(x, y);
-        g.rotate(angle);
-        g.beginShape();
+        applet.pushMatrix();
+        applet.translate(x, y);
+        applet.rotate(angle);
+        applet.beginShape();
         for (int i = 0; i < vertices.length; i++) {
-            g.vertex(vertices[i][0], vertices[i][1]);
+            applet.vertex(vertices[i][0], vertices[i][1]);
         }
-        g.endShape(CLOSE);
-        g.popMatrix();
+        applet.endShape(PApplet.CLOSE);
+        applet.popMatrix();
     }
 
     /**
      * Draw a sword
      */
-    public void sword(PGraphics g, double x, double y, double angle, double size, DrawingSettings settings) {
+    public void sword(double x, double y, double angle, double size) {
         if (!swordMap.containsKey(size)) {
             float[][] swordShape;
             if (size > CameraConstants.ZOOM_RENDER_LEVEL_NORMAL) {
@@ -113,21 +122,21 @@ public class ShapeDrawer extends PApplet {
             swordMap.put( size, new DrawingVertices(swordShape));
         }
         float[][] vertices = swordMap.get(size).getVertices();
-        g.pushMatrix();
-        g.translate((float)x, (float)y);
-        g.rotate((float) angle);
-        g.beginShape();
+        applet.pushMatrix();
+        applet.translate((float)x, (float)y);
+        applet.rotate((float) angle);
+        applet.beginShape();
         for (int i = 0; i < vertices.length; i++) {
-            g.vertex(vertices[i][0], vertices[i][1]);
+            applet.vertex(vertices[i][0], vertices[i][1]);
         }
-        g.endShape(CLOSE);
-        g.popMatrix();
+        applet.endShape(PApplet.CLOSE);
+        applet.popMatrix();
     }
 
     /**
      * Draw a bow
      */
-    public void bow(PGraphics g, float x, float y, float angle, float size, DrawingSettings settings) {
+    public void bow(float x, float y, float angle, float size) {
         if (!bowShapeMap.containsKey(size)) {
             float[][] bowShape;
             if (size > CameraConstants.ZOOM_RENDER_LEVEL_NORMAL) {
@@ -142,21 +151,21 @@ public class ShapeDrawer extends PApplet {
             bowShapeMap.put((double)size, new DrawingVertices(bowShape));
         }
         float[][] vertices = bowShapeMap.get((double) size).getVertices();
-        g.pushMatrix();
-        g.translate(x, y);
-        g.rotate(angle);
-        g.beginShape();
+        applet.pushMatrix();
+        applet.translate(x, y);
+        applet.rotate(angle);
+        applet.beginShape();
         for (int i = 0; i < vertices.length; i++) {
-            g.vertex(vertices[i][0], vertices[i][1]);
+            applet.vertex(vertices[i][0], vertices[i][1]);
         }
-        g.endShape(CLOSE);
-        g.popMatrix();
+        applet.endShape(PApplet.CLOSE);
+        applet.popMatrix();
     }
 
     /**
      * Draw an arrow
      */
-    public void arrow(PGraphics g, float x, float y, float angle, float zoom, float arrowSize, DrawingSettings settings) {
+    public void arrow(float x, float y, float angle, float zoom, float arrowSize) {
         if (!arrowShapeMap.containsKey(zoom)) {
             float[][] arrowShape;
             if (zoom > CameraConstants.ZOOM_RENDER_LEVEL_ARROW_DETAIL) {
@@ -187,28 +196,26 @@ public class ShapeDrawer extends PApplet {
             arrowShapeMap.put((double)zoom, new DrawingVertices(arrowShape));
         }
         float[][] vertices = arrowShapeMap.get((double) zoom).getVertices();
-        g.pushMatrix();
-        g.translate(x, y);
-        g.rotate(angle);
-        g.beginShape();
+        applet.pushMatrix();
+        applet.translate(x, y);
+        applet.rotate(angle);
+        applet.beginShape();
         for (int i = 0; i < vertices.length; i++) {
-            g.vertex(vertices[i][0], vertices[i][1]);
+            applet.vertex(vertices[i][0], vertices[i][1]);
         }
-        g.endShape(CLOSE);
-        g.popMatrix();
+        applet.endShape(PApplet.CLOSE);
+        applet.popMatrix();
     }
 
     /**
      * Draw the shape of infantry
-     * @param g PGraphics object that draw the infantry shape
      * @param x Position x
      * @param y Position y
      * @param size Contains two size. One size is the when the infantry is drawn as circle, the other is the size when
      *             the infantry is drawn as a square.
-     * @param camera The view.camera.
      */
-    public void circleShape(PGraphics g, double x, double y, double size, Camera camera) {
-        g.ellipse(
+    public void circleShape(double x, double y, double size) {
+        applet.ellipse(
             (float) x,
             (float) y,
             (float) size,
@@ -217,22 +224,20 @@ public class ShapeDrawer extends PApplet {
 
     /**
      * Draw the shape of infantry
-     * @param g PGraphics object that draw the infantry shape
      * @param x Position x
      * @param y Position y
      * @param size Contains two size. One size is the when the infantry is drawn as circle, the other is the size when
      *             the infantry is drawn as a square.
-     * @param camera The view.camera.
      */
-    public void infantryShape(PGraphics g, double x, double y, double size, double sizeSimplfied, Camera camera) {
+    public void infantryShape(double x, double y, double size, double sizeSimplfied) {
         if (camera.getZoom() < CameraConstants.ZOOM_RENDER_LEVEL_SIMPLIFY_TROOP_SHAPE) {
-            g.rect(
+            applet.rect(
                 (float) x,
                 (float) y,
                 (float) sizeSimplfied,
                 (float) sizeSimplfied);
         } else {
-            g.ellipse(
+            applet.ellipse(
                 (float) x,
                 (float) y,
                 (float) size,
@@ -243,7 +248,7 @@ public class ShapeDrawer extends PApplet {
     /**
      * Draw the shape of calvary
      */
-    public void cavalryShape(PGraphics g, double x, double y, double angle, double size, Camera camera) {
+    public void cavalryShape(double x, double y, double angle, double size) {
         float[][] cavShape;
         if (!cavalryShapeMap.containsKey(size)) {
             if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_CAV_PERCEPTIVE) {
@@ -263,14 +268,14 @@ public class ShapeDrawer extends PApplet {
             cavalryShapeMap.put(size, new DrawingVertices(cavShape));
         }
         float[][] vertices = cavalryShapeMap.get(size).getVertices();
-        g.pushMatrix();
-        g.translate((float) x, (float) y);
-        g.rotate((float) angle);
-        g.beginShape();
+        applet.pushMatrix();
+        applet.translate((float) x, (float) y);
+        applet.rotate((float) angle);
+        applet.beginShape();
         for (int i = 0; i < vertices.length; i++) {
-            g.vertex(vertices[i][0], vertices[i][1]);
+            applet.vertex(vertices[i][0], vertices[i][1]);
         }
-        g.endShape(CLOSE);
-        g.popMatrix();
+        applet.endShape(PApplet.CLOSE);
+        applet.popMatrix();
     }
 }

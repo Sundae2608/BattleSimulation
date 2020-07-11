@@ -1,5 +1,6 @@
 package model.utils;
 
+import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.singles.BaseSingle;
@@ -171,6 +172,11 @@ public final class PhysicUtils {
                 continue;
             }
 
+            // If the unit is dead, it is not visible.
+            if (queryUnit.getNumAlives() == 0) {
+                continue;
+            }
+
             // Getting the coordinate of the queryUnit
             double queryAverageX = queryUnit.getAverageX();
             double queryAverageY = queryUnit.getAverageY();
@@ -187,7 +193,6 @@ public final class PhysicUtils {
             }
 
             double[] t = new double[(int) temp];
-            t[0] = 0;
             for (int i = 1; i < t.length; i++) {
                 t[i] = t[i-1] + 1.0 / t.length;
             }
@@ -278,11 +283,60 @@ public final class PhysicUtils {
     }
 
     /**
+     * Check whether the line (x1, y1), (x2, y2) cuts the line (x3, y3), (x4, y4)
+     */
+    public static boolean checkLineLineCollision(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4) {
+
+        // calculate the direction of the lines
+        double v = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+        double uA = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / v;
+        double uB = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / v;
+
+        // if uA and uB are between 0-1, lines are colliding
+        if (uA >= 0 && uA <= 1 && uB >= 0 && uB <= 1) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Check whether the line constructed by (x1, y1) and (x2, y2) collide with the polygon constructed by
+     * polygon boundaries.
+     * Based on implementation by Jeffrey Thompson: http://www.jeffreythompson.org/collision-detection/poly-line.php
+     */
+    public static boolean checkLinePolygonCollision(double x1, double y1, double x2, double y2, double[][] polygonBoundaries) {
+        // Go through each line of the polygons.
+        for (int i = 0; i < polygonBoundaries.length; i++) {
+            // Get the pair of point that make the current line of the polygon.
+            double[] pt1 = polygonBoundaries[i];
+            double[] pt2 = polygonBoundaries[(i + 1) % polygonBoundaries.length];
+
+            // Check if this line cuts the input line (x1, y1) -> (x2, y2)
+            double x3 = pt1[0];
+            double y3 = pt1[1];
+            double x4 = pt2[0];
+            double y4 = pt2[1];
+
+            // do a Line/Line comparison
+            // if true, return 'true' immediately and
+            // stop testing (faster)
+            boolean hit = checkLineLineCollision(x1, y1, x2, y2, x3, y3, x4, y4);
+            if (hit) {
+                return true;
+            }
+        }
+
+        // never got a hit
+        return false;
+    }
+
+    /**
      * Check whether the line constructed by (x1, y1) and (x2, y2) collide with the circle with center (cx, cy) and
      * radius r.
      * @return true if the two collides, false otherwise.
      */
-    private static boolean checkLineCircleCollision(double x1, double y1, double x2, double y2, double cx, double cy, double r) {
+    public static boolean checkLineCircleCollision(double x1, double y1, double x2, double y2, double cx, double cy, double r) {
         // is either end INSIDE the circle?
         // if so, return true immediately
         boolean inside1 = checkPointCircleCollision(x1, y1, cx, cy, r);
@@ -446,5 +500,8 @@ public final class PhysicUtils {
         double[] newPt = getCirclePushPoint(tree.getX(), tree.getY(), tree.getRadius(), single.getX(), single.getY());
         single.setX(newPt[0]);
         single.setY(newPt[1]);
+        // Apply a small speed reduction
+        single.setxVel(single.getxVel() * GameplayConstants.TREE_COLLISION_SLOWDOWN);
+        single.setyVel(single.getyVel() * GameplayConstants.TREE_COLLISION_SLOWDOWN);
     }
 }

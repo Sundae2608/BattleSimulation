@@ -1,5 +1,6 @@
 package model.units;
 
+import model.algorithms.pathfinding.Path;
 import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
@@ -52,6 +53,10 @@ public class BaseUnit {
     double averageX;
     double averageY;
     double averageZ;
+
+    // Path finding variables.
+    Path path;
+    int nodeIndex;
 
     // Collision attributes
     protected double[][] boundingBox;
@@ -122,6 +127,10 @@ public class BaseUnit {
      */
     public void moveFormationKeptTo(double xGoal, double yGoal, double angleGoal) {
 
+        // Find the furthest distance troops from the average position, according to angle goal
+        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsMap.keySet());
+        double mostForwardDist = MathUtils.mostForwardDistance(aliveArray, -angleGoal);
+
         // Set the goals
         goalX = xGoal;
         goalY = yGoal;
@@ -134,6 +143,7 @@ public class BaseUnit {
 
         // Reorder the troops if the turn is bigger than 90 degree
         // Essentially the last row of the block will become the new front row.
+
         double moveAngle = Math.atan2(goalY - anchorY, goalX - anchorX);
         if (Math.abs(MathUtils.signedAngleDifference(anchorAngle, moveAngle)) > UniversalConstants.NON_UTURN_ANGLE) {
             uTurnFormation();
@@ -151,10 +161,23 @@ public class BaseUnit {
         }
 
         // Reset anchor angles
-        anchorAngle = MathUtils.atan2(yGoal - averageY, xGoal - averageX);
-        anchorX = averageX + MathUtils.quickCos((float) anchorAngle) * depth * unitStats.spacing / 2;
-        anchorY = averageY + MathUtils.quickSin((float) anchorAngle) * depth * unitStats.spacing / 2;
-        reorderTroops(anchorX, anchorY, anchorAngle);
+        if (Math.abs(MathUtils.signedAngleDifference(anchorAngle, moveAngle)) < UniversalConstants.NON_REGROUP_ANGLE) {
+            double forwardedAnchorDist = (depth * unitStats.spacing / 2 + GameplayConstants.FORWARD_DISTANCE) *
+                    (1 - UniversalConstants.TENDENCY_TOWARD_FURTHEST_TROOP_DURING_REORDER) +
+                    mostForwardDist * UniversalConstants.TENDENCY_TOWARD_FURTHEST_TROOP_DURING_REORDER;
+            // If the turn angle is not too sharp, we will not perform a reorder to keep the formation more consistent.
+            // In this case, don't change the anchor angle and simply move the anchor position slightly forward.
+            anchorX = averageX + MathUtils.quickCos((float) anchorAngle) * forwardedAnchorDist;
+            anchorY = averageY + MathUtils.quickSin((float) anchorAngle) * forwardedAnchorDist;
+        } else {
+            double forwardedAnchorDist = (depth * unitStats.spacing / 2 + GameplayConstants.FORWARD_DISTANCE) *
+                    (1 - UniversalConstants.TENDENCY_TOWARD_FURTHEST_TROOP_DURING_REORDER) +
+                    mostForwardDist * UniversalConstants.TENDENCY_TOWARD_FURTHEST_TROOP_DURING_REORDER;
+            anchorAngle = MathUtils.atan2(yGoal - averageY, xGoal - averageX);
+            anchorX = averageX + MathUtils.quickCos((float) anchorAngle) * forwardedAnchorDist;
+            anchorY = averageY + MathUtils.quickSin((float) anchorAngle) * forwardedAnchorDist;
+            reorderTroops(anchorX, anchorY, anchorAngle);
+        }
 
         // Decision has a random delay until it reaches the soldiers ear.
         for (int i = 0; i < troops.size(); i++) {
@@ -232,10 +255,8 @@ public class BaseUnit {
         currUnitPatience = unitStats.patience; // Reset patience.
         unitFoughtAgainst = null;
 
-        // Re-order troops position.
-        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsMap.keySet());
-
         // First, sort position from furthest forward to furthest backward.
+        ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsMap.keySet());
         MathUtils.sortSinglesByAngle(aliveArray, -angleGoal + Math.PI);
 
         // Take each row, sort each row from furthest leftward to furthest rightward, and then put them into the correct
