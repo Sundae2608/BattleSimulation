@@ -1355,29 +1355,6 @@ public class MainSimulation extends PApplet {
     }
 
     /**
-     * Draw the block representation of the goal
-     */
-    void drawGoalUnitBlock(BaseUnit unit, Camera camera, DrawingSettings settings, boolean hovered) {
-        // draw the bounding box.
-        double[][] boundingBox = unit.getGoalBoundingBox();
-
-        // Convert to drawer points
-        double[] p1 = camera.getDrawingPosition(boundingBox[0][0], boundingBox[0][1]);
-        double[] p2 = camera.getDrawingPosition(boundingBox[1][0], boundingBox[1][1]);
-        double[] p3 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1]);
-        double[] p4 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1]);
-
-        int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
-        fill(color[0], color[1], color[2], 150);
-        beginShape();
-        vertex((float) p1[0], (float) p1[1]);
-        vertex((float) p2[0], (float) p2[1]);
-        vertex((float) p3[0], (float) p3[1]);
-        vertex((float) p4[0], (float) p4[1]);
-        endShape(CLOSE);
-    }
-
-    /**
      * Draw the block representing the entire unit.
      */
     void drawUnitBlock(BaseUnit unit, Camera camera, Terrain terrain, DrawingSettings settings, boolean hovered) {
@@ -1786,22 +1763,6 @@ public class MainSimulation extends PApplet {
 
         // If it's drawable, draw the alive unit and potentially add some sound
         drawDeadSingle(drawX, drawY, zoomAdjustment, single, camera, settings);
-        soundDeadSingle(single, camera);
-    }
-
-    /**
-     * Add sound created by troop that just died
-     */
-    void soundDeadSingle(BaseSingle single, Camera camera) {
-
-        // If sound effect not turned on don't play anything
-        if (!audioSettings.isSoundEffect()) return;
-
-        // Scream dead once
-        if (single.isScreamDeath()) {
-            // Play dead sound here
-            single.setScreamDeath(false);  // Only scream death once
-        }
     }
 
     /**
