@@ -4,9 +4,12 @@ import processing.core.PApplet;
 import processing.event.MouseEvent;
 import view.camera.Camera;
 import view.camera.CameraConstants;
+import view.constants.MapMakerConstants;
 import view.drawer.InfoDrawer;
 import view.drawer.MapDrawer;
+import view.drawer.UIDrawer;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class MapMakerSimulation extends PApplet {
@@ -20,10 +23,16 @@ public class MapMakerSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
-    // Key pressed set
+    // Key and mouse pressed set
     HashSet<Character> keyPressedSet;
+    boolean leftMouseHold;
+    boolean rightMouseHold;
+
+    // Circle screen size
+    double circleScreenSize;
 
     // Drawer
+    UIDrawer uiDrawer;
     MapDrawer mapDrawer;
     InfoDrawer infoDrawer;
 
@@ -43,17 +52,32 @@ public class MapMakerSimulation extends PApplet {
     }
 
     public void setup() {
+        // Set up terrain.
         terrain = new Terrain(INPUT_TOP_X, INPUT_TOP_Y, INPUT_DIV, INPUT_NUM_X, INPUT_NUM_Y);
+
+        // Set up camera.
         camera = new Camera(
                 INPUT_NUM_X * INPUT_DIV / 2,
                 INPUT_NUM_Y * INPUT_DIV / 2,
                 INPUT_WIDTH, INPUT_HEIGHT);
+        camera.setZoom(0.10);
         cameraRotationSpeed = 0;
         cameraDx = 0;
         cameraDy = 0;
+
+        // Set up zoom.
         zoomGoal = camera.getZoom();  // To ensure consistency
+
+        // Set up drawer
+        uiDrawer = new UIDrawer(this);
         mapDrawer = new MapDrawer(this);
         infoDrawer = new InfoDrawer(this);
+
+        // Drawing settings
+        smooth(3);
+        noCursor();
+
+        // Set of keys pressed.
         keyPressedSet = new HashSet<>();
     }
 
@@ -122,11 +146,29 @@ public class MapMakerSimulation extends PApplet {
         // Drawing terrain line
         mapDrawer.drawTerrainLine(terrain, camera);
 
+        // Draw the circle that is the drawer.
+        uiDrawer.paintCircle(mouseX, mouseY);
+
         // Draw zoom information
         StringBuilder s = new StringBuilder();
         s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
         s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
-        infoDrawer.drawTextAnchorBottomLeft(s.toString(), 5, INPUT_HEIGHT - 5);
+        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
+
+        // Change the heights of all points within the paint brush.
+        double dHeight = 0;
+        if (leftMouseHold) {
+            dHeight = MapMakerConstants.HEIGHT_CHANGE / camera.getZoom();
+        } else if (rightMouseHold) {
+            dHeight = -MapMakerConstants.HEIGHT_CHANGE / camera.getZoom();
+        }
+        ArrayList<int[]> ptList = getPointsWithinBrush(
+                terrain, mouseX, mouseY, MapMakerConstants.PAINT_CIRCLE_SIZE, camera);
+        for (int[] pt : ptList) {
+            int i = pt[0];
+            int j = pt[1];
+            terrain.changeHeightAtTile(i, j, dHeight);
+        }
     }
 
     @Override
@@ -152,6 +194,62 @@ public class MapMakerSimulation extends PApplet {
             if (zoomGoal < CameraConstants.MINIMUM_ZOOM) zoomGoal = CameraConstants.MINIMUM_ZOOM;
         }
         zoomCounter = CameraConstants.ZOOM_SMOOTHEN_STEPS;
+    }
+
+    /**
+     * Return an array of int[] denotings the index that were within the circle centering at (mouseX, mouseY) and has
+     * radius circleSize.
+     */
+    private ArrayList<int[]> getPointsWithinBrush(Terrain terrain, double mouseX, double mouseY, double circleSize, Camera camera) {
+        // Get the set of candidates by getting all points potentially within the size of the circles.
+        double circleSizeActual = circleSize / camera.getZoom();
+        int sizeInNumDivs = (int) (circleSizeActual / terrain.getDiv());
+        double[] actualPositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+        double x = actualPositions[0];
+        double y = actualPositions[1];
+        int xDiv = (int) Math.round(x / terrain.getDiv());
+        int yDiv = (int) Math.round(y / terrain.getDiv());
+        int minX = xDiv - sizeInNumDivs / 2 - 2;
+        int maxX = xDiv + sizeInNumDivs / 2 + 2;
+        int minY = yDiv - sizeInNumDivs / 2 - 2;
+        int maxY = yDiv + sizeInNumDivs / 2 + 2;
+
+        // Check each candidate points, with i in the range of (minX, maxX) and j in (minY, maxY). If the candidate
+        // point is within the radius of the selection circle, we add them to the selection.
+        double squareRadius = MathUtils.square(circleSizeActual / 2);
+        ArrayList<int[]> ptList = new ArrayList<>();
+        for (int i = minX; i <= maxX; i++) {
+            for (int j = minY; j <= maxY; j++) {
+                if (i < 0 || i >= terrain.getNumX() || j < 0 || j >= terrain.getNumY()) {
+                    continue;
+                }
+                double[] pos = terrain.getPosFromTileIndex(i, j);
+                double posX = pos[0];
+                double posY = pos[1];
+                double squareDistance = MathUtils.squareDistance(posX, posY, x, y);
+                if (squareDistance < squareRadius) {
+                    ptList.add(new int[] {i, j});
+                }
+            }
+        }
+
+        // Return point list
+        return ptList;
+    }
+
+    @Override
+    public void mousePressed() {
+        if (mouseButton == LEFT) {
+            leftMouseHold = true;
+        } else if (mouseButton == RIGHT) {
+            rightMouseHold = true;
+        }
+    }
+
+    @Override
+    public void mouseReleased() {
+        leftMouseHold = false;
+        rightMouseHold = false;
     }
 
     public static void main(String... args){

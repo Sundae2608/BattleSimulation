@@ -129,6 +129,9 @@ public class Terrain {
         return (x > topX && x < botX && y > topY && y < botY);
     }
 
+    /**
+     * Get height from position x, y.
+     */
     public double getHeightFromPos(double x, double y) {
         int i = (int) ((x - topX) / div);
         int j = (int) ((y - topY) / div);
@@ -148,6 +151,9 @@ public class Terrain {
         return 0;
     }
 
+    /**
+     * Get velocity vector from position (x, y).
+     */
     public double[] getDeltaVelFromPos(double x, double y) {
         int i = (int) (x / div);
         int j = (int) (y / div);
@@ -155,5 +161,21 @@ public class Terrain {
             return new double[] {dx[i][j], dy[i][j]};
         }
         return new double[]{0, 0};
+    }
+
+    /**
+     * Change height of tile (i, j) by certain amount dHeight.
+     */
+    public void changeHeightAtTile(int i, int j, double dHeight) {
+        heightField[i][j] += dHeight;
+        for (int row = i - 1; row <= i + 1; row++) {
+            for (int col = j - 1; col <= j + 1; col++) {
+                if (row < 0 || row >= numX - 2 || col < 0 || col >= numY - 2) {
+                    continue;
+                }
+                dx[i][j] = (heightField[i][j + 1] - heightField[i][j]) / div;
+                dy[i][j] = (heightField[i + 1][j] - heightField[i][j]) / div;
+            }
+        }
     }
 }

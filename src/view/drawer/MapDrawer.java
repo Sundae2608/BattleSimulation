@@ -4,7 +4,6 @@ import model.terrain.Terrain;
 import processing.core.PApplet;
 import view.camera.Camera;
 import view.constants.DrawingConstants;
-import view.utils.DrawingUtils;
 
 public class MapDrawer {
 
