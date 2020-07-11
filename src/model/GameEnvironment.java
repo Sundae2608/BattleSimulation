@@ -1,10 +1,14 @@
 package model;
 
+import javafx.util.Pair;
 import model.algorithms.UnitModifier;
+import model.algorithms.pathfinding.Graph;
+import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventType;
+import model.monitor.Monitor;
 import model.singles.BaseSingle;
 import model.surface.BaseSurface;
 import model.terrain.Terrain;
@@ -30,6 +34,7 @@ public class GameEnvironment {
     // Terrain
     Terrain terrain;
     ArrayList<Construct> constructs;
+    Graph graph;
 
     // Game settings
     GameSettings gameSettings;
@@ -38,6 +43,9 @@ public class GameEnvironment {
     // Event broadcaster, so that the view and the outside API can interact with the game
     EventBroadcaster broadcaster;
 
+    // Monitor, to keep track of things in the game
+    Monitor monitor;
+
     /**
      *
      * @param battleConfig Path to the txt file that contains all the game information
@@ -45,6 +53,7 @@ public class GameEnvironment {
     public GameEnvironment(String gameConfig, String terrainConfig, String constructsConfig, String surfaceConfig,
                            String battleConfig, GameSettings inputGameSettings) {
         broadcaster = new EventBroadcaster();
+        monitor = new Monitor(UniversalConstants.FRAME_STORAGE);
         gameSettings = inputGameSettings;
         deadContainer = new ArrayList<>();
         // Read terrain configuration.
@@ -55,7 +64,9 @@ public class GameEnvironment {
         }
         // Read construct configuration.
         try {
-            constructs = ConfigUtils.createConstructsFromConfig(constructsConfig);
+            Pair<Graph, ArrayList<Construct>> pair = ConfigUtils.createConstructsAndGraphsFromConfig(constructsConfig);
+            graph = pair.getKey();
+            constructs = pair.getValue();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,7 +76,8 @@ public class GameEnvironment {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        unitModifier = new UnitModifier(deadContainer, terrain, constructs, surfaces, gameSettings, broadcaster);
+        unitModifier = new UnitModifier(
+                deadContainer, terrain, constructs, surfaces, gameSettings, broadcaster, monitor);
         // Read game stats.
         try {
             gameStats = ConfigUtils.readGameStats(gameConfig);
@@ -88,6 +100,9 @@ public class GameEnvironment {
      * Loop the game by one step
      */
     public void step() {
+        // Reset counters
+        monitor.clockTheData();
+
         // Update intentions of all units
         unitModifier.getObjectHasher().updateObjects();
         for (BaseUnit unit : units) {
@@ -150,6 +165,10 @@ public class GameEnvironment {
         return terrain;
     }
 
+    public Graph getGraph() {
+        return graph;
+    }
+
     public ArrayList<Construct> getConstructs() {
         return constructs;
     }
@@ -166,7 +185,13 @@ public class GameEnvironment {
         return broadcaster;
     }
 
+    public Monitor getMonitor() {
+        return monitor;
+    }
+
     public ArrayList<BaseSurface> getSurfaces() {
         return surfaces;
     }
+
+
 }

@@ -31,4 +31,10 @@ public class GameplayConstants {
 
     // Slow down by different environment
     public final static double SURFACE_BEACH_SLOWDOWN = 1.0;
+    public final static double TREE_COLLISION_SLOWDOWN = 0.5;
+
+    // Forward distance after command.
+    // After a command has been given, we will set the anchor position to be a little more forward to fix several
+    // issues regarding troops abruptly changing their direction.
+    public final static double FORWARD_DISTANCE = 150;
 }

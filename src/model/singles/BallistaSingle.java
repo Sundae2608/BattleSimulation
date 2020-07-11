@@ -1,6 +1,7 @@
 package model.singles;
 
 import model.algorithms.ObjectHasher;
+import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import model.enums.SingleState;
 import model.enums.PoliticalFaction;
@@ -76,8 +77,8 @@ public class BallistaSingle extends BaseSingle {
         // Calculate intended speed
         double variation = 1;
         if (speed != 0) variation = MathUtils.randDouble(0.9, 1.1);
-        if (speed < speedGoal) speed = Math.min(speed + UniversalConstants.SPEED_ACC, speedGoal);
-        else if (speed > speedGoal) speed = Math.max(speed - UniversalConstants.SPEED_ACC, speedGoal);
+        if (speed < speedGoal) speed = Math.min(speed + singleStats.acceleration, speedGoal);
+        else if (speed > speedGoal) speed = Math.max(speed - singleStats.deceleration, speedGoal);
         speed *= variation;
 
         // Apply speed modifier by terrain
@@ -95,36 +96,63 @@ public class BallistaSingle extends BaseSingle {
         yVel = MathUtils.quickSin((float) angle) * speed;
 
         // Update based on states
-        double distanceToGoal = MathUtils.quickRoot1((float)((x - xGoal) * (x - xGoal) + (y - yGoal) * (y - yGoal)));
+        double distanceToGoal = MathUtils.quickDistance(x, y, xGoal, yGoal);
+        double towardAngle = MathUtils.atan2(yGoal - y, xGoal - x);
         switch (state) {
             case MOVING:
-                // Recalculate vx, vy
-                angle = MathUtils.atan2(yGoal - y, xGoal - x);
-
                 // Out of position if it takes more than 3 steps to reach
-                if (distanceToGoal > singleStats.outOfReachDist) {
-                    speedGoal = singleStats.outOfReachSpeed;
-                } else if ((distanceToGoal > singleStats.standingDist) && (distanceToGoal < 10 * singleStats.speed)) {
-                    speedGoal = singleStats.speed;
-                } else if (distanceToGoal < singleStats.standingDist) {
-                    state = SingleState.IN_POSITION;
+                speedGoal = singleStats.speed;
+                if (distanceToGoal > singleStats.standingDist) {
+                    if (distanceToGoal > singleStats.outOfReachDist) {
+                        switchState(SingleState.CATCHING_UP);
+                    }
+                    if (!MathUtils.doubleEqual(angle, towardAngle, 1e-1) && distanceToGoal > singleStats.standingDist) {
+                        switchState(SingleState.ROTATING);
+                    }
+                } else if (distanceToGoal < singleStats.standingDist && unit.getState() == UnitState.STANDING) {
+                    switchState(SingleState.IN_POSITION);
                 }
-                boredDelay = singleStats.boredDelay;
+                break;
+            case CATCHING_UP:
+                speedGoal = singleStats.outOfReachSpeed;
+                if (distanceToGoal > singleStats.standingDist) {
+                    if (distanceToGoal < singleStats.outOfReachDist) {
+                        switchState(SingleState.MOVING);
+                    }
+                    if (!MathUtils.doubleEqual(angle, towardAngle, 1e-1) && distanceToGoal > singleStats.standingDist) {
+                        switchState(SingleState.ROTATING);
+                    }
+                } else if (distanceToGoal < singleStats.standingDist && unit.getState() == UnitState.STANDING) {
+                    switchState(SingleState.IN_POSITION);
+                }
+                break;
+            case ROTATING:
+                angle = MovementUtils.rotate(angle, towardAngle, singleStats.rotationSpeed);
+                speedGoal = 0;
+                if (distanceToGoal > singleStats.standingDist) {
+                    if (MathUtils.doubleEqual(angle, towardAngle, 1e-1)) {
+                        switchState(SingleState.MOVING);
+                    }
+                } else if (distanceToGoal < singleStats.standingDist) {
+                    switchState(SingleState.IN_POSITION);
+                }
+                break;
+            case ROUTING:
+                // Recalculate vx, vy
+                speedGoal = singleStats.speed * GameplayConstants.ROUTING_SPEED_COEFFICIENT;
+                angle = MovementUtils.rotate(angle, unit.getGoalAngle(), singleStats.rotationSpeed);
+                angle += MathUtils.randDouble(-GameplayConstants.ROUTING_ANGLE_VARIATION, GameplayConstants.ROUTING_ANGLE_VARIATION);
                 break;
             case IN_POSITION:
                 speed = unit.isTurning() ? 0 : unit.getState() == UnitState.MOVING ? singleStats.speed : 0;
                 speedGoal = unit.getState() == UnitState.MOVING ? singleStats.speed : 0;
                 if (distanceToGoal > singleStats.standingDist) {
-                    state = SingleState.MOVING;
+                    switchState(SingleState.MOVING);
                     speedGoal = singleStats.speed;
                 }
 
                 // Rotate the actor back to desired angle
                 angle = MovementUtils.rotate(angle, angleGoal, singleStats.rotationSpeed);
-
-                // If archer becomes too bored, he shall switch to fire at will mode.
-                boredDelay -= 1;
-                if (boredDelay == 0) state = SingleState.FIRE_AT_WILL;
                 break;
             case FIRE_AT_WILL:
                 speed = 0;

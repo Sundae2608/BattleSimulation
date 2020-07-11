@@ -20,11 +20,21 @@ public class Node {
         adjacentNodes.put(node, distance);
     }
 
+    public void removeAdjacentNode(Node node) {
+        if (adjacentNodes.containsKey(node)) {
+            adjacentNodes.remove(node);
+        }
+    }
+
     public double getX() {
         return x;
     }
 
     public double getY() {
         return y;
+    }
+
+    public HashMap<Node, Double> getAdjacentNodes() {
+        return adjacentNodes;
     }
 }

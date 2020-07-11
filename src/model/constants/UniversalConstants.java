@@ -28,7 +28,7 @@ public class UniversalConstants {
     // Standing tolerance
     // A troop is considered out of reach if the distance is this multiples of its speed.
     public final static double OUT_OF_REACH_NUM_STEP = 5;
-    public final static double OUT_OF_REACH_SPEED_MULTIPLIER = 1.35;
+    public final static double OUT_OF_REACH_SPEED_MULTIPLIER = 1.40;
 
     // Sliding tolerance
     public final static double STOP_SLIDING_DIST = 0.1;
@@ -37,19 +37,20 @@ public class UniversalConstants {
     // The size of the eye that indicates direction
     public final static double EYE_SIZE = 6.5;
 
-    // Acceleration of speed.
-    public final static double SPEED_ACC = 0.1;
-
     // Non u-turn angle. (If the army is ordered to rotate less than this angle, it will not perform U-Turn)
-    public static final double NON_UTURN_ANGLE = Math.PI * 3 / 5;
+    public static final double NON_UTURN_ANGLE = Math.PI / 2;
+    public static final double NON_REGROUP_ANGLE = Math.PI / 4;
+
+    // Tendency toward the furthest troops forward during reorder
+    public static final double TENDENCY_TOWARD_FURTHEST_TROOP_DURING_REORDER = 0.5;
 
     // Carried objects life time. The amount of time carried object is being drawned before it fades away
     public final static int CARRIED_OBJECT_LIFETIME = 300;
     public final static int CARRIED_OBJECT_FADEAWAY = 50;
 
     // Maximum speed modification effect incurred by terrain
-    public final static double MINIMUM_TERRAIN_EFFECT = -0.1;
-    public final static double MAXIMUM_TERRAIN_EFFECT = 0.4;
+    public final static double MINIMUM_TERRAIN_EFFECT = 0;  // - 0.1
+    public final static double MAXIMUM_TERRAIN_EFFECT = 0;  // 0.4
 
     // ----------------
     // Drawing constant
@@ -68,4 +69,9 @@ public class UniversalConstants {
     public final static int[] SHADOW_COLOR = {0, 0, 0, 128};
 
     public final static double SIMPLIFIED_SQUARE_SIZE_RATIO = 0.886226925453;
+
+    // ----------------
+    // Monitor constant
+    // ----------------
+    public final static int FRAME_STORAGE = 10;
 }

@@ -1,7 +1,9 @@
 package utils;
 
+import javafx.util.Pair;
 import model.GameStats;
 import model.algorithms.ObjectHasher;
+import model.algorithms.pathfinding.Graph;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.enums.PoliticalFaction;
@@ -383,7 +385,7 @@ public final class ConfigUtils {
     /**
      * Create constructs from config file.
      */
-    public static ArrayList<Construct> createConstructsFromConfig(String filePath) throws IOException {
+    public static Pair<Graph, ArrayList<Construct>> createConstructsAndGraphsFromConfig(String filePath) throws IOException {
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);
@@ -392,40 +394,69 @@ public final class ConfigUtils {
 
         // Each of the next object will be a construct with a boundary.
         ArrayList<Construct> constructs = new ArrayList<>();
+        Graph graph = null;
         for (int i = 0; i < objects.length; i++) {
             String[] infoLines = objects[i].split("\n");
+            String type = "";
             String name = "";
             ArrayList<double[]> pts = new ArrayList<>();
+            HashMap<Integer, double[]> nodes = new HashMap<>();
+            ArrayList<int[]> edges = new ArrayList<>();
             for (int j = 0; j < infoLines.length; j++) {
                 String line = infoLines[j];
                 String[] data = line.split(":");
                 String fieldName = data[0].trim();
                 if (data.length < 2) continue;
-                if (fieldName.equals("name")) {
-                    name = data[1].trim();
-                } else if (fieldName.equals("boundary_points")) {
-                    String[] ptData = data[1].trim().split(" ");
-                    double[] pt = new double[]{Double.valueOf(ptData[0]), Double.valueOf(ptData[1])};
-                    pts.add(pt);
+                if (fieldName.equals("type")) {
+                    type = data[1].trim();
+                }
+                if (type.equals("construct")) {
+                    if (fieldName.equals("name")) {
+                        name = data[1].trim();
+                    } else if (fieldName.equals("boundary_points")) {
+                        String[] ptData = data[1].trim().split(" ");
+                        double[] pt = new double[]{Double.valueOf(ptData[0]), Double.valueOf(ptData[1])};
+                        pts.add(pt);
+                    }
+                } else if (type.equals("graph")) {
+                    if (fieldName.equals("node")) {
+                        String[] nodeData = data[1].trim().split(" ");
+                        int nodeId = Integer.valueOf(nodeData[0].trim());
+                        double[] pt = new double[]{Double.valueOf(nodeData[1].trim()), Double.valueOf(nodeData[2].trim())};
+                        nodes.put(nodeId, pt);
+                    } else if (fieldName.equals("edge")) {
+                        String[] edgeData = data[1].trim().split(" ");
+                        int[] edge = new int[]{Integer.valueOf(edgeData[0]), Integer.valueOf(edgeData[1])};
+                        edges.add(edge);
+                    }
                 }
             }
-            constructs.add(new Construct(name, pts));
+            if (type.equals("construct")) {
+                constructs.add(new Construct(name, pts));
+            } else if (type.equals("graph")) {
+                graph = new Graph(nodes, edges);
+            }
         }
-        return constructs;
+        return new Pair<>(graph, constructs);
     }
 
     /**
      * Create constructs from config file.
      */
     public static ArrayList<BaseSurface> createSurfacesFromConfig(String filePath) throws IOException {
+        ArrayList<BaseSurface> surfaces = new ArrayList<>();
+
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);
+        if (s.equals("")) {
+            return surfaces;
+        }
+
         // The first object will be the map creation parameter.
         String[] objects = s.split(",");
 
         // Each of the next object will be a construct with a boundary.
-        ArrayList<BaseSurface> surfaces = new ArrayList<>();
         for (int i = 0; i < objects.length; i++) {
             String[] infoLines = objects[i].split("\n");
             SurfaceType type = null;
@@ -514,7 +545,7 @@ public final class ConfigUtils {
 
         // Extract the input configs.
         double topX = Double.parseDouble(d.get("top_x"));
-        double topY = Double.parseDouble(d.get("top_x"));
+        double topY = Double.parseDouble(d.get("top_y"));
         double div = Double.parseDouble(d.get("div"));
         int numX = Integer.parseInt(d.get("num_x"));
         int numY = Integer.parseInt(d.get("num_y"));
@@ -524,6 +555,7 @@ public final class ConfigUtils {
         double perlinScale = Double.parseDouble(d.get("perlin_scale"));
         double perlinDetailScale = Double.parseDouble(d.get("perlin_detail_scale"));
         double perlinDetailHeightRatio = Double.parseDouble(d.get("perlin_detail_height_ratio"));
+        String texture = d.get("texture");
 
         // Create a new terrain using the input configs.
         return new Terrain(

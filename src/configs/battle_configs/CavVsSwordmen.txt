@@ -1,18 +1,18 @@
 {
     type: CAVALRY
     org: unit
-    x: -500
-    y: 500
+    x: 6500
+    y: 12500
     angle: 0
-    size: 300
+    size: 1
     faction: ROME
-    width: 30
+    width: 1
 },
 {
     type: SWORDMAN
     org: unit
-    x: 2000
-    y: 500
+    x: 8000
+    y: 12500
     angle: 180
     size: 450
     faction: GAUL

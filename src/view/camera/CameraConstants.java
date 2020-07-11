@@ -1,18 +1,24 @@
 package view.camera;
 
 public class CameraConstants {
+
     // Camera rotation speed
     public final static double CAMERA_ROTATION_SPEED = 0.03;
+    public final static int CAMERA_ROTATION_DECELERATION_STEPS = 20;
+    public final static double CAMERA_ROTATION_DECELERATION = CAMERA_ROTATION_SPEED / CAMERA_ROTATION_DECELERATION_STEPS;
+    public final static double CAMERA_ZOOM_DECELERATION_COEFFICIENT = 0.85;
+    public final static double CAMERA_MOVEMENT_DECELERATION_COEFFICIENT = 0.85;
 
     // Camera movement border and speed
     public final static double CAMERA_BORDER_ZONE = 40;
     public final static double CAMERA_SPEED = 20;
 
-    // Minimum zoom and zoom speed
-    public final static double MINIMUM_ZOOM = 0.05;
+    // Zoom constant
+    public final static double MINIMUM_ZOOM = 0.03;
     public final static double MAXIMUM_ZOOM = 5.0;
     public final static double HEIGHT_AT_MAX_ZOOM = 50;
     public final static double ZOOM_PER_SCROLL = 1.1;
+    public final static int ZOOM_SMOOTHEN_STEPS = 100;
 
     // Zoom rendering level
     public final static double ZOOM_RENDER_LEVEL_DETAILS = 1.0;
