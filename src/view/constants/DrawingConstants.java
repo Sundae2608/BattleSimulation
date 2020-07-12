@@ -31,6 +31,9 @@ public class DrawingConstants {
     public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
     public final static int COLOR_ALPHA_UNIT_SELECTION = 170;
 
+    // Universal object color
+    public final static int[] UNIVERSAL_OBJECT_COLOR = {50, 50, 50, 255};
+
     // Surface colors
     public final static int[] SURFACE_COLOR_DEFAULT = {25, 25, 25, 128};
     public final static int[] SURFACE_COLOR_BEACH = {235, 215, 109, 128};

@@ -18,3 +18,13 @@
     faction: GAUL
     width: 45
 },
+{
+    type: ARCHER
+    org: unit
+    x: 5000
+    y: 12070
+    angle: 0
+    size: 150
+    faction: ROME
+    width: 30
+},

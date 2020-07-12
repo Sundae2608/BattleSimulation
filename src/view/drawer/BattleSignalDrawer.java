@@ -36,6 +36,67 @@ public class BattleSignalDrawer extends BaseDrawer {
     }
 
     /**
+     * Draw unit arrow plan. This arrow indicates the potential position that the unit is moving to.
+     */
+    public void drawArrowPlan(double beginX, double beginY, double endX, double endY, Terrain terrain) {
+        double angle = MathUtils.atan2(endY - beginY, endX - beginX);
+        double rightAngle = angle + Math.PI / 2;
+
+        double upUnitX = MathUtils.quickCos((float) angle) * DrawingConstants.ARROW_SIZE;
+        double upUnitY = MathUtils.quickSin((float) angle) * DrawingConstants.ARROW_SIZE;
+        double rightUnitX = MathUtils.quickCos((float) rightAngle) * DrawingConstants.ARROW_SIZE;
+        double rightUnitY = MathUtils.quickSin((float) rightAngle) * DrawingConstants.ARROW_SIZE;
+
+        double[][] arrow = {
+                {beginX + rightUnitX * 0.8, beginY + rightUnitY * 0.8},
+                {endX + rightUnitX * 0.66 - upUnitX * 2.4, endY + rightUnitY * 0.66 - upUnitY * 2.4},
+                {endX + rightUnitX * 1.66 - upUnitX * 3, endY + rightUnitY * 1.66 - upUnitY * 3},
+                {endX, endY},
+                {endX - rightUnitX * 1.66 - upUnitX * 3, endY - rightUnitY * 1.66 - upUnitY * 3},
+                {endX - rightUnitX * 0.66 - upUnitX * 2.4, endY - rightUnitY * 0.66 - upUnitY * 2.4},
+                {beginX - rightUnitX * 0.8, beginY - rightUnitY * 0.8},
+        };
+
+        applet.beginShape();
+        for (int i = 0; i < arrow.length; i++) {
+            double[] drawingPosition = camera.getDrawingPosition(
+                    arrow[i][0], arrow[i][1], terrain.getHeightFromPos(arrow[i][0], arrow[i][1]));
+            applet.vertex((float) drawingPosition[0], (float) drawingPosition[1]);
+        }
+        applet.endShape(PApplet.CLOSE);
+    }
+
+    /**
+     * Draw an arrow from (beginX, beginY) to (endX, endY) at certain height.
+     */
+    public void drawArrowAtHeight(double beginX, double beginY, double endX, double endY, double height) {
+        double angle = MathUtils.atan2(endY - beginY, endX - beginX);
+        double rightAngle = angle + Math.PI / 2;
+
+        double upUnitX = MathUtils.quickCos((float) angle) * DrawingConstants.ARROW_SIZE;
+        double upUnitY = MathUtils.quickSin((float) angle) * DrawingConstants.ARROW_SIZE;
+        double rightUnitX = MathUtils.quickCos((float) rightAngle) * DrawingConstants.ARROW_SIZE;
+        double rightUnitY = MathUtils.quickSin((float) rightAngle) * DrawingConstants.ARROW_SIZE;
+
+        double[][] arrow = {
+                {beginX + rightUnitX * 0.8, beginY + rightUnitY * 0.8},
+                {endX + rightUnitX * 0.66 - upUnitX * 2.4, endY + rightUnitY * 0.66 - upUnitY * 2.4},
+                {endX + rightUnitX * 1.66 - upUnitX * 3, endY + rightUnitY * 1.66 - upUnitY * 3},
+                {endX, endY},
+                {endX - rightUnitX * 1.66 - upUnitX * 3, endY - rightUnitY * 1.66 - upUnitY * 3},
+                {endX - rightUnitX * 0.66 - upUnitX * 2.4, endY - rightUnitY * 0.66 - upUnitY * 2.4},
+                {beginX - rightUnitX * 0.8, beginY - rightUnitY * 0.8},
+        };
+
+        applet.beginShape();
+        for (int i = 0; i < arrow.length; i++) {
+            double[] drawingPosition = camera.getDrawingPosition(arrow[i][0], arrow[i][1], height);
+            applet.vertex((float) drawingPosition[0], (float) drawingPosition[1]);
+        }
+        applet.endShape(PApplet.CLOSE);
+    }
+
+    /**
      * Draw the block representing the entire unit.
      */
     public void drawUnitBlock(BaseUnit unit, Terrain terrain) {
