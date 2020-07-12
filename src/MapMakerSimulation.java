@@ -149,7 +149,7 @@ public class MapMakerSimulation extends PApplet {
         cameraDy *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
 
         // Drawing terrain line
-        mapDrawer.drawTerrainLine(terrain, camera);
+        mapDrawer.drawTerrainLine(terrain);
 
         // Draw the circle that is the drawer.
         uiDrawer.paintCircle(mouseX, mouseY);
