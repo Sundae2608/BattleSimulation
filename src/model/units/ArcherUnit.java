@@ -137,7 +137,11 @@ public class ArcherUnit extends BaseUnit {
      */
     public void setUnitFiredAt(BaseUnit unitFiredAgainst) {
         this.unitFiredAgainst = unitFiredAgainst;
-        targetIterator = new ArrayList(unitFiredAgainst.getAliveTroopsSet());
+        if (unitFiredAgainst == null) {
+            targetIterator = new ArrayList<>();
+        } else {
+            targetIterator = new ArrayList(unitFiredAgainst.getAliveTroopsSet());
+        }
     }
 
     /**

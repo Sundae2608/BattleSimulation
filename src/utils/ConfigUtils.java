@@ -235,6 +235,7 @@ public final class ConfigUtils {
 
             // Additional stats based on the unit type.
             UnitStats unitStats = new UnitStats();
+            unitStats.unitType = unitType;
             switch (unitType) {
                 case SLINGER:
                 case ARCHER:

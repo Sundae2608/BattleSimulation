@@ -3,7 +3,7 @@ package view.drawer;
 import processing.core.PApplet;
 import processing.core.PFont;
 
-public class InfoDrawer {
+public class InfoDrawer extends BaseDrawer {
 
     PApplet applet;
     PFont font;
@@ -11,6 +11,11 @@ public class InfoDrawer {
     public InfoDrawer(PApplet inputApplet) {
         applet = inputApplet;
         font = applet.createFont("Monospaced", 13);
+    }
+
+    @Override
+    public void preprocess() {
+
     }
 
     /**

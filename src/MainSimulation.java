@@ -1,6 +1,3 @@
-import cern.colt.function.tint.IntIntFunction;
-import cern.colt.matrix.tint.IntMatrix2D;
-import cern.colt.matrix.tint.impl.DenseIntMatrix2D;
 import controller.ControlConstants;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
@@ -8,27 +5,20 @@ import model.checker.EnvironmentChecker;
 import model.construct.Construct;
 import model.enums.*;
 import model.monitor.MonitorEnum;
-import model.objects.Ballista;
-import model.objects.Stone;
 import model.settings.GameSettings;
 import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.surface.Tree;
 import model.terrain.Terrain;
-import processing.core.PFont;
 import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.CameraConstants;
 import view.drawer.*;
-import javafx.util.Pair;
-import view.map.Tile;
 import model.GameEnvironment;
 import view.camera.Camera;
 import model.constants.*;
-import model.objects.Arrow;
 import model.objects.BaseObject;
-import processing.core.PGraphics;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
@@ -44,12 +34,8 @@ import view.settings.RenderMode;
 import view.drawer.DrawingUtils;
 import view.video.VideoElementPlayer;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainSimulation extends PApplet {
 
@@ -68,6 +54,9 @@ public class MainSimulation extends PApplet {
     ShapeDrawer shapeDrawer;
     MapDrawer mapDrawer;
     InfoDrawer infoDrawer;
+    BattleSignalDrawer battleSignalDrawer;
+    ObjectDrawer objectDrawer;
+    SingleDrawer singleDrawer;
 
     // Eye optimizer
     HashMap<Double, Double> eyeSizeMap;
@@ -101,13 +90,8 @@ public class MainSimulation extends PApplet {
     HashMap<Double, double[]> cavalrySizeMap;
     double[] currSizeCavalry;
 
-    HashMap<BaseUnit, Pair<PImage, IntMatrix2D>> unitSimplifiedImageMap;
-    HashMap<BaseUnit, Pair<PImage, IntMatrix2D>> unitShadowSimplifiedImageMap;
-
     double shadowXOffset;
     double shadowYOffset;
-    double unitShadowXOffset;
-    double unitShadowYOffset;
 
     // -----------
     // Sound files
@@ -125,20 +109,8 @@ public class MainSimulation extends PApplet {
     // Image files
     // -----------
 
-    // UI Icons
-    PImage iconCav, iconSpear, iconSword, iconArcher, iconSlinger, iconHorseArcher, iconSkirmisher, iconBallista, iconCatapult;
-    PImage banner, bannerShadow, bannerSelected, bannerTexture;
-
     // Map texture
     PImage mapTexture;
-
-    // List of all tiles
-    private ArrayList<Tile> tiles;
-
-    // ---------
-    // Text font
-    // ---------
-    PFont font;
 
     // -----------
     // Key pressed
@@ -234,9 +206,6 @@ public class MainSimulation extends PApplet {
         swordmanSizeMap = new HashMap<>();
         cavalrySizeMap = new HashMap<>();
 
-        unitSimplifiedImageMap = new HashMap<>();
-        unitShadowSimplifiedImageMap = new HashMap<>();
-
         // --------------
         // Audio model.settings
         // --------------
@@ -258,21 +227,6 @@ public class MainSimulation extends PApplet {
         // ----------------------
         // Load graphic resources
         // ----------------------
-        iconSword = loadImage("imgs/BannerArt/iconSword.png");
-        iconSpear = loadImage("imgs/BannerArt/iconSpear.png");
-        iconCav = loadImage("imgs/BannerArt/iconCav.png");
-        iconArcher = loadImage("imgs/BannerArt/iconArcher.png");
-        iconHorseArcher = loadImage("imgs/BannerArt/iconHorseArcher.png");
-        iconSlinger = loadImage("imgs/BannerArt/iconSlinger.png");
-        iconSkirmisher = loadImage("imgs/BannerArt/iconSkirmisher.png");
-        iconBallista = loadImage("imgs/BannerArt/iconBallista.png");
-        iconCatapult = loadImage("imgs/BannerArt/iconCatapult.png");
-
-        banner = loadImage("imgs/BannerArt/SimplifiedBanner-01.png");
-        bannerShadow = loadImage("imgs/BannerArt/SimplifiedBanner-02.png");
-        bannerTexture = loadImage("imgs/BannerArt/SimplifiedBanner-03.png");
-        bannerSelected = loadImage("imgs/BannerArt/SimplifiedBanner-04.png");
-
         mapTexture = loadImage("imgs/FullMap/DemoMap.jpg");
 
         // -------------------
@@ -316,10 +270,13 @@ public class MainSimulation extends PApplet {
         // ------
 
         // Initialize drawer
-        uiDrawer = new UIDrawer(this);
+        uiDrawer = new UIDrawer(this, camera, drawingSettings);
         shapeDrawer = new ShapeDrawer(this, camera);
-        mapDrawer = new MapDrawer(this);
+        mapDrawer = new MapDrawer(this, camera);
         infoDrawer = new InfoDrawer(this);
+        battleSignalDrawer = new BattleSignalDrawer(this, camera, drawingSettings);
+        objectDrawer = new ObjectDrawer(this, camera, shapeDrawer, drawingSettings);
+        singleDrawer = new SingleDrawer(this, env, camera, shapeDrawer, drawingSettings);
 
         // -------------------------
         // Load video element player
@@ -332,11 +289,6 @@ public class MainSimulation extends PApplet {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // -----------
-        // Set up font
-        // -----------
-        font = createFont("Monospaced", 13);
 
         // ---------------
         // Load sound file
@@ -395,6 +347,15 @@ public class MainSimulation extends PApplet {
         // - Circle Size optimization
         // - Update nearest unit to mouse cursor
         // ----------------------------------------
+
+        // Pre-process all drawer. This preprocess is vital to short-cut calculation and optimization.
+        uiDrawer.preprocess();
+        shapeDrawer.preprocess();
+        mapDrawer.preprocess();
+        infoDrawer.preprocess();
+        battleSignalDrawer.preprocess();
+        objectDrawer.preprocess();
+        singleDrawer.preprocess();
 
         if (drawingSettings.isSmoothCameraMovement()) {
 
@@ -456,15 +417,10 @@ public class MainSimulation extends PApplet {
         cameraDx *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
         cameraDy *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
 
-        // Circle size optimization. This is to avoid repeat calculation of troop size
-        updateSizeMaps();
-
         // Pre-calculate shadow, also for optimization
         if (drawingSettings.isDrawTroopShadow()) {
             shadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
             shadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
-            unitShadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
-            unitShadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
         }
 
         // Pick the closest to the mouse
@@ -494,10 +450,10 @@ public class MainSimulation extends PApplet {
 
         // Then, draw the dots that represents the height.
         if (drawingSettings.isDrawMapTexture()) {
-            drawMapTexture(env.getTerrain(), mapTexture, camera);
+            mapDrawer.drawMapTexture(env.getTerrain(), mapTexture);
         }
         if (drawingSettings.isDrawHeightField()) {
-            mapDrawer.drawTerrainLine(env.getTerrain(), camera);
+            mapDrawer.drawTerrainLine(env.getTerrain());
         }
 
         // Begin loop for columns
@@ -552,7 +508,7 @@ public class MainSimulation extends PApplet {
         // Dead troops
         noStroke();
         for (BaseSingle single : env.getDeadContainer()) {
-            portrayDeadSingle(single, camera, env.getTerrain(), drawingSettings);
+            portrayDeadSingle(single, env.getTerrain());
         }
 
         // If space is pressed, draw the goal position.
@@ -569,10 +525,9 @@ public class MainSimulation extends PApplet {
                     if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
-                    drawArrowPlan(
+                    battleSignalDrawer.drawArrowPlan(
                             unit.getAverageX(), unit.getAverageY(),
-                            unit.getGoalX(), unit.getGoalY(),
-                            camera, env.getTerrain(), drawingSettings);
+                            unit.getGoalX(), unit.getGoalY(), env.getTerrain());
                 }
             }
             planCounter -= 1;
@@ -647,9 +602,9 @@ public class MainSimulation extends PApplet {
             // Draw the arrow plan if the unit is current moving.
             if (unitSelected.getState() == UnitState.MOVING) {
                 fill(color[0], color[1], color[2], 255);
-                drawArrowPlan(
+                battleSignalDrawer.drawArrowPlan(
                         unitSelected.getAverageX(), unitSelected.getAverageY(),
-                        unitSelected.getGoalX(), unitSelected.getGoalY(), camera, env.getTerrain(), drawingSettings);
+                        unitSelected.getGoalX(), unitSelected.getGoalY(), env.getTerrain());
             }
 
             // Draw path finding
@@ -663,8 +618,7 @@ public class MainSimulation extends PApplet {
                 shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
                         env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
                 if (prev != null) {
-                    drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), camera, env.getTerrain(),
-                            drawingSettings);
+                    battleSignalDrawer.drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
                 }
                 prev = node;
             }
@@ -678,7 +632,7 @@ public class MainSimulation extends PApplet {
                 // For troops out of position, draw them individually
                 for (BaseSingle single : unit.getTroops()) {
                     if (single.getState() == SingleState.DEAD) continue;
-                    portrayAliveSingle(single, camera, drawingSettings, env.getTerrain(), unitHovered);
+                    portrayAliveSingle(single, env.getTerrain());
                 }
             }
         } else {
@@ -686,7 +640,7 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : env.getUnits()) {
                 // TODO: Change to using UnitState instead for consistency
                 if (unit.getNumAlives() == 0) continue;
-                drawUnitBlock(unit, camera, env.getTerrain(), drawingSettings, false);
+                battleSignalDrawer.drawUnitBlock(unit, env.getTerrain());
             }
         }
 
@@ -696,18 +650,18 @@ public class MainSimulation extends PApplet {
             double unitY = MathUtils.quickSin((float) unit.getAnchorAngle());
             int[] color = DrawingConstants.COLOR_GOOD_BLACK;
             fill(color[0], color[1], color[2], color[3]);
-            drawArrowPlanAtHeight(
+            battleSignalDrawer.drawArrowAtHeight(
                     unit.getAnchorX(), unit.getAnchorY(),
                     unit.getAnchorX() + unitX * DrawingConstants.ANCHOR_ARROW_SIZE,
                     unit.getAnchorY() + unitY * DrawingConstants.ANCHOR_ARROW_SIZE,
-                    env.getTerrain().getHeightFromPos(unit.getAnchorX(), unit.getAnchorY()),
-                    camera, drawingSettings);
+                    env.getTerrain().getHeightFromPos(unit.getAnchorX(), unit.getAnchorY()));
         }
 
         // Draw the objects
         ArrayList<BaseObject> objects = env.getUnitModifier().getObjectHasher().getObjects();
         for (BaseObject obj : objects) {
-            if (obj.isAlive()) drawObject(obj, camera, env.getTerrain(), drawingSettings);
+            // TODO: Add probabilistic drawing here to reduce the number of arrow drawn when zooming out.
+            if (obj.isAlive()) objectDrawer.drawObject(obj, env.getTerrain());
         }
 
         // Draw the construct.
@@ -757,63 +711,10 @@ public class MainSimulation extends PApplet {
         if (drawingSettings.isDrawIcon()) {
             for (BaseUnit unit : unitsSortedByPosition) {
                 if (unit.getNumAlives() == 0) continue;
-                double[] drawingPos = camera.getDrawingPosition(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ());
-                int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
-                rectMode(CORNER);
-                imageMode(CORNER);
-                blendMode(NORMAL);
-                image(unit == unitSelected ? bannerSelected : bannerShadow,
-                        (float) (drawingPos[0] - 42),
-                        (float) (drawingPos[1] - 111), 84, 111);
-                fill(color[0], color[1], color[2], 255);
-                rect(
-                        (float) (drawingPos[0] - 30),
-                        (float) (drawingPos[1] - 93 + 60.0 * (1.0 - 1.0 * unit.getNumAlives() / unit.getTroops().size())),
-                        (float) 60, (float) (60.0 * unit.getNumAlives() / unit.getTroops().size()));
-                image(banner,
-                        (float) (drawingPos[0] - 42),
-                        (float) (drawingPos[1] - 111), 84, 111);
-                int[] moraleColor = DrawingConstants.COLOR_MORALE;
-                fill(moraleColor[0], moraleColor[1], moraleColor[2], moraleColor[3]);
-                rect((float) (drawingPos[0] - 28), (float) (drawingPos[1] - 32),
-                        (float) (56 * unit.getMorale() / GameplayConstants.BASE_MORALE), 8);
-                blendMode(MULTIPLY);
-                image(bannerTexture,
-                        (float) (drawingPos[0] - 42),
-                        (float) (drawingPos[1] - 111), 84, 111);
-                blendMode(NORMAL);
-                if (unit instanceof CavalryUnit) {
-                    image(iconCav,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof PhalanxUnit) {
-                    image(iconSpear,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof SwordmenUnit) {
-                    image(iconSword,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof ArcherUnit) {
-                    image(iconArcher,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof SkirmisherUnit) {
-                    image(iconSkirmisher,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof BallistaUnit) {
-                    image(iconBallista,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                } else if (unit instanceof CatapultUnit) {
-                    image(iconCatapult,
-                            (float) drawingPos[0] - 30,
-                            (float) drawingPos[1] - 92, 60, 60);
-                }
+                boolean isSelected = unit == unitSelected;
+                uiDrawer.drawUnitBanner(unit, isSelected);
             }
         }
-        rectMode(CENTER);
 
         // Information about the unit
         fill(0, 0, 0, 200);
@@ -930,6 +831,8 @@ public class MainSimulation extends PApplet {
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                        System.out.println(closestUnit.getPoliticalFaction());
+                        System.out.println(unitSelected.getPoliticalFaction());
                         ((ArcherUnit) unitSelected).setUnitFiredAt(closestUnit);
                         if (unitSelected.getState() == UnitState.MOVING) {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
@@ -1038,788 +941,23 @@ public class MainSimulation extends PApplet {
     }
 
     /**
-     * Load all tile from view.map, given the top left position.
-     * Path must contains tile images
-     * Each image file name must be in the format IMG-i-j.png, in which i and j is the row and column position of each
-     * tile when all tile is laid out into the view.map.
-     * @param x top left x position.
-     * @param y top left y position.
-     * @param path path to the folder containing images of all tiles.
-     * @param tileSize the size of each tile.
+     * Portray alive troop.
      */
-    private void loadMapTiles(double x, double y, String path, double tileSize) {
-
-        // Initialize the tile list
-        tiles = new ArrayList<>();
-
-        // Load all the tiles
-        Pattern numberPattern = Pattern.compile("[0-9]+");
-        File folder = new File(Paths.get(path).toString());
-        File[] fileList = folder.listFiles();
-
-        for (File file : fileList) {
-            String fileName = file.getName();
-            Matcher m = numberPattern.matcher(fileName);
-            m.find();
-            int row = Integer.valueOf(m.group());
-            m.find();
-            int col = Integer.valueOf(m.group());
-            PImage img = loadImage(Paths.get(path, fileName).toString());
-            tiles.add(new Tile(x + col * tileSize, y + row * tileSize, tileSize, img));
-        }
-    }
-
-    /**
-     * Update the size view.map baseded on view.camera zoom
-     */
-    private void updateSizeMaps() {
-
-        // Eye
-        if (!eyeSizeMap.containsKey(camera.getZoom())) {
-            eyeSizeMap.put(camera.getZoom(), UniversalConstants.EYE_SIZE * camera.getZoom());
-        }
-        currSizeEye = eyeSizeMap.get(camera.getZoom());
-
-        // Swordman
-        if (!swordmanSizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.SWORDMAN, PoliticalFaction.ROME).radius;
-            newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            swordmanSizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizeSwordman = swordmanSizeMap.get(camera.getZoom());
-
-        // Phalanx
-        if (!phalanxSizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.ROME).radius;
-            newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            phalanxSizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizePhalanx = phalanxSizeMap.get(camera.getZoom());
-
-        // Slinger
-        if (!slingerSizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.SLINGER, PoliticalFaction.ROME).radius;
-            newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            slingerSizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizeSlinger = slingerSizeMap.get(camera.getZoom());
-
-        // Archer
-        if (!archerSizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.ARCHER, PoliticalFaction.ROME).radius;
-            newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            archerSizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizeArcher = archerSizeMap.get(camera.getZoom());
-
-        // Balista
-        if (!balistaSizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.BALLISTA, PoliticalFaction.ROME).radius;
-            newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            balistaSizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizeBalista = balistaSizeMap.get(camera.getZoom());
-
-        // Skirmisher
-        if (!skirmisherSizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.SKIRMISHER, PoliticalFaction.ROME).radius;
-            newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            skirmisherSizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizeSkirmisher = skirmisherSizeMap.get(camera.getZoom());
-
-        // Cavalry
-        if (!cavalrySizeMap.containsKey(camera.getZoom())) {
-            double[] newSize = new double[4];
-            double size = env.getGameStats().getSingleStats(UnitType.CAVALRY, PoliticalFaction.ROME).radius;
-            newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            cavalrySizeMap.put(camera.getZoom(), newSize);
-        }
-        currSizeCavalry = cavalrySizeMap.get(camera.getZoom());
-    }
-
-    /**
-     *   ____  _     _           _     _____
-     *  / __ \| |   (_)         | |   |  __ \
-     * | |  | | |__  _  ___  ___| |_  | |  | |_ __ __ ___      _____ _ __
-     * | |  | | '_ \| |/ _ \/ __| __| | |  | | '__/ _` \ \ /\ / / _ \ '__|
-     * | |__| | |_) | |  __/ (__| |_  | |__| | | | (_| |\ V  V /  __/ |
-     *  \____/|_.__/| |\___|\___|\__| |_____/|_|  \__,_| \_/\_/ \___|_|
-     *             _/ |
-     *            |__/
-     */
-    void drawMapTexture(Terrain terrain, PImage mapTexture, Camera camera) {
-        int[] gridLimits = DrawingUtils.getVisibleGridBoundary(terrain, camera);
-        int minX = gridLimits[0];
-        int maxX = gridLimits[1];
-        int minY = gridLimits[2];
-        int maxY = gridLimits[3];
-        if (minX >= terrain.getNumX()) return;
-        if (minY >= terrain.getNumY()) return;
-        if (maxX < 0) return;
-        if (maxY < 0) return;
-        strokeWeight(2);
-        noFill();
-        textureMode(NORMAL);
-        for (int i = minX; i < maxX - 1; i++) {
-            beginShape(TRIANGLE_STRIP);
-            texture(mapTexture);
-            for (int j = minY; j < maxY; j++) {
-                // Get drawing position of the two points
-                double[] pos1 = terrain.getPosFromTileIndex(i, j);
-                double height1 = terrain.getHeightFromTileIndex(i, j);
-                double[] draw1 = camera.getDrawingPosition(pos1[0], pos1[1], height1);
-
-                double[] pos2 = terrain.getPosFromTileIndex(i + 1, j);
-                double height2 = terrain.getHeightFromTileIndex(i + 1, j);
-                double[] draw2 = camera.getDrawingPosition(pos2[0], pos2[1], height2);
-
-                // Get uv position
-                float u1 = map(i, 0, terrain.getNumX(), 0, 1);
-                float u2 = map(i + 1, 0, terrain.getNumX(), 0, 1);
-                float v = map(j, 0, terrain.getNumY(), 0, 1);
-
-                // Draw the two vertex
-                vertex((float) draw1[0], (float) draw1[1], u1, v);
-                vertex((float) draw2[0], (float) draw2[1], u2, v);
-            }
-            endShape();
-        }
-
-    }
-
-    void drawObject(BaseObject object, Camera camera, Terrain terrain, DrawingSettings settings) {
-
-        // Recalculate position and shape based on the view.camera position
-        double z = object.getHeight()
-                + terrain.getHeightFromPos(object.getX(), object.getY()) + object.getHeight();
-        double[] position = camera.getDrawingPosition(
-                object.getX(),
-                object.getY(),
-                z);
-        double drawX = position[0];
-        double drawY = position[1];
-
-        // Check if the object is drawable.
-        if (!DrawingUtils.drawable(drawX, drawY, INPUT_WIDTH, INPUT_HEIGHT)) return;
-
-        // Draw the object
-        double angle = camera.getDrawingAngle(object.getAngle());
-        if (object instanceof Arrow) {
-            fill(50, 50, 50);
-            shapeDrawer.arrow(
-                    (float) drawX, (float) drawY, (float) angle,
-                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.ARROW_SIZE);
-        }
-        if (object instanceof Ballista) {
-            fill(50, 50, 50);
-            shapeDrawer.arrow(
-                    (float) drawX, (float) drawY, (float) angle,
-                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.BALISTA_SIZE);
-        }
-        if (object instanceof Stone) {
-            fill(50, 50, 50);
-            shapeDrawer.circleShape(
-                    (float) drawX, (float) drawY,
-                    (float) (camera.getZoomAtHeight(z) * DrawingConstants.CATAPULT_SIZE));
-        }
-    }
-
-    void drawObjectCarriedByTroop(int lifeTime, BaseObject object, BaseSingle single, Terrain terrain, DrawingSettings settings) {
-
-        // Recalculate object actual position
-        Pair<Double, Double> rotatedVector = MathUtils.rotate(object.getX(), object.getY(), single.getAngle());
-        double z = terrain.getHeightFromPos(single.getX(), single.getY());
-
-        // Recalculate position and shape based on the view.camera position
-        double[] position = camera.getDrawingPosition(
-                rotatedVector.getKey() +
-                        single.getX(),
-                rotatedVector.getValue() +
-                        single.getY(),
-                z);
-        double drawX = position[0];
-        double drawY = position[1];
-
-        // Draw the object
-        int opacity = (int) (255 * Math.min(1.0, 1.0 * lifeTime / UniversalConstants.CARRIED_OBJECT_FADEAWAY));
-        double angle = camera.getDrawingAngle(object.getAngle() + single.getAngle());
-        if (object instanceof Arrow) {
-            fill(50, 50, 50, opacity);
-            shapeDrawer.arrow(
-                    (float) drawX, (float) drawY, (float) angle,
-                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.ARROW_SIZE);
-        } else if (object instanceof Ballista) {
-            fill(50, 50, 50, opacity);
-            shapeDrawer.arrow(
-                    (float) drawX, (float) drawY, (float) angle,
-                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.BALISTA_SIZE);
-        }
-    }
-
-    /**
-     *  _    _       _ _         _____
-     * | |  | |     (_) |       |  __ \
-     * | |  | |_ __  _| |_ ___  | |  | |_ __ __ ___      _____ _ __
-     * | |  | | '_ \| | __/ __| | |  | | '__/ _` \ \ /\ / / _ \ '__|
-     * | |__| | | | | | |_\__ \ | |__| | | | (_| |\ V  V /  __/ |
-     *  \____/|_| |_|_|\__|___/ |_____/|_|  \__,_| \_/\_/ \___|_|
-     */
-
-    /**
-     * Draw unit arrow plan. This arrow indicates the potential position that the unit is moving to.
-     */
-    void drawArrowPlanAtHeight(double beginX, double beginY, double endX, double endY, double height, Camera camera,
-                               DrawingSettings settings) {
-        double angle = MathUtils.atan2(endY - beginY, endX - beginX);
-        double rightAngle = angle + Math.PI / 2;
-
-        double upUnitX = MathUtils.quickCos((float) angle) * DrawingConstants.ARROW_SIZE;
-        double upUnitY = MathUtils.quickSin((float) angle) * DrawingConstants.ARROW_SIZE;
-        double rightUnitX = MathUtils.quickCos((float) rightAngle) * DrawingConstants.ARROW_SIZE;
-        double rightUnitY = MathUtils.quickSin((float) rightAngle) * DrawingConstants.ARROW_SIZE;
-
-        double[][] arrow = {
-                {beginX + rightUnitX * 0.8, beginY + rightUnitY * 0.8},
-                {endX + rightUnitX * 0.66 - upUnitX * 2.4, endY + rightUnitY * 0.66 - upUnitY * 2.4},
-                {endX + rightUnitX * 1.66 - upUnitX * 3, endY + rightUnitY * 1.66 - upUnitY * 3},
-                {endX, endY},
-                {endX - rightUnitX * 1.66 - upUnitX * 3, endY - rightUnitY * 1.66 - upUnitY * 3},
-                {endX - rightUnitX * 0.66 - upUnitX * 2.4, endY - rightUnitY * 0.66 - upUnitY * 2.4},
-                {beginX - rightUnitX * 0.8, beginY - rightUnitY * 0.8},
-        };
-
-        beginShape();
-        for (int i = 0; i < arrow.length; i++) {
-            double[] drawingPosition = camera.getDrawingPosition(arrow[i][0], arrow[i][1], height);
-            vertex((float) drawingPosition[0], (float) drawingPosition[1]);
-        }
-        endShape(CLOSE);
-    }
-
-    /**
-     * Draw unit arrow plan. This arrow indicates the potential position that the unit is moving to.
-     */
-    void drawArrowPlan(double beginX, double beginY, double endX, double endY, Camera camera, Terrain terrain, DrawingSettings settings) {
-        double angle = MathUtils.atan2(endY - beginY, endX - beginX);
-        double rightAngle = angle + Math.PI / 2;
-
-        double upUnitX = MathUtils.quickCos((float) angle) * DrawingConstants.ARROW_SIZE;
-        double upUnitY = MathUtils.quickSin((float) angle) * DrawingConstants.ARROW_SIZE;
-        double rightUnitX = MathUtils.quickCos((float) rightAngle) * DrawingConstants.ARROW_SIZE;
-        double rightUnitY = MathUtils.quickSin((float) rightAngle) * DrawingConstants.ARROW_SIZE;
-
-        double[][] arrow = {
-                {beginX + rightUnitX * 0.8, beginY + rightUnitY * 0.8},
-                {endX + rightUnitX * 0.66 - upUnitX * 2.4, endY + rightUnitY * 0.66 - upUnitY * 2.4},
-                {endX + rightUnitX * 1.66 - upUnitX * 3, endY + rightUnitY * 1.66 - upUnitY * 3},
-                {endX, endY},
-                {endX - rightUnitX * 1.66 - upUnitX * 3, endY - rightUnitY * 1.66 - upUnitY * 3},
-                {endX - rightUnitX * 0.66 - upUnitX * 2.4, endY - rightUnitY * 0.66 - upUnitY * 2.4},
-                {beginX - rightUnitX * 0.8, beginY - rightUnitY * 0.8},
-        };
-
-        beginShape();
-        for (int i = 0; i < arrow.length; i++) {
-            double[] drawingPosition = camera.getDrawingPosition(arrow[i][0], arrow[i][1], terrain.getHeightFromPos(arrow[i][0], arrow[i][1]));
-            vertex((float) drawingPosition[0], (float) drawingPosition[1]);
-        }
-        endShape(CLOSE);
-    }
-
-    /**
-     * Draw the block representing the entire unit.
-     */
-    void drawUnitBlock(BaseUnit unit, Camera camera, Terrain terrain, DrawingSettings settings, boolean hovered) {
-
-        // draw the bounding box.
-        double[][] boundingBox = unit.getBoundingBox();
-
-        // Convert to drawer points
-        double[] p1 = camera.getDrawingPosition(boundingBox[0][0], boundingBox[0][1],
-                terrain.getHeightFromPos(boundingBox[0][0], boundingBox[0][1]));
-        double[] p2 = camera.getDrawingPosition(boundingBox[1][0], boundingBox[1][1],
-                terrain.getHeightFromPos(boundingBox[1][0], boundingBox[1][1]));
-        double[] p3 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1],
-                terrain.getHeightFromPos(boundingBox[2][0], boundingBox[2][1]));
-        double[] p4 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1],
-                terrain.getHeightFromPos(boundingBox[3][0], boundingBox[3][1]));
-        double[] p5 = camera.getDrawingPosition(boundingBox[4][0], boundingBox[4][1],
-                terrain.getHeightFromPos(boundingBox[4][0], boundingBox[4][1]));
-        double[] p6 = camera.getDrawingPosition(boundingBox[5][0], boundingBox[5][1],
-                terrain.getHeightFromPos(boundingBox[5][0], boundingBox[5][1]));
-
-        // First, draw the box indicating the unit at full strength
-        fill(DrawingConstants.UNIT_SIZE_COLOR[0],
-                DrawingConstants.UNIT_SIZE_COLOR[1],
-                DrawingConstants.UNIT_SIZE_COLOR[2],
-                DrawingConstants.UNIT_SIZE_COLOR[3]);
-        beginShape();
-        vertex((float) p1[0], (float) p1[1]);
-        vertex((float) p2[0], (float) p2[1]);
-        vertex((float) p5[0], (float) p5[1]);
-        vertex((float) p6[0], (float) p6[1]);
-        endShape(CLOSE);
-
-        // Then draw the box indicating the actual current scale of the the unit
-        int[] shadowColor = UniversalConstants.SHADOW_COLOR;
-        fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-        beginShape();
-        vertex((float) (p1[0] + unitShadowXOffset * 2), (float) (p1[1] + unitShadowYOffset * 2));
-        vertex((float) (p2[0] + unitShadowXOffset * 2), (float) (p2[1] + unitShadowYOffset * 2));
-        vertex((float) (p3[0] + unitShadowXOffset * 2), (float) (p3[1] + unitShadowYOffset * 2));
-        vertex((float) (p4[0] + unitShadowXOffset * 2), (float) (p4[1] + unitShadowYOffset * 2));
-        endShape(CLOSE);
-
-        int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
-        if (closestUnit == unit) {
-            fill(color[0], color[1], color[2], 255);
-        } else {
-            fill(color[0], color[1], color[2], 255);
-        }
-        if (unitSelected == unit) {
-            fill(color[0], color[1], color[2], 255);
-        }
-        beginShape();
-        vertex((float) p1[0], (float) p1[1]);
-        vertex((float) p2[0], (float) p2[1]);
-        vertex((float) p3[0], (float) p3[1]);
-        vertex((float) p4[0], (float) p4[1]);
-        endShape(CLOSE);
-    }
-
-    /**
-     * Portray alive troop. The troop is only portrayable if
-     */
-    void portrayAliveSingle(BaseSingle single, Camera camera, DrawingSettings settings, Terrain terrain, boolean hovered) {
-        // Recalculate position and shape based on the view.camera position
-        double singleX = single.getX();
-        double singleY = single.getY();
-        double singleZ = terrain.getHeightFromPos(single.getX(), single.getY());
-        double[] position = camera.getDrawingPosition(singleX, singleY, singleZ);
-        double drawX = position[0];
-        double drawY = position[1];
-        double zoomAdjustment = camera.getZoomAtHeight(singleZ) / camera.getZoom();
-
-        // Check if the object is drawable. If not, don't portray it.
-        if (!DrawingUtils.drawable(drawX, drawY, INPUT_WIDTH, INPUT_HEIGHT)) return;
+    void portrayAliveSingle(BaseSingle single, Terrain terrain) {
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
         for (BaseObject obj : carriedObjects.keySet()) {
-            drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain, settings);
+            objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain);
         }
-        drawAliveSingle(drawX, drawY, zoomAdjustment, single, camera, settings, hovered);
-    }
-
-    /**
-     * Draw alive unit
-     */
-    void drawAliveSingle(double drawX, double drawY, double zoomAdjustment, BaseSingle single, Camera camera,
-                         DrawingSettings settings, boolean hovered) {
-
-        // Check if the object is drawable. If not, don't portray it.
-        if (!DrawingUtils.drawable(drawX, drawY, INPUT_WIDTH, INPUT_HEIGHT)) return;
-
-        // Pre calculate drawer information
-        double angle = camera.getDrawingAngle(single.getFacingAngle());
-        double unitX = MathUtils.quickCos((float) angle);
-        double unitY = MathUtils.quickSin((float) angle);
-
-        // Fill the color by political faction
-        int[] color = DrawingUtils.getFactionColor(single.getPoliticalFaction());
-        int[] modifiedColor = new int[4];
-        int[] shadowColor = UniversalConstants.SHADOW_COLOR;
-
-        // Modify the color by the amount of damage sustain
-        if (settings.isDrawDamageSustained()) {
-            double sustainColorRatio = Math.min(single.getDamageSustain() / UniversalConstants.DAMAGE_SUSTAIN_MAXIMUM_EFFECT, 1.0);
-            modifiedColor[0] = (int) (255.0 * sustainColorRatio + (1 - sustainColorRatio) * color[0]);
-            modifiedColor[1] = (int) ((1 - sustainColorRatio) * color[1]);
-            modifiedColor[2] = (int) ((1 - sustainColorRatio) * color[2]);
-            modifiedColor[3] = 255;
-        } else {
-            modifiedColor = color;
-        }
-
-        // Modify the color if the unit is in danger of being collided
-        int index = single.getUnit().getTroopIndex(single);
-        if (env.getGameSettings().isBorderInwardCollision() && drawingSettings.isDrawTroopInDanger() &&
-            single.getUnit().getInDanger()[index / single.getUnit().getWidth()][index % single.getUnit().getWidth()]) {
-            modifiedColor = DrawingConstants.COLOR_IN_DANGER;
-        }
-
-        if (drawingSettings.isDrawTroopInPosition() && single.isInPosition()) {
-            modifiedColor = DrawingConstants.COLOR_IN_POSITION;
-        }
-
-        // Draw the single based on the type of the unit.
-        if (single instanceof CavalrySingle) {
-            if (drawingSettings.isDrawTroopShadow()) {
-                // Calvary shadow
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.cavalryShape(
-                        (drawX + shadowXOffset * zoomAdjustment),
-                        (drawY + shadowYOffset * zoomAdjustment),
-                         angle,
-                        (currSizeCavalry[INDEX_SHADOW_SIZE] * zoomAdjustment));
-            }
-
-            // Calvary shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.cavalryShape(
-                    drawX, drawY,
-                    angle, (currSizeCavalry[0] * zoomAdjustment));
-
-            // Eye
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                fill(0, 0, 0, 128);
-                ellipse((float) (drawX + (unitX * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.25)),
-                        (float) (drawY + (unitY * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.25)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-
-            // Cavalry Sword
-            if (settings.getDrawWeapon() == DrawingMode.DRAW) {
-                fill(50, 50, 50);
-                double diaRightUnitX = MathUtils.quickCos((float) (angle + Math.PI / 2));
-                double diaRightUnitY = MathUtils.quickSin((float) (angle + Math.PI / 2));
-                shapeDrawer.sword(
-                        (drawX + (diaRightUnitX * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        (drawY + (diaRightUnitY * currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        angle,
-                        (camera.getZoom() * zoomAdjustment));
-            }
-        } else if (single instanceof ArcherSingle) {
-            // Archer shadow
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.infantryShape((float) (drawX + shadowXOffset * zoomAdjustment), (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (currSizeArcher[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (currSizeArcher[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment));
-            }
-
-            // Archer circle shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.infantryShape((float) drawX, (float) drawY,
-                    (currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (currSizeArcher[INDEX_TROOP_SIMPLIED_SIZE]  * zoomAdjustment));
-
-            // Eye
-            fill(0, 0, 0, 128);
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                ellipse((float) (drawX + (unitX * currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment * 0.3)),
-                        (float) (drawY + (unitY * currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment * 0.3)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-
-            // Archer bow
-            fill(50, 50, 50);
-            shapeDrawer.bow((float) drawX, (float) drawY, (float) angle,
-                    (float) (currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment));
-
-        } else if (single instanceof BallistaSingle) {
-            // Balista shadow
-            // TODO: Change the shape to the balista shape
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.infantryShape(
-                        (float) (drawX + shadowXOffset * zoomAdjustment),
-                        (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (currSizeBalista[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (currSizeBalista[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment));
-            }
-
-            // Balista circle shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.infantryShape((float) drawX, (float) drawY,
-                    (currSizeBalista[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (currSizeBalista[INDEX_TROOP_SIMPLIED_SIZE]  * zoomAdjustment));
-
-            // Eye
-            fill(0, 0, 0, 128);
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                ellipse((float) (drawX + (unitX * currSizeBalista[INDEX_TROOP_SIZE] * zoomAdjustment * 0.3)),
-                        (float) (drawY + (unitY * currSizeBalista[INDEX_TROOP_SIZE] * zoomAdjustment * 0.3)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-
-            // Archer bow
-            fill(50, 50, 50);
-            shapeDrawer.bow((float) drawX, (float) drawY, (float) angle,
-                    (float) (currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment));
-
-        } else if (single instanceof SkirmisherSingle) {
-            // Skirmisher shadow
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.infantryShape(
-                        (float) (drawX + shadowXOffset * zoomAdjustment),
-                        (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (float) (currSizeSkirmisher[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (float) (currSizeSkirmisher[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment));
-            }
-
-            // Skirmisher circle shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.infantryShape(
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeSkirmisher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment));
-
-            // Eye
-            fill(0, 0, 0, 128);
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                ellipse((float) (drawX + (unitX * currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment / 2 * .6)),
-                        (float) (drawY + (unitY * currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment / 2 * .6)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-        } else if (single instanceof SlingerSingle) {
-            // Slinger shadow
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.infantryShape((float) (drawX + shadowXOffset * zoomAdjustment), (float) (drawY + shadowYOffset * zoomAdjustment),
-                        (float) (currSizeSlinger[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (float) (currSizeSlinger[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment));
-            }
-
-            // Slinger circle shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.infantryShape(
-                    (float) drawX,
-                    (float) drawY,
-                    (float) (currSizeSlinger[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (float) (currSizeSlinger[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment));
-
-            // Eye
-            fill(0, 0, 0, 128);
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                ellipse((float) (drawX + (unitX * currSizeSlinger[INDEX_TROOP_SIZE] * 0.3)),
-                        (float) (drawY + (unitY * currSizeSlinger[INDEX_TROOP_SIZE] * 0.3)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-        } else if (single instanceof PhalanxSingle) {
-            // Phalanx shadow
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.infantryShape(
-                        (drawX + shadowXOffset * zoomAdjustment),
-                        (drawY + shadowYOffset * zoomAdjustment),
-                        (currSizePhalanx[INDEX_SHADOW_SIZE]  * zoomAdjustment),
-                        (currSizePhalanx[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment));
-            }
-
-            // Phalanx circle shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    (currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (currSizePhalanx[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment));
-
-            // Eye
-            fill(0, 0, 0, 128);
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                ellipse((float) (drawX + (unitX * currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment * .3)),
-                        (float) (drawY + (unitY * currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment * .3)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-
-            // Spear
-            if (settings.getDrawWeapon() == DrawingMode.DRAW) {
-                if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE || single.getUnit().getTroopIndex(single) / width < 5) {
-                    fill(50, 50, 50);
-                    double diaRightUnitX = MathUtils.quickCos((float)(angle + Math.PI / 2));
-                    double diaRightUnitY = MathUtils.quickSin((float)(angle + Math.PI / 2));
-                    shapeDrawer.spear(
-                            (float) (drawX + diaRightUnitX * currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45),
-                            (float) (drawY + diaRightUnitY * currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45),
-                            (float) angle, 100,
-                            (float) (camera.getZoom() * zoomAdjustment));
-                }
-            }
-
-        } else if (single instanceof SwordmanSingle) {
-            // Swordman shadow
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.infantryShape(
-                        (drawX + shadowXOffset * zoomAdjustment),
-                        (drawY + shadowYOffset * zoomAdjustment),
-                        (currSizeSwordman[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (currSizeSwordman[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment));
-            }
-
-            // Swordman circle shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    (currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment));
-
-            // Eye
-            fill(0, 0, 0, 128);
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                ellipse((float) (drawX + (unitX * currSizeSwordman[0] * zoomAdjustment * .3)),
-                        (float) (drawY + (unitY * currSizeSwordman[0] * zoomAdjustment * .3)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-
-            // Sword
-            if (settings.getDrawWeapon() == DrawingMode.DRAW) {
-                fill(50, 50, 50);
-                double diaRightUnitX = MathUtils.quickCos((float)(angle + Math.PI / 2));
-                double diaRightUnitY = MathUtils.quickSin((float)(angle + Math.PI / 2));
-                shapeDrawer.sword(
-                        (drawX + (diaRightUnitX * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        (drawY + (diaRightUnitY * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment * 0.45)),
-                        angle,
-                        (camera.getZoom() * zoomAdjustment));
-            }
-        } else {
-            // Swordman shadow
-            if (drawingSettings.isDrawTroopShadow()) {
-                fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
-                shapeDrawer.infantryShape(
-                        (drawX + shadowXOffset * zoomAdjustment),
-                        (drawY + shadowYOffset * zoomAdjustment),
-                        (currSizeSwordman[INDEX_SHADOW_SIZE] * zoomAdjustment),
-                        (currSizeSwordman[INDEX_SHADOW_SIMPLIED_SIZE] * zoomAdjustment));
-            }
-
-            // Swordman circle shape
-            fill(modifiedColor[0], modifiedColor[1], modifiedColor[2], modifiedColor[3]);
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    (currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment),
-                    (currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment));
-
-            // Eye
-            fill(0, 0, 0, 128);
-            if (settings.getDrawEye() == DrawingMode.DRAW) {
-                ellipse((float) (drawX + (unitX * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment / .3)),
-                        (float) (drawY + (unitY * currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment / .3)),
-                        (float) (currSizeEye * zoomAdjustment),
-                        (float) (currSizeEye * zoomAdjustment));
-            }
-        }
+        // Draw the alive single itself
+        singleDrawer.drawAliveSingle(single, terrain);
     }
 
     /**
      * Portray dead unit
      */
-    void portrayDeadSingle(BaseSingle single, Camera camera, Terrain terrain, DrawingSettings settings) {
-        // Recalculate position and shape based on the view.camera position
-        double singleX = single.getX();
-        double singleY = single.getY();
-        double singleZ = terrain.getHeightFromPos(single.getX(), single.getY());
-        double[] position = camera.getDrawingPosition(
-                singleX,
-                singleY,
-                singleZ);
-        double drawX = position[0];
-        double drawY = position[1];
-        double zoomAdjustment = camera.getZoomAtHeight(singleZ) / camera.getZoom();
-
-        // Check if the object is drawable. If not, don't portray it.
-        if (!DrawingUtils.drawable(drawX, drawY, INPUT_WIDTH, INPUT_HEIGHT)) return;
-
-        // If it's drawable, draw the alive unit and potentially add some sound
-        drawDeadSingle(drawX, drawY, zoomAdjustment, single, camera, settings);
-    }
-
-    /**
-     * Dead unit drawer
-     * A dead unit will most of the time have just a gray body
-     */
-    void drawDeadSingle(double drawX, double drawY, double zoomAdjustment, BaseSingle single, Camera camera, DrawingSettings settings) {
-
-        // Angle of the dead troop
-        double angle = camera.getDrawingAngle(single.getFacingAngle());
-
-        // Fill with color of dead
-        int[] color = DrawingConstants.COLOR_DEAD;
-        fill(color[0], color[1], color[2], color[3]);
-
-        if (single instanceof CavalrySingle) {
-            shapeDrawer.cavalryShape(
-                    drawX,
-                    drawY,
-                    angle,
-                    currSizeCavalry[INDEX_TROOP_SIZE] * zoomAdjustment);
-        } else if (single instanceof PhalanxSingle) {
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    currSizePhalanx[INDEX_TROOP_SIZE] * zoomAdjustment,
-                    currSizePhalanx[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment);
-        } else if (single instanceof SwordmanSingle) {
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    currSizeSwordman[INDEX_TROOP_SIZE] * zoomAdjustment,
-                    currSizeSwordman[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment);
-        } else if (single instanceof ArcherSingle) {
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    currSizeArcher[INDEX_TROOP_SIZE] * zoomAdjustment,
-                    currSizeArcher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment);
-        } else if (single instanceof BallistaSingle) {
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    currSizeBalista[INDEX_TROOP_SIZE] * zoomAdjustment,
-                    currSizeBalista[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment);
-        } else if (single instanceof SlingerSingle) {
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    currSizeSlinger[INDEX_TROOP_SIZE] * zoomAdjustment,
-                    currSizeSlinger[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment);
-        } else if (single instanceof SkirmisherSingle) {
-            shapeDrawer.infantryShape(
-                    drawX,
-                    drawY,
-                    currSizeSkirmisher[INDEX_TROOP_SIZE] * zoomAdjustment,
-                    currSizeSkirmisher[INDEX_TROOP_SIMPLIED_SIZE] * zoomAdjustment);
-        }
+    void portrayDeadSingle(BaseSingle single, Terrain terrain) {
+        singleDrawer.drawDeadSingle(single, terrain);
     }
 }

@@ -1,8 +1,8 @@
 {
     type: PHALANX
     org: unit
-    x: -500
-    y: -930
+    x: 9500
+    y: 9070
     angle: 0
     size: 300
     faction: ROME
@@ -11,8 +11,8 @@
 {
     type: PHALANX
     org: unit
-    x: -500
-    y: 570
+    x: 9500
+    y: 10570
     angle: 0
     size: 300
     faction: ROME
@@ -21,8 +21,8 @@
 {
     type: PHALANX
     org: unit
-    x: -500
-    y: 2070
+    x: 9500
+    y: 12070
     angle: 0
     size: 300
     faction: ROME
@@ -31,8 +31,8 @@
 {
     type: ARCHER
     org: unit
-    x: -1000
-    y: 2070
+    x: 9000
+    y: 12070
     angle: 0
     size: 1500
     faction: ROME
@@ -41,8 +41,8 @@
 {
     type: BALLISTA
     org: unit
-    x: -1500
-    y: 2070
+    x: 8500
+    y: 12070
     angle: 0
     size: 5
     faction: ROME
@@ -51,8 +51,8 @@
 {
     type: BALLISTA
     org: unit
-    x: 0
-    y: 4070
+    x: 10000
+    y: 14070
     angle: 90
     size: 5
     faction: ROME
@@ -61,8 +61,8 @@
 {
     type: CAVALRY
     org: unit
-    x: -500
-    y: 3270
+    x: 9500
+    y: 13270
     angle: 0
     size: 180
     faction: ROME
@@ -71,8 +71,8 @@
 {
     type: CAVALRY
     org: unit
-    x: -500
-    y: -2130
+    x: 9500
+    y: 7870
     angle: 0
     size: 180
     faction: ROME
@@ -81,8 +81,8 @@
 {
     type: SWORDMAN
     org: unit
-    x: 1900
-    y: 570
+    x: 11900
+    y: 10570
     angle: 180
     size: 4500
     faction: GAUL
@@ -91,8 +91,8 @@
 {
     type: CAVALRY
     org: unit
-    x: 1900
-    y: 3270
+    x: 11900
+    y: 103270
     angle: 180
     size: 60
     faction: GAUL
@@ -101,8 +101,8 @@
 {
     type: CAVALRY
     org: unit
-    x: 1900
-    y: -2130
+    x: 11900
+    y: 7870
     angle: 180
     size: 60
     faction: GAUL
