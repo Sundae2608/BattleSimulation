@@ -179,7 +179,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawEye(DrawingMode.NOT_DRAW);
         drawingSettings.setDrawWeapon(DrawingMode.DRAW);
         drawingSettings.setProduceFootage(false);
-        drawingSettings.setFrameSkips(10);
+        drawingSettings.setFrameSkips(0);
         drawingSettings.setDrawGrid(false);
         drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
