@@ -3,6 +3,8 @@ package view.audio;
 import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventListener;
+import model.events.custom_events.CavalryMarchingEvent;
+import model.events.custom_events.SoldierMarchingEvent;
 import model.utils.MathUtils;
 import processing.core.PApplet;
 import view.camera.Camera;
@@ -73,6 +75,8 @@ public class AudioSpeaker extends EventListener {
             switch (e.getEventType()) {
                 case CAVALRY_RUNNING:
                     audio = audioMap.get(AudioType.CAVALRY_RUNNING);
+                    volumePortionAdded *= AudioConstants.SOUND_PROPORTION_PER_SOLDER *
+                            ((CavalryMarchingEvent) e).getNumSingles();
                     break;
                 case CAVALRY_CHARGE:
                     audio = audioMap.get(AudioType.CAVALRY_CHARGE);
@@ -98,6 +102,8 @@ public class AudioSpeaker extends EventListener {
                     audio = audioMap.get(AudioType.SOLDIER_FIGHTING);
                     break;
                 case SOLDIER_MARCHING:
+                    volumePortionAdded *= AudioConstants.SOUND_PROPORTION_PER_SOLDER *
+                            ((SoldierMarchingEvent) e).getNumSingles();
                     audio = audioMap.get(AudioType.SOLDIER_MARCHING);
                     break;
                 default:

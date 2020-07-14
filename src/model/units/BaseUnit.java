@@ -822,7 +822,6 @@ public class BaseUnit {
             }
         }
 
-
         // Update the state of each single and the average position
         double sumX = 0;
         double sumY = 0;
@@ -961,6 +960,19 @@ public class BaseUnit {
      */
     public int getNumAlives() {
         return aliveTroopsMap.size();
+    }
+
+    /**
+     * Get the number of troops walking/
+     */
+    public int getNumMoving() {
+        int numMoving = 0;
+        for (BaseSingle single : aliveTroopsMap.keySet()) {
+            if (single.getState() == SingleState.MOVING || single.getState() == SingleState.CATCHING_UP) {
+                 numMoving += 1;
+            }
+        }
+        return numMoving;
     }
 
     public double getStamina() { return stamina; }
