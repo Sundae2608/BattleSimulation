@@ -1,6 +1,6 @@
 # Installation Guide
 
-What's up peeps! This document will guide you how to set up the development environment to run the software on IntelliJ.
+This document will guide you how to set up the development environment to run the software on IntelliJ.
 
 ## Step 1: Download the software and required dependencies
 
