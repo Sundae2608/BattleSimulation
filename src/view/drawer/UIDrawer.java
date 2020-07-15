@@ -78,7 +78,7 @@ public class UIDrawer extends BaseDrawer {
         int[] moraleColor = DrawingConstants.COLOR_MORALE;
         applet.fill(moraleColor[0], moraleColor[1], moraleColor[2], moraleColor[3]);
         applet.rect((float) (drawingPos[0] - 28), (float) (drawingPos[1] - 32),
-                (float) (56 * unit.getMorale() / GameplayConstants.BASE_MORALE), 8);
+                (float) (56 * Math.max(unit.getMorale(), 0.0) / GameplayConstants.BASE_MORALE), 8);
         applet.blendMode(PApplet.MULTIPLY);
         applet.image(bannerTexture,
                 (float) (drawingPos[0] - 42),
