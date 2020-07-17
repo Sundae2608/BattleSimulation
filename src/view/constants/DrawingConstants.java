@@ -65,4 +65,9 @@ public class DrawingConstants {
     public final static double ARROW_SIZE = 30;
     public final static double BALISTA_SIZE = 100;
     public final static double CATAPULT_SIZE = 20;
+
+    // Height scale for airborne objects
+    // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
+    // the height effect of arrows a little bit to make the arrow looks more palatable.
+    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 0.50;
 }
