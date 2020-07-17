@@ -40,8 +40,8 @@ public class ObjectDrawer extends BaseDrawer {
     public void drawObject(BaseObject object, Terrain terrain) {
 
         // Recalculate position and shape based on the view.camera position
-        double z = object.getHeight()
-                + terrain.getHeightFromPos(object.getX(), object.getY()) + object.getHeight();
+        double z = terrain.getHeightFromPos(object.getX(), object.getY());
+        z += object.getHeight() * DrawingConstants.AIRBORNE_OBJECT_HEIGHT_SCALE;
         double[] position = camera.getDrawingPosition(
                 object.getX(),
                 object.getY(),
