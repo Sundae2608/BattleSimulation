@@ -41,6 +41,13 @@ into.
    `core.jar` and all other `.jar` files within the folder.
    * When you import `processing-sound` libraries, be sure to also import all of `sound.jar`, `javamp` and `jsyn`
    libraries.
+   * If you need to install your library from Apache Maven, such as 
+   [`tensorflow-1.15`](https://www.tensorflow.org/install/lang_java), you can do `+ > From Maven` and search your
+   library to install.
+   ![](imgs/maven_installation.png)
+ 
+We plan to convert to using Apache Maven for all of our project dependencies in the future.
+ 
    
 ## Step 3: Set up running configuration.
 

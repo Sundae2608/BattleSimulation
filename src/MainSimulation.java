@@ -716,7 +716,7 @@ public class MainSimulation extends PApplet {
             }
         }
 
-        // Information about the unit
+        // Information about the closest unit on top left corner.
         fill(0, 0, 0, 200);
         rect(0, 0, 400, 150);
         fill(255, 255, 255);
