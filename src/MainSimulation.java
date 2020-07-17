@@ -170,6 +170,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setAllyCollision(true);
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
+        gameSettings.setEnableFlankingMechanics(false);
 
         // ----------------
         // Graphic settings

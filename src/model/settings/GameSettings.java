@@ -18,7 +18,7 @@ public class GameSettings {
     private boolean collisionCheckingOnlyInCombat;
 
     // Apply flanking mechanics to first liner who hasn't seen battle yet.
-    private boolean flankingMechanics;
+    private boolean enableFlankingMechanics;
 
     public GameSettings() {}
 
@@ -57,5 +57,13 @@ public class GameSettings {
     }
     public void setApplyTerrainModifier(boolean applyTerrainModifier) {
         this.applyTerrainModifier = applyTerrainModifier;
+    }
+
+    public boolean isEnableFlankingMechanics() {
+        return enableFlankingMechanics;
+    }
+
+    public void setEnableFlankingMechanics(boolean enableFlankingMechanics) {
+        this.enableFlankingMechanics = enableFlankingMechanics;
     }
 }
