@@ -65,6 +65,7 @@ public class SingleDrawer extends BaseDrawer {
         // Graphic storage
         cavalryShapeMap = new HashMap<>();
 
+        // Initialize size map.
         eyeSizeMap = new HashMap<>();
         phalanxSizeMap = new HashMap<>();
         slingerSizeMap = new HashMap<>();
@@ -78,6 +79,12 @@ public class SingleDrawer extends BaseDrawer {
 
     @Override
     public void preprocess() {
+        // Pre-calculate shadow, also for optimization
+        if (drawingSettings.isDrawTroopShadow()) {
+            shadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
+            shadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
+        }
+        
         // Eye
         if (!eyeSizeMap.containsKey(camera.getZoom())) {
             eyeSizeMap.put(camera.getZoom(), UniversalConstants.EYE_SIZE * camera.getZoom());
