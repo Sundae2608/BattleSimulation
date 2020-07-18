@@ -2,6 +2,7 @@ package view.drawer;
 
 import processing.core.PApplet;
 import view.constants.MapMakerConstants;
+import view.drawer.components.Scrollbar;
 
 /**
  * This class contains drawers for all UI elements in the game.
@@ -9,9 +10,11 @@ import view.constants.MapMakerConstants;
 public class UIDrawer {
 
     PApplet applet;
+    Scrollbar bar;
 
     public UIDrawer(PApplet inputApplet) {
         applet = inputApplet;
+        bar = new Scrollbar(applet, 950, 950, 500, 16);
     }
 
     /**
@@ -64,5 +67,9 @@ public class UIDrawer {
         applet.vertex(0.5f * size, 0);
         applet.endShape(PApplet.CLOSE);
         applet.popMatrix();
+    }
+
+    public void drawScrollBar() {
+        bar.update();
     }
 }

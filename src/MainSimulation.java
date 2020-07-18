@@ -844,6 +844,8 @@ public class MainSimulation extends PApplet {
         s.append("Backends                        : " + String.format("%.2f", 1.0 * backEndTime / 1000000) + "ms\n");
         s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
         s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
+
+        uiDrawer.drawScrollBar();
         infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
 
         // Pause / Play Button
