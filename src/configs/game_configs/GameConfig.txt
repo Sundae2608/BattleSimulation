@@ -68,7 +68,7 @@
     bored_delay: 50
     angle_variation: 0.03
     impact_lifetime: 14
-    arrow_speed: 15
+    arrow_speed: 30
     arrow_size: 30
     arrow_damage: 10
     arrow_push_dist: 5
@@ -174,7 +174,7 @@
     unit_type: CAVALRY
 
     // Single stats
-    mass: 700
+    mass: 400
     radius: 34
     speed: 12
     hp: 600
