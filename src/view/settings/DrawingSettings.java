@@ -27,10 +27,6 @@ public class DrawingSettings {
     private int smoothRotationSteps;
     private int smoothPlanShowingSteps;
 
-    // In position optimization means that troop in position will not be drawn separately, but part of a masked image
-    // to improve performance
-    private boolean inPositionOptimization;
-
     public DrawingSettings() {}
 
     public RenderMode getRenderMode() {
@@ -131,13 +127,6 @@ public class DrawingSettings {
     }
     public void setDrawTroopShadow(boolean drawTroopShadow) {
         this.drawTroopShadow = drawTroopShadow;
-    }
-
-    public boolean isInPositionOptimization() {
-        return inPositionOptimization;
-    }
-    public void setInPositionOptimization(boolean inPositionOptimization) {
-        this.inPositionOptimization = inPositionOptimization;
     }
 
     public boolean isDrawIcon() {

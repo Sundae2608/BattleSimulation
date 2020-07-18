@@ -220,7 +220,6 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawTroopShadow(true);
         drawingSettings.setDrawSimplifiedTroopShape(true);
         drawingSettings.setDrawIcon(true);
-        drawingSettings.setInPositionOptimization(false);
         drawingSettings.setDrawVideoEffect(true);
 
         // Graphic storage
@@ -357,9 +356,6 @@ public class MainSimulation extends PApplet {
             backgroundMusic.amp(0.15f);
             backgroundMusic.loop();
         }
-
-        // Create a simplified image version of each unit.
-        preprocessSimplifiedUnitImages();
 
         // Playing state
         currentlyPaused = false;
@@ -678,11 +674,7 @@ public class MainSimulation extends PApplet {
             // Alive troop
             for (BaseUnit unit : env.getUnits()) {
                 boolean unitHovered = unit == closestUnit;
-                // First, draw the optimize masked version for troops in position
-                if (drawingSettings.isInPositionOptimization() &&
-                        camera.getZoom() < CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE) {
-                    drawMaskedInPositionUnit(unit, camera, drawingSettings);
-                }
+
                 // For troops out of position, draw them individually
                 for (BaseSingle single : unit.getTroops()) {
                     if (single.getState() == SingleState.DEAD) continue;
@@ -1043,178 +1035,6 @@ public class MainSimulation extends PApplet {
     @Override
     public void keyReleased() {
         keyPressedSet.remove(key);
-    }
-
-    /**
-     *  __  __           _      _    _       _ _      ____        _   _           _          _   _
-     * |  \/  |         | |    | |  | |     (_) |    / __ \      | | (_)         (_)        | | (_)
-     * | \  / | __ _ ___| | __ | |  | |_ __  _| |_  | |  | |_ __ | |_ _ _ __ ___  _ ______ _| |_ _  ___  _ __
-     * | |\/| |/ _` / __| |/ / | |  | | '_ \| | __| | |  | | '_ \| __| | '_ ` _ \| |_  / _` | __| |/ _ \| '_ \
-     * | |  | | (_| \__ \   <  | |__| | | | | | |_  | |__| | |_) | |_| | | | | | | |/ / (_| | |_| | (_) | | | |
-     * |_|  |_|\__,_|___/_|\_\  \____/|_| |_|_|\__|  \____/| .__/ \__|_|_| |_| |_|_/___\__,_|\__|_|\___/|_| |_|
-     *                                                     | |
-     *                                                     |_|
-     */
-
-    /**
-     * Create a mask based on unit that is roughly in position
-     */
-    private int[] unitMask(PImage image, IntMatrix2D alpha, BaseUnit unit) {
-        boolean[][] inPositionMask = unit.getTroopsInPosition();
-        double singleSpacing = unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-        IntMatrix2D imageMap = new DenseIntMatrix2D(image.height, image.width);
-        for (int i = 0; i < unit.getDepth(); i++) {
-            for (int j = 0; j < unit.getWidth(); j++) {
-                if (inPositionMask[i][j]) {
-                    IntMatrix2D imagePart = imageMap.viewPart((int) (i * singleSpacing), (int) (j * singleSpacing),
-                            (int) (singleSpacing), (int) (singleSpacing));
-                    IntMatrix2D alphaPart = alpha.viewPart((int) (i * singleSpacing), (int) (j * singleSpacing),
-                            (int) (singleSpacing), (int) (singleSpacing));
-                    imagePart.assign(alphaPart, new IntIntFunction() {
-                        @Override
-                        public int apply(int i, int i1) {
-                            return Math.min(i, i1);
-                        }
-                    });
-                }
-            }
-        }
-        return ((DenseIntMatrix2D) imageMap).elements();
-    }
-
-    /**
-     * Draw all troop that is in position in a masked image.
-     */
-    private void drawMaskedInPositionUnit(BaseUnit unit, Camera camera, DrawingSettings settings) {
-        if (settings.isDrawTroopShadow()) {
-            Pair<PImage, IntMatrix2D> imageAndAlpha = unitShadowSimplifiedImageMap.get(unit);
-            PImage img = imageAndAlpha.getKey();
-            IntMatrix2D alpha = imageAndAlpha.getValue();
-            int[] mask = unitMask(img, alpha, unit);
-            img.mask(mask);
-
-            double[] drawingPosition = camera.getDrawingPosition(unit.getAnchorX(), unit.getAnchorY());
-            double drawX = drawingPosition[0];
-            double drawY = drawingPosition[1];
-
-            double relativeUnitImageScale = camera.getZoom() / CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-            pushMatrix();
-            translate((float) (drawX + shadowXOffset), (float) (drawY + shadowYOffset));
-            rotate((float) (unit.getAnchorAngle() - camera.getAngle() + Math.PI / 2));
-            image(img, (float) (- img.width / 2 * relativeUnitImageScale),
-                    (float) (- unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE / 2 * relativeUnitImageScale),
-                    (float) (img.width * relativeUnitImageScale),
-                    (float) (img.height * relativeUnitImageScale));
-            popMatrix();
-        }
-
-        Pair<PImage, IntMatrix2D> imageAndAlpha = unitSimplifiedImageMap.get(unit);
-        PImage img = imageAndAlpha.getKey();
-        IntMatrix2D alpha = imageAndAlpha.getValue();
-        int[] mask = unitMask(img, alpha, unit);
-        img.mask(mask);
-
-        double[] drawingPosition = camera.getDrawingPosition(unit.getAnchorX(), unit.getAnchorY());
-        double drawX = drawingPosition[0];
-        double drawY = drawingPosition[1];
-
-        double relativeUnitImageScale = camera.getZoom() / CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-        pushMatrix();
-        translate((float) drawX, (float) drawY);
-        rotate((float) (unit.getAnchorAngle() - camera.getAngle() + Math.PI / 2));
-        image(img, (float) (- img.width / 2 * relativeUnitImageScale),
-                (float) (- unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE / 2 * relativeUnitImageScale),
-                (float) (img.width * relativeUnitImageScale),
-                (float) (img.height * relativeUnitImageScale));
-        popMatrix();
-    }
-
-    /**
-     * Create a simplified image and shadow image of the unit. This helps with drawer optimization since troop that is
-     * roughly in their supposed position can just be drawn using an image view.map instead of being drawn individually
-     */
-    private PImage createSimplifiedUnitImage(BaseUnit unit) {
-        double singleSpacing = unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-        double singleSize = unit.getTroops().get(0).getSize() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-        double imageWidth = unit.getWidth() * singleSpacing;
-        double imageHeight = unit.getDepth() * singleSpacing;
-
-        // Now, start to create and draw the image
-        double topLeftX = singleSpacing / 2;
-        double topLeftY = singleSpacing / 2;
-        double x;
-        double y;
-        PGraphics pg = createGraphics((int) imageWidth, (int) imageHeight, P3D);
-        pg.beginDraw();
-        pg.noStroke();
-        int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
-        pg.background(color[0], color[1], color[2], 0);
-        for (int i = 0; i < unit.getWidth(); i++) {
-            for (int j = 0; j < unit.getDepth(); j++) {
-                x = topLeftX + singleSpacing * i;
-                y = topLeftY + singleSpacing * j;
-                pg.fill(color[0], color[1], color[2], color[3]);
-                pg.ellipse((float) x, (float) y, (float) singleSize, (float) singleSize);
-            }
-        }
-        pg.endDraw();
-        return pg.get();
-    }
-
-    private PImage createSimplifiedShadowUnitImage(BaseUnit unit) {
-        double singleSpacing = unit.getSpacing() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE;
-        double shadowSize = unit.getTroops().get(0).getSize() * CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE
-                * UniversalConstants.SHADOW_SIZE;
-        double imageWidth = unit.getWidth() * singleSpacing;
-        double imageHeight = unit.getDepth() * singleSpacing;
-
-        // Now, start to create and draw the image
-        double topLeftX = singleSpacing / 2;
-        double topLeftY = singleSpacing / 2;
-        double x;
-        double y;
-        PGraphics pg = createGraphics((int) imageWidth, (int) imageHeight, P3D);
-        pg.beginDraw();
-        pg.noStroke();
-        int[] color = UniversalConstants.SHADOW_COLOR;
-        pg.background(color[0], color[1], color[2], 0);
-        for (int i = 0; i < unit.getWidth(); i++) {
-            for (int j = 0; j < unit.getDepth(); j++) {
-                x = topLeftX + singleSpacing * i;
-                y = topLeftY + singleSpacing * j;
-                pg.fill(color[0], color[1], color[2], color[3]);
-                pg.ellipse((float) x, (float) y, (float) shadowSize, (float) shadowSize);
-            }
-        }
-        pg.endDraw();
-        return pg.get();
-    }
-
-    /**
-     *   _____                                                          _               _          _
-     *  / ____|                                                        (_)             | |        | |
-     * | |  __  __ _ _ __ ___   ___   _ __  _ __ ___   ___ ___  ___ ___ _ _ __   __ _  | |__   ___| |_ __   ___ _ __
-     * | | |_ |/ _` | '_ ` _ \ / _ \ | '_ \| '__/ _ \ / __/ _ \/ __/ __| | '_ \ / _` | | '_ \ / _ \ | '_ \ / _ \ '__|
-     * | |__| | (_| | | | | | |  __/ | |_) | | | (_) | (_|  __/\__ \__ \ | | | | (_| | | | | |  __/ | |_) |  __/ |
-     *  \_____|\__,_|_| |_| |_|\___| | .__/|_|  \___/ \___\___||___/___/_|_| |_|\__, | |_| |_|\___|_| .__/ \___|_|
-     *                               | |                                         __/ |              | |
-     *                               |_|                                        |___/               |_|
-     */
-
-    void preprocessSimplifiedUnitImages() {
-        // Create an image version of troops. This helps with drawer optimization when ther are a lot of troops in
-        // the field.
-        for (BaseUnit unit : env.getUnits()) {
-            PImage img = createSimplifiedUnitImage(unit);
-            int[][] alpha = DrawingUtils.getAlphaArray(img);
-            IntMatrix2D alphaArray = new DenseIntMatrix2D(alpha);
-            unitSimplifiedImageMap.put(unit, new Pair<>(img, alphaArray));
-
-            PImage shadow = createSimplifiedShadowUnitImage(unit);
-            int[][] shadowAlpha = DrawingUtils.getAlphaArray(shadow);
-            IntMatrix2D shadowAlphaArray = new DenseIntMatrix2D(shadowAlpha);
-            unitShadowSimplifiedImageMap.put(unit, new Pair<>(shadow, shadowAlphaArray));
-        }
     }
 
     /**
@@ -1633,15 +1453,6 @@ public class MainSimulation extends PApplet {
 
         // Check if the object is drawable. If not, don't portray it.
         if (!DrawingUtils.drawable(drawX, drawY, INPUT_WIDTH, INPUT_HEIGHT)) return;
-
-        // If it's drawable, draw the alive unit and potentially add some sound
-        if (drawingSettings.isInPositionOptimization() &&
-                camera.getZoomAtHeight(singleZ) < CameraConstants.ZOOM_RENDER_LEVEL_PERCEPTIVE &&
-                single.isInPosition() && !single.isInDanger()) {
-            // Don't draw if troop is in position and zoom is small. This will be handled by a mask image to improve
-            // optimization.
-            return;
-        }
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();

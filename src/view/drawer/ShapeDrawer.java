@@ -41,6 +41,8 @@ public class ShapeDrawer {
 
     /**
      * Draw a spear with a specific length;
+     * TODO: Refactor size variable into zoom. This variable is essentially the zoom of the camera. We should refactor
+     *  them to ensure that the actual drawing does not have to concern size.
      */
     public void spear(float x, float y, float angle, float spearLength, float size) {
         if (!spearMap.containsKey(size)) {
