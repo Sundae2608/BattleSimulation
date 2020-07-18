@@ -20,7 +20,6 @@ public class DrawingConstants {
     public final static int[] COLOR_GOAL_POSITION = {255, 226, 18, 255};  // #FFE212
 
     // Icon colors
-    public final static int[] COLOR_HEALTH = {183, 62, 50, 255};    // #B73E32
     public final static int[] COLOR_MORALE = {209, 170, 47, 255};  // #D1AA2F
 
     // Terrain colors
@@ -69,5 +68,5 @@ public class DrawingConstants {
     // Height scale for airborne objects
     // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
     // the height effect of arrows a little bit to make the arrow looks more palatable.
-    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 0.50;
+    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 0.60;
 }
