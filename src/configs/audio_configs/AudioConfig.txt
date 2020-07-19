@@ -58,3 +58,9 @@
     broadcast_type: BURST
     base_volume: 0.3
 },
+{
+    audio_type: ARROW_CROWD_HIT
+    file: audios/arrow/crowded_arrow_hit_light.mp3
+    broadcast_type: AMBIENT
+    base_volume: 0.3
+},

@@ -14,6 +14,7 @@ import model.monitor.Monitor;
 import model.singles.BaseSingle;
 import model.surface.BaseSurface;
 import model.terrain.Terrain;
+import model.units.ArcherUnit;
 import model.units.BaseUnit;
 import model.units.CavalryUnit;
 import utils.ConfigUtils;
@@ -132,7 +133,7 @@ public class GameEnvironment {
             }
         }
 
-        // Broadcast running and marching events
+        // Broadcast running, marching and arrow fire event events
         for (BaseUnit unit : units) {
             int numMovings = unit.getNumMoving();
             if (numMovings > 0) {
@@ -157,6 +158,14 @@ public class GameEnvironment {
                                     unit.getAverageX(),
                                     unit.getAverageY(),
                                     unit.getAverageZ()));
+            }
+            if (unit instanceof ArcherUnit && ((ArcherUnit) unit).getUnitFiredAgainst() != null) {
+                BaseUnit firedUnit = ((ArcherUnit) unit).getUnitFiredAgainst();
+                broadcaster.broadcastEvent(
+                        new Event(EventType.ARROW_CROWD_HIT,
+                                firedUnit.getAverageX(),
+                                firedUnit.getAverageY(),
+                                firedUnit.getAverageZ()));
             }
         }
     }
