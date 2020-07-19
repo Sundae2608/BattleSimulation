@@ -96,7 +96,7 @@ public class BaseUnit {
         gameSettings = inputGameSettings;
         morale = GameplayConstants.BASE_MORALE;
         timeInFightingState = 0;
-        stamina = inputUnitStats.maxStamina;
+        stamina = inputUnitStats.staminaStats.maxStamina;
     }
 
     /**
@@ -852,13 +852,8 @@ public class BaseUnit {
     }
 
     private void updateStamina() {
-        // Stamina is depleted when the unit is in combat and is recovered if doing nothing
-        // Todo: Make it work for different actions and/or surfaces
-        if (state == UnitState.STANDING) {
-            stamina = Math.min(stamina + stamina * unitStats.staminaRecoveryRate, unitStats.maxStamina);
-        } else {
-            stamina = Math.max(stamina - stamina * unitStats.staminaDepletionRate, 0);
-        }
+        stamina = Math.max(Math.min(stamina + stamina * unitStats.staminaStats.getStaminaChangeRate(state),
+                unitStats.staminaStats.maxStamina), 0);
     }
 
     /**
