@@ -4,9 +4,9 @@
     x: 6500
     y: 12500
     angle: 0
-    size: 1
+    size: 450
     faction: ROME
-    width: 1
+    width: 30
 },
 {
     type: SWORDMAN
@@ -17,4 +17,14 @@
     size: 450
     faction: GAUL
     width: 45
+},
+{
+    type: ARCHER
+    org: unit
+    x: 5000
+    y: 12070
+    angle: 0
+    size: 150
+    faction: ROME
+    width: 30
 },

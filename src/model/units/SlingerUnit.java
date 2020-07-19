@@ -2,6 +2,7 @@ package model.units;
 
 import model.enums.PoliticalFaction;
 import model.events.EventBroadcaster;
+import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.singles.SingleStats;
 import model.singles.SlingerSingle;
@@ -16,8 +17,8 @@ import java.util.HashSet;
 public class SlingerUnit extends BaseUnit{
     public SlingerUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction,
                        UnitStats unitStats, SingleStats singleStats, int unitWidth, Terrain terrain,
-                       EventBroadcaster broadcaster) {
-        super(unitStats, terrain, broadcaster);
+                       EventBroadcaster broadcaster, GameSettings gameSettings) {
+        super(unitStats, terrain, broadcaster, gameSettings);
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;

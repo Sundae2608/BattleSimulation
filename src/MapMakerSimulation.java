@@ -8,6 +8,7 @@ import view.constants.MapMakerConstants;
 import view.drawer.InfoDrawer;
 import view.drawer.MapDrawer;
 import view.drawer.UIDrawer;
+import view.settings.DrawingSettings;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -22,6 +23,9 @@ public class MapMakerSimulation extends PApplet {
     private final static int INPUT_DIV = 400;
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
+
+    // Drawing settings
+    DrawingSettings drawingSettings;
 
     // Key and mouse pressed set
     HashSet<Character> keyPressedSet;
@@ -49,6 +53,7 @@ public class MapMakerSimulation extends PApplet {
 
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
+        drawingSettings = new DrawingSettings();
     }
 
     public void setup() {
@@ -69,8 +74,8 @@ public class MapMakerSimulation extends PApplet {
         zoomGoal = camera.getZoom();  // To ensure consistency
 
         // Set up drawer
-        uiDrawer = new UIDrawer(this);
-        mapDrawer = new MapDrawer(this);
+        uiDrawer = new UIDrawer(this, camera, drawingSettings);
+        mapDrawer = new MapDrawer(this, camera);
         infoDrawer = new InfoDrawer(this);
 
         // Drawing settings
@@ -144,7 +149,7 @@ public class MapMakerSimulation extends PApplet {
         cameraDy *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
 
         // Drawing terrain line
-        mapDrawer.drawTerrainLine(terrain, camera);
+        mapDrawer.drawTerrainLine(terrain);
 
         // Draw the circle that is the drawer.
         uiDrawer.paintCircle(mouseX, mouseY);

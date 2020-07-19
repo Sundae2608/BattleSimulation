@@ -8,6 +8,8 @@ import model.construct.Construct;
 import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventType;
+import model.events.custom_events.CavalryMarchingEvent;
+import model.events.custom_events.SoldierMarchingEvent;
 import model.monitor.Monitor;
 import model.singles.BaseSingle;
 import model.surface.BaseSurface;
@@ -87,7 +89,7 @@ public class GameEnvironment {
         // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
-                    battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster);
+                    battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster, gameSettings);
         } catch (IOException e){
             e.printStackTrace();
         }
@@ -108,6 +110,7 @@ public class GameEnvironment {
         for (BaseUnit unit : units) {
             unit.updateIntention();
         }
+
         // Update the states of all units
         unitModifier.modifyObjects();
         for (BaseUnit unit : units) {
@@ -116,20 +119,31 @@ public class GameEnvironment {
         // Broadcast running and marching events
         for (BaseUnit unit : units) {
             switch (unit.getState()) {
+                case STANDING:
+                    int numMovings = unit.getNumMoving();
+                    if (numMovings > 0) {
+                        if (unit instanceof CavalryUnit) {
+                            broadcaster.broadcastEvent(
+                                    new CavalryMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
+                                            numMovings));
+                        } else {
+                            broadcaster.broadcastEvent(
+                                    new SoldierMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
+                                            numMovings));
+                        }
+                    }
+                    break;
                 case MOVING:
                 case ROUTING:
+                    numMovings = unit.getNumMoving();
                     if (unit instanceof CavalryUnit) {
                         broadcaster.broadcastEvent(
-                                new Event(EventType.CAVALRY_RUNNING,
-                                        unit.getAverageX(),
-                                        unit.getAverageY(),
-                                        unit.getAverageZ()));
+                                new CavalryMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
+                                        numMovings));
                     } else {
                         broadcaster.broadcastEvent(
-                                new Event(EventType.SOLDIER_MARCHING,
-                                        unit.getAverageX(),
-                                        unit.getAverageY(),
-                                        unit.getAverageZ()));
+                                new SoldierMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
+                                        numMovings));
                     }
                     break;
                 case FIGHTING:

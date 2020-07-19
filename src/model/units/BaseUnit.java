@@ -6,7 +6,9 @@ import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
+import model.enums.UnitType;
 import model.events.EventBroadcaster;
+import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
 import model.terrain.Terrain;
@@ -62,11 +64,12 @@ public class BaseUnit {
     protected double[][] boundingBox;
     protected boolean[][] inDanger;
 
-    // The terrain in which the unit operates on
+    // These are outside dependencies that can control behavior of the unit.
     Terrain terrain;
+    GameSettings gameSettings;
 
     // Patience until fighting
-    // When two model.units contact each other, there will be a delay of certain time steps until the unit lose "patience" and
+    // When two units contact each other, there will be a delay of certain time steps until the unit lose "patience" and
     // is forced to switch to fighting mode. This will be a clock that counts down until it happens.
     int currUnitPatience;
     BaseUnit unitFoughtAgainst;
@@ -83,12 +86,14 @@ public class BaseUnit {
     /**
      * Initialize BaseUnit
      */
-    public BaseUnit(UnitStats inputUnitStats, Terrain inputTerrain, EventBroadcaster inputBroadcaster) {
+    public BaseUnit(UnitStats inputUnitStats, Terrain inputTerrain, EventBroadcaster inputBroadcaster,
+                    GameSettings inputGameSettings) {
         boundingBox = new double[6][2];
         inContactWithEnemy = false;
         unitStats = inputUnitStats;
         terrain = inputTerrain;
         broadcaster = inputBroadcaster;
+        gameSettings = inputGameSettings;
         morale = GameplayConstants.BASE_MORALE;
         timeInFightingState = 0;
         stamina = inputUnitStats.staminaStats.maxStamina;
@@ -659,33 +664,35 @@ public class BaseUnit {
 
                 // Update flanker status. If the flank has not engaged with the enemy for a long time, they will join
                 // the flanker, which will have a different goal position.
-                for (int i = 0; i < width; i++) {
-                    if (flankersCount[i] < troops.size() / width && aliveTroopsFormation[flankersCount[i]][i] != null) {
-                        if (aliveTroopsFormation[0][i].getCombatDelay() < 0) {
-                            frontlinePatientCounters[i] += 1;
-                        } else {
+                if (gameSettings.isEnableFlankingMechanics()) {
+                    for (int i = 0; i < width; i++) {
+                        if (flankersCount[i] < troops.size() / width && aliveTroopsFormation[flankersCount[i]][i] != null) {
+                            if (aliveTroopsFormation[0][i].getCombatDelay() < 0) {
+                                frontlinePatientCounters[i] += 1;
+                            } else {
+                                frontlinePatientCounters[i] = 0;
+                            }
+                        }
+                        if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
+                            // If the front-liner has waited for too long, they will join the flanker.
+                            flankersCount[i] += 1;
                             frontlinePatientCounters[i] = 0;
                         }
                     }
-                    if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
-                        // If the front-liner has waited for too long, they will join the flanker.
-                        flankersCount[i] += 1;
-                        frontlinePatientCounters[i] = 0;
-                    }
-                }
 
-                for (int i = 0; i < width; i++) {
-                    if (flankersCount[i] < troops.size() / width && troops.get(i + flankersCount[i] * width).getState() != SingleState.DEAD) {
-                        if (troops.get(i).getCombatDelay() < 0) {
-                            frontlinePatientCounters[i] += 1;
-                        } else {
+                    for (int i = 0; i < width; i++) {
+                        if (flankersCount[i] < troops.size() / width && troops.get(i + flankersCount[i] * width).getState() != SingleState.DEAD) {
+                            if (troops.get(i).getCombatDelay() < 0) {
+                                frontlinePatientCounters[i] += 1;
+                            } else {
+                                frontlinePatientCounters[i] = 0;
+                            }
+                        }
+                        if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
+                            // If the front-liner has waited for too long, they will join the flanker.
+                            flankersCount[i] += 1;
                             frontlinePatientCounters[i] = 0;
                         }
-                    }
-                    if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
-                        // If the front-liner has waited for too long, they will join the flanker.
-                        flankersCount[i] += 1;
-                        frontlinePatientCounters[i] = 0;
                     }
                 }
                 break;
@@ -820,7 +827,6 @@ public class BaseUnit {
                 single.switchState(SingleState.MOVING);
             }
         }
-
 
         // Update the state of each single and the average position
         double sumX = 0;
@@ -957,6 +963,19 @@ public class BaseUnit {
         return aliveTroopsMap.size();
     }
 
+    /**
+     * Get the number of troops walking/
+     */
+    public int getNumMoving() {
+        int numMoving = 0;
+        for (BaseSingle single : aliveTroopsMap.keySet()) {
+            if (single.getState() == SingleState.MOVING || single.getState() == SingleState.CATCHING_UP) {
+                 numMoving += 1;
+            }
+        }
+        return numMoving;
+    }
+
     public double getStamina() { return stamina; }
 
     public double getAnchorX() {
@@ -1084,5 +1103,9 @@ public class BaseUnit {
 
     public UnitStats getUnitStats() {
         return unitStats;
+    }
+
+    public UnitType getUnitType() {
+        return unitStats.unitType;
     }
 }

@@ -9,6 +9,8 @@ Battle Simulation is a Java project providing a platform to set up and simulate 
 * [parallel_colt](https://sites.google.com/site/piotrwendykier/software/parallelcolt)
 * [processing-3.5.4](https://processing.org/) core library
 * [processing-sound-2.2.3](https://github.com/processing/processing-sound/releases/tag/v2.2.3)
+* [tensorflow-1.15](https://www.tensorflow.org/install/lang_java) (Follow the guide to use the library directly from Maven)
+
 For a detailed installation guide to get the software up and running in IntelliJ development environment, please visit
 the [Installation Guide page](docs/InstallationGuide.md).
 

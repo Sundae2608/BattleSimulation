@@ -20,7 +20,6 @@ public class DrawingConstants {
     public final static int[] COLOR_GOAL_POSITION = {255, 226, 18, 255};  // #FFE212
 
     // Icon colors
-    public final static int[] COLOR_HEALTH = {183, 62, 50, 255};    // #B73E32
     public final static int[] COLOR_MORALE = {209, 170, 47, 255};  // #D1AA2F
 
     // Terrain colors
@@ -30,6 +29,9 @@ public class DrawingConstants {
     public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 50;
     public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
     public final static int COLOR_ALPHA_UNIT_SELECTION = 170;
+
+    // Universal object color
+    public final static int[] UNIVERSAL_OBJECT_COLOR = {50, 50, 50, 255};
 
     // Surface colors
     public final static int[] SURFACE_COLOR_DEFAULT = {25, 25, 25, 128};
@@ -62,4 +64,9 @@ public class DrawingConstants {
     public final static double ARROW_SIZE = 30;
     public final static double BALISTA_SIZE = 100;
     public final static double CATAPULT_SIZE = 20;
+
+    // Height scale for airborne objects
+    // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
+    // the height effect of arrows a little bit to make the arrow looks more palatable.
+    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 0.60;
 }

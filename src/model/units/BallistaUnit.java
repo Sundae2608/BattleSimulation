@@ -3,6 +3,7 @@ package model.units;
 import model.algorithms.ObjectHasher;
 import model.enums.PoliticalFaction;
 import model.events.EventBroadcaster;
+import model.settings.GameSettings;
 import model.singles.BallistaSingle;
 import model.singles.BaseSingle;
 import model.singles.SingleStats;
@@ -24,8 +25,8 @@ public class BallistaUnit extends BaseUnit {
 
     public BallistaUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
                         SingleStats singleStats, int unitWidth, ObjectHasher hasher, Terrain terrain,
-                        EventBroadcaster broadcaster) {
-        super(unitStats, terrain, broadcaster);
+                        EventBroadcaster broadcaster, GameSettings gameSettings) {
+        super(unitStats, terrain, broadcaster, gameSettings);
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;

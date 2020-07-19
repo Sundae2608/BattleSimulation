@@ -10,6 +10,7 @@ import model.enums.PoliticalFaction;
 import model.enums.SurfaceType;
 import model.enums.UnitType;
 import model.events.EventBroadcaster;
+import model.settings.GameSettings;
 import model.singles.SingleStats;
 import model.surface.*;
 import model.terrain.Terrain;
@@ -69,7 +70,7 @@ public final class ConfigUtils {
      * @return A list of units that participates in the battle.
      * @throws IOException if the read fails.
      */
-    public static ArrayList<BaseUnit> readBattleConfigs(String filePath, GameStats gameStats, ObjectHasher hasher, Terrain terrain, EventBroadcaster broadcaster) throws IOException {
+    public static ArrayList<BaseUnit> readBattleConfigs(String filePath, GameStats gameStats, ObjectHasher hasher, Terrain terrain, EventBroadcaster broadcaster, GameSettings gameSettings) throws IOException {
 
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
@@ -105,29 +106,29 @@ public final class ConfigUtils {
             BaseUnit unit;
             switch (unitType) {
                 case PHALANX:
-                    unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
+                    unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
                     break;
                 case SKIRMISHER:
-                    unit = new SkirmisherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
+                    unit = new SkirmisherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
                     break;
                 case ARCHER:
-                    unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
+                    unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster, gameSettings);
                     break;
                 case BALLISTA:
-                    unit = new BallistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
+                    unit = new BallistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster, gameSettings);
                     break;
                 case CATAPULT:
-                    unit = new CatapultUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster);
+                    unit = new CatapultUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster, gameSettings);
                     break;
                 case SLINGER:
-                    unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
+                    unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
                     break;
                 case CAVALRY:
-                    unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster);
+                    unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
                     break;
                 case SWORDMAN:
                 default:
-                    unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain,broadcaster);
+                    unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain,broadcaster, gameSettings);
                     break;
             }
             units.add(unit);
@@ -235,6 +236,7 @@ public final class ConfigUtils {
 
             // Additional stats based on the unit type.
             UnitStats unitStats = new UnitStats();
+            unitStats.unitType = unitType;
             switch (unitType) {
                 case SLINGER:
                 case ARCHER:
