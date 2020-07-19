@@ -1,6 +1,7 @@
 package utils;
 
 import javafx.util.Pair;
+import model.GameEnvironment;
 import model.GameStats;
 import model.algorithms.ObjectHasher;
 import model.algorithms.pathfinding.Graph;
@@ -70,7 +71,7 @@ public final class ConfigUtils {
      * @return A list of units that participates in the battle.
      * @throws IOException if the read fails.
      */
-    public static ArrayList<BaseUnit> readBattleConfigs(String filePath, GameStats gameStats, ObjectHasher hasher, Terrain terrain, EventBroadcaster broadcaster, GameSettings gameSettings) throws IOException {
+    public static ArrayList<BaseUnit> readBattleConfigs(String filePath, GameStats gameStats, ObjectHasher hasher, Terrain terrain, EventBroadcaster broadcaster, GameSettings gameSettings, GameEnvironment env) throws IOException {
 
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
@@ -106,29 +107,29 @@ public final class ConfigUtils {
             BaseUnit unit;
             switch (unitType) {
                 case PHALANX:
-                    unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
+                    unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
                 case SKIRMISHER:
-                    unit = new SkirmisherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
+                    unit = new SkirmisherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
                 case ARCHER:
-                    unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster, gameSettings);
+                    unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, env);
                     break;
                 case BALLISTA:
-                    unit = new BallistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster, gameSettings);
+                    unit = new BallistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, env);
                     break;
                 case CATAPULT:
-                    unit = new CatapultUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, terrain, broadcaster, gameSettings);
+                    unit = new CatapultUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, env);
                     break;
                 case SLINGER:
-                    unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
+                    unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
                 case CAVALRY:
-                    unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain, broadcaster, gameSettings);
+                    unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
                 case SWORDMAN:
                 default:
-                    unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, terrain,broadcaster, gameSettings);
+                    unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
             }
             units.add(unit);

@@ -1,5 +1,6 @@
 package model.units;
 
+import model.GameEnvironment;
 import model.enums.PoliticalFaction;
 import model.events.EventBroadcaster;
 import model.settings.GameSettings;
@@ -17,9 +18,8 @@ import java.util.HashSet;
 public class PhalanxUnit extends BaseUnit{
 
     public PhalanxUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction,
-                       UnitStats unitStats, SingleStats singleStats, int unitWidth, Terrain terrain,
-                       EventBroadcaster broadcaster, GameSettings gameSettings) {
-        super(unitStats, terrain, broadcaster, gameSettings);
+                       UnitStats unitStats, SingleStats singleStats, int unitWidth, GameEnvironment inputEnv) {
+        super(unitStats, inputEnv);
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;

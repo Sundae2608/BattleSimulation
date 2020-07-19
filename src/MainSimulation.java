@@ -134,6 +134,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
         gameSettings.setEnableFlankingMechanics(false);
+        gameSettings.setCountWrongFormationChanges(true);
 
         // ----------------
         // Graphic settings
@@ -290,6 +291,12 @@ public class MainSimulation extends PApplet {
 
         // Record backend time
         backEndTime = System.nanoTime() - lastTime;
+
+        // Process some controller variables (such as unitSelected) to ensure there is no frontend bugs.
+        // Common front end bugs include processing the unit when it is already dead.
+        if (env.getDeadUnits().contains(unitSelected)) {
+            unitSelected = null;
+        }
 
         // ----------------------------------------
         // Update some graphical elements
@@ -465,8 +472,7 @@ public class MainSimulation extends PApplet {
         }
 
         if (planCounter > 0) {
-            for (BaseUnit unit : env.getUnits()) {
-                if (unit.getAliveTroopsSet().size() == 0) break;
+            for (BaseUnit unit : env.getAliveUnits()) {
                 if (unit.getState() == UnitState.MOVING) {
                     if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
@@ -481,6 +487,7 @@ public class MainSimulation extends PApplet {
 
         // Always draw arrow of selected unit
         // TODO(sonpham) Refactor this into unit graphics
+
         if (unitSelected != null) {
 
             // Get the political faction color
@@ -568,18 +575,15 @@ public class MainSimulation extends PApplet {
 
         if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_TROOP) {
             // Alive troop
-            for (BaseUnit unit : env.getUnits()) {
-                boolean unitHovered = unit == closestUnit;
-
+            for (BaseUnit unit : env.getAliveUnits()) {
                 // For troops out of position, draw them individually
-                for (BaseSingle single : unit.getTroops()) {
-                    if (single.getState() == SingleState.DEAD) continue;
+                for (BaseSingle single : unit.getAliveTroopsSet()) {
                     portrayAliveSingle(single, env.getTerrain());
                 }
             }
         } else {
             // Draw unit block
-            for (BaseUnit unit : env.getUnits()) {
+            for (BaseUnit unit : env.getAliveUnits()) {
                 // TODO: Change to using UnitState instead for consistency
                 if (unit.getNumAlives() == 0) continue;
                 battleSignalDrawer.drawUnitBlock(unit, env.getTerrain());
@@ -587,7 +591,7 @@ public class MainSimulation extends PApplet {
         }
 
         // Draw the arrow direction of the unit
-        for (BaseUnit unit : env.getUnits()) {
+        for (BaseUnit unit : env.getAliveUnits()) {
             double unitX = MathUtils.quickCos((float) unit.getAnchorAngle());
             double unitY = MathUtils.quickSin((float) unit.getAnchorAngle());
             int[] color = DrawingConstants.COLOR_GOOD_BLACK;
@@ -641,7 +645,7 @@ public class MainSimulation extends PApplet {
         // -----------
 
         // Draw all the unit icon
-        ArrayList<BaseUnit> unitsSortedByPosition = (ArrayList) env.getUnits().clone();
+        ArrayList<BaseUnit> unitsSortedByPosition = new ArrayList<>(env.getAliveUnits());
         Collections.sort(unitsSortedByPosition, new Comparator<BaseUnit>() {
             @Override
             public int compare(BaseUnit o1, BaseUnit o2) {
@@ -673,13 +677,19 @@ public class MainSimulation extends PApplet {
         graphicTime = System.nanoTime() - lastTime - backEndTime;
 
         // Write all the interesting counters here.
-        StringBuilder s = new StringBuilder(env.getMonitor().getCounterString(
+        StringBuilder s = new StringBuilder();
+        s.append(env.getMonitor().getCounterString(
                 new MonitorEnum[] {
                         MonitorEnum.COLLISION_TROOPS,
                         MonitorEnum.COLLISION_TROOP_AND_TERRAIN,
                         MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT,
                         MonitorEnum.COLLISION_TROOP_AND_TREE,
                         MonitorEnum.COLLISION_OBJECT,
+                }
+        ));
+        s.append(env.getMonitor().getTotalCounterString(
+                new MonitorEnum[] {
+                        MonitorEnum.WRONG_FORMATION_CHANGES,
                 }
         ));
         s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");

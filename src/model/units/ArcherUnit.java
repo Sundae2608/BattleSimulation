@@ -1,5 +1,6 @@
 package model.units;
 
+import model.GameEnvironment;
 import model.algorithms.ObjectHasher;
 import model.enums.PoliticalFaction;
 import model.events.EventBroadcaster;
@@ -28,9 +29,8 @@ public class ArcherUnit extends BaseUnit {
     private int iteratorIndex;
 
     public ArcherUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
-                      SingleStats singleStats, int unitWidth, ObjectHasher hasher, Terrain terrain,
-                      EventBroadcaster broadcaster, GameSettings gameSettings) {
-        super(unitStats, terrain, broadcaster, gameSettings);
+                      SingleStats singleStats, int unitWidth, ObjectHasher hasher, GameEnvironment inputEnv) {
+        super(unitStats, inputEnv);
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;

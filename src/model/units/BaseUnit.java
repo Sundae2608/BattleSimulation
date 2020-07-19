@@ -1,5 +1,6 @@
 package model.units;
 
+import model.GameEnvironment;
 import model.algorithms.pathfinding.Path;
 import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
@@ -8,6 +9,7 @@ import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.enums.UnitType;
 import model.events.EventBroadcaster;
+import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
@@ -16,6 +18,7 @@ import model.units.unit_stats.UnitStats;
 import model.utils.GameplayUtils;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
+import model.utils.TestUtils;
 
 import java.util.*;
 
@@ -65,6 +68,7 @@ public class BaseUnit {
     protected boolean[][] inDanger;
 
     // These are outside dependencies that can control behavior of the unit.
+    GameEnvironment env;
     Terrain terrain;
     GameSettings gameSettings;
 
@@ -86,14 +90,14 @@ public class BaseUnit {
     /**
      * Initialize BaseUnit
      */
-    public BaseUnit(UnitStats inputUnitStats, Terrain inputTerrain, EventBroadcaster inputBroadcaster,
-                    GameSettings inputGameSettings) {
+    public BaseUnit(UnitStats inputUnitStats, GameEnvironment inputEnv) {
         boundingBox = new double[6][2];
         inContactWithEnemy = false;
         unitStats = inputUnitStats;
-        terrain = inputTerrain;
-        broadcaster = inputBroadcaster;
-        gameSettings = inputGameSettings;
+        env = inputEnv;
+        terrain = env.getTerrain();
+        broadcaster = env.getBroadcaster();
+        gameSettings = env.getGameSettings();
         morale = GameplayConstants.BASE_MORALE;
         timeInFightingState = 0;
         stamina = inputUnitStats.staminaStats.maxStamina;
@@ -528,6 +532,10 @@ public class BaseUnit {
             } else {
                 break;
             }
+        }
+
+        if (gameSettings.isCountWrongFormationChanges() && TestUtils.checkFormation(this)) {
+            env.getMonitor().count(MonitorEnum.WRONG_FORMATION_CHANGES);
         }
     }
 
