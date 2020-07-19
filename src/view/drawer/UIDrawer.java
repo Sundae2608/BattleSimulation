@@ -1,20 +1,101 @@
 package view.drawer;
 
+import model.constants.GameplayConstants;
+import model.enums.UnitType;
+import model.units.BaseUnit;
 import processing.core.PApplet;
+import processing.core.PImage;
+import view.camera.Camera;
+import view.constants.DrawingConstants;
 import view.constants.MapMakerConstants;
 import view.drawer.components.Scrollbar;
+import view.settings.DrawingSettings;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * This class contains drawers for all UI elements in the game.
  */
-public class UIDrawer {
+public class UIDrawer extends BaseDrawer {
+
+    // UI Icons
+    PImage banner, bannerShadow, bannerSelected, bannerTexture;
+    HashMap<UnitType, PImage> iconMap;
 
     PApplet applet;
-    Scrollbar bar;
+    Camera camera;
+    DrawingSettings drawingSettings;
 
-    public UIDrawer(PApplet inputApplet) {
+    List<Scrollbar> scrollbars;
+
+    public UIDrawer(PApplet inputApplet, Camera inputCamera, DrawingSettings inputDrawingSettings) {
+        // Inject dependencies.
         applet = inputApplet;
-        bar = new Scrollbar(applet, 950, 950, 500, 16);
+        camera = inputCamera;
+        drawingSettings = inputDrawingSettings;
+
+        // Load icon images
+        iconMap = new HashMap<>();
+        iconMap.put(UnitType.SWORDMAN, applet.loadImage("imgs/BannerArt/iconSword.png"));
+        iconMap.put(UnitType.PHALANX, applet.loadImage("imgs/BannerArt/iconSpear.png"));
+        iconMap.put(UnitType.CAVALRY, applet.loadImage("imgs/BannerArt/iconCav.png"));
+        iconMap.put(UnitType.ARCHER, applet.loadImage("imgs/BannerArt/iconArcher.png"));
+        iconMap.put(UnitType.HORSE_ARCHER, applet.loadImage("imgs/BannerArt/iconHorseArcher.png"));
+        iconMap.put(UnitType.SLINGER, applet.loadImage("imgs/BannerArt/iconSlinger.png"));
+        iconMap.put(UnitType.SKIRMISHER, applet.loadImage("imgs/BannerArt/iconSkirmisher.png"));
+        iconMap.put(UnitType.BALLISTA, applet.loadImage("imgs/BannerArt/iconBallista.png"));
+        iconMap.put(UnitType.CATAPULT, applet.loadImage("imgs/BannerArt/iconCatapult.png"));
+
+        // Load banner images
+        banner = applet.loadImage("imgs/BannerArt/SimplifiedBanner-01.png");
+        bannerShadow = applet.loadImage("imgs/BannerArt/SimplifiedBanner-02.png");
+        bannerTexture = applet.loadImage("imgs/BannerArt/SimplifiedBanner-03.png");
+        bannerSelected = applet.loadImage("imgs/BannerArt/SimplifiedBanner-04.png");
+
+        scrollbars = new ArrayList<>();
+        scrollbars.add(new Scrollbar(applet, (float)500, (float)500, 20, 20));
+    }
+
+    @Override
+    public void preprocess() {
+        return;
+    }
+
+    /**
+     * Draw unit banner.
+     */
+    public void drawUnitBanner(BaseUnit unit, boolean isSelected) {
+        double[] drawingPos = camera.getDrawingPosition(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ());
+        int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
+        applet.rectMode(PApplet.CORNER);
+        applet.imageMode(PApplet.CORNER);
+        applet.blendMode(PApplet.NORMAL);
+        applet.image(isSelected ? bannerSelected : bannerShadow,
+                (float) (drawingPos[0] - 42),
+                (float) (drawingPos[1] - 111), 84, 111);
+        applet.fill(color[0], color[1], color[2], 255);
+        applet.rect(
+                (float) (drawingPos[0] - 30),
+                (float) (drawingPos[1] - 93 + 60.0 * (1.0 - 1.0 * unit.getNumAlives() / unit.getTroops().size())),
+                (float) 60, (float) (60.0 * unit.getNumAlives() / unit.getTroops().size()));
+        applet.image(banner,
+                (float) (drawingPos[0] - 42),
+                (float) (drawingPos[1] - 111), 84, 111);
+        int[] moraleColor = DrawingConstants.COLOR_MORALE;
+        applet.fill(moraleColor[0], moraleColor[1], moraleColor[2], moraleColor[3]);
+        applet.rect((float) (drawingPos[0] - 28), (float) (drawingPos[1] - 32),
+                (float) (56 * Math.max(unit.getMorale(), 0.0) / GameplayConstants.BASE_MORALE), 8);
+        applet.blendMode(PApplet.MULTIPLY);
+        applet.image(bannerTexture,
+                (float) (drawingPos[0] - 42),
+                (float) (drawingPos[1] - 111), 84, 111);
+        applet.blendMode(PApplet.NORMAL);
+        applet.image(iconMap.get(unit.getUnitType()),
+                (float) drawingPos[0] - 30,
+                (float) drawingPos[1] - 92, 60, 60);
+        applet.rectMode(PApplet.CENTER);
     }
 
     /**
@@ -69,7 +150,9 @@ public class UIDrawer {
         applet.popMatrix();
     }
 
-    public void drawScrollBar() {
-        bar.update();
+    public void drawScrollbar() {
+        for (Scrollbar bar: scrollbars) {
+            bar.update();
+        }
     }
 }
