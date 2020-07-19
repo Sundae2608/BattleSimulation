@@ -89,7 +89,7 @@ public class GameEnvironment {
         // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
-                    battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster, gameSettings);
+                    battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster, gameSettings, this);
         } catch (IOException e){
             e.printStackTrace();
         }

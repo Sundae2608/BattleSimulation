@@ -1,5 +1,6 @@
 package model.units;
 
+import model.GameEnvironment;
 import model.enums.PoliticalFaction;
 import model.events.EventBroadcaster;
 import model.settings.GameSettings;
@@ -21,9 +22,8 @@ public class SkirmisherUnit extends BaseUnit {
     double[] depthVariation;
 
     public SkirmisherUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction,
-                          UnitStats unitStats, SingleStats singleStats, int unitWidth, Terrain terrain,
-                          EventBroadcaster broadcaster, GameSettings gameSettings) {
-        super(unitStats, terrain, broadcaster, gameSettings);
+                          UnitStats unitStats, SingleStats singleStats, int unitWidth, GameEnvironment inputEnv) {
+        super(unitStats, inputEnv);
 
         // Assign default attributes
         currUnitPatience = unitStats.patience;

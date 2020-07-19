@@ -680,6 +680,7 @@ public class MainSimulation extends PApplet {
                         MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT,
                         MonitorEnum.COLLISION_TROOP_AND_TREE,
                         MonitorEnum.COLLISION_OBJECT,
+                        MonitorEnum.WRONG_FORMATION_CHANGES,
                 }
         ));
         s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
