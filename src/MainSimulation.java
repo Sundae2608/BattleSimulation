@@ -17,7 +17,6 @@ import view.camera.CameraConstants;
 import view.drawer.*;
 import model.GameEnvironment;
 import view.camera.Camera;
-import model.constants.*;
 import model.objects.BaseObject;
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -57,41 +56,6 @@ public class MainSimulation extends PApplet {
     BattleSignalDrawer battleSignalDrawer;
     ObjectDrawer objectDrawer;
     SingleDrawer singleDrawer;
-
-    // Eye optimizer
-    HashMap<Double, Double> eyeSizeMap;
-    double currSizeEye;
-
-    // Unit optimizers
-    private final static int INDEX_TROOP_SIZE = 0;
-    private final static int INDEX_SHADOW_SIZE = 1;
-    private final static int INDEX_TROOP_SIMPLIED_SIZE = 2;
-    private final static int INDEX_SHADOW_SIMPLIED_SIZE = 3;
-
-    HashMap<Double, double[]> swordmanSizeMap;
-    double[] currSizeSwordman;
-
-    HashMap<Double, double[]> phalanxSizeMap;
-    double[] currSizePhalanx;
-
-    HashMap<Double, double[]> archerSizeMap;
-    double[] currSizeArcher;
-
-    HashMap<Double, double[]> balistaSizeMap;
-    double[] currSizeBalista;
-
-    HashMap<Double, double[]> slingerSizeMap;
-    double[] currSizeSlinger;
-
-    HashMap<Double, double[]> skirmisherSizeMap;
-    double[] currSizeSkirmisher;
-
-    HashMap<Double, DrawingVertices> cavalryShapeMap;
-    HashMap<Double, double[]> cavalrySizeMap;
-    double[] currSizeCavalry;
-
-    double shadowXOffset;
-    double shadowYOffset;
 
     // -----------
     // Sound files
@@ -135,7 +99,6 @@ public class MainSimulation extends PApplet {
     AudioSettings audioSettings;
     int zoomCounter;
     double zoomGoal;
-    int angleCounter;
     int planCounter;
 
     // Time recorder
@@ -194,18 +157,6 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawSimplifiedTroopShape(true);
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
-
-        // Graphic storage
-        cavalryShapeMap = new HashMap<>();
-
-        eyeSizeMap = new HashMap<>();
-        phalanxSizeMap = new HashMap<>();
-        slingerSizeMap = new HashMap<>();
-        archerSizeMap = new HashMap<>();
-        balistaSizeMap = new HashMap<>();
-        skirmisherSizeMap = new HashMap<>();
-        swordmanSizeMap = new HashMap<>();
-        cavalrySizeMap = new HashMap<>();
 
         // --------------
         // Audio model.settings
@@ -418,12 +369,6 @@ public class MainSimulation extends PApplet {
         cameraDx *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
         cameraDy *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
 
-        // Pre-calculate shadow, also for optimization
-        if (drawingSettings.isDrawTroopShadow()) {
-            shadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
-            shadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
-        }
-
         // Pick the closest to the mouse
         double[] mousePositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
         double minDist = Double.MAX_VALUE;
@@ -588,13 +533,9 @@ public class MainSimulation extends PApplet {
                 // Modify end point for the unit.
                 unitEndPointX = rightClickActualX + frontlineWidth * sideUnitX / 2;
                 unitEndPointY = rightClickActualY + frontlineWidth * sideUnitY / 2;
-                drawingEndPointX = unitEndPointX;
-                drawingEndPointY = unitEndPointY;
                 unitEndAngle = angle - Math.PI / 2;
             } else {
                 double[] endPoints = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-                drawingEndPointX = endPoints[0];
-                drawingEndPointY = endPoints[1];
                 unitEndPointX = endPoints[0];
                 unitEndPointY = endPoints[1];
                 unitEndAngle = MathUtils.atan2(endPoints[1] - unitSelected.getAnchorY(), endPoints[0] - unitSelected.getAnchorX());
