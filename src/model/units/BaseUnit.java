@@ -9,6 +9,7 @@ import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.enums.UnitType;
 import model.events.EventBroadcaster;
+import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
@@ -17,6 +18,7 @@ import model.units.unit_stats.UnitStats;
 import model.utils.GameplayUtils;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
+import model.utils.TestUtils;
 
 import java.util.*;
 
@@ -530,6 +532,10 @@ public class BaseUnit {
             } else {
                 break;
             }
+        }
+
+        if (gameSettings.isCountWrongFormationChanges() && TestUtils.checkFormation(this)) {
+            env.getMonitor().count(MonitorEnum.WRONG_FORMATION_CHANGES);
         }
     }
 

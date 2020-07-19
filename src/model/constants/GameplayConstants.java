@@ -8,7 +8,7 @@ public class GameplayConstants {
     public final static double SHATTERED_MORALE = 0;
 
     // The amount of morale recovery by the unit after each frame.
-    public final static double MORALE_RECOVERY = 0.001;
+    public final static double MORALE_RECOVERY = 1.0;
 
     // Routing angle variation.
     // When running in a rout, it is not possible to run in a straight line. There should be lots of chaos

@@ -21,6 +21,7 @@ import model.settings.GameSettings;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class GameEnvironment {
     /**
@@ -29,6 +30,8 @@ public class GameEnvironment {
 
     // Contain all units and troops
     ArrayList<BaseUnit> units;
+    HashSet<BaseUnit> deadUnits;
+    HashSet<BaseUnit> aliveUnits;
     ArrayList<BaseSurface> surfaces;
     UnitModifier unitModifier;
     ArrayList<BaseSingle> deadContainer;
@@ -58,12 +61,16 @@ public class GameEnvironment {
         monitor = new Monitor(UniversalConstants.FRAME_STORAGE);
         gameSettings = inputGameSettings;
         deadContainer = new ArrayList<>();
+        deadUnits = new HashSet<>();
+        aliveUnits = new HashSet<>();
+
         // Read terrain configuration.
         try {
             terrain = ConfigUtils.createTerrainFromConfig(terrainConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         // Read construct configuration.
         try {
             Pair<Graph, ArrayList<Construct>> pair = ConfigUtils.createConstructsAndGraphsFromConfig(constructsConfig);
@@ -72,6 +79,7 @@ public class GameEnvironment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         // Read surface configuration.
         try {
             surfaces = ConfigUtils.createSurfacesFromConfig(surfaceConfig);
@@ -80,12 +88,14 @@ public class GameEnvironment {
         }
         unitModifier = new UnitModifier(
                 deadContainer, terrain, constructs, surfaces, gameSettings, broadcaster, monitor);
+
         // Read game stats.
         try {
             gameStats = ConfigUtils.readGameStats(gameConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
@@ -95,6 +105,7 @@ public class GameEnvironment {
         }
         for (BaseUnit unit : units) {
             unitModifier.addUnit(unit);
+            aliveUnits.add(unit);
         }
     }
 
@@ -115,36 +126,30 @@ public class GameEnvironment {
         unitModifier.modifyObjects();
         for (BaseUnit unit : units) {
             unit.updateState();
+            if (unit.getNumAlives() == 0) {
+                deadUnits.add(unit);
+                aliveUnits.remove(unit);
+            }
         }
+
         // Broadcast running and marching events
         for (BaseUnit unit : units) {
+            int numMovings = unit.getNumMoving();
+            if (numMovings > 0) {
+                if (unit instanceof CavalryUnit) {
+                    broadcaster.broadcastEvent(
+                            new CavalryMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
+                                    numMovings));
+                } else {
+                    broadcaster.broadcastEvent(
+                            new SoldierMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
+                                    numMovings));
+                }
+            }
             switch (unit.getState()) {
                 case STANDING:
-                    int numMovings = unit.getNumMoving();
-                    if (numMovings > 0) {
-                        if (unit instanceof CavalryUnit) {
-                            broadcaster.broadcastEvent(
-                                    new CavalryMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
-                                            numMovings));
-                        } else {
-                            broadcaster.broadcastEvent(
-                                    new SoldierMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
-                                            numMovings));
-                        }
-                    }
-                    break;
                 case MOVING:
                 case ROUTING:
-                    numMovings = unit.getNumMoving();
-                    if (unit instanceof CavalryUnit) {
-                        broadcaster.broadcastEvent(
-                                new CavalryMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
-                                        numMovings));
-                    } else {
-                        broadcaster.broadcastEvent(
-                                new SoldierMarchingEvent(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ(),
-                                        numMovings));
-                    }
                     break;
                 case FIGHTING:
                     broadcaster.broadcastEvent(
@@ -155,7 +160,6 @@ public class GameEnvironment {
             }
         }
     }
-
     /**
      * Getter and setters
      */
@@ -165,6 +169,14 @@ public class GameEnvironment {
 
     public void setUnits(ArrayList<BaseUnit> units) {
         this.units = units;
+    }
+
+    public HashSet<BaseUnit> getDeadUnits() {
+        return deadUnits;
+    }
+
+    public HashSet<BaseUnit> getAliveUnits() {
+        return aliveUnits;
     }
 
     public UnitModifier getUnitModifier() {

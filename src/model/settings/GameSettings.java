@@ -20,6 +20,9 @@ public class GameSettings {
     // Apply flanking mechanics to first liner who hasn't seen battle yet.
     private boolean enableFlankingMechanics;
 
+    // Count the number of erroneous formation changes.
+    private boolean countWrongFormationChanges;
+
     public GameSettings() {}
 
     public boolean isAllyCollision() {
@@ -62,8 +65,14 @@ public class GameSettings {
     public boolean isEnableFlankingMechanics() {
         return enableFlankingMechanics;
     }
-
     public void setEnableFlankingMechanics(boolean enableFlankingMechanics) {
         this.enableFlankingMechanics = enableFlankingMechanics;
+    }
+
+    public boolean isCountWrongFormationChanges() {
+        return countWrongFormationChanges;
+    }
+    public void setCountWrongFormationChanges(boolean countWrongFormationChanges) {
+        this.countWrongFormationChanges = countWrongFormationChanges;
     }
 }
