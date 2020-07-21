@@ -33,8 +33,13 @@ import view.settings.RenderMode;
 import view.drawer.DrawingUtils;
 import view.video.VideoElementPlayer;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 public class MainSimulation extends PApplet {
 
@@ -43,6 +48,12 @@ public class MainSimulation extends PApplet {
     // -------------------
     private final static int INPUT_WIDTH = 1920;
     private final static int INPUT_HEIGHT = 1080;
+
+    // ------------
+    // Logger tools
+    // ------------
+    Logger logger;
+
     // ------------------
     // Drawers
     // This helps store each special shape at size to save time.
@@ -123,6 +134,32 @@ public class MainSimulation extends PApplet {
 
         // Window size
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
+
+        // -------------
+        // Logging tools
+        // -------------
+        try {
+            // Get the current date time. This is used to create unique filename
+            Date date = new Date() ;
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+
+            // Create tmp folders, in case the folder does not yet exist
+            File dir = new File("tmp/");
+            if (!dir.exists()) dir.mkdirs();
+
+            // This block configure the logger with handler and formatter
+            FileHandler fileHandler = new FileHandler("tmp/MainSimulation" + dateFormat.format(date) + ".log");
+            logger.addHandler(fileHandler);
+            SimpleFormatter formatter = new SimpleFormatter();
+            fileHandler.setFormatter(formatter);
+
+            // the following statement is used to log any messages
+            logger.setUseParentHandlers(false);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // -------------
         // Game settings
