@@ -33,13 +33,8 @@ import view.settings.RenderMode;
 import view.drawer.DrawingUtils;
 import view.video.VideoElementPlayer;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 public class MainSimulation extends PApplet {
 
@@ -173,14 +168,14 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawVideoEffect(true);
 
         // --------------
-        // Audio model.settings
+        // Audio settings
         // --------------
         audioSettings = new AudioSettings();
         audioSettings.setBackgroundMusic(false);
         audioSettings.setSoundEffect(true);
 
         // ------------------------
-        // Post processing model.settings
+        // Post processing settings
         // ------------------------
         if (!drawingSettings.isDrawSmooth()) noSmooth();
         else {
@@ -195,9 +190,9 @@ public class MainSimulation extends PApplet {
         // ----------------------
         mapTexture = loadImage("imgs/FullMap/DemoMap.jpg");
 
-        // -------------------
-        // Preprocesing troops
-        // -------------------
+        // ---------------------
+        // Pre-processing troops
+        // ---------------------
 
         // Create a new game based on the input configurations.
         String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";

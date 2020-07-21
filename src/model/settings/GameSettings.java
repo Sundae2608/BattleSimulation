@@ -23,6 +23,12 @@ public class GameSettings {
     // Count the number of erroneous formation changes.
     private boolean countWrongFormationChanges;
 
+    // Intention skipping
+    private int unitIntentionSkipping;
+
+    // Intention skipping
+    private int singleIntentionSkipping;
+
     public GameSettings() {}
 
     public boolean isAllyCollision() {
@@ -74,5 +80,19 @@ public class GameSettings {
     }
     public void setCountWrongFormationChanges(boolean countWrongFormationChanges) {
         this.countWrongFormationChanges = countWrongFormationChanges;
+    }
+
+    public int getUnitIntentionSkipping() {
+        return unitIntentionSkipping;
+    }
+    public void setUnitIntentionSkipping(int unitIntentionSkipping) {
+        this.unitIntentionSkipping = unitIntentionSkipping;
+    }
+
+    public int getSingleIntentionSkipping() {
+        return singleIntentionSkipping;
+    }
+    public void setSingleIntentionSkipping(int singleIntentionSkipping) {
+        this.singleIntentionSkipping = singleIntentionSkipping;
     }
 }
