@@ -52,7 +52,9 @@ public class MainSimulation extends PApplet {
     // ------------
     // Logger tools
     // ------------
-    Logger logger;
+    // Logger can and should be static. However, currently it is only static and available for only MainSimulation.
+    // TODO: Wrap around the logger in a Singleton class.
+
 
     // ------------------
     // Drawers
@@ -134,32 +136,6 @@ public class MainSimulation extends PApplet {
 
         // Window size
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
-
-        // -------------
-        // Logging tools
-        // -------------
-        try {
-            // Get the current date time. This is used to create unique filename
-            Date date = new Date() ;
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-
-            // Create tmp folders, in case the folder does not yet exist
-            File dir = new File("tmp/");
-            if (!dir.exists()) dir.mkdirs();
-
-            // This block configure the logger with handler and formatter
-            FileHandler fileHandler = new FileHandler("tmp/MainSimulation" + dateFormat.format(date) + ".log");
-            logger.addHandler(fileHandler);
-            SimpleFormatter formatter = new SimpleFormatter();
-            fileHandler.setFormatter(formatter);
-
-            // the following statement is used to log any messages
-            logger.setUseParentHandlers(false);
-        } catch (SecurityException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         // -------------
         // Game settings

@@ -68,5 +68,5 @@ public class DrawingConstants {
     // Height scale for airborne objects
     // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
     // the height effect of arrows a little bit to make the arrow looks more palatable.
-    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 0.60;
+    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 1.50;
 }

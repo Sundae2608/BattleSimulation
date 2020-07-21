@@ -9,6 +9,7 @@ import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.enums.UnitType;
 import model.events.EventBroadcaster;
+import model.logger.Log;
 import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
@@ -484,6 +485,10 @@ public class BaseUnit {
      * @param deadSingle
      */
     public void processDeadSingle(BaseSingle deadSingle) {
+
+        // Formation before the transformation
+        BaseSingle[][] formationBefore = aliveTroopsFormation.clone();
+
         // Introduce a morale loss.
         morale -= GameplayUtils.moraleLossDueToDeadSoldier(aliveTroopsMap.size());
 
@@ -536,6 +541,11 @@ public class BaseUnit {
 
         if (gameSettings.isCountWrongFormationChanges() && TestUtils.checkFormation(this)) {
             env.getMonitor().count(MonitorEnum.WRONG_FORMATION_CHANGES);
+            Log.info("Formation transformation looks wrong");
+            Log.info("Formation before:");
+            Log.info(TestUtils.formationString(formationBefore));
+            Log.info("Formation after:");
+            Log.info(TestUtils.formationString(aliveTroopsFormation));
         }
     }
 

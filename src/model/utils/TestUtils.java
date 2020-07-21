@@ -15,30 +15,55 @@ public final class TestUtils {
     public static boolean checkFormation(BaseUnit unit) {
         // Number of full rows
         int rows = unit.getNumAlives() / unit.getWidth();
-        ArrayList<BaseSingle> troops = unit.getTroops();
-        Set<BaseSingle> troopSet = unit.getAliveTroopsSet();
+
+        // Get the troops formation
+        BaseSingle[][] formation = unit.getAliveTroopsFormation();
 
         // Examine full rows;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < unit.getWidth(); j++) {
-                int index = i * unit.getWidth() + j;
-                if (!troopSet.contains(troops.get(index))) return false;
+                if (formation[i][j] == null) return false;
             }
         }
 
         // Examine the last row;
         int rem = unit.getNumAlives() % unit.getWidth();
         if (rem == 0) return true; // If no remainder, that means the formation is already correct
-        int groups = 0;
-        boolean deadSwitch = true;
-        for (int j = 0; j < unit.getWidth(); j++) {
-            // Single state from left to right must not switch more than twice (implying more than two groups);
-            int index = rows * unit.getWidth() + j;
-            if (!troopSet.contains(troops.get(index)) != deadSwitch) {
-                groups += 1;
-                deadSwitch = !troopSet.contains(troops.get(index));
+        int begin;
+        for (begin = 0; begin < unit.getWidth(); begin++) {
+            if (formation[rows][begin] != null) {
+                break;
             }
         }
-        return groups <= 2;
+        int end;
+        for (end = unit.getWidth() - 1; end >= 0; end--) {
+            if (formation[rows][end] != null) {
+                break;
+            }
+        }
+        return end - begin + 1 == rem;
+    }
+
+    /**
+     * String represents the formation of the unit. It looks something like:
+     * o o o o o o o o o
+     * o o o o o o o o o
+     * - - - o o o - - -
+     * Used for logging convenience
+     */
+    public static String formationString(BaseSingle[][] formation) {
+        StringBuilder s = new StringBuilder();
+        s.append("\n");
+        for (int i = 0; i < formation.length; i++) {
+            for (int j = 0; j < formation[0].length; j++) {
+                if (formation[i][j] == null) {
+                    s.append("- ");
+                } else {
+                    s.append("o ");
+                }
+            }
+            s.append("\n");
+        }
+        return s.toString();
     }
 }
