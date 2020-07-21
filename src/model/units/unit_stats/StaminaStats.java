@@ -13,12 +13,19 @@ public class StaminaStats {
     public double staminaFightingChangeRate = -0.05;
 
     public double getStaminaChangeRate(UnitState state) {
-        return switch (state) {
-            case STANDING -> staminaStandingChangeRate;
-            case DECELERATING -> staminaDeceleratingChangeRate;
-            case ROUTING -> staminaRoutingChangeRate;
-            case FIGHTING -> staminaFightingChangeRate;
-            case MOVING -> staminaMovingChangeRate;
-        };
+        switch (state) {
+            case STANDING:
+                return staminaStandingChangeRate;
+            case DECELERATING:
+                return staminaDeceleratingChangeRate;
+            case ROUTING:
+                return staminaRoutingChangeRate;
+            case FIGHTING:
+                return staminaFightingChangeRate;
+            case MOVING:
+                return staminaMovingChangeRate;
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 }

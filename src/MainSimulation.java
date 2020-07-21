@@ -785,8 +785,6 @@ public class MainSimulation extends PApplet {
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
-                        System.out.println(closestUnit.getPoliticalFaction());
-                        System.out.println(unitSelected.getPoliticalFaction());
                         ((ArcherUnit) unitSelected).setUnitFiredAt(closestUnit);
                         if (unitSelected.getState() == UnitState.MOVING) {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
