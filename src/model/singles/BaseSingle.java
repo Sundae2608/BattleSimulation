@@ -224,7 +224,39 @@ public class BaseSingle {
     }
 
     /**
+     * Attack other single.
+     */
+    public void attack(BaseSingle other) {
+        // Deal at least base damage
+        double damage = singleStats.attack;
+        double angleDiff;
+
+        // Bonus damage if attacking the single from the flank or from behind.
+        double angleFromSingle = MathUtils.atan2(y - other.y, x - other.x);
+        angleDiff = MathUtils.signedAngleDifference(angleFromSingle, other.angle);
+        if (angleDiff < GameplayConstants.FLANKING_ANGLE_SINGLE_THRESHOLD) {
+            damage *= GameplayConstants.FLANKING_BONUS_SINGLE_SCALE;
+        }
+
+        // Bonus damage if attacking the unit from the flank or from behind, and that the attack single is hitting
+        // from the outside.
+        double angleFromUnit = MathUtils.atan2(y - other.unit.getAverageY(), x - other.unit.getAverageX());
+        angleDiff = MathUtils.signedAngleDifference(angleFromUnit, other.unit.getAnchorAngle());
+        double attackFromUnitDist = MathUtils.quickDistance(x, y,
+                other.unit.getAverageX(), other.unit.getAverageY());
+        double defenderFromUnitDist = MathUtils.quickDistance(other.x, other.y,
+                other.unit.getAverageX(), other.unit.getAverageY());
+        if (angleDiff < GameplayConstants.FLANKING_ANGLE_UNIT_THRESHOLD && attackFromUnitDist > defenderFromUnitDist) {
+            damage *= GameplayConstants.FLANKING_BONUS_UNIT_SCALE;
+        }
+
+        // Other will receive the total damage
+        other.receiveDamage(damage);
+    }
+
+    /**
      * Let the troop receive damage. Troop with health lower than 0 should die.
+     * TODO: Add defense mechanism, and customize them according to the angle the attack is received from.
      */
     public void receiveDamage(double damage) {
         hp -= damage;

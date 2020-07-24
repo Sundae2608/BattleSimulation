@@ -26,10 +26,7 @@ import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 import model.utils.SingleUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Queue;
+import java.util.*;
 
 public class UnitModifier {
 
@@ -555,30 +552,30 @@ public class UnitModifier {
      */
     private void modifyCombat() {
         // Check collision of every object in the collision modifier and then modify information about such object
-        ArrayList<BaseSingle> objects = troopHasher.getActiveTroops();
+        ArrayList<BaseSingle> singles = troopHasher.getActiveTroops();
 
-        // Shuffle to randomly settle tie between two model.units about to hit at the same time.
-        // Collections.shuffle(objects);
-        for (BaseSingle obj : objects) {
+        // Shuffle to randomly settle tie between two singles about to hit at the same time.
+        Collections.shuffle(singles);
+        for (BaseSingle single : singles) {
 
             // Ignore dead objects. They can't deal damage.
-            if (obj.getState() == SingleState.DEAD) continue;
+            if (single.getState() == SingleState.DEAD) continue;
 
             // Single must recharge attack delay
-            if (obj.getCombatDelay() > 0) {
+            if (single.getCombatDelay() > 0) {
                 continue;
             }
 
             // If the single is ready to attack, then it will hit the closest candidate, and cause an extra delay to the
             // attacked candidate.
-            ArrayList<BaseSingle> candidates = troopHasher.getCollisionObjects(obj);
+            ArrayList<BaseSingle> candidates = troopHasher.getCollisionObjects(single);
             double minSquareDist = MathUtils.MAX_DOUBLE;
             BaseSingle attackCandidate = null;
             for (BaseSingle candidate : candidates) {
-                if (candidate.getPoliticalFaction() == obj.getPoliticalFaction()) continue;
+                if (candidate.getPoliticalFaction() == single.getPoliticalFaction()) continue;
                 if (candidate.getState() == SingleState.DEAD) continue;
-                double squareDist = SingleUtils.squareDistance(obj, candidate);
-                double squareCombatRange = MathUtils.square(obj.getSize() / 2 + obj.getCombatRangeStat());
+                double squareDist = SingleUtils.squareDistance(single, candidate);
+                double squareCombatRange = MathUtils.square(single.getSize() / 2 + single.getCombatRangeStat());
                 if (squareDist < minSquareDist) {
                     minSquareDist = squareDist;
                     if (minSquareDist < squareCombatRange) {
@@ -591,9 +588,8 @@ public class UnitModifier {
             if (attackCandidate != null) {
 
                 // Inflict some damage and reset combat delay
-                // TODO: Get this into the Base Single action would be nicer.
-                attackCandidate.receiveDamage(obj.getAttackStat());
-                obj.resetCombatDelay();
+                single.attack(attackCandidate);
+                single.resetCombatDelay();
 
                 if (attackCandidate.getState() == SingleState.DEAD) {
                     // Cause the unit to perform "deadMorph", which is to rearange troops to match the frontline.
