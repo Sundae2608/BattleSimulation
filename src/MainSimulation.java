@@ -4,6 +4,7 @@ import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
 import model.construct.Construct;
 import model.enums.*;
+import model.logger.Log;
 import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
 import model.surface.BaseSurface;
@@ -128,6 +129,9 @@ public class MainSimulation extends PApplet {
     BaseUnit closestUnit;
 
     public void settings() {
+
+        // First log to initialize the logging tool
+        Log.info("Initialize the log");
 
         // Window size
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);

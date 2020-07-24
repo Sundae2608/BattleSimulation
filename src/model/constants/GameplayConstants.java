@@ -37,4 +37,12 @@ public class GameplayConstants {
     // After a command has been given, we will set the anchor position to be a little more forward to fix several
     // issues regarding troops abruptly changing their direction.
     public final static double FORWARD_DISTANCE = 150;
+
+    // Flanking bonus at single level.
+    public final static double FLANKING_BONUS_SINGLE_SCALE = 1.5;
+    public final static double FLANKING_ANGLE_SINGLE_THRESHOLD = Math.PI * 2 / 3;
+
+    // Flanking bonus at unit level.
+    public final static double FLANKING_BONUS_UNIT_SCALE = 1.5;
+    public final static double FLANKING_ANGLE_UNIT_THRESHOLD = Math.PI * 2 / 3;
 }
