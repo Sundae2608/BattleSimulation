@@ -1,6 +1,7 @@
 package model.units;
 
 import model.GameEnvironment;
+import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
 import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
@@ -62,7 +63,7 @@ public class BaseUnit {
 
     // Path finding variables.
     Path path;
-    int nodeIndex;
+    Node node;
 
     // Collision attributes
     protected double[][] boundingBox;
@@ -137,14 +138,21 @@ public class BaseUnit {
      */
     public void moveFormationKeptTo(double xGoal, double yGoal, double angleGoal) {
 
+        // Set the shortest path
+        Path shortestPath = env.getGraph().getShortestPath(
+                anchorX,  anchorY, xGoal, yGoal, env.getConstructs());
+        path = shortestPath;
+        path.getNodes().pollFirst();
+        node = path.getNodes().get(0);
+
+        // Set the goals
+        goalX = node.getX();
+        goalY = node.getY();
+        goalAngle = angleGoal;
+
         // Find the furthest distance troops from the average position, according to angle goal
         ArrayList<BaseSingle> aliveArray = new ArrayList<>(aliveTroopsMap.keySet());
         double mostForwardDist = MathUtils.mostForwardDistance(aliveArray, -angleGoal);
-
-        // Set the goals
-        goalX = xGoal;
-        goalY = yGoal;
-        goalAngle = angleGoal;
 
         // Change unit state to moving, reset patience and ignore unit fought against
         state = UnitState.MOVING;
@@ -198,7 +206,6 @@ public class BaseUnit {
     }
 
     public void changeFrontlineWidth(int newWidth) {
-        // TODO: Change this to minimum width of the frontline, probably 4. Put it in GameplayConstants
         if (newWidth <= 0 || newWidth > getNumAlives()) {
             // Frontline can't be changed if the width or is too wide.
             return;
@@ -353,7 +360,7 @@ public class BaseUnit {
             MathUtils.sortSinglesByAngle(rowTroops, -angleGoal - MathUtils.PIO2);
 
             // Assign the troops to each row and reset their index
-            int offsetFromLeft;
+            int offsetFromLeft = 0;
             if (row < numRows - 1) {
                 offsetFromLeft = 0;
             } else {
@@ -391,6 +398,7 @@ public class BaseUnit {
         unitFoughtAgainst = unit;
         state = UnitState.FIGHTING;
     }
+
     /**
      * Move the unit to a particular location at an angle
      * @param xGoal x-coordinate of the position to go to
@@ -729,7 +737,7 @@ public class BaseUnit {
                 goalAngle = MathUtils.atan2(dy, dx);
                 break;
             case MOVING:
-                // If army still rotating, half the speed
+                // If army is moving, the the army shall move at normal speed.
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
                 moveSpeed = speed;
 
@@ -760,7 +768,16 @@ public class BaseUnit {
                 } else {
                     anchorX = goalX;
                     anchorY = goalY;
-                    state = UnitState.STANDING;
+                    if (node == path.getNodes().getLast()) {
+                        path = null;
+                        node = null;
+                        state = UnitState.STANDING;
+                    } else {
+                        path.getNodes().pollFirst();
+                        node = path.getNodes().get(0);
+                        goalX = node.getX();
+                        goalY = node.getY();
+                    }
                 }
                 break;
             case STANDING:
@@ -947,7 +964,7 @@ public class BaseUnit {
     }
 
     /***
-     * Set inDanger view.map for the unit and all the troops inside the unit.
+     * Set inDanger map for the unit and all the troops inside the unit.
      * @param inDanger
      */
     public void setInDanger(boolean[][] inDanger) {
@@ -959,6 +976,13 @@ public class BaseUnit {
         }
     }
 
+    /**
+     * Assigned the moving path to the unit.
+     */
+    public void setPath(Path inputPath) {
+        path = inputPath;
+        node = path.getNodes().getFirst();
+    }
 
     /**
      * A convenient way to get troop at specific position.
@@ -1083,6 +1107,10 @@ public class BaseUnit {
 
     public double getSpacing() {
         return unitStats.spacing;
+    }
+
+    public Path getPath() {
+        return path;
     }
 
     public BaseUnit getUnitFoughtAgainst() {

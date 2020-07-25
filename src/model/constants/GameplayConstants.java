@@ -48,4 +48,8 @@ public class GameplayConstants {
 
     // Minimum damage received after shield has been applied.
     public final static double MINIMUM_DAMAGE_RECEIVED = 1;
+
+    // When the user right click to change formation, this is the minimum number of troops that have to make up the
+    // front.
+    public final static double MINIMUM_WIDTH_SELECTION = 4;
 }

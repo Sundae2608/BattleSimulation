@@ -1,7 +1,7 @@
-import controller.ControlConstants;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
+import model.constants.GameplayConstants;
 import model.construct.Construct;
 import model.enums.*;
 import model.logger.Log;
@@ -15,6 +15,7 @@ import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.CameraConstants;
+import view.constants.ControlConstants;
 import view.drawer.*;
 import model.GameEnvironment;
 import view.camera.Camera;
@@ -156,7 +157,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawEye(DrawingMode.NOT_DRAW);
         drawingSettings.setDrawWeapon(DrawingMode.DRAW);
         drawingSettings.setProduceFootage(false);
-        drawingSettings.setFrameSkips(0);
+        drawingSettings.setFrameSkips(10);
         drawingSettings.setDrawGrid(false);
         drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
@@ -498,8 +499,6 @@ public class MainSimulation extends PApplet {
         }
 
         // Always draw arrow of selected unit
-        // TODO(sonpham) Refactor this into unit graphics
-
         if (unitSelected != null) {
 
             // Get the political faction color
@@ -510,10 +509,8 @@ public class MainSimulation extends PApplet {
             double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
             double distance = MathUtils.quickDistance(
                     rightClickActualX, rightClickActualY, actualCurrent[0], actualCurrent[1]);
-            double drawingEndPointX;
-            double drawingEndPointY;
             if (rightClickedNotReleased && distance >
-                    ControlConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
+                    GameplayConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
                 // Draw the rectangle showing unit formation selection
                 // TODO: Convert to the actual game angle, and always anchor on the actual angle on the field would be
                 //  the best way to ensure acccurate angle calculation.
@@ -561,19 +558,33 @@ public class MainSimulation extends PApplet {
             }
 
             // Draw the arrow plan if the unit is current moving.
+            // TODO: Pretty scrappy code here. It functions perfectly but it is quite hard to read.
+            //  Probably should wrap this around into something like "DrawingUtils.drawPath(path)", which is a bit more
+            //  clear to read.
             if (unitSelected.getState() == UnitState.MOVING) {
                 fill(color[0], color[1], color[2], 255);
-                battleSignalDrawer.drawArrowPlan(
-                        unitSelected.getAverageX(), unitSelected.getAverageY(),
-                        unitSelected.getGoalX(), unitSelected.getGoalY(), env.getTerrain());
+                Node prev = null;
+                for (Node node : unitSelected.getPath().getNodes()) {
+                    shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
+                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                    if (prev != null) {
+                        battleSignalDrawer.drawArrowPlan(
+                                prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
+                    } else {
+                        battleSignalDrawer.drawArrowPlan(
+                                unitSelected.getAverageX(), unitSelected.getAverageY(),
+                                unitSelected.getGoalX(), unitSelected.getGoalY(), env.getTerrain());
+                    }
+                    prev = node;
+                }
             }
 
             // Draw path finding
             double[] endPoint = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
             Path shortestPath = env.getGraph().getShortestPath(
-                    unitSelected.getAnchorX(), unitSelected.getAnchorY(),
+                    unitSelected.getAverageX(), unitSelected.getAverageY(),
                     endPoint[0], endPoint[1], env.getConstructs());
-            fill(color[0], color[1], color[2]);
+            fill(color[0], color[1], color[2], DrawingConstants.PATH_PLANNING_ALPHA);
             Node prev = null;
             for (Node node : shortestPath.getNodes()) {
                 shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
@@ -776,7 +787,16 @@ public class MainSimulation extends PApplet {
         }
 
         if (mouseButton == LEFT) {
-            unitSelected = closestUnit;
+            // Check distance, only allow unit assignment if distance to mouse is smaller than certain number.
+            // TODO: It would be better to actually check against the Unit Bounding box for a more accurate collision
+            //  checking.
+            double[] screenPos = camera.getDrawingPosition(
+                    closestUnit.getAverageX(), closestUnit.getAverageY(), closestUnit.getAverageZ());
+            if (MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
+                unitSelected = closestUnit;
+            } else {
+                unitSelected = null;
+            }
             audioSpeaker.broadcastOverlaySound(AudioType.LEFT_CLICK);
         } else if (mouseButton == RIGHT) {
             audioSpeaker.broadcastOverlaySound(AudioType.RIGHT_CLICK);
@@ -793,16 +813,21 @@ public class MainSimulation extends PApplet {
                     double[] screenPos = camera.getDrawingPosition(
                             closestUnit.getAverageX(),
                             closestUnit.getAverageY());
-                    // If it's an archer unit, check the faction and distance from the closest unit from view.camera
+
+                    // If it's an archer unit, check the faction and distance from the closest unit from camera
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
                                     CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
                         ((ArcherUnit) unitSelected).setUnitFiredAt(closestUnit);
                         if (unitSelected.getState() == UnitState.MOVING) {
-                            unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                            unitSelected.moveFormationKeptTo(
+                                    unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
                         }
                     } else {
-                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        if (GameplayUtils.checkIfUnitCanMoveTowards(
+                                unitEndPointX, unitEndPointY, env.getConstructs())) {
+                            unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        }
                         ((ArcherUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else if (unitSelected instanceof BallistaUnit) {
@@ -810,6 +835,7 @@ public class MainSimulation extends PApplet {
                     double[] screenPos = camera.getDrawingPosition(
                             closestUnit.getAverageX(),
                             closestUnit.getAverageY());
+
                     // If it's an archer unit, check the faction and distance from the closest unit from view.camera
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
@@ -819,7 +845,10 @@ public class MainSimulation extends PApplet {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
                         }
                     } else {
-                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        if (GameplayUtils.checkIfUnitCanMoveTowards(
+                                unitEndPointX, unitEndPointY, env.getConstructs())) {
+                            unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        }
                         ((BallistaUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else if (unitSelected instanceof CatapultUnit) {
@@ -827,6 +856,7 @@ public class MainSimulation extends PApplet {
                     double[] screenPos = camera.getDrawingPosition(
                             closestUnit.getAverageX(),
                             closestUnit.getAverageY());
+
                     // If it's an archer unit, check the faction and distance from the closest unit from view.camera
                     if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
                             MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
@@ -836,16 +866,22 @@ public class MainSimulation extends PApplet {
                             unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
                         }
                     } else {
-                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        if (GameplayUtils.checkIfUnitCanMoveTowards(
+                                unitEndPointX, unitEndPointY, env.getConstructs())) {
+                            unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        }
                         ((CatapultUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else {
-                    unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                    if (GameplayUtils.checkIfUnitCanMoveTowards(
+                            unitEndPointX, unitEndPointY, env.getConstructs())) {
+                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                    }
                 }
                 double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                 double distance = MathUtils.quickDistance(
                         rightClickActualX, rightClickActualY, actualCurrent[0], actualCurrent[1]);
-                if (distance > ControlConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
+                if (distance > GameplayConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
                     int frontlineWidth = Math.min((int) (
                                     distance / unitSelected.getUnitStats().spacing),
                             unitSelected.getNumAlives());
