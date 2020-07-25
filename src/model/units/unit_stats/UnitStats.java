@@ -12,6 +12,7 @@ public class UnitStats {
     public int patience;
 
     public StaminaStats staminaStats = new StaminaStats();
+    public UnitSoundStats unitSoundStats = new UnitSoundStats();
 
     // Archer & skirmisher stats
     public double widthVariation;

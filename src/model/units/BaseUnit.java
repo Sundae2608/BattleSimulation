@@ -15,6 +15,7 @@ import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
+import model.sound.SoundSource;
 import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.GameplayUtils;
@@ -61,6 +62,9 @@ public class BaseUnit {
     double averageY;
     double averageZ;
 
+    // Declaring sound source for each unit
+    SoundSource soundSource;
+
     // Path finding variables.
     Path path;
     Node node;
@@ -103,6 +107,7 @@ public class BaseUnit {
         morale = GameplayConstants.BASE_MORALE;
         timeInFightingState = 0;
         stamina = inputUnitStats.staminaStats.maxStamina;
+        soundSource = new SoundSource();
     }
 
     /**
@@ -1018,6 +1023,17 @@ public class BaseUnit {
         return numMoving;
     }
 
+    public void updateSoundSource(){
+        soundSource.setNoise(unitStats.unitSoundStats.noise);
+        soundSource.setNoiseCoordinateX(averageX);
+        soundSource.setNoiseCoordinateY(averageY);
+        soundSource.setNoiseCoordinateZ(averageZ);
+    }
+
+    public void updateSoundSink(ArrayList<SoundSource> soundSources){
+
+    }
+
     public double getStamina() { return stamina; }
 
     public double getAnchorX() {
@@ -1154,4 +1170,6 @@ public class BaseUnit {
     public UnitType getUnitType() {
         return unitStats.unitType;
     }
+
+    public SoundSource getSoundSource() {return soundSource; }
 }

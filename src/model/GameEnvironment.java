@@ -12,6 +12,7 @@ import model.events.custom_events.CavalryMarchingEvent;
 import model.events.custom_events.SoldierMarchingEvent;
 import model.monitor.Monitor;
 import model.singles.BaseSingle;
+import model.sound.SoundSource;
 import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import model.units.ArcherUnit;
@@ -52,6 +53,9 @@ public class GameEnvironment {
     // Monitor, to keep track of things in the game
     Monitor monitor;
 
+    // Contains all sound sources in the environment
+    ArrayList<SoundSource> soundSources;
+
     /**
      *
      * @param battleConfig Path to the txt file that contains all the game information
@@ -64,6 +68,7 @@ public class GameEnvironment {
         deadContainer = new ArrayList<>();
         deadUnits = new HashSet<>();
         aliveUnits = new HashSet<>();
+        soundSources = new ArrayList<>();
 
         // Read terrain configuration.
         try {
@@ -108,6 +113,10 @@ public class GameEnvironment {
             unitModifier.addUnit(unit);
             aliveUnits.add(unit);
         }
+
+        for (BaseUnit unit : units){
+            soundSources.add(unit.getSoundSource());
+        }
     }
 
     /**
@@ -131,6 +140,16 @@ public class GameEnvironment {
                 deadUnits.add(unit);
                 aliveUnits.remove(unit);
             }
+        }
+
+        // Update sound source for all units
+        for (BaseUnit unit : units) {
+            unit.updateSoundSource();
+        }
+
+        // Update sound sinks for all units
+        for (BaseUnit unit : units) {
+            unit.updateSoundSink(soundSources);
         }
 
         // Broadcast running, marching and arrow fire event events
