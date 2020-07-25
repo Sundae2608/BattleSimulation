@@ -1030,6 +1030,7 @@ public class BaseUnit {
         soundSource.setNoiseCoordinateZ(averageZ);
     }
 
+    // TODO: Output should be a HashMap<Label, <double noiselevel, double angle>>
     public void updateSoundSink(ArrayList<SoundSource> soundSources){
 
     }

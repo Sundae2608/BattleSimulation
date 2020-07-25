@@ -117,6 +117,8 @@ public class GameEnvironment {
         for (BaseUnit unit : units){
             soundSources.add(unit.getSoundSource());
         }
+
+        // TODO: Another for loop around terrain for new sound source
     }
 
     /**
@@ -150,7 +152,9 @@ public class GameEnvironment {
         // Update sound sinks for all units
         for (BaseUnit unit : units) {
             unit.updateSoundSink(soundSources);
+            //TODO: unit.updatePerceivedSoundSink();
         }
+
 
         // Broadcast running, marching and arrow fire event events
         for (BaseUnit unit : units) {
