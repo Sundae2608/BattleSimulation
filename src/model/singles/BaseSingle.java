@@ -259,6 +259,7 @@ public class BaseSingle {
      * TODO: Add defense mechanism, and customize them according to the angle the attack is received from.
      */
     public void receiveDamage(double damage) {
+        damage = Math.max(GameplayConstants.MINIMUM_DAMAGE_RECEIVED, damage - singleStats.defense);
         hp -= damage;
         damageSustain += damage;
         justHit = 2;

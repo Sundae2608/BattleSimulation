@@ -16,6 +16,7 @@
     non_rotation_dist: 17
 
     attack: 40
+    defense: 10
     combat_range: 25
     combat_delay: 150
     sustain_recovery: 0.5
@@ -50,6 +51,7 @@
     non_rotation_dist: 17
 
     attack: 3
+    defense: 2
     combat_range: 15
     combat_delay: 150
     sustain_recovery: 0.5
@@ -97,6 +99,7 @@
     non_rotation_dist: 17
 
     attack: 3
+    defense: 0
     combat_range: 15
     combat_delay: 150
     sustain_recovery: 0.5
@@ -149,6 +152,7 @@
     non_rotation_dist: 17
 
     attack: 3
+    defense: 0
     combat_range: 15
     combat_delay: 150
     sustain_recovery: 0.5
@@ -197,7 +201,8 @@
     standing_dist: 30
     non_rotation_dist: 17
 
-    attack: 20
+    attack: 120
+    defense: 10
     combat_range: 20
     combat_delay: 250
     sustain_recovery: 0.5
@@ -231,7 +236,8 @@
     standing_dist: 5
     non_rotation_dist: 17
 
-    attack: 11
+    attack: 15
+    defense: 15
     combat_range: 10
     combat_delay: 250
     sustain_recovery: 0.5
@@ -270,6 +276,7 @@
     non_rotation_dist: 17
 
     attack: 15
+    defense: 5
     combat_range: 10
     combat_delay: 250
     sustain_recovery: 0.5
@@ -304,6 +311,7 @@
     non_rotation_dist: 17
 
     attack: 15
+    defense: 3
     combat_range: 10
     combat_delay: 250
     sustain_recovery: 0.5
@@ -342,6 +350,7 @@
     non_rotation_dist: 17
 
     attack: 40
+    defense: 8
     combat_range: 25
     combat_delay: 150
     sustain_recovery: 0.5
@@ -376,6 +385,7 @@
     non_rotation_dist: 17
 
     attack: 3
+    defense: 2
     combat_range: 15
     combat_delay: 150
     sustain_recovery: 0.5
@@ -422,7 +432,8 @@
     standing_dist: 15
     non_rotation_dist: 17
 
-    attack: 20
+    attack: 140
+    defense: 5
     combat_range: 20
     combat_delay: 250
     sustain_recovery: 0.5
@@ -456,7 +467,8 @@
     standing_dist: 5
     non_rotation_dist: 17
 
-    attack: 11
+    attack: 15
+    defense: 15
     combat_range: 10
     combat_delay: 250
     sustain_recovery: 0.5
@@ -495,6 +507,7 @@
     non_rotation_dist: 17
 
     attack: 15
+    defense: 5
     combat_range: 10
     combat_delay: 250
     sustain_recovery: 0.5
@@ -529,6 +542,7 @@
     non_rotation_dist: 17
 
     attack: 15
+    defense: 2
     combat_range: 10
     combat_delay: 250
     sustain_recovery: 0.5
