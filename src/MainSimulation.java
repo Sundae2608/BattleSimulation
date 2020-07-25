@@ -146,7 +146,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setAllyCollision(true);
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
-        gameSettings.setEnableFlankingMechanics(false);
+        gameSettings.setEnableFlankingMechanics(true);
         gameSettings.setCountWrongFormationChanges(true);
 
         // ----------------
@@ -157,7 +157,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawEye(DrawingMode.NOT_DRAW);
         drawingSettings.setDrawWeapon(DrawingMode.DRAW);
         drawingSettings.setProduceFootage(false);
-        drawingSettings.setFrameSkips(10);
+        drawingSettings.setFrameSkips(0);
         drawingSettings.setDrawGrid(false);
         drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
@@ -200,7 +200,7 @@ public class MainSimulation extends PApplet {
         // ---------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
+        String battleConfig = "src/configs/battle_configs/FlankerTest.txt";
         String mapConfig = "src/configs/map_configs/ConfigWithTextureMap.txt";
         String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
