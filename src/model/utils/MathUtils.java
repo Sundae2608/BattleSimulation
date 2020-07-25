@@ -5,10 +5,7 @@ import javafx.util.Pair;
 import model.singles.BaseSingle;
 import model.surface.BaseSurface;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Set;
+import java.util.*;
 
 public final class MathUtils {
 
@@ -42,6 +39,12 @@ public final class MathUtils {
     public static final double PIX4 = 12.566370614359172953e0;
     public static final double PIO180 = 0.01745329251994329e0;
     public static final double PIU180 = 57.2957795130823208e0;
+
+    /**
+     * Some other useful numbers
+     */
+    public static final double ROOT3 = Math.sqrt(3);
+    public static final double ROOT3O2 = Math.sqrt(3) / 2;
 
     // Sin look up table
     private static float[] sinLookupTable = new float[65536];
@@ -384,8 +387,8 @@ public final class MathUtils {
      *               /      \
      *      (-1, _, +1)   (_, -1, +1)
      */
-    public static ArrayList<Triplet<Integer, Integer, Integer>> hexagonalIndicesRing(int offset) {
-        ArrayList<Triplet<Integer, Integer, Integer>> arr = new ArrayList<>();
+    public static HashSet<Triplet<Integer, Integer, Integer>> getHexagonalIndicesRingAtOffset(int offset) {
+        HashSet<Triplet<Integer, Integer, Integer>> arr = new HashSet<>();
         if (offset == 0) {
             arr.add(new Triplet<>(0, 0, 0));
             return arr;
@@ -430,6 +433,26 @@ public final class MathUtils {
 
         // Return the triple array
         return arr;
+    }
+
+    /**
+     * Generate offset based on hex triplet index
+     */
+    public static double[] generateOffsetBasedOnHexTripletIndices(int x, int y, int z, double scale) {
+        double offsetX = 0;
+        double offsetY = 0;
+
+        // Handle x offset
+        offsetX += scale * x * ROOT3O2;
+        offsetY -= scale * x * 0.5;
+
+        // Handle y offset
+        offsetX -= scale * y * ROOT3O2;
+        offsetY -= scale * y * 0.5;
+
+        // Handle z offset
+        offsetY += scale * z;
+        return new double[] {offsetX, offsetY};
     }
 
 }

@@ -8,18 +8,18 @@ package model.utils;
  * @param <V>
  * @param <T>
  */
-class Triplet<U, V, T>
+public class Triplet<U, V, T>
 {
-    public final U first;
-    public final V second;
-    public final T third;
+    public final U x;
+    public final V y;
+    public final T z;
 
     // Constructs a new Triplet with the given values
-    Triplet(U first, V second, T third)
+    Triplet(U x, V y, T z)
     {
-        this.first = first;
-        this.second = second;
-        this.third = third;
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     @Override
@@ -32,9 +32,9 @@ class Triplet<U, V, T>
         Triplet triplet = (Triplet) o;
 
         // Call equals() method of the underlying objects
-        if (!first.equals(triplet.first) ||
-                !second.equals(triplet.second) ||
-                !third.equals(triplet.third))
+        if (!x.equals(triplet.x) ||
+                !y.equals(triplet.y) ||
+                !z.equals(triplet.z))
             return false;
         return true;
     }
@@ -45,16 +45,16 @@ class Triplet<U, V, T>
 		/* Computes hash code for an object by using hash codes of
 		the underlying objects */
 
-        int result = first.hashCode();
-        result = 31 * result + second.hashCode();
-        result = 31 * result + third.hashCode();
+        int result = x.hashCode();
+        result = 31 * result + y.hashCode();
+        result = 31 * result + z.hashCode();
         return result;
     }
 
     @Override
     public String toString()
     {
-        return "(" + first + ", " + second + ", " + third + ")";
+        return "(" + x + ", " + y + ", " + z + ")";
     }
 
     public static <U, V, T> Triplet <U, V, T> of(U a, V b, T c)
