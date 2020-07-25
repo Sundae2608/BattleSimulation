@@ -4,6 +4,11 @@ import model.enums.PoliticalFaction;
 import model.enums.UnitType;
 
 public class UnitStats {
+
+    public UnitStats() {
+        staminaStats = new StaminaStats();
+    }
+
     public PoliticalFaction faction;
     public UnitType unitType;
     public double spacing;
@@ -11,7 +16,7 @@ public class UnitStats {
     public double rotationSpeed;
     public int patience;
 
-    public StaminaStats staminaStats = new StaminaStats();
+    public StaminaStats staminaStats;
 
     // Archer & skirmisher stats
     public double widthVariation;

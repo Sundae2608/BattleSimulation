@@ -14,6 +14,7 @@ import view.settings.DrawingSettings;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class contains drawers for all UI elements in the game.
@@ -28,7 +29,10 @@ public class UIDrawer extends BaseDrawer {
     Camera camera;
     DrawingSettings drawingSettings;
 
-    List<Scrollbar> scrollbars;
+    Map<String, Scrollbar> scrollbars;
+
+    int xStart = 1000;
+    int yScrollbarStart = 900;
 
     public UIDrawer(PApplet inputApplet, Camera inputCamera, DrawingSettings inputDrawingSettings) {
         // Inject dependencies.
@@ -54,8 +58,7 @@ public class UIDrawer extends BaseDrawer {
         bannerTexture = applet.loadImage("imgs/BannerArt/SimplifiedBanner-03.png");
         bannerSelected = applet.loadImage("imgs/BannerArt/SimplifiedBanner-04.png");
 
-        scrollbars = new ArrayList<>();
-        scrollbars.add(new Scrollbar(applet, (float)500, (float)500, 20, 20));
+        scrollbars = new HashMap<>();
     }
 
     @Override
@@ -150,9 +153,19 @@ public class UIDrawer extends BaseDrawer {
         applet.popMatrix();
     }
 
-    public void drawScrollbar() {
-        for (Scrollbar bar: scrollbars) {
-            bar.update();
+    public void drawScrollbar(String key, int value, int minValue, int maxValue) {
+        if (!scrollbars.containsKey(key)) {
+            scrollbars.put(key, new Scrollbar(applet, key, xStart, yScrollbarStart + scrollbars.size()*35,
+                    300, 20, value, minValue, maxValue));
         }
+        Scrollbar bar = scrollbars.get(key);
+        bar.update();
+    }
+
+    public float readFromScrollbar(String key) throws Exception {
+        if (!scrollbars.containsKey(key)) {
+            throw new Exception("Cannot find scrollbar with key: " + key);
+        }
+        return scrollbars.get(key).getValue();
     }
 }
