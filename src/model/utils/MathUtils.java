@@ -8,6 +8,7 @@ import model.surface.BaseSurface;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Set;
 
 public final class MathUtils {
 
@@ -371,4 +372,64 @@ public final class MathUtils {
     public static double quickNorm(double x, double y) {
         return quickRoot2((float) (x * x + y * y));
     }
+
+    /**
+     * Generate hexagonal ring
+     * We will use the 3D Hexagonal cubic system delineated here:
+     * https://www.redblobgames.com/grids/hexagons/.
+     * This system posits the hexagonal index as having 3 axis x, y, z, which changes as followed.
+     *        (_, +1, -1)   (+1, _, -1)
+     *                \      /
+     * (-1, +1, _) - (_, _, _) - (+1, -1, _)
+     *               /      \
+     *      (-1, _, +1)   (_, -1, +1)
+     */
+    public static ArrayList<Triplet<Integer, Integer, Integer>> hexagonalIndicesRing(int offset) {
+        ArrayList<Triplet<Integer, Integer, Integer>> arr = new ArrayList<>();
+        if (offset == 0) {
+            arr.add(new Triplet<>(0, 0, 0));
+            return arr;
+        }
+
+        // Start from the top left cell
+        int x = 0;
+        int y = offset;
+        int z = -offset;
+
+        // Then loop through each edge.
+        for (int i = 0; i < offset; i++) {
+            x += 1;
+            y -= 1;
+            arr.add(new Triplet<>(x, y, z));
+        }
+        for (int i = 0; i < offset; i++) {
+            y -= 1;
+            z += 1;
+            arr.add(new Triplet<>(x, y, z));
+        }
+        for (int i = 0; i < offset; i++) {
+            x -= 1;
+            z += 1;
+            arr.add(new Triplet<>(x, y, z));
+        }
+        for (int i = 0; i < offset; i++) {
+            x -= 1;
+            y += 1;
+            arr.add(new Triplet<>(x, y, z));
+        }
+        for (int i = 0; i < offset; i++) {
+            y += 1;
+            z -= 1;
+            arr.add(new Triplet<>(x, y, z));
+        }
+        for (int i = 0; i < offset; i++) {
+            x += 1;
+            z -= 1;
+            arr.add(new Triplet<>(x, y, z));
+        }
+
+        // Return the triple array
+        return arr;
+    }
+
 }
