@@ -69,4 +69,8 @@ public class DrawingConstants {
     // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
     // the height effect of arrows a little bit to make the arrow looks more palatable.
     public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 1.50;
+
+    // Path planning alpha. Drawing the planned route of an unit as a little more transparent to differentiate with
+    // the path current being executed.
+    public final static int PATH_PLANNING_ALPHA = 128;
 }
