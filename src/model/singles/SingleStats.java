@@ -27,6 +27,7 @@ public class SingleStats {
 
     // Battle attributes
     public double attack;
+    public double defense;
     public double combatRange;
     public int combatDelay;
     public double sustainRecovery;

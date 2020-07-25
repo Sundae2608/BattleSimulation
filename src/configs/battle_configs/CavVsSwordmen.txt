@@ -4,9 +4,9 @@
     x: 6500
     y: 12500
     angle: 0
-    size: 40
+    size: 120
     faction: ROME
-    width: 10
+    width: 12
 },
 {
     type: SWORDMAN
@@ -14,9 +14,9 @@
     x: 8000
     y: 12500
     angle: 180
-    size: 80
+    size: 240
     faction: GAUL
-    width: 16
+    width: 24
 },
 {
     type: ARCHER
