@@ -55,7 +55,7 @@ public class UIDrawer extends BaseDrawer {
         bannerSelected = applet.loadImage("imgs/BannerArt/SimplifiedBanner-04.png");
 
         scrollbars = new ArrayList<>();
-        scrollbars.add(new Scrollbar(applet, (float)500, (float)500, 20, 20));
+        scrollbars.add(new Scrollbar(applet, (float) 1700, (float) 1010, 200, 20));
     }
 
     @Override

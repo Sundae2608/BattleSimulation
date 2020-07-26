@@ -200,7 +200,7 @@ public class MainSimulation extends PApplet {
         // ---------------------
 
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/FlankerTest.txt";
+        String battleConfig = "src/configs/battle_configs/PhalanxTest.txt";
         String mapConfig = "src/configs/map_configs/ConfigWithTextureMap.txt";
         String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
