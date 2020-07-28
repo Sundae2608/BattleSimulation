@@ -46,13 +46,6 @@ public class MainSimulation extends PApplet {
     private final static int INPUT_WIDTH = 1920;
     private final static int INPUT_HEIGHT = 1080;
 
-    // ------------
-    // Logger tools
-    // ------------
-    // Logger can and should be static. However, currently it is only static and available for only MainSimulation.
-    // TODO: Wrap around the logger in a Singleton class.
-
-
     // ------------------
     // Drawers
     // This helps store each special shape at size to save time.
@@ -177,7 +170,7 @@ public class MainSimulation extends PApplet {
         // --------------
         audioSettings = new AudioSettings();
         audioSettings.setBackgroundMusic(false);
-        audioSettings.setSoundEffect(true);
+        audioSettings.setSoundEffect(false);
 
         // ------------------------
         // Post processing settings

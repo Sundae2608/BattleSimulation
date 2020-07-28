@@ -53,24 +53,6 @@ public class UniversalConstants {
     public final static double MAXIMUM_TERRAIN_EFFECT = 0;  // 0.4
 
     // ----------------
-    // Drawing constant
-    // Keep it here for now for oonvenience
-    // ----------------
-    // TODO: Consider moving this to drawer constant since there is already a file like that.
-    public final static double DAMAGE_SUSTAIN_MAXIMUM_EFFECT = 15;
-
-    // The amount of sustain damage recovering
-    public final static double SUSTAIN_COOLDOWN = 0.5;
-
-    public final static double SHADOW_ANGLE = 0;
-    public final static double SHADOW_SIZE = 1.4;
-    public final static double SHADOW_OFFSET = 3.5;
-    public final static double UNIT_SHADOW_OFFSET = 15;
-    public final static int[] SHADOW_COLOR = {0, 0, 0, 128};
-
-    public final static double SIMPLIFIED_SQUARE_SIZE_RATIO = 0.886226925453;
-
-    // ----------------
     // Monitor constant
     // ----------------
     public final static int FRAME_STORAGE = 10;

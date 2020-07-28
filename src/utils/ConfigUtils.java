@@ -183,6 +183,7 @@ public final class ConfigUtils {
             singleStats.standingDist = Double.parseDouble(d.get("standing_dist"));
             singleStats.nonRotationDist = Double.parseDouble(d.get("non_rotation_dist"));
             singleStats.attack = Double.parseDouble(d.get("attack"));
+            singleStats.defense = Double.parseDouble(d.get("defense"));
             singleStats.combatRange = Double.parseDouble(d.get("combat_range"));
             singleStats.combatDelay = Integer.parseInt(d.get("combat_delay"));
             singleStats.sustainRecovery = Double.parseDouble(d.get("sustain_recovery"));
