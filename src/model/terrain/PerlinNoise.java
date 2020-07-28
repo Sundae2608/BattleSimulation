@@ -1,7 +1,10 @@
 package model.terrain;
 
 /**
- * TODO(sonpham): Write credit to the author of the algorithm.
+ * Perlin noise generator.
+ *
+ * Most of this code is copied from:
+ * https://rosettacode.org/wiki/Perlin_noise
  */
 public final class PerlinNoise {
     static final int p[] = new int[512];

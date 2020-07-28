@@ -22,7 +22,7 @@ public class InfoDrawer extends BaseDrawer {
      * Helper function which draws a string s, with input position (x, y) as the bottom left anchor. This helper method
      * is used for writing a monitor on the bottom left of the screen to track important counter variables.
      * TODO: Add a fourth argument which allows anchoring in one of 4 modes:
-     *  TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT
+     *  TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT.
      */
     public void drawTextBox(String s, double x, double y) {
         // Split the string into lines

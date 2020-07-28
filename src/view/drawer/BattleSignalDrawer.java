@@ -29,9 +29,9 @@ public class BattleSignalDrawer extends BaseDrawer {
         // Pre-calculate shadow, also for optimization
         if (drawingSettings.isDrawTroopShadow()) {
             unitShadowDrawingOffsetx = MathUtils.quickCos((float)
-                    UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
+                    DrawingConstants.SHADOW_ANGLE) * DrawingConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
             unitShadowDrawingOffsetY = MathUtils.quickCos((float)
-                    UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
+                    DrawingConstants.SHADOW_ANGLE) * DrawingConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
         }
     }
 
@@ -132,7 +132,7 @@ public class BattleSignalDrawer extends BaseDrawer {
 
         // Then draw the box indicating the actual current scale of the the unit
         if (drawingSettings.isDrawTroopShadow()) {
-            int[] shadowColor = UniversalConstants.SHADOW_COLOR;
+            int[] shadowColor = DrawingConstants.SHADOW_COLOR;
             applet.fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
             applet.beginShape();
             applet.vertex((float) (p1[0] + unitShadowDrawingOffsetx * 2), (float) (p1[1] + unitShadowDrawingOffsetY * 2));
