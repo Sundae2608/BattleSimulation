@@ -371,7 +371,8 @@ public class MainSimulation extends PApplet {
             mapDrawer.drawTerrainLine(env.getTerrain());
         }
 
-        // Begin loop for columns
+        // Draw the grid
+        // TODO: Deprecate this code. We now have a better grid drawing function that this is no longer necessary.
         if (drawingSettings.isDrawGrid()) {
             double[] drawPos = camera.getDrawingPosition(0.0, 0.0);
             double drawX = drawPos[0];

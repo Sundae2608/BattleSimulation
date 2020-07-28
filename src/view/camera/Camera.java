@@ -62,7 +62,6 @@ public class Camera extends EventListener {
         angle = 0;
         zoom = 1.0;
         resize = 1.0;
-        troops = new ArrayList<>();
     }
 
     @Override
