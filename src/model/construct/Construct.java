@@ -15,7 +15,9 @@ public class Construct {
      * @param points The points that make the boundary of the construct.
      */
     public Construct(String inputName, double[][] points) {
-        // TODO: Do a value check to make sure the points is a 2-D array with the size of x x 2.
+        if (points[0].length != 2) {
+            throw new RuntimeException("points input must be an n-by-2 array");
+        }
         name = inputName;
         boundaryPoints = points;
     }
