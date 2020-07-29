@@ -22,6 +22,8 @@ You will also need to download the following Java packages to resolve dependenci
 * [processing-3.5.4](https://processing.org/) core library
 * [processing-sound-2.2.3](https://github.com/processing/processing-sound/releases/tag/v2.2.3). Remember to get 
 `sound.zip` which contains the .jar files.
+* [tensorflow-1.15](https://www.tensorflow.org/install/lang_java). Follow the guide to use the library directly from Maven.
+* [ai.djl:api:0.6.0](https://github.com/awslabs/djl) Deep Java Library for training and using ML models. Also installs from Maven.
 
 ## Step 2: Import the necessary dependencies.
 
@@ -42,7 +44,7 @@ into.
    * When you import `processing-sound` libraries, be sure to also import all of `sound.jar`, `javamp` and `jsyn`
    libraries.
    * If you need to install your library from Apache Maven, such as 
-   [`tensorflow-1.15`](https://www.tensorflow.org/install/lang_java), you can do `+ > From Maven` and search your
+   [`tensorflow-1.15`](https://www.tensorflow.org/install/lang_java) or [ai.djl:api:0.6.0](https://github.com/awslabs/djl), you can do `+ > From Maven` and search your
    library to install.
    ![](imgs/maven_installation.PNG)
  

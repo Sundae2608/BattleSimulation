@@ -400,7 +400,8 @@ public class MainSimulation extends PApplet {
                 double[][] pts = surface.getSurfaceBoundary();
                 beginShape();
                 for (int i = 0; i < pts.length; i++) {
-                    // TODO: This is an efficient part, the height of the object is recalculated all the time.
+                    // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
+                    //  though it is a very static value.
                     double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
                             env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
                     vertex((float) drawingPts[0], (float) drawingPts[1]);
@@ -557,7 +558,6 @@ public class MainSimulation extends PApplet {
         } else {
             // Draw unit block
             for (BaseUnit unit : env.getAliveUnits()) {
-                // TODO: Change to using UnitState instead for consistency
                 if (unit.getNumAlives() == 0) continue;
                 battleSignalDrawer.drawUnitBlock(unit, env.getTerrain());
             }
