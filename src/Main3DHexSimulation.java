@@ -376,7 +376,7 @@ public class Main3DHexSimulation extends PApplet {
         s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
 
         uiDrawer.drawScrollbar();
-        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
+        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 500);
 
         // Pause / Play Button
         if (!currentlyPaused) {

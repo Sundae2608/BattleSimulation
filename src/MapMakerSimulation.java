@@ -158,7 +158,7 @@ public class MapMakerSimulation extends PApplet {
         StringBuilder s = new StringBuilder();
         s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
         s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
-        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
+        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
 
         // Change the heights of all points within the paint brush.
         double dHeight = 0;
