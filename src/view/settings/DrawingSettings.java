@@ -21,6 +21,7 @@ public class DrawingSettings {
     private boolean drawTroopInPosition;
     private boolean drawSurface;
     private boolean drawVideoEffect;
+    private boolean drawUnitInfo;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -171,5 +172,12 @@ public class DrawingSettings {
     }
     public void setDrawTroopInPosition(boolean drawTroopInPosition) {
         this.drawTroopInPosition = drawTroopInPosition;
+    }
+
+    public boolean isDrawUnitInfo() {
+        return drawUnitInfo;
+    }
+    public void setDrawUnitInfo(boolean drawUnitInfo) {
+        this.drawUnitInfo = drawUnitInfo;
     }
 }
