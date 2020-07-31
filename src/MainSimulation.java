@@ -145,6 +145,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawSimplifiedTroopShape(true);
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
+        drawingSettings.setDrawUnitInfo(true);
 
         // Audio settings
         audioSettings = new AudioSettings();
@@ -635,9 +636,25 @@ public class MainSimulation extends PApplet {
             }
         }
 
+        if (drawingSettings.isDrawUnitInfo()) {
+            for (BaseUnit unit : unitsSortedByPosition) {
+                if (unit.getNumAlives() == 0) continue;
+                // Write all the interesting counters here.
+                StringBuilder s = new StringBuilder();
+                s.append("Unit Type: " + unit.getUnitType().toString() + "\n");
+                s.append("Strength:  " + unit.getNumAlives() + "/" + unit.getTroops().size() + "\n");
+                s.append("Stamina:   " + unit.getStamina() + "\n");
+                s.append("Morale:    " + unit.getMorale());
+                // Draw the info box
+                double[] drawingPoints = camera.getDrawingPosition(
+                        unit.getAverageX(), unit.getAverageY(), unit.getAverageZ());
+                infoDrawer.drawTextBox(s.toString(), drawingPoints[0] + 36, drawingPoints[1] - 22, 200);
+            }
+        }
+
         // Information about the closest unit on top left corner.
         fill(0, 0, 0, 200);
-        rect(0, 0, 400, 150);
+        rect(0, 0, 250, 100);
         fill(255, 255, 255);
         textAlign(LEFT);
         text(UnitUtils.getUnitName(closestUnit), 8, 15);
@@ -671,6 +688,9 @@ public class MainSimulation extends PApplet {
         s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
         s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
 
+        uiDrawer.drawScrollbar();
+        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
+      
         for (BaseUnit unit : env.getAliveUnits()) {
             drawScrollbar(unit.getUnitType().toString() + unit.getPoliticalFaction().toString(),
                     (int)env.getGameStats().getSingleStats(unit.getUnitType(), unit.getPoliticalFaction()).radius,
