@@ -2,18 +2,14 @@ package model.units;
 
 import model.GameEnvironment;
 import model.enums.PoliticalFaction;
-import model.events.EventBroadcaster;
-import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.singles.SingleStats;
 import model.singles.SkirmisherSingle;
-import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class SkirmisherUnit extends BaseUnit {
 
@@ -69,14 +65,8 @@ public class SkirmisherUnit extends BaseUnit {
             aliveTroopsMap.put(single, i);
         }
 
-        // Goal position and direction are equal to anchor ones so that the army stand still.
-        goalX = anchorX;
-        goalY = anchorY;
-        goalAngle = anchorAngle;
-
-        // Set of flanker counts and frontline patient counters
-        frontlinePatientCounters = new int[width];
-        flankersCount = new int[width];
+        // Post initialization
+        postInitialization();
     }
 
     @Override

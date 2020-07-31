@@ -15,12 +15,10 @@ import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
+import model.sound.SoundSource;
 import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
-import model.utils.GameplayUtils;
-import model.utils.MathUtils;
-import model.utils.MovementUtils;
-import model.utils.TestUtils;
+import model.utils.*;
 
 import java.util.*;
 
@@ -42,8 +40,15 @@ public class BaseUnit {
     double morale;
     ArrayList<BaseUnit> visibleUnits;  // List of units visible to the troops
     int timeInFightingState;
+
+    // Flanking variables
     int[] flankersCount;
-    int[] frontlinePatientCounters;
+    int[] frontLinePatientCounters;
+    Set<Triplet<Integer, Integer, Integer>> leftFlankerIndices;
+    int leftRingIndex;
+    int rightRightIndex;
+    Set<Triplet<Integer, Integer, Integer>> rightFlankerIndices;
+    ArrayList<double[]>[] flankerOffsets;
 
     // Variables to indicate anchored position (unused)
     double speed;
@@ -60,6 +65,9 @@ public class BaseUnit {
     double averageX;
     double averageY;
     double averageZ;
+
+    // Declaring sound source for each unit
+    SoundSource soundSource;
 
     // Path finding variables.
     Path path;
@@ -103,16 +111,41 @@ public class BaseUnit {
         morale = GameplayConstants.BASE_MORALE;
         timeInFightingState = 0;
         stamina = inputUnitStats.staminaStats.maxStamina;
+        soundSource = new SoundSource();
+        leftFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
+        rightFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
+    }
+
+    /**
+     * Post initialization.
+     */
+    public void postInitialization() {
+        // Goal position and direction are equal to anchor ones so that the army stand still.
+        goalX = anchorX;
+        goalY = anchorY;
+        goalAngle = anchorAngle;
+
+        // Set of flanker counts and frontline patient counters
+        frontLinePatientCounters = new int[width];
+        flankersCount = new int[width];
+        flankerOffsets = new ArrayList[width];
+        for (int i = 0; i < width; i++) {
+            flankerOffsets[i] = new ArrayList<>();
+        }
     }
 
     /**
      * Bring flankers back to their supposed position. This happens when the unit needs to re-position
      */
     private void resetFlanker() {
+
         for (int i = 0; i < width; i++) {
-            frontlinePatientCounters[i] = 0;
+            frontLinePatientCounters[i] = 0;
             flankersCount[i] = 0;
+            flankerOffsets[i].clear();
         }
+        leftFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
+        rightFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
     }
 
     /**
@@ -161,7 +194,6 @@ public class BaseUnit {
 
         // Reorder the troops if the turn is bigger than 90 degree
         // Essentially the last row of the block will become the new front row.
-
         double moveAngle = Math.atan2(goalY - anchorY, goalX - anchorX);
         if (Math.abs(MathUtils.signedAngleDifference(anchorAngle, moveAngle)) > UniversalConstants.NON_UTURN_ANGLE) {
             uTurnFormation();
@@ -249,8 +281,13 @@ public class BaseUnit {
         aliveTroopsFormation = newFormation;
 
         // Reset the flankers
-        frontlinePatientCounters = new int[width];
+        frontLinePatientCounters = new int[width];
         flankersCount = new int[width];
+        flankerOffsets = new ArrayList[width];
+        for (int i = 0; i < width; i++) {
+            flankerOffsets[i] = new ArrayList<>();
+        }
+        resetFlanker();
     }
 
     /**
@@ -694,30 +731,74 @@ public class BaseUnit {
                     for (int i = 0; i < width; i++) {
                         if (flankersCount[i] < troops.size() / width && aliveTroopsFormation[flankersCount[i]][i] != null) {
                             if (aliveTroopsFormation[0][i].getCombatDelay() < 0) {
-                                frontlinePatientCounters[i] += 1;
+                                frontLinePatientCounters[i] += 1;
                             } else {
-                                frontlinePatientCounters[i] = 0;
+                                frontLinePatientCounters[i] = 0;
                             }
                         }
-                        if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
+                        if (frontLinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
                             // If the front-liner has waited for too long, they will join the flanker.
                             flankersCount[i] += 1;
-                            frontlinePatientCounters[i] = 0;
-                        }
-                    }
 
-                    for (int i = 0; i < width; i++) {
-                        if (flankersCount[i] < troops.size() / width && troops.get(i + flankersCount[i] * width).getState() != SingleState.DEAD) {
-                            if (troops.get(i).getCombatDelay() < 0) {
-                                frontlinePatientCounters[i] += 1;
+                            // Pick an offset for the flankers
+                            Triplet<Integer, Integer, Integer> pos;
+                            Iterator<Triplet<Integer, Integer, Integer>> it;
+                            // TODO: If the flanker troop is right in the middle, then it should select either
+                            //  iterator half the time.
+                            if (i < width / 2) {
+                                it = leftFlankerIndices.iterator();
                             } else {
-                                frontlinePatientCounters[i] = 0;
+                                it = rightFlankerIndices.iterator();
                             }
-                        }
-                        if (frontlinePatientCounters[i] == GameplayConstants.FLANKER_PATIENT) {
-                            // If the front-liner has waited for too long, they will join the flanker.
-                            flankersCount[i] += 1;
-                            frontlinePatientCounters[i] = 0;
+                            pos = it.next();
+
+                            // Generate a new goal offset position for that flanker
+                            double flankingSpacing = GameplayConstants.FLANKING_SPACING_RATIO * unitStats.spacing;
+                            double[] offset = MathUtils.generateOffsetBasedOnHexTripletIndices(
+                                    pos.x, pos.y, pos.z, flankingSpacing);
+                            double positionalJiggling = GameplayConstants.FLANKING_POSITION_JIGGLING_RATIO * flankingSpacing;
+                            offset[0] += MathUtils.randDouble(-1.0, 1.0) * positionalJiggling;
+                            offset[1] += MathUtils.randDouble(-1.0, 1.0) * positionalJiggling;
+
+                            // Assign that position to flanker positions
+                            flankerOffsets[i].add(offset);
+
+                            // Change the set of candidates
+                            leftFlankerIndices.remove(pos);
+                            rightFlankerIndices.remove(pos);
+                            if (leftFlankerIndices.size() == 0) {
+                                leftRingIndex += 1;
+                                leftFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(leftRingIndex);
+                                Set<Triplet<Integer, Integer, Integer>> removalSet = new HashSet<>();
+                                for (Triplet<Integer, Integer, Integer> triplet : leftFlankerIndices) {
+                                    if (triplet.z > 0) {
+                                        removalSet.add(triplet);
+                                    } else if (triplet.y < triplet.x) {
+                                        removalSet.add(triplet);
+                                    }
+                                }
+                                for (Triplet<Integer, Integer, Integer> triplet : removalSet) {
+                                    leftFlankerIndices.remove(triplet);
+                                }
+                            }
+                            if (rightFlankerIndices.size() == 0) {
+                                rightRightIndex += 1;
+                                rightFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(rightRightIndex);
+                                Set<Triplet<Integer, Integer, Integer>> removalSet = new HashSet<>();
+                                for (Triplet<Integer, Integer, Integer> triplet : rightFlankerIndices) {
+                                    if (triplet.z > 0) {
+                                        removalSet.add(triplet);
+                                    } else if (triplet.y > triplet.x) {
+                                        removalSet.add(triplet);
+                                    }
+                                }
+                                for (Triplet<Integer, Integer, Integer> triplet : removalSet) {
+                                    rightFlankerIndices.remove(triplet);
+                                }
+                            }
+
+                            // Reset patient counters.
+                            frontLinePatientCounters[i] = 0;
                         }
                     }
                 }
@@ -768,15 +849,19 @@ public class BaseUnit {
                 } else {
                     anchorX = goalX;
                     anchorY = goalY;
-                    if (node == path.getNodes().getLast()) {
+                    if (path != null && node == path.getNodes().getLast()) {
                         path = null;
                         node = null;
                         state = UnitState.STANDING;
-                    } else {
+                    } else if (path != null) {
                         path.getNodes().pollFirst();
                         node = path.getNodes().get(0);
                         goalX = node.getX();
                         goalY = node.getY();
+                    } else {
+                        path = null;
+                        node = null;
+                        state = UnitState.STANDING;
                     }
                 }
                 break;
@@ -817,11 +902,13 @@ public class BaseUnit {
                 if (troop == null) continue;
                 double xGoalSingle;
                 double yGoalSingle;
-                // If the person is the flanker, go straight to the enemy position.
+                // If the person is the flanker, go straight to the assigned position in flankers offset.
                 if (state == UnitState.FIGHTING) {
                     if (row < flankersCount[col]) {
-                        xGoalSingle = this.unitFoughtAgainst.getAverageX();
-                        yGoalSingle = this.unitFoughtAgainst.getAverageY();
+                        double offsetSide = flankerOffsets[col].get(row)[0];
+                        double offsetDown = flankerOffsets[col].get(row)[1];
+                        xGoalSingle = this.unitFoughtAgainst.getAverageX() + offsetSide * sideUnitX + offsetDown * downUnitX;
+                        yGoalSingle = this.unitFoughtAgainst.getAverageY() + offsetSide * sideUnitY + offsetDown * downUnitY;
                     } else {
                         xGoalSingle = topX + col * unitStats.spacing * sideUnitX
                                 + (row - flankersCount[col]) * unitStats.spacing * downUnitX;
@@ -1018,6 +1105,17 @@ public class BaseUnit {
         return numMoving;
     }
 
+    public void updateSoundSource(){
+        soundSource.setNoise(unitStats.unitSoundStats.noise);
+        soundSource.setNoiseCoordinateX(averageX);
+        soundSource.setNoiseCoordinateY(averageY);
+        soundSource.setNoiseCoordinateZ(averageZ);
+    }
+
+    public void updateSoundSink(ArrayList<SoundSource> soundSources){
+
+    }
+
     public double getStamina() { return stamina; }
 
     public double getAnchorX() {
@@ -1154,4 +1252,6 @@ public class BaseUnit {
     public UnitType getUnitType() {
         return unitStats.unitType;
     }
+
+    public SoundSource getSoundSource() {return soundSource; }
 }

@@ -40,23 +40,13 @@ import java.util.*;
 
 public class MainSimulation extends PApplet {
 
-    // -------------------
-    // Universal Constants
-    // -------------------
+    /** Screen constants */
     private final static int INPUT_WIDTH = 1920;
     private final static int INPUT_HEIGHT = 1080;
 
-    // ------------
-    // Logger tools
-    // ------------
-    // Logger can and should be static. However, currently it is only static and available for only MainSimulation.
-    // TODO: Wrap around the logger in a Singleton class.
-
-
-    // ------------------
-    // Drawers
-    // This helps store each special shape at size to save time.
-    // ------------------
+    /** Drawers
+     * This helps store each special shape at size to save time.
+     */
 
     // All Drawers
     UIDrawer uiDrawer;
@@ -67,34 +57,22 @@ public class MainSimulation extends PApplet {
     ObjectDrawer objectDrawer;
     SingleDrawer singleDrawer;
 
-    // -----------
-    // Sound files
-    // -----------
-
+    /** Sound files */
     AudioSpeaker audioSpeaker;
     SoundFile backgroundMusic;
 
-    // --------------------
-    // Video element player
-    // --------------------
+    /** Video element players */
     VideoElementPlayer videoElementPlayer;
 
-    // -----------
-    // Image files
-    // -----------
-
-    // Map texture
+    /** Image files */
     PImage mapTexture;
 
-    // -----------
-    // Key pressed
-    // -----------
+    /** Key pressed set */
     HashSet<Character> keyPressedSet;
 
-    // --------------------
-    // Game variables
-    // Variable necessary for the running of the game
-    // --------------------
+    /** Game variables
+     * Variables necessary for the running of the game
+     */
     GameSettings gameSettings;
     GameEnvironment env;
 
@@ -104,7 +82,7 @@ public class MainSimulation extends PApplet {
     double cameraDx;
     double cameraDy;
 
-    // Some drawingSettings
+    // Some graphical settings
     DrawingSettings drawingSettings;
     AudioSettings audioSettings;
     int zoomCounter;
@@ -137,27 +115,23 @@ public class MainSimulation extends PApplet {
         // Window size
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
 
-        // -------------
         // Game settings
-        // -------------
         gameSettings = new GameSettings();
         gameSettings.setApplyTerrainModifier(true);
         gameSettings.setBorderInwardCollision(false);
         gameSettings.setAllyCollision(true);
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
-        gameSettings.setEnableFlankingMechanics(false);
+        gameSettings.setEnableFlankingMechanics(true);
         gameSettings.setCountWrongFormationChanges(true);
 
-        // ----------------
         // Graphic settings
-        // ----------------
         drawingSettings = new DrawingSettings();
         drawingSettings.setRenderMode(RenderMode.MINIMALISTIC);
         drawingSettings.setDrawEye(DrawingMode.NOT_DRAW);
         drawingSettings.setDrawWeapon(DrawingMode.DRAW);
         drawingSettings.setProduceFootage(false);
-        drawingSettings.setFrameSkips(10);
+        drawingSettings.setFrameSkips(0);
         drawingSettings.setDrawGrid(false);
         drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
@@ -172,16 +146,12 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
 
-        // --------------
         // Audio settings
-        // --------------
         audioSettings = new AudioSettings();
         audioSettings.setBackgroundMusic(false);
-        audioSettings.setSoundEffect(true);
+        audioSettings.setSoundEffect(false);
 
-        // ------------------------
-        // Post processing settings
-        // ------------------------
+        // Post-processing settings.
         if (!drawingSettings.isDrawSmooth()) noSmooth();
         else {
             smooth(4);
@@ -190,17 +160,12 @@ public class MainSimulation extends PApplet {
 
     public void setup() {
 
-        // ----------------------
-        // Load graphic resources
-        // ----------------------
+        /** Load graphic resources */
         mapTexture = loadImage("imgs/FullMap/DemoMap.jpg");
 
-        // ---------------------
-        // Pre-processing troops
-        // ---------------------
-
+        /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/CavVsSwordmen.txt";
+        String battleConfig = "src/configs/battle_configs/PhalanxTest.txt";
         String mapConfig = "src/configs/map_configs/ConfigWithTextureMap.txt";
         String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
@@ -214,15 +179,10 @@ public class MainSimulation extends PApplet {
             e.printStackTrace();
         }
 
-        // --------
-        // Keyboard
-        // --------
+        /** Keyboard setup */
         keyPressedSet = new HashSet<>();
 
-        // ------
-        // Camera
-        // ------
-
+        /** Camera setup */
         // Add unit to view.camera
         camera = new Camera(15000, 20000, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
@@ -231,11 +191,7 @@ public class MainSimulation extends PApplet {
         cameraDy = 0;
         zoomGoal = camera.getZoom();  // To ensure consistency
 
-        // ------
-        // Drawer
-        // ------
-
-        // Initialize drawer
+        /** Drawer setup */
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
         shapeDrawer = new ShapeDrawer(this, camera);
         mapDrawer = new MapDrawer(this, camera);
@@ -244,9 +200,7 @@ public class MainSimulation extends PApplet {
         objectDrawer = new ObjectDrawer(this, camera, shapeDrawer, drawingSettings);
         singleDrawer = new SingleDrawer(this, env, camera, shapeDrawer, drawingSettings);
 
-        // -------------------------
-        // Load video element player
-        // -------------------------
+        /** Setup video element player */
         try {
             videoElementPlayer = ConfigUtils.readVideoElementConfig(
                     "src/configs/graphic_configs/GraphicConfig.txt",
@@ -256,9 +210,8 @@ public class MainSimulation extends PApplet {
             e.printStackTrace();
         }
 
-        // ---------------
-        // Load sound file
-        // ---------------
+        /** Load sound files */
+        // Set up audio speaker
         try {
             audioSpeaker = ConfigUtils.readAudioConfigs(
                     "src/configs/audio_configs/AudioConfig.txt",
@@ -275,7 +228,7 @@ public class MainSimulation extends PApplet {
             backgroundMusic.loop();
         }
 
-        // Playing state
+        // Playing state of the music
         currentlyPaused = false;
     }
 
@@ -284,10 +237,7 @@ public class MainSimulation extends PApplet {
      */
     public void draw() {
 
-        // -------------------
-        // Update the back end
-        // -------------------
-
+        /** Update the backend */
         // Record time
         lastTime = System.nanoTime();
 
@@ -311,14 +261,13 @@ public class MainSimulation extends PApplet {
             unitSelected = null;
         }
 
-        // ----------------------------------------
-        // Update some graphical elements
-        // Some graphic elements of the game is extracted and pre-processed here.
-        // - Camera position updates.
-        // - Smooth zoom update (if configured)
-        // - Circle Size optimization
-        // - Update nearest unit to mouse cursor
-        // ----------------------------------------
+        /** Update some graphical elements.
+         * Some graphic elements of the game is extracted and pre-processed here. These include:
+         * - Camera position updates.
+         * - Smooth zoom update (if enabled).
+         * - Unit size optimization.
+         * - Update nearest unit to mouse cursor.
+         */
 
         // Pre-process all drawer. This preprocess is vital to short-cut calculation and optimization.
         uiDrawer.preprocess();
@@ -422,7 +371,8 @@ public class MainSimulation extends PApplet {
             mapDrawer.drawTerrainLine(env.getTerrain());
         }
 
-        // Begin loop for columns
+        // Draw the grid
+        // TODO: Deprecate this code. We now have a better grid drawing function that this is no longer necessary.
         if (drawingSettings.isDrawGrid()) {
             double[] drawPos = camera.getDrawingPosition(0.0, 0.0);
             double drawX = drawPos[0];
@@ -450,7 +400,8 @@ public class MainSimulation extends PApplet {
                 double[][] pts = surface.getSurfaceBoundary();
                 beginShape();
                 for (int i = 0; i < pts.length; i++) {
-                    // TODO: This is an efficient part, the height of the object is recalculated all the time.
+                    // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
+                    //  though it is a very static value.
                     double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
                             env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
                     vertex((float) drawingPts[0], (float) drawingPts[1]);
@@ -607,7 +558,6 @@ public class MainSimulation extends PApplet {
         } else {
             // Draw unit block
             for (BaseUnit unit : env.getAliveUnits()) {
-                // TODO: Change to using UnitState instead for consistency
                 if (unit.getNumAlives() == 0) continue;
                 battleSignalDrawer.drawUnitBlock(unit, env.getTerrain());
             }
@@ -938,10 +888,6 @@ public class MainSimulation extends PApplet {
         }
     }
 
-    public static void main(String... args){
-        PApplet.main("MainSimulation");
-    }
-
     @Override
     public void keyPressed() {
         if (key == 'c') {
@@ -983,5 +929,8 @@ public class MainSimulation extends PApplet {
     private double readFromScrollbar(String key) throws Exception {
         float value = uiDrawer.readFromScrollbar(key);
         return value;
+      
+    public static void main(String... args){
+        PApplet.main("MainSimulation");
     }
 }

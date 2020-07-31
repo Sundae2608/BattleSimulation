@@ -190,15 +190,15 @@
     unit_type: CAVALRY
 
     // Single stats
-    mass: 400
+    mass: 250
     radius: 34
-    speed: 12
+    speed: 8
     hp: 600
     deceleration: 0.3
-    acceleration: 0.2
+    acceleration: 0.6
     rotation_speed: 0.1
 
-    standing_dist: 30
+    standing_dist: 15
     non_rotation_dist: 17
 
     attack: 120
@@ -350,7 +350,7 @@
     non_rotation_dist: 17
 
     attack: 40
-    defense: 8
+    defense: 10
     combat_range: 25
     combat_delay: 150
     sustain_recovery: 0.5

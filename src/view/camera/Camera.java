@@ -34,10 +34,6 @@ public class Camera extends EventListener {
     private double height;
     private double width;
 
-    // List of troops and buildings to look at
-    ArrayList<BaseSingle> troops;
-    HashSet<BaseSingle> drawableTroops;
-
     /**
      * Initialize camera with no broadcaster
      */
@@ -51,7 +47,6 @@ public class Camera extends EventListener {
         angle = 0;
         zoom = 1.0;
         resize = 1.0;
-        troops = new ArrayList<>();
     }
 
     /**
@@ -67,7 +62,6 @@ public class Camera extends EventListener {
         angle = 0;
         zoom = 1.0;
         resize = 1.0;
-        troops = new ArrayList<>();
     }
 
     @Override
@@ -221,10 +215,6 @@ public class Camera extends EventListener {
     /**
      * Getter and setter
      */
-    public HashSet<BaseSingle> getDrawableTroops() {
-        return drawableTroops;
-    }
-
     public double getX() {
         return x + xVariation;
     }

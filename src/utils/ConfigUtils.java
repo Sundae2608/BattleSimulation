@@ -104,7 +104,7 @@ public final class ConfigUtils {
             UnitType unitType = UnitType.valueOf(d.get("type"));
             SingleStats singleStats = gameStats.getSingleStats(unitType, faction);
             UnitStats unitStats = gameStats.getUnitStats(unitType, faction);
-            BaseUnit unit;
+            BaseUnit unit = null;
             switch (unitType) {
                 case PHALANX:
                     unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
@@ -128,11 +128,12 @@ public final class ConfigUtils {
                     unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
                 case SWORDMAN:
-                default:
                     unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
             }
-            units.add(unit);
+            if (unit != null) {
+                units.add(unit);
+            }
         }
         return units;
     }
@@ -183,6 +184,7 @@ public final class ConfigUtils {
             singleStats.standingDist = Double.parseDouble(d.get("standing_dist"));
             singleStats.nonRotationDist = Double.parseDouble(d.get("non_rotation_dist"));
             singleStats.attack = Double.parseDouble(d.get("attack"));
+            singleStats.defense = Double.parseDouble(d.get("defense"));
             singleStats.combatRange = Double.parseDouble(d.get("combat_range"));
             singleStats.combatDelay = Integer.parseInt(d.get("combat_delay"));
             singleStats.sustainRecovery = Double.parseDouble(d.get("sustain_recovery"));
@@ -231,7 +233,6 @@ public final class ConfigUtils {
                 case SKIRMISHER:
                 case SLINGER:
                 case SWORDMAN:
-                default:
                     break;
             }
 
@@ -246,14 +247,12 @@ public final class ConfigUtils {
                     break;
                 case CAVALRY:
                 case HORSE_ARCHER:
+                case SKIRMISHER:
+                case SWORDMAN:
                     break;
                 case PHALANX:
                     unitStats.numFirstRows = Integer.parseInt(d.get("num_first_rows"));
                     unitStats.offAngleFirstRow = Double.parseDouble(d.get("off_angle_first_row"));
-                    break;
-                case SKIRMISHER:
-                case SWORDMAN:
-                default:
                     break;
             }
 

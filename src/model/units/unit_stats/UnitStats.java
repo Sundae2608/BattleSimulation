@@ -7,6 +7,7 @@ public class UnitStats {
 
     public UnitStats() {
         staminaStats = new StaminaStats();
+        unitSoundStats = new UnitSoundStats();
     }
 
     public PoliticalFaction faction;
@@ -17,6 +18,7 @@ public class UnitStats {
     public int patience;
 
     public StaminaStats staminaStats;
+    public UnitSoundStats unitSoundStats;
 
     // Archer & skirmisher stats
     public double widthVariation;

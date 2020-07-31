@@ -73,4 +73,18 @@ public class DrawingConstants {
     // Path planning alpha. Drawing the planned route of an unit as a little more transparent to differentiate with
     // the path current being executed.
     public final static int PATH_PLANNING_ALPHA = 128;
+
+    // Maximum effect of damage sustain
+    public final static double DAMAGE_SUSTAIN_MAXIMUM_EFFECT = 15;
+
+    // The amount of sustain damage recovering
+    public final static double SUSTAIN_COOLDOWN = 0.5;
+
+    public final static double SHADOW_ANGLE = 0;
+    public final static double SHADOW_SIZE = 1.4;
+    public final static double SHADOW_OFFSET = 3.5;
+    public final static double UNIT_SHADOW_OFFSET = 15;
+    public final static int[] SHADOW_COLOR = {0, 0, 0, 128};
+
+    public final static double SIMPLIFIED_SQUARE_SIZE_RATIO = 0.886226925453;
 }
