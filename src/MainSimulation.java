@@ -690,6 +690,14 @@ public class MainSimulation extends PApplet {
 
         uiDrawer.drawScrollbar();
         infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
+      
+        for (BaseUnit unit : env.getAliveUnits()) {
+            drawScrollbar(unit.getUnitType().toString() + unit.getPoliticalFaction().toString(),
+                    (int)env.getGameStats().getSingleStats(unit.getUnitType(), unit.getPoliticalFaction()).radius,
+                    0,
+                    500);
+        }
+        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
 
         // Pause / Play Button
         if (!currentlyPaused) {
@@ -750,6 +758,16 @@ public class MainSimulation extends PApplet {
                 if (audioSettings.isSoundEffect()) {
                     audioSpeaker.pauseAllAmbientSounds();
                 }
+            }
+        }
+
+        for (BaseUnit unit : env.getAliveUnits()) {
+            try {
+                double radius = readFromScrollbar(unit.getUnitType().toString() +
+                        unit.getPoliticalFaction().toString());
+                env.getGameStats().getSingleStats(unit.getUnitType(), unit.getPoliticalFaction()).radius = radius;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
 
@@ -924,6 +942,14 @@ public class MainSimulation extends PApplet {
         singleDrawer.drawDeadSingle(single, terrain);
     }
 
+    private void drawScrollbar(String title, int value, int minValue, int maxValue) {
+        uiDrawer.drawScrollbar(title, value, minValue, maxValue);
+    }
+
+    private double readFromScrollbar(String key) throws Exception {
+        float value = uiDrawer.readFromScrollbar(key);
+        return value;
+      
     public static void main(String... args){
         PApplet.main("MainSimulation");
     }
