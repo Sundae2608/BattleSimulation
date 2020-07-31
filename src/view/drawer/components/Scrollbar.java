@@ -11,19 +11,26 @@ public class Scrollbar {
     boolean mouseOver;
     boolean locked;
 
+    int value;
+    int minValue;
+    int maxValue;
+
+    String title;
+
     PApplet pApplet;
 
     /**
      * Scrollbar used for parameter settings (modified from https://processing.org/examples/scrollbar.html)
-     * @param applet
-     * @param x
-     * @param y
-     * @param width
-     * @param height
+     * @param applet injected from main simulation, used to draw scrollbar
+     * @param x x position of scrollbar
+     * @param y y position of scrollbar
+     * @param width bar width
+     * @param height bar height
      */
-    public Scrollbar(PApplet applet, float x, float y, int width, int height) {
+    public Scrollbar(PApplet applet, String title, float x, float y, int width, int height, int value, int minValue, int maxValue) {
 
         pApplet = applet;
+
 
         xPos = x;
         yPos = y;
@@ -34,7 +41,13 @@ public class Scrollbar {
         sliderMinPos = xPos;
         sliderMaxPos = xPos + barWidth - height;
 
-        sliderPos = xPos + width/2;
+        sliderPos = xPos + (float) value / (maxValue - minValue);
+
+        this.value = value;
+        this.minValue = minValue;
+        this.maxValue = maxValue;
+
+        this.title = title;
     }
 
     public void update() {
@@ -79,9 +92,14 @@ public class Scrollbar {
             pApplet.fill(102, 102, 102);
         }
         pApplet.rect(sliderPos+barHeight/2, yPos, barHeight, barHeight);
+        pApplet.text(title, xPos, yPos-15);
     }
 
     public float getSliderPos() {
         return (sliderPos - xPos)/barWidth;
+    }
+
+    public float getValue() {
+        return ((sliderPos - xPos)/barWidth)*(maxValue-minValue);
     }
 }
