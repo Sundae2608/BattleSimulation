@@ -688,7 +688,6 @@ public class MainSimulation extends PApplet {
         s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
         s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
 
-        uiDrawer.drawScrollbar();
         infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
       
         for (BaseUnit unit : env.getAliveUnits()) {
@@ -697,7 +696,6 @@ public class MainSimulation extends PApplet {
                     0,
                     500);
         }
-        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
 
         // Pause / Play Button
         if (!currentlyPaused) {
@@ -949,8 +947,9 @@ public class MainSimulation extends PApplet {
     private double readFromScrollbar(String key) throws Exception {
         float value = uiDrawer.readFromScrollbar(key);
         return value;
+    }
       
-    public static void main(String... args){
+    public static void main(String[] args){
         PApplet.main("MainSimulation");
     }
 }
