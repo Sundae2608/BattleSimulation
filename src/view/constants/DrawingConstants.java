@@ -24,9 +24,9 @@ public class DrawingConstants {
 
     // Terrain colors
     public final static int[] COLOR_TERRAIN_DOT = {0, 0, 0, 128};  // #000000, 12%
-    public final static int[] COLOR_TERRAIN_LINE = {0, 0, 0};
-    public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 160;
-    public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 50;
+    public final static int[] COLOR_TERRAIN_LINE = {233, 233, 233};
+    public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 40;
+    public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 10;
     public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
     public final static int COLOR_ALPHA_UNIT_SELECTION = 170;
 

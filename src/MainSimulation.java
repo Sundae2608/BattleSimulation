@@ -143,7 +143,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
-        drawingSettings.setDrawMapTexture(false);
+        drawingSettings.setDrawMapTexture(true);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
@@ -151,6 +151,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
         drawingSettings.setDrawUnitInfo(true);
+        drawingSettings.setDrawPathfindingNodes(true);
 
         // Audio settings
         audioSettings = new AudioSettings();
@@ -167,13 +168,13 @@ public class MainSimulation extends PApplet {
     public void setup() {
 
         /** Load graphic resources */
-        mapTexture = loadImage("imgs/FullMap/DemoMap.jpg");
+        mapTexture = loadImage("imgs/FullMap/DemoMapGraphic.png");
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
         String battleConfig = "src/configs/battle_configs/PhalanxTest.txt";
-        String mapConfig = "src/configs/map_configs/ConfigWithTextureMap.txt";
-        String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
+        String mapConfig = "src/configs/map_configs/SquareMapConfig.txt";
+        String constructsConfig = "src/configs/construct_configs/EmptyConstructsConfig.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
@@ -452,6 +453,8 @@ public class MainSimulation extends PApplet {
                     if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
+                    // TODO: Switch the draw using the current path instead of just the average position and goal
+                    //  position.
                     battleSignalDrawer.drawArrowPlan(
                             unit.getAverageX(), unit.getAverageY(),
                             unit.getGoalX(), unit.getGoalY(), env.getTerrain());
@@ -523,7 +526,7 @@ public class MainSimulation extends PApplet {
             // TODO: Pretty scrappy code here. It functions perfectly but it is quite hard to read.
             //  Probably should wrap this around into something like "DrawingUtils.drawPath(path)", which is a bit more
             //  clear to read.
-            if (unitSelected.getState() == UnitState.MOVING) {
+            if (drawingSettings.isDrawControlArrow() && unitSelected.getState() == UnitState.MOVING) {
                 fill(color[0], color[1], color[2], 255);
                 Node prev = null;
                 for (Node node : unitSelected.getPath().getNodes()) {
@@ -610,11 +613,13 @@ public class MainSimulation extends PApplet {
         }
 
         // Draw the node of the graph.
-        for (Node node : env.getGraph().getNodes()) {
-            fill(245, 121, 74);
-            double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
-            double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
-            circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
+        if (drawingSettings.isDrawPathfindingNodes()) {
+            for (Node node : env.getGraph().getNodes()) {
+                fill(245, 121, 74);
+                double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
+                double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
+                circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
+            }
         }
 
         if (drawingSettings.isDrawVideoEffect()) videoElementPlayer.processElementQueue();

@@ -21,6 +21,8 @@ public class DrawingSettings {
     private boolean drawSurface;
     private boolean drawVideoEffect;
     private boolean drawUnitInfo;
+    private boolean drawPathfindingNodes;
+    private boolean drawControlArrow;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -171,5 +173,19 @@ public class DrawingSettings {
     }
     public void setDrawUnitInfo(boolean drawUnitInfo) {
         this.drawUnitInfo = drawUnitInfo;
+    }
+
+    public boolean isDrawPathfindingNodes() {
+        return drawPathfindingNodes;
+    }
+    public void setDrawPathfindingNodes(boolean drawPathfindingNodes) {
+        this.drawPathfindingNodes = drawPathfindingNodes;
+    }
+
+    public boolean isDrawControlArrow() {
+        return drawControlArrow;
+    }
+    public void setDrawControlArrow(boolean drawControlArrow) {
+        this.drawControlArrow = drawControlArrow;
     }
 }
