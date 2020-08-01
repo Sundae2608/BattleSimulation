@@ -102,7 +102,6 @@ public class Main3DHexSimulation extends PApplet {
         drawingSettings.setDrawWeapon(DrawingMode.DRAW);
         drawingSettings.setProduceFootage(false);
         drawingSettings.setFrameSkips(0);
-        drawingSettings.setDrawGrid(false);
         drawingSettings.setDrawSurface(false);
         drawingSettings.setSmoothCameraMovement(true);
         drawingSettings.setSmoothRotationSteps(40);

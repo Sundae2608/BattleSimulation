@@ -1,23 +1,38 @@
 package view.drawer.components;
 
+import controller.tunable.CustomAssigner;
 import processing.core.PApplet;
 
 public class Scrollbar {
 
-    float xPos, yPos;       // x and y position of bar
-    int barWidth, barHeight;    // width and height of bar
-    float sliderPos;    // x position of slider
-    float sliderMinPos, sliderMaxPos; // max and min values of slider
+    // Top left x, y position of the scrollbar.
+    float xPos;
+    float yPos;
+
+    // Height and width of the scroll bar.
+    float barWidth;
+    float barHeight;
+
+    // Minimum and maximum position of the scroll bar.
+    float sliderPos;
+    float sliderMinPos;
+    float sliderMaxPos;
     boolean mouseOver;
     boolean locked;
 
-    int value;
-    int minValue;
-    int maxValue;
+    // Current value, min value and max value of the scroll bar.
+    double value;
+    double minValue;
+    double maxValue;
 
+    // Title of the scrollbar.
     String title;
 
+    // The applet assigned to the scrollbar.
     PApplet pApplet;
+
+    // Custom tuner which is called every time the scrollbar is moved to assign new variables to the system.
+    CustomAssigner assigner;
 
     /**
      * Scrollbar used for parameter settings (modified from https://processing.org/examples/scrollbar.html)
@@ -27,27 +42,29 @@ public class Scrollbar {
      * @param width bar width
      * @param height bar height
      */
-    public Scrollbar(PApplet applet, String title, float x, float y, int width, int height, int value, int minValue, int maxValue) {
+    public Scrollbar(String inputTitle, float x, float y, int width, int height,
+                     double startingValue, double inputMinValue, double inputMaxValue, PApplet applet,
+                     CustomAssigner customAssigner) {
+        // Assign starting value
+        value = startingValue;
+        minValue = inputMinValue;
+        maxValue = inputMaxValue;
 
+        // Assign the applet
         pApplet = applet;
 
-
+        // Set the graphical attributes of the scroll bar
+        title = inputTitle;
         xPos = x;
         yPos = y;
-
         barWidth = width;
         barHeight = height;
-
         sliderMinPos = xPos;
-        sliderMaxPos = xPos + barWidth - height;
+        sliderMaxPos = xPos + barWidth;
+        sliderPos = xPos + (float) (value / (inputMaxValue - inputMinValue));
 
-        sliderPos = xPos + (float) value / (maxValue - minValue);
-
-        this.value = value;
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-
-        this.title = title;
+        // Assigner
+        assigner = customAssigner;
     }
 
     public void update() {
@@ -58,10 +75,8 @@ public class Scrollbar {
         if (!pApplet.mousePressed) {
             locked = false;
         }
-
         if (locked) {
             float newSliderPos = constrain(pApplet.mouseX-barHeight/2, sliderMinPos, sliderMaxPos);
-
             if (Math.abs(newSliderPos - sliderPos) > 1) {
                 sliderPos = newSliderPos;
             }
@@ -74,8 +89,8 @@ public class Scrollbar {
     }
 
     boolean isMouseOver() {
-        if (pApplet.mouseX > xPos && pApplet.mouseX < xPos+sliderPos &&
-                pApplet.mouseY > yPos && pApplet.mouseY < yPos+barHeight) {
+        if (pApplet.mouseX > xPos && pApplet.mouseX < xPos + sliderPos &&
+                pApplet.mouseY > yPos && pApplet.mouseY < yPos + barHeight) {
             return true;
         } else {
             return false;
@@ -85,21 +100,18 @@ public class Scrollbar {
     public void display() {
         pApplet.noStroke();
         pApplet.fill(204);
-        pApplet.rect(xPos+barWidth/2, yPos, barWidth, barHeight);
+        pApplet.rect(xPos, yPos, barWidth, barHeight);
         if (mouseOver || locked) {
             pApplet.fill(0, 0, 0);
         } else {
             pApplet.fill(102, 102, 102);
         }
-        pApplet.rect(sliderPos+barHeight/2, yPos, barHeight, barHeight);
-        pApplet.text(title, xPos, yPos-15);
+        pApplet.rect(sliderPos + barHeight / 2, yPos, barHeight, barHeight);
+        pApplet.text(title, xPos, yPos - 15);
     }
 
-    public float getSliderPos() {
-        return (sliderPos - xPos)/barWidth;
-    }
-
-    public float getValue() {
-        return ((sliderPos - xPos)/barWidth)*(maxValue-minValue);
+    public double getValue() {
+        double sliderFraction = (sliderPos - xPos)/barWidth;
+        return sliderFraction * (maxValue - minValue) + minValue;
     }
 }

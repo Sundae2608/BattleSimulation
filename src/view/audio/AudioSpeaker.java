@@ -26,6 +26,9 @@ public class AudioSpeaker extends EventListener {
     // A map from audio type to the audio stats
     HashMap<AudioType, Audio> audioMap;
 
+    // Master volume, a tunable value that scales all the current volume values.
+    double masterVolume;
+
     public AudioSpeaker(Camera inputCamera, PApplet applet, EventBroadcaster eventBroadcaster) {
         super(eventBroadcaster);
         camera = inputCamera;

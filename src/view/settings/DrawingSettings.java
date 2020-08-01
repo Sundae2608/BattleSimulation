@@ -11,7 +11,6 @@ public class DrawingSettings {
     private boolean produceFootage;
     private boolean drawSmooth;
     private boolean drawDamageSustained;
-    private boolean drawGrid;
     private boolean drawHeightField;
     private boolean drawMapTexture;
     private boolean drawTroopShadow;
@@ -91,13 +90,6 @@ public class DrawingSettings {
     }
     public void setDrawDamageSustained(boolean drawDamageSustained) {
         this.drawDamageSustained = drawDamageSustained;
-    }
-
-    public boolean isDrawGrid() {
-        return drawGrid;
-    }
-    public void setDrawGrid(boolean drawGrid) {
-        this.drawGrid = drawGrid;
     }
 
     public boolean isDrawHeightField() {

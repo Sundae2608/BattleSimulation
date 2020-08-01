@@ -152,20 +152,4 @@ public class UIDrawer extends BaseDrawer {
         applet.endShape(PApplet.CLOSE);
         applet.popMatrix();
     }
-
-    public void drawScrollbar(String key, int value, int minValue, int maxValue) {
-        if (!scrollbars.containsKey(key)) {
-            scrollbars.put(key, new Scrollbar(applet, key, xStart, yScrollbarStart + scrollbars.size()*35,
-                    300, 20, value, minValue, maxValue));
-        }
-        Scrollbar bar = scrollbars.get(key);
-        bar.update();
-    }
-
-    public float readFromScrollbar(String key) throws Exception {
-        if (!scrollbars.containsKey(key)) {
-            throw new Exception("Cannot find scrollbar with key: " + key);
-        }
-        return scrollbars.get(key).getValue();
-    }
 }
