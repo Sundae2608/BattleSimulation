@@ -260,12 +260,24 @@ public final class ConfigUtils {
             unitStats.speed = Double.parseDouble(d.get("unit_speed"));
             unitStats.rotationSpeed = Double.parseDouble(d.get("unit_rotation_speed"));
             unitStats.patience = Integer.parseInt(d.get("unit_patience"));
-            unitStats.staminaStats.maxStamina = Double.parseDouble(d.get("unit_max_stamina"));
-            unitStats.staminaStats.staminaDeceleratingChangeRate = Double.parseDouble(d.get("unit_stamina_decelerating_rate"));
-            unitStats.staminaStats.staminaFightingChangeRate = Double.parseDouble(d.get("unit_stamina_fighting_rate"));
-            unitStats.staminaStats.staminaMovingChangeRate = Double.parseDouble(d.get("unit_stamina_moving_rate"));
-            unitStats.staminaStats.staminaRoutingChangeRate = Double.parseDouble(d.get("unit_stamina_routing_rate"));
-            unitStats.staminaStats.staminaStandingChangeRate = Double.parseDouble(d.get("unit_stamina_standing_rate"));
+            if (d.containsKey("unit_max_stamina")) {
+                unitStats.staminaStats.maxStamina = Double.parseDouble(d.get("unit_max_stamina"));
+            }
+            if (d.containsKey("unit_stamina_decelerating_rate")) {
+                unitStats.staminaStats.staminaDeceleratingChangeRate = Double.parseDouble(d.get("unit_stamina_decelerating_rate"));
+            }
+            if (d.containsKey("unit_stamina_fighting_rate")) {
+                unitStats.staminaStats.staminaFightingChangeRate = Double.parseDouble(d.get("unit_stamina_fighting_rate"));
+            }
+            if (d.containsKey("unit_stamina_moving_rate")) {
+                unitStats.staminaStats.staminaMovingChangeRate = Double.parseDouble(d.get("unit_stamina_moving_rate"));
+            }
+            if (d.containsKey("unit_stamina_routing_rate")) {
+                unitStats.staminaStats.staminaRoutingChangeRate = Double.parseDouble(d.get("unit_stamina_routing_rate"));
+            }
+            if (d.containsKey("unit_stamina_standing_rate")) {
+                unitStats.staminaStats.staminaStandingChangeRate = Double.parseDouble(d.get("unit_stamina_standing_rate"));
+            }
 
             // Add SingleStats and UnitStats to GameStats
             gameStats.addSingleStats(unitType, faction, singleStats);

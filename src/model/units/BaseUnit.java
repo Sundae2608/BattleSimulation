@@ -974,7 +974,8 @@ public class BaseUnit {
     }
 
     private void updateStamina() {
-        stamina = Math.max(Math.min(stamina + stamina * unitStats.staminaStats.getStaminaChangeRate(state),
+        stamina = Math.max(Math.min(stamina +
+                        unitStats.staminaStats.maxStamina * unitStats.staminaStats.getStaminaChangeRate(state),
                 unitStats.staminaStats.maxStamina), 0);
     }
 

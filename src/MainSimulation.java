@@ -12,6 +12,7 @@ import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.surface.Tree;
 import model.terrain.Terrain;
+import model.units.unit_stats.UnitStats;
 import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
@@ -154,7 +155,7 @@ public class MainSimulation extends PApplet {
         // Audio settings
         audioSettings = new AudioSettings();
         audioSettings.setBackgroundMusic(false);
-        audioSettings.setSoundEffect(false);
+        audioSettings.setSoundEffect(true);
 
         // Post-processing settings.
         if (!drawingSettings.isDrawSmooth()) noSmooth();
@@ -198,11 +199,16 @@ public class MainSimulation extends PApplet {
 
         /** Scrollbar setup */
         scrollbars = new ArrayList<>();
-        scrollbars.add(new Scrollbar("Demo scroll bar",
-                INPUT_WIDTH - 300, 30, 250, 20,
-                0, 0, 100, this, new CustomAssigner() {
+        SingleStats romanCavSingleStats = env.getGameStats().getSingleStats(UnitType.CAVALRY, PoliticalFaction.ROME);
+        UnitStats romanCavUnitStats = env.getGameStats().getUnitStats(UnitType.CAVALRY, PoliticalFaction.ROME);
+        scrollbars.add(new Scrollbar("Cavalry size",
+                INPUT_WIDTH - 300, 30, 280, 20,
+                romanCavSingleStats.radius, 10, 120, this, new CustomAssigner() {
             @Override
             public void updateValue(double value) {
+                double currSpacingDiff = romanCavUnitStats.spacing - romanCavSingleStats.radius;
+                romanCavSingleStats.radius = value;
+                romanCavUnitStats.spacing = value + currSpacingDiff;
                 return;
             }
         }));
@@ -647,24 +653,14 @@ public class MainSimulation extends PApplet {
                 StringBuilder s = new StringBuilder();
                 s.append("Unit Type: " + unit.getUnitType().toString() + "\n");
                 s.append("Strength:  " + unit.getNumAlives() + "/" + unit.getTroops().size() + "\n");
-                s.append("Stamina:   " + unit.getStamina() + "\n");
-                s.append("Morale:    " + unit.getMorale());
+                s.append("Stamina:   " + String.format("%.2f%%", unit.getStamina() * 100) + "\n");
+                s.append("Morale:    " + String.format("%.2f%%", unit.getMorale() * 100));
                 // Draw the info box
                 double[] drawingPoints = camera.getDrawingPosition(
                         unit.getAverageX(), unit.getAverageY(), unit.getAverageZ());
                 infoDrawer.drawTextBox(s.toString(), drawingPoints[0] + 36, drawingPoints[1] - 22, 200);
             }
         }
-
-        // Information about the closest unit on top left corner.
-        fill(0, 0, 0, 200);
-        rect(0, 0, 250, 100);
-        fill(255, 255, 255);
-        textAlign(LEFT);
-        text(UnitUtils.getUnitName(closestUnit), 8, 15);
-        text("Unit state: ", 8, 35); text(closestUnit.getState().toString(), 100, 35);
-        text("Strength: ", 8, 50); text(String.valueOf(closestUnit.getNumAlives()) + "/" + String.valueOf(closestUnit.getTroops().size()), 100, 50);
-        text("Stamina: ", 8, 65); text(String.format("%.2f", closestUnit.getStamina()), 100, 65);
 
         // Scroll bars
         for (Scrollbar scrollbar : scrollbars) {

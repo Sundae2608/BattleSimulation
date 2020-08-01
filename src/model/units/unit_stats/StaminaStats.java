@@ -4,13 +4,13 @@ import model.enums.UnitState;
 
 public class StaminaStats {
 
-    public double maxStamina = 100;
+    public double maxStamina = 1;
 
-    public double staminaStandingChangeRate = 0.03;
-    public double staminaDeceleratingChangeRate = -0.01;
-    public double staminaRoutingChangeRate = -0.02;
-    public double staminaMovingChangeRate = -0.03;
-    public double staminaFightingChangeRate = -0.05;
+    public double staminaStandingChangeRate = 0.0003;
+    public double staminaDeceleratingChangeRate = -0.0001;
+    public double staminaRoutingChangeRate = -0.0002;
+    public double staminaMovingChangeRate = -0.0003;
+    public double staminaFightingChangeRate = -0.0005;
 
     public double getStaminaChangeRate(UnitState state) {
         switch (state) {

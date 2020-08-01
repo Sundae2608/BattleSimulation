@@ -5,6 +5,11 @@ import processing.core.PApplet;
 
 public class Scrollbar {
 
+    // Some graphical constants
+    private final float SLIDER_BAR_WIDTH = 20;
+    private final float VALUE_BAR_WIDTH = 60;
+    private final float VALUE_BAR_HEIGHT = 22;
+
     // Top left x, y position of the scrollbar.
     float xPos;
     float yPos;
@@ -60,8 +65,8 @@ public class Scrollbar {
         barWidth = width;
         barHeight = height;
         sliderMinPos = xPos;
-        sliderMaxPos = xPos + barWidth;
-        sliderPos = xPos + (float) (value / (inputMaxValue - inputMinValue));
+        sliderMaxPos = xPos + barWidth - SLIDER_BAR_WIDTH;
+        sliderPos = xPos + (float) (value / (inputMaxValue - inputMinValue) * (sliderMaxPos - sliderMinPos));
 
         // Assigner
         assigner = customAssigner;
@@ -76,12 +81,12 @@ public class Scrollbar {
             locked = false;
         }
         if (locked) {
-            float newSliderPos = constrain(pApplet.mouseX-barHeight/2, sliderMinPos, sliderMaxPos);
+            float newSliderPos = constrain(pApplet.mouseX, sliderMinPos, sliderMaxPos);
             if (Math.abs(newSliderPos - sliderPos) > 1) {
                 sliderPos = newSliderPos;
             }
         }
-        display();
+        assigner.updateValue(getValue());
     }
 
     private float constrain(float val, float minv, float maxv) {
@@ -99,6 +104,8 @@ public class Scrollbar {
 
     public void display() {
         pApplet.noStroke();
+        pApplet.fill(255, 255, 255, 200);
+        pApplet.rect(xPos - 10, yPos - 25, barWidth + 25, barHeight + 32);
         pApplet.fill(204);
         pApplet.rect(xPos, yPos, barWidth, barHeight);
         if (mouseOver || locked) {
@@ -106,12 +113,21 @@ public class Scrollbar {
         } else {
             pApplet.fill(102, 102, 102);
         }
-        pApplet.rect(sliderPos + barHeight / 2, yPos, barHeight, barHeight);
-        pApplet.text(title, xPos, yPos - 15);
+        pApplet.rect(sliderPos, yPos, SLIDER_BAR_WIDTH, barHeight);
+        pApplet.text(title, xPos, yPos - 8);
+        if (locked) {
+            pApplet.fill(0, 0, 0);
+            pApplet.rect(sliderPos - VALUE_BAR_WIDTH / 2 + SLIDER_BAR_WIDTH / 2, yPos + barHeight + 5,
+                    VALUE_BAR_WIDTH, VALUE_BAR_HEIGHT);
+            pApplet.fill(255, 255, 255);
+            pApplet.textAlign(PApplet.CENTER);
+            pApplet.text(String.format("%.2f", getValue()), sliderPos + SLIDER_BAR_WIDTH / 2 + 2, yPos + barHeight + 18);
+            pApplet.textAlign(PApplet.LEFT);
+        }
     }
 
     public double getValue() {
-        double sliderFraction = (sliderPos - xPos)/barWidth;
+        double sliderFraction = (sliderPos - xPos) / barWidth;
         return sliderFraction * (maxValue - minValue) + minValue;
     }
 }

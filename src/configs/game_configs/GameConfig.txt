@@ -26,12 +26,6 @@
     unit_speed: 2.5
     unit_rotation_speed: 0.02
     unit_patience: 75
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 },
 {
     // Type and faction information
@@ -61,12 +55,6 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Archer stats
     width_variation: 18
@@ -109,12 +97,6 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Projectile stats
     width_variation: 18
@@ -162,12 +144,6 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Projectile stats
     width_variation: 18
@@ -212,12 +188,6 @@
     unit_speed: 8
     unit_rotation_speed: 0.02
     unit_patience: 200
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 },
 {
     // Type and faction information
@@ -247,12 +217,6 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Phalanx specific stats
     num_first_rows: 5
@@ -286,12 +250,6 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 },
 {
     // Type and faction information
@@ -321,12 +279,6 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Slinger stats
     width_variation: 18
@@ -360,12 +312,6 @@
     unit_speed: 2.5
     unit_rotation_speed: 0.02
     unit_patience: 75
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 },
 {
     // Type and faction information
@@ -395,12 +341,6 @@
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Archer stats
     width_variation: 18
@@ -443,12 +383,6 @@
     unit_speed: 8
     unit_rotation_speed: 0.02
     unit_patience: 200
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 },
 {
     // Type and faction information
@@ -478,12 +412,6 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Phalanx specific stats
     num_first_rows: 5
@@ -517,12 +445,6 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 },
 {
     // Type and faction information
@@ -552,12 +474,6 @@
     unit_speed: 2
     unit_rotation_speed: 0.02
     unit_patience: 50
-    unit_max_stamina: 100
-    unit_stamina_decelerating_rate: -0.01
-    unit_stamina_fighting_rate: -0.05
-    unit_stamina_moving_rate: -0.03
-    unit_stamina_routing_rate: -0.02
-    unit_stamina_standing_rate: 0.03
 
     // Slinger specific stats
     width_variation: 18
