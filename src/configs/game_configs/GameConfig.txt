@@ -166,7 +166,7 @@
     unit_type: CAVALRY
 
     // Single stats
-    mass: 250
+    mass: 200
     radius: 34
     speed: 8
     hp: 600
@@ -177,7 +177,7 @@
     standing_dist: 15
     non_rotation_dist: 17
 
-    attack: 120
+    attack: 80
     defense: 10
     combat_range: 20
     combat_delay: 250
@@ -187,7 +187,7 @@
     unit_spacing: 50
     unit_speed: 8
     unit_rotation_speed: 0.02
-    unit_patience: 200
+    unit_patience: 170
 },
 {
     // Type and faction information
@@ -319,10 +319,10 @@
     unit_type: ARCHER
 
     // Single stats
-    mass: 50
+    mass: 100
     radius: 23
     speed: 4
-    hp: 100
+    hp: 250
     deceleration: 0.1
     acceleration: 0.1
     rotation_speed: 0.1
@@ -337,14 +337,14 @@
     sustain_recovery: 0.5
 
     // Unit stats
-    unit_spacing: 43
+    unit_spacing: 40
     unit_speed: 4
     unit_rotation_speed: 0.02
     unit_patience: 50
 
     // Archer stats
-    width_variation: 18
-    depth_variation: 10
+    width_variation: 9
+    depth_variation: 5
     reload_delay: 40
     firing_range: 1800
     bored_delay: 50
@@ -390,10 +390,10 @@
     unit_type: PHALANX
 
     // Single stats
-    mass: 150
+    mass: 200
     radius: 23
     speed: 2
-    hp: 500
+    hp: 5000
     deceleration: 0.1
     acceleration: 0.1
     rotation_speed: 0.1
@@ -401,9 +401,9 @@
     standing_dist: 5
     non_rotation_dist: 17
 
-    attack: 15
+    attack: 50
     defense: 15
-    combat_range: 10
+    combat_range: 100
     combat_delay: 250
     sustain_recovery: 0.5
 

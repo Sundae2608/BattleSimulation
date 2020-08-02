@@ -1,6 +1,6 @@
 {
     top_x: -6000
-    top_y: -5000
+    top_y: -3500
     div: 300
     num_x: 60
     num_y: 60

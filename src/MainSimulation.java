@@ -44,8 +44,8 @@ import java.util.*;
 public class MainSimulation extends PApplet {
 
     /** Screen constants */
-    private final static int INPUT_WIDTH = 1920;
-    private final static int INPUT_HEIGHT = 1080;
+    private final static int INPUT_WIDTH = 2560;
+    private final static int INPUT_HEIGHT = 1440;
 
     /** Drawers
      * This helps store each special shape at size to save time.
@@ -124,8 +124,8 @@ public class MainSimulation extends PApplet {
         // Game settings
         gameSettings = new GameSettings();
         gameSettings.setApplyTerrainModifier(true);
-        gameSettings.setBorderInwardCollision(false);
-        gameSettings.setAllyCollision(true);
+        gameSettings.setBorderInwardCollision(false);  // TODO: Bugged
+        gameSettings.setAllyCollision(false);
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
         gameSettings.setEnableFlankingMechanics(true);
@@ -151,7 +151,9 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
         drawingSettings.setDrawUnitInfo(true);
-        drawingSettings.setDrawPathfindingNodes(true);
+        drawingSettings.setDrawPathfindingNodes(false);
+        drawingSettings.setDrawControlArrow(false);
+        drawingSettings.setDrawGameInfo(true);
 
         // Audio settings
         audioSettings = new AudioSettings();
@@ -168,13 +170,13 @@ public class MainSimulation extends PApplet {
     public void setup() {
 
         /** Load graphic resources */
-        mapTexture = loadImage("imgs/FullMap/DemoMapGraphic.png");
+        mapTexture = loadImage("imgs/FullMap/DemoMap2.png");
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/PhalanxTest.txt";
-        String mapConfig = "src/configs/map_configs/SquareMapConfig.txt";
-        String constructsConfig = "src/configs/construct_configs/EmptyConstructsConfig.txt";
+        String battleConfig = "misc/VideoConfigs/Scene4.txt";
+        String mapConfig = "misc/VideoConfigs/Scene1Map.txt";
+        String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
@@ -191,7 +193,7 @@ public class MainSimulation extends PApplet {
 
         /** Camera setup */
         // Add unit to view.camera
-        camera = new Camera(15000, 20000, INPUT_WIDTH, INPUT_HEIGHT,
+        camera = new Camera(0, 0, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
         cameraRotationSpeed = 0;
         cameraDx = 0;
@@ -211,6 +213,25 @@ public class MainSimulation extends PApplet {
                 romanCavSingleStats.radius = value;
                 romanCavUnitStats.spacing = value + currSpacingDiff;
                 return;
+            }
+        }));
+
+        SingleStats phalanxSingleStats = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.GAUL);
+        scrollbars.add(new Scrollbar("Phalanx mass",
+                INPUT_WIDTH - 300, 90, 280, 20,
+                phalanxSingleStats.mass, 10, 9000, this, new CustomAssigner() {
+            @Override
+            public void updateValue(double value) {
+                phalanxSingleStats.mass = value;
+            }
+        }));
+
+        scrollbars.add(new Scrollbar("Phalanx damage",
+                INPUT_WIDTH - 300, 150, 280, 20,
+                phalanxSingleStats.attack, 10, 9000, this, new CustomAssigner() {
+            @Override
+            public void updateValue(double value) {
+                phalanxSingleStats.attack = value;
             }
         }));
 
@@ -545,19 +566,20 @@ public class MainSimulation extends PApplet {
             }
 
             // Draw path finding
-            double[] endPoint = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-            Path shortestPath = env.getGraph().getShortestPath(
-                    unitSelected.getAverageX(), unitSelected.getAverageY(),
-                    endPoint[0], endPoint[1], env.getConstructs());
-            fill(color[0], color[1], color[2], DrawingConstants.PATH_PLANNING_ALPHA);
-            Node prev = null;
-            for (Node node : shortestPath.getNodes()) {
-                shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
-                        env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
-                if (prev != null) {
-                    battleSignalDrawer.drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
+            if (drawingSettings.isDrawControlArrow()) {double[] endPoint = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                Path shortestPath = env.getGraph().getShortestPath(
+                        unitSelected.getAverageX(), unitSelected.getAverageY(),
+                        endPoint[0], endPoint[1], env.getConstructs());
+                fill(color[0], color[1], color[2], DrawingConstants.PATH_PLANNING_ALPHA);
+                Node prev = null;
+                for (Node node : shortestPath.getNodes()) {
+                    shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
+                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                    if (prev != null) {
+                        battleSignalDrawer.drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
+                    }
+                    prev = node;
                 }
-                prev = node;
             }
         }
 
@@ -600,7 +622,7 @@ public class MainSimulation extends PApplet {
         // Draw the construct.
         for (Construct construct : env.getConstructs()) {
             int[] constructColor = DrawingConstants.COLOR_GOOD_BLACK;
-            fill(constructColor[0], constructColor[1], constructColor[2], 100);
+            fill(constructColor[0], constructColor[1], constructColor[2], 230);
             double[][] pts = construct.getBoundaryPoints();
             beginShape();
             for (int i = 0; i < pts.length; i++) {
@@ -677,27 +699,29 @@ public class MainSimulation extends PApplet {
         graphicTime = System.nanoTime() - lastTime - backEndTime;
 
         // Write all the interesting counters here.
-        StringBuilder s = new StringBuilder();
-        s.append(env.getMonitor().getCounterString(
-                new MonitorEnum[] {
-                        MonitorEnum.COLLISION_TROOPS,
-                        MonitorEnum.COLLISION_TROOP_AND_TERRAIN,
-                        MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT,
-                        MonitorEnum.COLLISION_TROOP_AND_TREE,
-                        MonitorEnum.COLLISION_OBJECT,
-                }
-        ));
-        s.append(env.getMonitor().getTotalCounterString(
-                new MonitorEnum[] {
-                        MonitorEnum.WRONG_FORMATION_CHANGES,
-                }
-        ));
-        s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
-        s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
-        s.append("Backends                        : " + String.format("%.2f", 1.0 * backEndTime / 1000000) + "ms\n");
-        s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
-        s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
-        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
+        if (drawingSettings.isDrawGameInfo()) {
+            StringBuilder s = new StringBuilder();
+            s.append(env.getMonitor().getCounterString(
+                    new MonitorEnum[] {
+                            MonitorEnum.COLLISION_TROOPS,
+                            MonitorEnum.COLLISION_TROOP_AND_TERRAIN,
+                            MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT,
+                            MonitorEnum.COLLISION_TROOP_AND_TREE,
+                            MonitorEnum.COLLISION_OBJECT,
+                    }
+            ));
+            s.append(env.getMonitor().getTotalCounterString(
+                    new MonitorEnum[] {
+                            MonitorEnum.WRONG_FORMATION_CHANGES,
+                    }
+            ));
+            s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
+            s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
+            s.append("Backends                        : " + String.format("%.2f", 1.0 * backEndTime / 1000000) + "ms\n");
+            s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
+            s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
+            infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
+        }
 
         // Pause / Play Button
         if (!currentlyPaused) {

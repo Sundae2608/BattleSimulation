@@ -1,7 +1,11 @@
 {
+    type: construct
     name: Roman forum
     boundary_points: -1400 -100
     boundary_points: -1400 100
     boundary_points: -1050 100
     boundary_points: -1050 -100
+},
+{
+    type: graph
 }

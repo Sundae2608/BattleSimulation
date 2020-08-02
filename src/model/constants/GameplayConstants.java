@@ -8,7 +8,7 @@ public class GameplayConstants {
     public final static double SHATTERED_MORALE = 0;
 
     // The amount of morale recovery by the unit after each frame.
-    public final static double MORALE_RECOVERY = 1.0;
+    public final static double MORALE_RECOVERY = 0.0001;
 
     // Routing angle variation.
     // When running in a rout, it is not possible to run in a straight line. There should be lots of chaos
@@ -22,7 +22,7 @@ public class GameplayConstants {
 
     // Minimum distance between allied troops should be reduced. This naturally makes sense as allied troops should
     // be able to stand closer to each other during fights, or let the other person pass during reforming.
-    public final static double ALLY_COLLISION_RATIO_STANDING = 0.2;
+    public final static double ALLY_COLLISION_RATIO_STANDING = 0.7;
     public final static double ALLY_COLLISION_RATIO_MOVING = 0.7;
     public final static double ALLY_COLLISION_RATIO_FIGHTING = 0.8;
 

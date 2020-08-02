@@ -1,0 +1,20 @@
+{
+    type: PHALANX
+    org: unit
+    x: -400
+    y: 1800
+    angle: 0
+    size: 2400
+    faction: GAUL
+    width: 120
+},
+{
+    type: CAVALRY
+    org: unit
+    x: -300
+    y: 1800
+    angle: 180
+    size: 1750
+    faction: ROME
+    width: 70
+},

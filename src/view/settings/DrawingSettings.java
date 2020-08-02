@@ -23,6 +23,7 @@ public class DrawingSettings {
     private boolean drawUnitInfo;
     private boolean drawPathfindingNodes;
     private boolean drawControlArrow;
+    private boolean drawGameInfo;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -187,5 +188,12 @@ public class DrawingSettings {
     }
     public void setDrawControlArrow(boolean drawControlArrow) {
         this.drawControlArrow = drawControlArrow;
+    }
+
+    public boolean isDrawGameInfo() {
+        return drawGameInfo;
+    }
+    public void setDrawGameInfo(boolean drawGameInfo) {
+        this.drawGameInfo = drawGameInfo;
     }
 }
