@@ -1,4 +1,4 @@
-package view.camera;
+package view.camera_hex;
 
 import model.constants.UniversalConstants;
 import model.events.Event;
