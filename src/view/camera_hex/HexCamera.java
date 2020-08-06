@@ -68,17 +68,17 @@ public class HexCamera extends EventListener {
     protected void listenEvent(Event e) {
         switch (e.getEventType()) {
             case SOLDIER_CHARGE:
-                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_SOLDIER_CHARGE;
+                cameraShakeLevel += HexCameraConstants.SHAKE_LEVEL_SOLDIER_CHARGE;
                 break;
             case CAVALRY_CHARGE:
-                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_CAVALRY_CHARGE;
+                cameraShakeLevel += HexCameraConstants.SHAKE_LEVEL_CAVALRY_CHARGE;
                 break;
             case EXPLOSION:
-                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_EXPLOSION;
+                cameraShakeLevel += HexCameraConstants.SHAKE_LEVEL_EXPLOSION;
                 break;
         }
-        if (cameraShakeLevel > CameraConstants.SHAKE_LEVEL_MAX) {
-            cameraShakeLevel = CameraConstants.SHAKE_LEVEL_MAX;
+        if (cameraShakeLevel > HexCameraConstants.SHAKE_LEVEL_MAX) {
+            cameraShakeLevel = HexCameraConstants.SHAKE_LEVEL_MAX;
         }
     }
 
@@ -87,13 +87,13 @@ public class HexCamera extends EventListener {
      */
     public void update() {
         if (cameraShakeLevel > 0) {
-            cameraShakeLevel -= CameraConstants.SHAKE_LEVEL_DROP;
+            cameraShakeLevel -= HexCameraConstants.SHAKE_LEVEL_DROP;
         }
         xVariation = 1.0 * cameraShakeLevel /
-                CameraConstants.SHAKE_LEVEL_AT_BASE * CameraConstants.CAMERA_SHAKE_BASE;
+                HexCameraConstants.SHAKE_LEVEL_AT_BASE * HexCameraConstants.CAMERA_SHAKE_BASE;
         xVariation = MathUtils.randDouble(-xVariation, xVariation);
         yVariation = 1.0 * cameraShakeLevel /
-                CameraConstants.SHAKE_LEVEL_AT_BASE * CameraConstants.CAMERA_SHAKE_BASE;
+                HexCameraConstants.SHAKE_LEVEL_AT_BASE * HexCameraConstants.CAMERA_SHAKE_BASE;
         yVariation = MathUtils.randDouble(-yVariation, yVariation);
     }
 
@@ -138,7 +138,7 @@ public class HexCamera extends EventListener {
      * Get camera z
      */
     public double getZ() {
-        return (CameraConstants.MAXIMUM_ZOOM / zoom) * CameraConstants.HEIGHT_AT_MAX_ZOOM;
+        return (HexCameraConstants.MAXIMUM_ZOOM / zoom) * HexCameraConstants.HEIGHT_AT_MAX_ZOOM;
     }
 
     /**
