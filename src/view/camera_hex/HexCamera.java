@@ -112,9 +112,11 @@ public class HexCamera extends EventListener {
      * Base on the position of the single and the view.camera, get the drawer position.
      */
     public double[] getDrawingPosition(double inputX, double inputY) {
+        return new double[] {};
     }
 
     public double[] getDrawingPosition(double inputX, double inputY, double inputZ) {
+        return new double[] {};
     }
 
     /**
@@ -153,9 +155,11 @@ public class HexCamera extends EventListener {
      * Transform from mouse click position to actual backend position
      */
     public double[] getActualPositionFromScreenPosition(double screenX, double screenY) {
+        return new double[] {};
     }
 
     public double[] getActualPositionFromScreenPosition(double screenX, double screenY, double posZ) {
+        return new double[] {};
     }
 
     public double getActualAngleFromCameraAngle(double angleInCamera) {
