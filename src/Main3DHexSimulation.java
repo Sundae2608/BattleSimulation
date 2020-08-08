@@ -1,72 +1,108 @@
-import model.GameEnvironment;
+import controller.tunable.CustomAssigner;
+import model.algorithms.pathfinding.Node;
+import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
+import model.constants.GameplayConstants;
+import model.construct.Construct;
+import model.enums.*;
 import model.logger.Log;
 import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
-import model.units.BaseUnit;
-import model.utils.MathUtils;
-import model.utils.UnitUtils;
-import processing.core.PApplet;
-import processing.sound.SoundFile;
+import model.surface.BaseSurface;
+import model.surface.ForestSurface;
+import model.surface.Tree;
+import model.terrain.Terrain;
+import model.units.unit_stats.UnitStats;
 import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
-import view.camera.Camera;
+import view.audio.AudioType;
+import view.camera.BaseCamera;
 import view.camera.CameraConstants;
+import view.camera_hex.HexCamera;
+import view.constants.ControlConstants;
 import view.drawer.*;
+import model.GameEnvironment;
+import model.objects.BaseObject;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.event.MouseEvent;
+import processing.sound.SoundFile;
+import model.singles.*;
+import model.units.*;
+import model.utils.*;
+import view.constants.DrawingConstants;
+import view.drawer.components.Scrollbar;
 import view.settings.AudioSettings;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
 import view.settings.RenderMode;
+import view.drawer.DrawingUtils;
+import view.video.VideoElementPlayer;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.*;
 
 public class Main3DHexSimulation extends PApplet {
 
-    // Screen constants
-    private final static int INPUT_WIDTH = 1920;
-    private final static int INPUT_HEIGHT = 1080;
+    /** Screen constants */
+    private final static int INPUT_WIDTH = 2560;
+    private final static int INPUT_HEIGHT = 1440;
+
+    /** Drawers
+     * This helps store each special shape at size to save time.
+     */
+    UIDrawer uiDrawer;
+    ShapeDrawer shapeDrawer;
+    MapDrawer mapDrawer;
+    InfoDrawer infoDrawer;
+    BattleSignalDrawer battleSignalDrawer;
+    ObjectDrawer objectDrawer;
+    SingleDrawer singleDrawer;
+
+    /** Sound files */
+    AudioSpeaker audioSpeaker;
+    SoundFile backgroundMusic;
+
+    /** Video element players */
+    VideoElementPlayer videoElementPlayer;
+
+    /** Image files */
+    PImage mapTexture;
 
     /** Key pressed set */
     HashSet<Character> keyPressedSet;
 
-    /** Drawers */
-    UIDrawer uiDrawer;
-    InfoDrawer infoDrawer;
-
-    /** Sound variables */
-    AudioSpeaker audioSpeaker;
-    SoundFile backgroundMusic;
-
-    /** Game variables */
+    /** Game variables
+     * Variables necessary for the running of the game
+     */
     GameSettings gameSettings;
     GameEnvironment env;
 
-    // Camera
-    Camera camera;
+    /** Camera */
+    BaseCamera camera;
     double cameraRotationSpeed;
     double cameraDx;
     double cameraDy;
 
-    // Some graphical settings
+    /** Scrollbar, used for tuning */
+    ArrayList<Scrollbar> scrollbars;
+
+    /** Some graphical settings */
     DrawingSettings drawingSettings;
     AudioSettings audioSettings;
     int zoomCounter;
     double zoomGoal;
     int planCounter;
 
-    // Time recorder
+    /** Time recorder */
     long lastTime;
     long backEndTime;
     long graphicTime;
 
-    // Current playing state
+    /** Current playing state */
     boolean currentlyPaused;
 
-    // Control variable
+    /** Controller variable */
     BaseUnit unitSelected;
     boolean rightClickedNotReleased;
     double rightClickActualX;
@@ -77,7 +113,6 @@ public class Main3DHexSimulation extends PApplet {
     BaseUnit closestUnit;
 
     public void settings() {
-        size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
 
         // First log to initialize the logging tool
         Log.info("Initialize the log");
@@ -88,14 +123,14 @@ public class Main3DHexSimulation extends PApplet {
         // Game settings
         gameSettings = new GameSettings();
         gameSettings.setApplyTerrainModifier(true);
-        gameSettings.setBorderInwardCollision(false);
-        gameSettings.setAllyCollision(true);
+        gameSettings.setBorderInwardCollision(false);  // TODO: Bugged
+        gameSettings.setAllyCollision(false);
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
         gameSettings.setEnableFlankingMechanics(true);
         gameSettings.setCountWrongFormationChanges(true);
 
-        // Drawing settings
+        // Graphic settings
         drawingSettings = new DrawingSettings();
         drawingSettings.setRenderMode(RenderMode.MINIMALISTIC);
         drawingSettings.setDrawEye(DrawingMode.NOT_DRAW);
@@ -107,18 +142,22 @@ public class Main3DHexSimulation extends PApplet {
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
-        drawingSettings.setDrawMapTexture(false);
+        drawingSettings.setDrawMapTexture(true);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
         drawingSettings.setDrawSimplifiedTroopShape(true);
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
+        drawingSettings.setDrawUnitInfo(true);
+        drawingSettings.setDrawPathfindingNodes(false);
+        drawingSettings.setDrawControlArrow(false);
+        drawingSettings.setDrawGameInfo(true);
 
         // Audio settings
         audioSettings = new AudioSettings();
         audioSettings.setBackgroundMusic(false);
-        audioSettings.setSoundEffect(false);
+        audioSettings.setSoundEffect(true);
 
         // Post-processing settings.
         if (!drawingSettings.isDrawSmooth()) noSmooth();
@@ -128,11 +167,15 @@ public class Main3DHexSimulation extends PApplet {
     }
 
     public void setup() {
-        /** Set up game config */
+
+        /** Load graphic resources */
+        mapTexture = loadImage("imgs/FullMap/DemoMap2.png");
+
+        /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/PhalanxTest.txt";
-        String mapConfig = "src/configs/map_configs/ConfigWithTextureMap.txt";
-        String constructsConfig = "src/configs/construct_configs/ConstructsMapConfig.txt";
+        String battleConfig = "misc/VideoConfigs/Scene4.txt";
+        String mapConfig = "misc/VideoConfigs/Scene1Map.txt";
+        String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
         env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
@@ -149,18 +192,68 @@ public class Main3DHexSimulation extends PApplet {
 
         /** Camera setup */
         // Add unit to view.camera
-        camera = new Camera(15000, 20000, INPUT_WIDTH, INPUT_HEIGHT,
+        camera = new HexCamera(0, 0, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
         cameraRotationSpeed = 0;
         cameraDx = 0;
         cameraDy = 0;
         zoomGoal = camera.getZoom();  // To ensure consistency
 
+        /** Scrollbar setup */
+        scrollbars = new ArrayList<>();
+        SingleStats romanCavSingleStats = env.getGameStats().getSingleStats(UnitType.CAVALRY, PoliticalFaction.ROME);
+        UnitStats romanCavUnitStats = env.getGameStats().getUnitStats(UnitType.CAVALRY, PoliticalFaction.ROME);
+        scrollbars.add(new Scrollbar("Cavalry size",
+                INPUT_WIDTH - 300, 30, 280, 20,
+                romanCavSingleStats.radius, 10, 120, this, new CustomAssigner() {
+            @Override
+            public void updateValue(double value) {
+                double currSpacingDiff = romanCavUnitStats.spacing - romanCavSingleStats.radius;
+                romanCavSingleStats.radius = value;
+                romanCavUnitStats.spacing = value + currSpacingDiff;
+                return;
+            }
+        }));
+
+        SingleStats phalanxSingleStats = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.GAUL);
+        scrollbars.add(new Scrollbar("Phalanx mass",
+                INPUT_WIDTH - 300, 90, 280, 20,
+                phalanxSingleStats.mass, 10, 9000, this, new CustomAssigner() {
+            @Override
+            public void updateValue(double value) {
+                phalanxSingleStats.mass = value;
+            }
+        }));
+
+        scrollbars.add(new Scrollbar("Phalanx damage",
+                INPUT_WIDTH - 300, 150, 280, 20,
+                phalanxSingleStats.attack, 10, 9000, this, new CustomAssigner() {
+            @Override
+            public void updateValue(double value) {
+                phalanxSingleStats.attack = value;
+            }
+        }));
+
         /** Drawer setup */
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
+        shapeDrawer = new ShapeDrawer(this, camera);
+        mapDrawer = new MapDrawer(this, camera);
         infoDrawer = new InfoDrawer(this);
+        battleSignalDrawer = new BattleSignalDrawer(this, camera, drawingSettings);
+        objectDrawer = new ObjectDrawer(this, camera, shapeDrawer, drawingSettings);
+        singleDrawer = new SingleDrawer(this, env, camera, shapeDrawer, drawingSettings);
 
-        /** Set up audios */
+        /** Setup video element player */
+        try {
+            videoElementPlayer = ConfigUtils.readVideoElementConfig(
+                    "src/configs/graphic_configs/GraphicConfig.txt",
+                    camera, this, env.getBroadcaster()
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        /** Load sound files */
         // Set up audio speaker
         try {
             audioSpeaker = ConfigUtils.readAudioConfigs(
@@ -178,16 +271,16 @@ public class Main3DHexSimulation extends PApplet {
             backgroundMusic.loop();
         }
 
-        // Playing state
+        // Playing state of the music
         currentlyPaused = false;
     }
 
     /**
-     * Looping method required for a Processing applet.
+     * Looping method required for a Processing Applet.
      */
     public void draw() {
-        /** Update the backend
-         * All backend processing of the games will be done here, along with several other time-keeping activities*/
+
+        /** Update the backend */
         // Record time
         lastTime = System.nanoTime();
 
@@ -218,7 +311,21 @@ public class Main3DHexSimulation extends PApplet {
          * - Unit size optimization.
          * - Update nearest unit to mouse cursor.
          */
+
+        // Pre-process all drawer. This pre-process is vital to short-cut calculation and optimization.
+        uiDrawer.preprocess();
+        shapeDrawer.preprocess();
+        mapDrawer.preprocess();
+        infoDrawer.preprocess();
+        battleSignalDrawer.preprocess();
+        objectDrawer.preprocess();
+        singleDrawer.preprocess();
+        for (Scrollbar scrollbar : scrollbars) {
+            scrollbar.update();
+        }
+
         if (drawingSettings.isSmoothCameraMovement()) {
+
             // Update the camera zoom.
             if (zoomCounter >= 0) {
                 zoomCounter -= 1;
@@ -273,7 +380,7 @@ public class Main3DHexSimulation extends PApplet {
                 cameraDy += CameraConstants.CAMERA_SPEED * unitY;
             }
         }
-        camera.move(cameraDx / camera.getZoom(), cameraDy / camera.getZoom());
+        camera.move(cameraDx / camera.getZoom(), cameraDy  / camera.getZoom());
         cameraDx *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
         cameraDy *= CameraConstants.CAMERA_MOVEMENT_DECELERATION_COEFFICIENT;
 
@@ -292,33 +399,260 @@ public class Main3DHexSimulation extends PApplet {
             }
         }
 
-        /** Draw the game graphics
-         * This section contains all code regarding the drawing of the game graphics, but excluding the UI. These
-         * include:
-         * - Map terrain.
-         * - Map grid (for better coordinate positioning.
-         * - Map texture.
-         * - Map surfaces (Grass, desert, etc for debugging purpose
-         * - Dead troops.
-         * - Alive troops. (We draw alive troops later because alive troops step on dead troops)
+        /** Draw the game graphics. These include:
+         * - Background
+         * - Map texture and height lines
+         * - Surfaces
+         * - Dead troops
+         * - Alive troops
+         * - Objects (Catapult stones, arrows, etc.).
          * - Constructs.
-         * - Node system. (For path finding debugging).
+         * - Path finding information (nodes, edges, etc.). These only shows for debugging purpose.
          */
 
+        // Clear everything
+        background(230);
 
-        /** Process the unit sound
-         * Contains all codes regarding the processing of audio. At the moment, we only rely on the audio speaker to
-         * process the audio for us.
-         */
-        if (audioSettings.isSoundEffect()) {
-            audioSpeaker.processEvents();
+        // Default rect mode for troops
+        rectMode(CENTER);
+
+        // Then, draw the dots that represents the height.
+        if (drawingSettings.isDrawMapTexture()) {
+            mapDrawer.drawMapTexture(env.getTerrain(), mapTexture);
+        }
+        if (drawingSettings.isDrawHeightField()) {
+            mapDrawer.drawTerrainLine(env.getTerrain());
         }
 
-        /** Draw the UI.
-         * This section contains all the HUD element of the game. These include:
-         * - Unit banner.
-         * - Game resource and debugging statistics
-         * - Game tuner.
+        // Draw the surface.
+        if (drawingSettings.isDrawSurface()) {
+            for (BaseSurface surface : env.getSurfaces()) {
+                int[] surfaceColor = DrawingUtils.getSurfaceColor(surface);
+                fill(surfaceColor[0], surfaceColor[1], surfaceColor[2], surfaceColor[3]);
+                double[][] pts = surface.getSurfaceBoundary();
+                beginShape();
+                for (int i = 0; i < pts.length; i++) {
+                    // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
+                    //  though it is a very static value.
+                    double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
+                            env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                    vertex((float) drawingPts[0], (float) drawingPts[1]);
+                }
+                endShape(CLOSE);
+
+                if (surface.getType() == SurfaceType.FOREST) {
+                    for (Tree tree : ((ForestSurface) surface).getTrees()) {
+                        int[] treeColor = DrawingConstants.TREE_COLOR;
+                        double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
+                        fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
+                        double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
+                                height);
+                        circle((float) drawingPosition[0], (float) drawingPosition[1],
+                                (float) (tree.getRadius() * 2 * camera.getZoomAtHeight(height)));
+                    }
+                }
+            }
+        }
+
+        // Dead troops
+        noStroke();
+        for (BaseSingle single : env.getDeadContainer()) {
+            portrayDeadSingle(single, env.getTerrain());
+        }
+
+        // If space is pressed, draw the goal position.
+        if (keyPressed) {
+            if (key == TAB) {
+                planCounter = drawingSettings.getSmoothPlanShowingSteps();
+            }
+        }
+
+        if (planCounter > 0) {
+            for (BaseUnit unit : env.getAliveUnits()) {
+                if (unit.getState() == UnitState.MOVING) {
+                    if (unit == unitSelected) continue;
+                    int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
+                    fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
+                    // TODO: Switch the draw using the current path instead of just the average position and goal
+                    //  position.
+                    battleSignalDrawer.drawArrowPlan(
+                            unit.getAverageX(), unit.getAverageY(),
+                            unit.getGoalX(), unit.getGoalY(), env.getTerrain());
+                }
+            }
+            planCounter -= 1;
+        }
+
+        // Always draw arrow of selected unit
+        if (unitSelected != null) {
+
+            // Get the political faction color
+            int[] color = DrawingUtils.getFactionColor(unitSelected.getPoliticalFaction());
+
+            // If the mouse is being right clicked, the user can drag to select whether the goal would be. Visualize
+            // the changed formation if the new width of the front makes sense.
+            double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+            double distance = MathUtils.quickDistance(
+                    rightClickActualX, rightClickActualY, actualCurrent[0], actualCurrent[1]);
+            if (rightClickedNotReleased && distance >
+                    GameplayConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
+                // Draw the rectangle showing unit formation selection
+                // TODO: Convert to the actual game angle, and always anchor on the actual angle on the field would be
+                //  the best way to ensure acccurate angle calculation.
+                double[] actualMouseClicked = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                double angle = MathUtils.atan2(
+                        actualMouseClicked[1] - rightClickActualY,
+                        actualMouseClicked[0] - rightClickActualX);
+                double sideUnitX = MathUtils.quickCos((float) angle);
+                double sideUnitY = MathUtils.quickSin((float) angle);
+                double downUnitX = MathUtils.quickCos((float) (angle + Math.PI / 2));
+                double downUnitY = MathUtils.quickSin((float) (angle + Math.PI / 2));
+                double frontlineWidth = Math.min((int) (
+                                distance / unitSelected.getUnitStats().spacing),
+                        unitSelected.getNumAlives()) * unitSelected.getUnitStats().spacing;
+                double depthDistance = unitSelected.getNumAlives() * unitSelected.getUnitStats().spacing *
+                        unitSelected.getUnitStats().spacing / frontlineWidth;
+                fill(color[0], color[1], color[2], DrawingConstants.COLOR_ALPHA_UNIT_SELECTION);
+
+                // Formation shape
+                double[] pts1 = camera.getDrawingPosition(rightClickActualX, rightClickActualY);
+                double[] pts2 = camera.getDrawingPosition(actualMouseClicked[0], actualMouseClicked[1]);
+                double[] pts3 = camera.getDrawingPosition(
+                        actualMouseClicked[0] + depthDistance * downUnitX,
+                        actualMouseClicked[1] + depthDistance * downUnitY);
+                double[] pts4 = camera.getDrawingPosition(
+                        rightClickActualX + depthDistance * downUnitX,
+                        rightClickActualY + depthDistance * downUnitY);
+
+                beginShape();
+                vertex((float) pts1[0], (float) pts1[1]);
+                vertex((float) pts2[0], (float) pts2[1]);
+                vertex((float) pts3[0], (float) pts3[1]);
+                vertex((float) pts4[0], (float) pts4[1]);
+                endShape(CLOSE);
+
+                // Modify end point for the unit.
+                unitEndPointX = rightClickActualX + frontlineWidth * sideUnitX / 2;
+                unitEndPointY = rightClickActualY + frontlineWidth * sideUnitY / 2;
+                unitEndAngle = angle - Math.PI / 2;
+            } else {
+                double[] endPoints = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                unitEndPointX = endPoints[0];
+                unitEndPointY = endPoints[1];
+                unitEndAngle = MathUtils.atan2(endPoints[1] - unitSelected.getAnchorY(), endPoints[0] - unitSelected.getAnchorX());
+            }
+
+            // Draw the arrow plan if the unit is current moving.
+            // TODO: Pretty scrappy code here. It functions perfectly but it is quite hard to read.
+            //  Probably should wrap this around into something like "DrawingUtils.drawPath(path)", which is a bit more
+            //  clear to read.
+            if (drawingSettings.isDrawControlArrow() && unitSelected.getState() == UnitState.MOVING) {
+                fill(color[0], color[1], color[2], 255);
+                Node prev = null;
+                for (Node node : unitSelected.getPath().getNodes()) {
+                    shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
+                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                    if (prev != null) {
+                        battleSignalDrawer.drawArrowPlan(
+                                prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
+                    } else {
+                        battleSignalDrawer.drawArrowPlan(
+                                unitSelected.getAverageX(), unitSelected.getAverageY(),
+                                unitSelected.getGoalX(), unitSelected.getGoalY(), env.getTerrain());
+                    }
+                    prev = node;
+                }
+            }
+
+            // Draw path finding
+            if (drawingSettings.isDrawControlArrow()) {double[] endPoint = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                Path shortestPath = env.getGraph().getShortestPath(
+                        unitSelected.getAverageX(), unitSelected.getAverageY(),
+                        endPoint[0], endPoint[1], env.getConstructs());
+                fill(color[0], color[1], color[2], DrawingConstants.PATH_PLANNING_ALPHA);
+                Node prev = null;
+                for (Node node : shortestPath.getNodes()) {
+                    shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
+                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                    if (prev != null) {
+                        battleSignalDrawer.drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
+                    }
+                    prev = node;
+                }
+            }
+        }
+
+        if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_TROOP) {
+            // Alive troop
+            for (BaseUnit unit : env.getAliveUnits()) {
+                // For troops out of position, draw them individually
+                for (BaseSingle single : unit.getAliveTroopsSet()) {
+                    portrayAliveSingle(single, env.getTerrain());
+                }
+            }
+        } else {
+            // Draw unit block
+            for (BaseUnit unit : env.getAliveUnits()) {
+                if (unit.getNumAlives() == 0) continue;
+                battleSignalDrawer.drawUnitBlock(unit, env.getTerrain());
+            }
+        }
+
+        // Draw the arrow direction of the unit
+        for (BaseUnit unit : env.getAliveUnits()) {
+            double unitX = MathUtils.quickCos((float) unit.getAnchorAngle());
+            double unitY = MathUtils.quickSin((float) unit.getAnchorAngle());
+            int[] color = DrawingConstants.COLOR_GOOD_BLACK;
+            fill(color[0], color[1], color[2], color[3]);
+            battleSignalDrawer.drawArrowAtHeight(
+                    unit.getAnchorX(), unit.getAnchorY(),
+                    unit.getAnchorX() + unitX * DrawingConstants.ANCHOR_ARROW_SIZE,
+                    unit.getAnchorY() + unitY * DrawingConstants.ANCHOR_ARROW_SIZE,
+                    env.getTerrain().getHeightFromPos(unit.getAnchorX(), unit.getAnchorY()));
+        }
+
+        // Draw the objects
+        ArrayList<BaseObject> objects = env.getUnitModifier().getObjectHasher().getObjects();
+        for (BaseObject obj : objects) {
+            // TODO: Add probabilistic drawing here to reduce the number of arrow drawn when zooming out.
+            if (obj.isAlive()) objectDrawer.drawObject(obj, env.getTerrain());
+        }
+
+        // Draw the construct.
+        for (Construct construct : env.getConstructs()) {
+            int[] constructColor = DrawingConstants.COLOR_GOOD_BLACK;
+            fill(constructColor[0], constructColor[1], constructColor[2], 230);
+            double[][] pts = construct.getBoundaryPoints();
+            beginShape();
+            for (int i = 0; i < pts.length; i++) {
+                // TODO: This is an efficient part, the height of the object is recalculated all the time.
+                double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
+                        env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                vertex((float) drawingPts[0], (float) drawingPts[1]);
+            }
+            endShape(CLOSE);
+        }
+
+        // Draw the node of the graph.
+        if (drawingSettings.isDrawPathfindingNodes()) {
+            for (Node node : env.getGraph().getNodes()) {
+                fill(245, 121, 74);
+                double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
+                double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
+                circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
+            }
+        }
+
+        if (drawingSettings.isDrawVideoEffect()) videoElementPlayer.processElementQueue();
+
+        /** Process the sound of the game */
+        if (audioSettings.isSoundEffect()) audioSpeaker.processEvents();
+
+        /** Draw the UI of the game. This include:
+         * - Unit icons
+         * - Unit information attached to the icon.
+         * - Scroll bars
+         * - Game stats on the bottom left.
          */
         // Draw all the unit icon
         ArrayList<BaseUnit> unitsSortedByPosition = new ArrayList<>(env.getAliveUnits());
@@ -338,43 +672,55 @@ public class Main3DHexSimulation extends PApplet {
             }
         }
 
-        // Information about the closest unit on top left corner.
-        fill(0, 0, 0, 200);
-        rect(0, 0, 400, 150);
-        fill(255, 255, 255);
-        textAlign(LEFT);
-        text(UnitUtils.getUnitName(closestUnit), 8, 15);
-        text("Unit state: ", 8, 35); text(closestUnit.getState().toString(), 100, 35);
-        text("Strength: ", 8, 50); text(String.valueOf(closestUnit.getNumAlives()) + "/" + String.valueOf(closestUnit.getTroops().size()), 100, 50);
-        text("Stamina: ", 8, 65); text(String.format("%.2f", closestUnit.getStamina()), 100, 65);
+        if (drawingSettings.isDrawUnitInfo()) {
+            for (BaseUnit unit : unitsSortedByPosition) {
+                if (unit.getNumAlives() == 0) continue;
+                // Write all the interesting counters here.
+                StringBuilder s = new StringBuilder();
+                s.append("Unit Type: " + unit.getUnitType().toString() + "\n");
+                s.append("Strength:  " + unit.getNumAlives() + "/" + unit.getTroops().size() + "\n");
+                s.append("Stamina:   " + String.format("%.2f%%", unit.getStamina() * 100) + "\n");
+                s.append("Morale:    " + String.format("%.2f%%", unit.getMorale() * 100));
+                // Draw the info box
+                double[] drawingPoints = camera.getDrawingPosition(
+                        unit.getAverageX(), unit.getAverageY(), unit.getAverageZ());
+                infoDrawer.drawTextBox(s.toString(), drawingPoints[0] + 36, drawingPoints[1] - 22, 200);
+            }
+        }
+
+        // Scroll bars
+        for (Scrollbar scrollbar : scrollbars) {
+            scrollbar.display();
+        }
 
         // Process graphics
         fill(0, 0, 0);
         graphicTime = System.nanoTime() - lastTime - backEndTime;
 
         // Write all the interesting counters here.
-        StringBuilder s = new StringBuilder();
-        s.append(env.getMonitor().getCounterString(
-                new MonitorEnum[] {
-                        MonitorEnum.COLLISION_TROOPS,
-                        MonitorEnum.COLLISION_TROOP_AND_TERRAIN,
-                        MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT,
-                        MonitorEnum.COLLISION_TROOP_AND_TREE,
-                        MonitorEnum.COLLISION_OBJECT,
-                }
-        ));
-        s.append(env.getMonitor().getTotalCounterString(
-                new MonitorEnum[] {
-                        MonitorEnum.WRONG_FORMATION_CHANGES,
-                }
-        ));
-        s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
-        s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
-        s.append("Backends                        : " + String.format("%.2f", 1.0 * backEndTime / 1000000) + "ms\n");
-        s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
-        s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
-
-        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 500);
+        if (drawingSettings.isDrawGameInfo()) {
+            StringBuilder s = new StringBuilder();
+            s.append(env.getMonitor().getCounterString(
+                    new MonitorEnum[] {
+                            MonitorEnum.COLLISION_TROOPS,
+                            MonitorEnum.COLLISION_TROOP_AND_TERRAIN,
+                            MonitorEnum.COLLISION_TROOP_AND_CONSTRUCT,
+                            MonitorEnum.COLLISION_TROOP_AND_TREE,
+                            MonitorEnum.COLLISION_OBJECT,
+                    }
+            ));
+            s.append(env.getMonitor().getTotalCounterString(
+                    new MonitorEnum[] {
+                            MonitorEnum.WRONG_FORMATION_CHANGES,
+                    }
+            ));
+            s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
+            s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
+            s.append("Backends                        : " + String.format("%.2f", 1.0 * backEndTime / 1000000) + "ms\n");
+            s.append("Graphics                        : " + String.format("%.2f", 1.0 * graphicTime / 1000000) + "ms\n");
+            s.append("FPS                             : " + String.format("%.2f", 1.0 * 1000000000 / (graphicTime + backEndTime)));
+            infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
+        }
 
         // Pause / Play Button
         if (!currentlyPaused) {
@@ -382,9 +728,232 @@ public class Main3DHexSimulation extends PApplet {
         } else {
             uiDrawer.playButton(INPUT_WIDTH - 50, INPUT_HEIGHT - 50, 40);
         }
+
+        /** Produce the image of the game */
+        if (drawingSettings.isProduceFootage()) {
+            // Saves each frame as line-000001.png, line-000002.png, etc.
+            saveFrame("line-######.png");
+        }
     }
 
-    public static void main(String... args){
+    /**
+     * Check if mouse position is in the range of the pause or play button
+     */
+    private boolean overPauseOrPlay() {
+        return (INPUT_WIDTH - 70 < mouseX && mouseX < INPUT_WIDTH - 30 &&
+                INPUT_HEIGHT - 70 < mouseY && mouseY < INPUT_HEIGHT - 30);
+    }
+
+    /**
+     * Process the mouse clicked.
+     */
+    public void mousePressed() {
+        if (mouseButton == RIGHT) {
+            rightClickedNotReleased = true;
+            double[] actualRightClicked = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+            rightClickActualX = actualRightClicked[0];
+            rightClickActualY = actualRightClicked[1];
+        }
+    }
+
+    @Override
+    /**
+     * Process the mouse released
+     */
+    public void mouseReleased() {
+
+        // Turn off the drag and drop functionality.
+        rightClickedNotReleased = false;
+
+        // Check if in the range of pause button
+        if (overPauseOrPlay()) {
+            if(currentlyPaused) {
+                currentlyPaused = false;
+                if (audioSettings.isBackgroundMusic()) backgroundMusic.loop();
+                if (audioSettings.isSoundEffect()) {
+                    audioSpeaker.resumeAllAmbientSounds();
+                }
+            } else {
+                currentlyPaused = true;
+                if (audioSettings.isBackgroundMusic()) backgroundMusic.pause();
+                if (audioSettings.isSoundEffect()) {
+                    audioSpeaker.pauseAllAmbientSounds();
+                }
+            }
+        }
+
+        if (mouseButton == LEFT) {
+            // Check distance, only allow unit assignment if distance to mouse is smaller than certain number.
+            // TODO: It would be better to actually check against the Unit Bounding box for a more accurate collision
+            //  checking.
+            double[] screenPos = camera.getDrawingPosition(
+                    closestUnit.getAverageX(), closestUnit.getAverageY(), closestUnit.getAverageZ());
+            if (MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
+                unitSelected = closestUnit;
+            } else {
+                unitSelected = null;
+            }
+            audioSpeaker.broadcastOverlaySound(AudioType.LEFT_CLICK);
+        } else if (mouseButton == RIGHT) {
+            audioSpeaker.broadcastOverlaySound(AudioType.RIGHT_CLICK);
+            if (unitSelected != null) {
+                // If the unit currently selected is in panic mode, the player does not have any control over them.
+                if (unitSelected.getState() == UnitState.ROUTING) {
+                    // During routing, unit is uncontrollable. We shall apply no command here.
+                    return;
+                }
+
+                // Check distance
+                if (unitSelected instanceof ArcherUnit) {
+                    // Convert closest unit to click
+                    double[] screenPos = camera.getDrawingPosition(
+                            closestUnit.getAverageX(),
+                            closestUnit.getAverageY());
+
+                    // If it's an archer unit, check the faction and distance from the closest unit from camera
+                    if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
+                            MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
+                                    CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                        ((ArcherUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        if (unitSelected.getState() == UnitState.MOVING) {
+                            unitSelected.moveFormationKeptTo(
+                                    unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                        }
+                    } else {
+                        if (GameplayUtils.checkIfUnitCanMoveTowards(
+                                unitEndPointX, unitEndPointY, env.getConstructs())) {
+                            unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        }
+                        ((ArcherUnit) unitSelected).setUnitFiredAt(null);
+                    }
+                } else if (unitSelected instanceof BallistaUnit) {
+                    // Convert closest unit to click
+                    double[] screenPos = camera.getDrawingPosition(
+                            closestUnit.getAverageX(),
+                            closestUnit.getAverageY());
+
+                    // If it's an archer unit, check the faction and distance from the closest unit from view.camera
+                    if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
+                            MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
+                                    CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                        ((BallistaUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        if (unitSelected.getState() == UnitState.MOVING) {
+                            unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                        }
+                    } else {
+                        if (GameplayUtils.checkIfUnitCanMoveTowards(
+                                unitEndPointX, unitEndPointY, env.getConstructs())) {
+                            unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        }
+                        ((BallistaUnit) unitSelected).setUnitFiredAt(null);
+                    }
+                } else if (unitSelected instanceof CatapultUnit) {
+                    // Convert closest unit to click
+                    double[] screenPos = camera.getDrawingPosition(
+                            closestUnit.getAverageX(),
+                            closestUnit.getAverageY());
+
+                    // If it's an archer unit, check the faction and distance from the closest unit from view.camera
+                    if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
+                            MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
+                                    CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                        ((CatapultUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        if (unitSelected.getState() == UnitState.MOVING) {
+                            unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                        }
+                    } else {
+                        if (GameplayUtils.checkIfUnitCanMoveTowards(
+                                unitEndPointX, unitEndPointY, env.getConstructs())) {
+                            unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        }
+                        ((CatapultUnit) unitSelected).setUnitFiredAt(null);
+                    }
+                } else {
+                    if (GameplayUtils.checkIfUnitCanMoveTowards(
+                            unitEndPointX, unitEndPointY, env.getConstructs())) {
+                        unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                    }
+                }
+                double[] actualCurrent = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                double distance = MathUtils.quickDistance(
+                        rightClickActualX, rightClickActualY, actualCurrent[0], actualCurrent[1]);
+                if (distance > GameplayConstants.MINIMUM_WIDTH_SELECTION * unitSelected.getUnitStats().spacing) {
+                    int frontlineWidth = Math.min((int) (
+                                    distance / unitSelected.getUnitStats().spacing),
+                            unitSelected.getNumAlives());
+                    unitSelected.changeFrontlineWidth(frontlineWidth);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void mouseWheel(MouseEvent event) {
+        // When scrolling, immediately cancelled the current right clicked.
+        if (rightClickedNotReleased) {
+            rightClickedNotReleased = false;
+        }
+        float scrollVal = event.getCount();
+        if (!drawingSettings.isSmoothCameraMovement()) {
+            // Non-smooth zoom processing
+            if (scrollVal < 0) {
+                // Zoom in
+                camera.setZoom(camera.getZoom() * CameraConstants.ZOOM_PER_SCROLL);
+            } else if (scrollVal > 0) {
+                // Zoom out
+                camera.setZoom(camera.getZoom() / CameraConstants.ZOOM_PER_SCROLL);
+                if (camera.getZoom() < CameraConstants.MINIMUM_ZOOM) camera.setZoom(CameraConstants.MINIMUM_ZOOM);
+            }
+        } else {
+            // Smooth-zoom processing
+            if (scrollVal < 0) {
+                // Zoom in
+                zoomGoal *= CameraConstants.ZOOM_PER_SCROLL;
+                if (zoomGoal > CameraConstants.MAXIMUM_ZOOM) zoomGoal = CameraConstants.MAXIMUM_ZOOM;
+            } else if (scrollVal > 0) {
+                // Zoom out
+                zoomGoal /= CameraConstants.ZOOM_PER_SCROLL;
+                if (zoomGoal < CameraConstants.MINIMUM_ZOOM) zoomGoal = CameraConstants.MINIMUM_ZOOM;
+            }
+            zoomCounter = CameraConstants.ZOOM_SMOOTHEN_STEPS;
+        }
+    }
+
+    @Override
+    public void keyPressed() {
+        if (key == 'c') {
+            drawingSettings.setDrawTroopInDanger(!drawingSettings.isDrawTroopInDanger());
+        }
+        keyPressedSet.add(key);
+    }
+
+    @Override
+    public void keyReleased() {
+        keyPressedSet.remove(key);
+    }
+
+    /**
+     * Portray alive troop.
+     */
+    void portrayAliveSingle(BaseSingle single, Terrain terrain) {
+
+        // Draw all the object sticking to the individual
+        HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
+        for (BaseObject obj : carriedObjects.keySet()) {
+            objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain);
+        }
+        // Draw the alive single itself
+        singleDrawer.drawAliveSingle(single, terrain);
+    }
+
+    /**
+     * Portray dead unit
+     */
+    void portrayDeadSingle(BaseSingle single, Terrain terrain) {
+        singleDrawer.drawDeadSingle(single, terrain);
+    }
+
+    public static void main(String[] args){
         PApplet.main("Main3DHexSimulation");
     }
 }

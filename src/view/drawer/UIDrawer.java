@@ -5,15 +5,13 @@ import model.enums.UnitType;
 import model.units.BaseUnit;
 import processing.core.PApplet;
 import processing.core.PImage;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 import view.constants.MapMakerConstants;
 import view.drawer.components.Scrollbar;
 import view.settings.DrawingSettings;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,7 +24,7 @@ public class UIDrawer extends BaseDrawer {
     HashMap<UnitType, PImage> iconMap;
 
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
     DrawingSettings drawingSettings;
 
     Map<String, Scrollbar> scrollbars;
@@ -34,7 +32,7 @@ public class UIDrawer extends BaseDrawer {
     int xStart = 1000;
     int yScrollbarStart = 900;
 
-    public UIDrawer(PApplet inputApplet, Camera inputCamera, DrawingSettings inputDrawingSettings) {
+    public UIDrawer(PApplet inputApplet, BaseCamera inputCamera, DrawingSettings inputDrawingSettings) {
         // Inject dependencies.
         applet = inputApplet;
         camera = inputCamera;

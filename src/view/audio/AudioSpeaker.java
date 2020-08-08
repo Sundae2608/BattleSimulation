@@ -7,7 +7,7 @@ import model.events.custom_events.CavalryMarchingEvent;
 import model.events.custom_events.SoldierMarchingEvent;
 import model.utils.MathUtils;
 import processing.core.PApplet;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class AudioSpeaker extends EventListener {
 
     // The Camera that listens to the speaker
-    Camera camera;
+    BaseCamera camera;
 
     // The applet that the object will broadcast the audio to.
     PApplet pApplet;
@@ -29,7 +29,7 @@ public class AudioSpeaker extends EventListener {
     // Master volume, a tunable value that scales all the current volume values.
     double masterVolume;
 
-    public AudioSpeaker(Camera inputCamera, PApplet applet, EventBroadcaster eventBroadcaster) {
+    public AudioSpeaker(BaseCamera inputCamera, PApplet applet, EventBroadcaster eventBroadcaster) {
         super(eventBroadcaster);
         camera = inputCamera;
         eventList = new ArrayList<>();

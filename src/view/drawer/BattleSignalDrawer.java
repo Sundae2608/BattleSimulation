@@ -1,24 +1,23 @@
 package view.drawer;
 
-import model.constants.UniversalConstants;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.utils.MathUtils;
 import processing.core.PApplet;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 import view.settings.DrawingSettings;
 
 public class BattleSignalDrawer extends BaseDrawer {
 
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
     DrawingSettings drawingSettings;
 
     double unitShadowDrawingOffsetx;
     double unitShadowDrawingOffsetY;
 
-    public BattleSignalDrawer(PApplet inputApplet, Camera inputCamera, DrawingSettings inputDrawingSettings) {
+    public BattleSignalDrawer(PApplet inputApplet, BaseCamera inputCamera, DrawingSettings inputDrawingSettings) {
         applet = inputApplet;
         camera = inputCamera;
         drawingSettings = inputDrawingSettings;

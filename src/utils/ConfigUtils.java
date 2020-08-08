@@ -21,21 +21,18 @@ import model.utils.MathUtils;
 import processing.core.PApplet;
 import processing.core.PImage;
 import view.audio.*;
-import view.camera.Camera;
-import view.map.Tile;
+import view.camera.BaseCamera;
 import view.video.VideoElementPlayer;
 import view.video.VideoElementType;
 import view.video.VideoTemplate;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -293,7 +290,7 @@ public final class ConfigUtils {
      * @return An audio broadcaster with the configs.
      * @throws IOException
      */
-    public static AudioSpeaker readAudioConfigs(String filePath, Camera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+    public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);
@@ -324,7 +321,7 @@ public final class ConfigUtils {
      * @return An audio broadcaster with the configs.
      * @throws IOException
      */
-    public static VideoElementPlayer readVideoElementConfig(String filePath, Camera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+    public static VideoElementPlayer readVideoElementConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);

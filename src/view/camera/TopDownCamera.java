@@ -12,32 +12,12 @@ import model.utils.PhysicUtils;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Camera extends EventListener {
-
-    // Boundary extension
-    // Extend the boundary by a small amount is a good practice to ensure no "sudden appearance" at the boundary
-    private final static double EXTENSION = 20;
-
-    // Position
-    private double x;
-    private double y;
-    private double xVariation;
-    private double yVariation;
-    private double cameraShakeLevel;
-
-    // Zoom (1.0 = original scale)
-    private double zoom;
-    private double resize;
-    private double angle;
-
-    // Screen size
-    private double height;
-    private double width;
+public class TopDownCamera extends BaseCamera {
 
     /**
      * Initialize camera with no broadcaster
      */
-    public Camera(double inputX, double inputY, double inputWidth, double inputHeight) {
+    public TopDownCamera(double inputX, double inputY, double inputWidth, double inputHeight) {
         super(new EventBroadcaster());
         x = inputX;
         y = inputY;
@@ -52,7 +32,7 @@ public class Camera extends EventListener {
     /**
      * Initialize view.camera
      */
-    public Camera(double inputX, double inputY, double inputWidth, double inputHeight, EventBroadcaster inputBroadcaster) {
+    public TopDownCamera(double inputX, double inputY, double inputWidth, double inputHeight, EventBroadcaster inputBroadcaster) {
         super(inputBroadcaster);
         x = inputX;
         y = inputY;
@@ -62,49 +42,6 @@ public class Camera extends EventListener {
         angle = 0;
         zoom = 1.0;
         resize = 1.0;
-    }
-
-    @Override
-    protected void listenEvent(Event e) {
-        switch (e.getEventType()) {
-            case SOLDIER_CHARGE:
-                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_SOLDIER_CHARGE;
-                break;
-            case CAVALRY_CHARGE:
-                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_CAVALRY_CHARGE;
-                break;
-            case EXPLOSION:
-                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_EXPLOSION;
-                break;
-        }
-        if (cameraShakeLevel > CameraConstants.SHAKE_LEVEL_MAX) {
-            cameraShakeLevel = CameraConstants.SHAKE_LEVEL_MAX;
-        }
-    }
-
-    /**
-     * Update the stats of the camera (mainly for overtime effect such as charge)
-     */
-    public void update() {
-        if (cameraShakeLevel > 0) {
-            cameraShakeLevel -= CameraConstants.SHAKE_LEVEL_DROP;
-        }
-        xVariation = 1.0 * cameraShakeLevel /
-                CameraConstants.SHAKE_LEVEL_AT_BASE * CameraConstants.CAMERA_SHAKE_BASE;
-        xVariation = MathUtils.randDouble(-xVariation, xVariation);
-        yVariation = 1.0 * cameraShakeLevel /
-                CameraConstants.SHAKE_LEVEL_AT_BASE * CameraConstants.CAMERA_SHAKE_BASE;
-        yVariation = MathUtils.randDouble(-yVariation, yVariation);
-    }
-
-    /**
-     * Move view.camera position a certain amount.
-     * Positive value for dx is to move to the left
-     * Positive value for dy is to move downward
-     */
-    public void move(double dx, double dy) {
-        x += dx;
-        y += dy;
     }
 
     /**
@@ -149,13 +86,6 @@ public class Camera extends EventListener {
         return drawingPos[0] > 0 && drawingPos[0] < width && drawingPos[1] > 0 && drawingPos[1] < height;
     }
 
-    /*
-     * Get camera z
-     */
-    public double getZ() {
-        return (CameraConstants.MAXIMUM_ZOOM / zoom) * CameraConstants.HEIGHT_AT_MAX_ZOOM;
-    }
-
     /**
      * Get the zoom level at a specific height.
      * @param inputZ
@@ -165,13 +95,6 @@ public class Camera extends EventListener {
         double cameraHeight = (CameraConstants.MAXIMUM_ZOOM / zoom) * CameraConstants.HEIGHT_AT_MAX_ZOOM - inputZ;
         double zAdjustedZoom = CameraConstants.HEIGHT_AT_MAX_ZOOM / cameraHeight * CameraConstants.MAXIMUM_ZOOM;
         return zAdjustedZoom;
-    }
-
-    /**
-     * Get drawer angle
-     */
-    public double getDrawingAngle(double inputAngle) {
-        return inputAngle - angle;
     }
 
     /**
@@ -210,6 +133,12 @@ public class Camera extends EventListener {
         if (newAngle > Math.PI) newAngle -= MathUtils.PIX2;
         else if (newAngle < - Math.PI) newAngle +=MathUtils.PIX2;
         return newAngle;
+    }
+
+    @Override
+    protected void updateCameraPreprocessing() {
+        // This method does not have preprocessing to update.
+        return;
     }
 
     /**

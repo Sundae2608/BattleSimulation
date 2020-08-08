@@ -16,11 +16,13 @@ import model.units.unit_stats.UnitStats;
 import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
+import view.camera.BaseCamera;
 import view.camera.CameraConstants;
+import view.camera_hex.HexCamera;
 import view.constants.ControlConstants;
 import view.drawer.*;
 import model.GameEnvironment;
-import view.camera.Camera;
+import view.camera.TopDownCamera;
 import model.objects.BaseObject;
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -50,8 +52,6 @@ public class MainSimulation extends PApplet {
     /** Drawers
      * This helps store each special shape at size to save time.
      */
-
-    // All Drawers
     UIDrawer uiDrawer;
     ShapeDrawer shapeDrawer;
     MapDrawer mapDrawer;
@@ -80,7 +80,7 @@ public class MainSimulation extends PApplet {
     GameEnvironment env;
 
     /** Camera */
-    Camera camera;
+    BaseCamera camera;
     double cameraRotationSpeed;
     double cameraDx;
     double cameraDy;
@@ -192,13 +192,14 @@ public class MainSimulation extends PApplet {
         keyPressedSet = new HashSet<>();
 
         /** Camera setup */
+
         // Add unit to view.camera
-        camera = new Camera(0, 0, INPUT_WIDTH, INPUT_HEIGHT,
+        camera = new TopDownCamera(0, 0, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
         cameraRotationSpeed = 0;
         cameraDx = 0;
         cameraDy = 0;
-        zoomGoal = camera.getZoom();  // To ensure consistency
+        zoomGoal = camera.getZoom();
 
         /** Scrollbar setup */
         scrollbars = new ArrayList<>();

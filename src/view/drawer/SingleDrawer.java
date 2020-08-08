@@ -8,13 +8,11 @@ import model.singles.*;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
 import processing.core.PApplet;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.camera.CameraConstants;
 import view.constants.DrawingConstants;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
-
-import java.util.HashMap;
 
 public class SingleDrawer extends BaseDrawer {
 
@@ -26,7 +24,7 @@ public class SingleDrawer extends BaseDrawer {
 
     // Dependency injections
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
     GameEnvironment env;
     ShapeDrawer shapeDrawer;
     DrawingSettings drawingSettings;
@@ -44,7 +42,7 @@ public class SingleDrawer extends BaseDrawer {
     double shadowXOffset;
     double shadowYOffset;
 
-    public SingleDrawer(PApplet inputApplet, GameEnvironment inputEnv, Camera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
+    public SingleDrawer(PApplet inputApplet, GameEnvironment inputEnv, BaseCamera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
 
         // Dependency injections
         applet = inputApplet;
@@ -165,7 +163,7 @@ public class SingleDrawer extends BaseDrawer {
         if (!DrawingUtils.drawable(drawX, drawY, camera.getWidth(), camera.getHeight())) return;
 
         // Angle of the dead troop
-        double angle = camera.getDrawingAngle(single.getFacingAngle());
+        double angle = camera.getCameraAngleFromActualAngle(single.getFacingAngle());
 
         // Fill with color of dead
         int[] color = DrawingConstants.COLOR_DEAD;
@@ -234,7 +232,7 @@ public class SingleDrawer extends BaseDrawer {
         if (!DrawingUtils.drawable(drawX, drawY, camera.getWidth(), camera.getHeight())) return;
 
         // Pre calculate drawer information
-        double angle = camera.getDrawingAngle(single.getFacingAngle());
+        double angle = camera.getCameraAngleFromActualAngle(single.getFacingAngle());
         double unitX = MathUtils.quickCos((float) angle);
         double unitY = MathUtils.quickSin((float) angle);
 

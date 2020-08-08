@@ -3,15 +3,15 @@ package view.drawer;
 import model.terrain.Terrain;
 import processing.core.PApplet;
 import processing.core.PImage;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 
 public class MapDrawer extends BaseDrawer {
 
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
 
-    public MapDrawer(PApplet inputApplet, Camera inputCamera) {
+    public MapDrawer(PApplet inputApplet, BaseCamera inputCamera) {
         applet = inputApplet;
         camera = inputCamera;
     }
