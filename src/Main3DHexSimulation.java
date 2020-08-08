@@ -173,7 +173,7 @@ public class Main3DHexSimulation extends PApplet {
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "misc/VideoConfigs/Scene4.txt";
+        String battleConfig = "misc/VideoConfigs/Scene3.txt";
         String mapConfig = "misc/VideoConfigs/Scene1Map.txt";
         String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
@@ -583,12 +583,30 @@ public class Main3DHexSimulation extends PApplet {
         }
 
         if (camera.getZoom() > CameraConstants.ZOOM_RENDER_LEVEL_TROOP) {
-            // Alive troop
+            // Sort the troops based on y-position
+            ArrayList<BaseSingle> arr = new ArrayList<>();
             for (BaseUnit unit : env.getAliveUnits()) {
                 // For troops out of position, draw them individually
                 for (BaseSingle single : unit.getAliveTroopsSet()) {
-                    portrayAliveSingle(single, env.getTerrain());
+                    arr.add(single);
                 }
+            }
+            Collections.sort(arr, new Comparator<BaseSingle>() {
+                @Override
+                public int compare(BaseSingle o1, BaseSingle o2) {
+                    double y1 = camera.getDrawingPosition(o1.getX(), o1.getY())[1];
+                    double y2 = camera.getDrawingPosition(o2.getX(), o2.getY())[1];
+                    if (y1 < y2) {
+                        return -1;
+                    } else if (y1 == y2) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
+                }
+            });
+            for (BaseSingle single : arr) {
+                portrayAliveSingle(single, env.getTerrain());
             }
         } else {
             // Draw unit block
