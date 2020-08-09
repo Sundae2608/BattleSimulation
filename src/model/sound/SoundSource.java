@@ -3,13 +3,25 @@ package model.sound;
 import model.enums.SingleState;
 import model.units.unit_stats.UnitSoundStats;
 
+import java.util.ArrayList;
+
 public class SoundSource {
 
-    //TODO: Maybe a Arraylist of X,Y,Z
+
     double noise; //unit in dB
+
+    // TODO: change this to tuple XYZ
+    // If the noise is a single point
     double noiseCoordinateX;
     double noiseCoordinateY;
     double noiseCoordinateZ;
+
+    //TODO: Maybe a Arraylist of X,Y,Z instead of just X, Y, Z
+    // If the soundSource has many speakers
+    ArrayList<Double> noiseArrayX;
+    ArrayList<Double> noiseArrayY;
+    ArrayList<Double> noiseArrayZ;
+
     String noiseLabel; // to label what kind of noise is to be received by sound sink
 
     // Constructor
@@ -59,5 +71,29 @@ public class SoundSource {
 
     public void setNoiseLabel(String noiseLabel) {
         this.noiseLabel = noiseLabel;
+    }
+
+    public ArrayList<Double> getNoiseArrayX() {
+        return noiseArrayX;
+    }
+
+    public void setNoiseArrayX(ArrayList<Double> noiseArrayX) {
+        this.noiseArrayX = noiseArrayX;
+    }
+
+    public ArrayList<Double> getNoiseArrayY() {
+        return noiseArrayY;
+    }
+
+    public void setNoiseArrayY(ArrayList<Double> noiseArrayY) {
+        this.noiseArrayY = noiseArrayY;
+    }
+
+    public ArrayList<Double> getNoiseArrayZ() {
+        return noiseArrayZ;
+    }
+
+    public void setNoiseArrayZ(ArrayList<Double> noiseArrayZ) {
+        this.noiseArrayZ = noiseArrayZ;
     }
 }

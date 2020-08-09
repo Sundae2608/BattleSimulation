@@ -151,10 +151,10 @@ public class GameEnvironment {
 
         // Update sound sinks for all units
         for (BaseUnit unit : units) {
-            unit.updateSoundSink(soundSources);
-            //TODO: unit.updatePerceivedSoundSink();
+            // Notice that each unit is a source for its sink as well. If it is too noisy, it might not be able to perceive the surrounding.
+            unit.updateSoundSink(soundSources, terrain, surfaces, units);
+            unit.updatePerceivedSoundSink();
         }
-
 
         // Broadcast running, marching and arrow fire event events
         for (BaseUnit unit : units) {
