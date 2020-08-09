@@ -2,18 +2,14 @@ package model.units;
 
 import model.GameEnvironment;
 import model.enums.PoliticalFaction;
-import model.events.EventBroadcaster;
-import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.singles.SingleStats;
 import model.singles.SkirmisherSingle;
-import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class SkirmisherUnit extends BaseUnit {
 
@@ -75,8 +71,12 @@ public class SkirmisherUnit extends BaseUnit {
         goalAngle = anchorAngle;
 
         // Set of flanker counts and frontline patient counters
-        frontlinePatientCounters = new int[width];
+        frontLinePatientCounters = new int[width];
         flankersCount = new int[width];
+        flankerOffsets = new ArrayList[width];
+        for (int i = 0; i < width; i++) {
+            flankerOffsets[i] = new ArrayList<>();
+        }
     }
 
     @Override
