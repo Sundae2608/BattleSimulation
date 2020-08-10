@@ -645,6 +645,7 @@ public final class PhysicUtils {
         double div = terrain.getDiv();
         double temp = 10 * Math.ceil(MathUtils.quickRoot2((float) travelLengthPixel) / div); // Magic number 10
 
+        // TODO: t
         double[] t = new double[(int) temp];
         for (int i = 1; i < t.length; i++) {
             t[i] = t[i - 1] + 1.0 / t.length;
@@ -668,7 +669,7 @@ public final class PhysicUtils {
             terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
             visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
         }
-
+        // TODO: Nhét sound reduce
         // Finding whether the queryUnit is visible
         boolean visibility = true;
         for (int j = 1; j < t.length; j++) {
@@ -702,6 +703,7 @@ public final class PhysicUtils {
      * @param thisBaseUnit
      * @return
      */
+    //TODO: Nhét unit và soundsource
     public static String getPerceivedNoiseLabel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces,
                                                 ArrayList<BaseUnit> units, BaseUnit thisBaseUnit){
         // Get soundSource label
