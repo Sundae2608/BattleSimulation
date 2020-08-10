@@ -4,9 +4,9 @@
     x: 10500
     y: 12070
     angle: 0
-    size: 40
+    size: 1
     faction: ROME
-    width: 5
+    width: 1
 },
 {
     type: CATAPULT
@@ -14,9 +14,9 @@
     x: 11000
     y: 14070
     angle: 90
-    size: 40
+    size: 1
     faction: ROME
-    width: 5
+    width: 1
 },
 {
     type: SWORDMAN
@@ -24,7 +24,7 @@
     x: 11900
     y: 10570
     angle: 180
-    size: 5000
+    size: 2000
     faction: GAUL
     width: 100
 },

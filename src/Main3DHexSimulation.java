@@ -45,8 +45,8 @@ import java.util.*;
 public class Main3DHexSimulation extends PApplet {
 
     /** Screen constants */
-    private final static int INPUT_WIDTH = 2560;
-    private final static int INPUT_HEIGHT = 1440;
+    private final static int INPUT_WIDTH = 1920;
+    private final static int INPUT_HEIGHT = 1080;
 
     /** Drawers
      * This helps store each special shape at size to save time.
@@ -151,7 +151,7 @@ public class Main3DHexSimulation extends PApplet {
         drawingSettings.setDrawVideoEffect(true);
         drawingSettings.setDrawUnitInfo(true);
         drawingSettings.setDrawPathfindingNodes(false);
-        drawingSettings.setDrawControlArrow(false);
+        drawingSettings.setDrawControlArrow(true);
         drawingSettings.setDrawGameInfo(true);
 
         // Audio settings
@@ -173,8 +173,8 @@ public class Main3DHexSimulation extends PApplet {
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "misc/VideoConfigs/Scene3.txt";
-        String mapConfig = "misc/VideoConfigs/Scene1Map.txt";
+        String battleConfig = "misc/VideoConfigs/Scene2.txt";
+        String mapConfig = "misc/VideoConfigs/Scene2Map.txt";
         String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";

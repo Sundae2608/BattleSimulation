@@ -50,7 +50,7 @@ public class HexCamera extends BaseCamera {
         width = inputWidth;
         height = inputHeight;
         angle = 0;
-        phiAngle = Math.PI / 3;
+        phiAngle = Math.PI / 6;
         zoom = 1.0;
         resize = 1.0;
 
@@ -68,10 +68,10 @@ public class HexCamera extends BaseCamera {
                 MathUtils.quickSin((float) angle) * zoom, MathUtils.quickCos((float) angle) * MathUtils.quickCos((float) phiAngle) * zoom
         };
         xReverseVector = new double[] {
-                MathUtils.quickCos((float) -angle) / zoom, -MathUtils.quickSin((float) -angle) / MathUtils.quickCos((float) phiAngle) / zoom
+                MathUtils.quickCos((float) angle) / zoom, MathUtils.quickSin((float) angle) / zoom
         };
         yReverseVector = new double[] {
-                MathUtils.quickSin((float) -angle) / zoom, MathUtils.quickCos((float) -angle) / MathUtils.quickCos((float) phiAngle) / zoom
+                -MathUtils.quickSin((float) angle) / zoom, MathUtils.quickCos((float) angle) / zoom
         };
         zScale = MathUtils.quickSin((float) phiAngle) * zoom;
     }
@@ -90,6 +90,7 @@ public class HexCamera extends BaseCamera {
         };
     }
 
+    @Override
     public double[] getDrawingPosition(double inputX, double inputY, double inputZ) {
         double xOffset = inputX - x;
         double yOffset = inputY - y;
@@ -105,20 +106,21 @@ public class HexCamera extends BaseCamera {
      */
     @Override
     public double[] getActualPositionFromScreenPosition(double screenX, double screenY) {
-        double offsetScreenX = screenX - width / 2;
-        double offsetScreenY = screenY - height / 2;
+        double offsetFromCenterX = (screenX - width / 2);
+        double offsetFromCenterY = (screenY - height / 2) / MathUtils.quickCos((float) phiAngle);
         return new double[] {
-            offsetScreenX * xReverseVector[0] + offsetScreenY * yReverseVector[0] + x,
-            offsetScreenX * yReverseVector[1] + offsetScreenY * yReverseVector[1] + y
+            offsetFromCenterX * xReverseVector[0] + offsetFromCenterY * yReverseVector[0] + x,
+            offsetFromCenterX * xReverseVector[1] + offsetFromCenterY * yReverseVector[1] + y
         };
     }
+
     @Override
     public double[] getActualPositionFromScreenPosition(double screenX, double screenY, double posZ) {
         double offsetScreenX = screenX - width / 2;
-        double offsetScreenY = screenY - height / 2 + posZ * zScale;
+        double offsetScreenY = (screenY - height / 2 + posZ * zScale) / MathUtils.quickCos((float) phiAngle);
         return new double[] {
                 offsetScreenX * xReverseVector[0] + offsetScreenY * yReverseVector[0] + x,
-                offsetScreenX * yReverseVector[1] + offsetScreenY * yReverseVector[1] + y
+                offsetScreenX * xReverseVector[1] + offsetScreenY * yReverseVector[1] + y
         };
     }
 
