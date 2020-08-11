@@ -129,4 +129,8 @@ public class HexCamera extends BaseCamera {
         // For hexagonal camera, the zoom stays unchanged throughout.
         return zoom;
     }
+
+    public void setPhiAngle(double phiAngle) {
+        this.phiAngle = phiAngle;
+    }
 }
