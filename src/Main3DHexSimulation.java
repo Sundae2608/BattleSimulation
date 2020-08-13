@@ -236,7 +236,7 @@ public class Main3DHexSimulation extends PApplet {
 
         scrollbars.add(new Scrollbar("Phi angle",
                 INPUT_WIDTH - 300, 210, 280, 20,
-                phalanxSingleStats.attack, Math.PI / 24, Math.PI * 11 / 24, this,
+                ((HexCamera) camera).getPhiAngle(), Math.PI / 24, Math.PI * 11 / 24, this,
                 new CustomAssigner() {
                     @Override
                     public void updateValue(double value) {

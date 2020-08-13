@@ -130,6 +130,10 @@ public class HexCamera extends BaseCamera {
         return zoom;
     }
 
+    public double getPhiAngle() {
+        return phiAngle;
+    }
+
     public void setPhiAngle(double phiAngle) {
         this.phiAngle = phiAngle;
     }
