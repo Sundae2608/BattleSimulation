@@ -73,6 +73,7 @@ public class BaseUnit {
     // Declaring sound source, the sound sink and the perceived sound sink for each unit
     SoundSource soundSource; // Because each unit is a sound source itself, each unit should host a SoundSource object
     HashMap<String, Pair<Double, Double>> soundSink; // Because each unit is a sound sink itself, each unit should host
+
     // a list of SoundSource objects along with the level of noise (left element) and respective directional angle
     // (right element)
     HashMap<String, Double> perceivedSoundSink; // Because each identify certain sound sources, this is a filtered
@@ -121,6 +122,8 @@ public class BaseUnit {
         timeInFightingState = 0;
         stamina = inputUnitStats.staminaStats.maxStamina;
         soundSource = new SoundSource();
+        soundSink = new HashMap<>();
+        perceivedSoundSink = new HashMap<>();
         leftFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
         rightFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
     }

@@ -2,7 +2,7 @@ package model.objects;
 
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
-import org.apache.commons.math3.util.Pair;
+import javafx.util.Pair;
 
 public class Arrow extends Projectile {
 
@@ -35,10 +35,10 @@ public class Arrow extends Projectile {
         // Calculate arrow height and lifetime
         double distance = Math.sqrt((goalX - inputX)*(goalX - inputX) + (goalY - inputY)*(goalY - inputY));
         Pair<Double, Double[]> outputPair = PhysicUtils.calculateProjectileArchGivenSpeedAndDist(speed, distance);
-        heightOverTime = outputPair.getSecond();
+        heightOverTime = outputPair.getValue();
 
-        double dx = MathUtils.quickCos((float) angle) * outputPair.getFirst();
-        double dy = MathUtils.quickSin((float) angle) * outputPair.getFirst();
+        double dx = MathUtils.quickCos((float) angle) * outputPair.getKey();
+        double dy = MathUtils.quickSin((float) angle) * outputPair.getKey();
 
         int lifeTime = heightOverTime.length;
         int impactTime = (int) Math.max(lifeTime - impactLifeTime, 0);
