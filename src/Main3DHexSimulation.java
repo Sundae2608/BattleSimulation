@@ -244,6 +244,16 @@ public class Main3DHexSimulation extends PApplet {
                     }
                 }));
 
+        scrollbars.add(new Scrollbar("Height scale ",
+                INPUT_WIDTH - 300, 270, 280, 20,
+                DrawingConstants.HEX_TERRAIN_HEIGHT_SCALE, 1.0, 10.0, this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        DrawingConstants.HEX_TERRAIN_HEIGHT_SCALE = value;
+                    }
+                }));
+
         /** Drawer setup */
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
         shapeDrawer = new ShapeDrawer(this, camera);

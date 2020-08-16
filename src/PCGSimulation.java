@@ -1,17 +1,25 @@
+import controller.tunable.CustomAssigner;
+import model.algorithms.pathfinding.Graph;
+import model.algorithms.pathfinding.Node;
+import model.algorithms.pathfinding.Triangle;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
+import model.utils.MapGenerationUtils;
+import model.utils.Triplet;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
 import view.camera.BaseCamera;
-import view.camera.TopDownCamera;
 import view.camera.CameraConstants;
-import view.constants.MapMakerConstants;
+import view.camera_hex.HexCamera;
+import view.constants.DrawingConstants;
 import view.drawer.InfoDrawer;
 import view.drawer.MapDrawer;
 import view.drawer.UIDrawer;
+import view.drawer.components.Scrollbar;
 import view.settings.DrawingSettings;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 public class PCGSimulation extends PApplet {
@@ -25,16 +33,23 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
+    private final static int NUM_HEX_RADIUS = 7;
+    private final static double HEX_RADIUS = 300;
+    private final static double HEX_JIGGLE = 30;
+    private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
+    private final static double HEX_CENTER_Y = INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2;
+
+    private final static double PT_SCALE = 0.9;
+    private final static double SWAP_PROBABILITY = 0.10;
+
+    private final static double SCALING_EXPONTENTIAL = 1.1;
+    private final static double BASE_SCALE_DIST = 600;
+
     // Drawing settings
     DrawingSettings drawingSettings;
 
     // Key and mouse pressed set
     HashSet<Character> keyPressedSet;
-    boolean leftMouseHold;
-    boolean rightMouseHold;
-
-    // Circle screen size
-    double circleScreenSize;
 
     // Drawer
     UIDrawer uiDrawer;
@@ -48,13 +63,21 @@ public class PCGSimulation extends PApplet {
     double cameraDy;
     int zoomCounter;
     double zoomGoal;
+    ArrayList<Scrollbar> scrollbars;
 
     // Terrain
     Terrain terrain;
 
+    // Hexagonal points
+    Graph graph;
+    ArrayList<Triangle> triangles;
+
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
         drawingSettings = new DrawingSettings();
+
+        // Drawing settings
+        smooth(3);
     }
 
     public void setup() {
@@ -62,9 +85,9 @@ public class PCGSimulation extends PApplet {
         terrain = new Terrain(INPUT_TOP_X, INPUT_TOP_Y, INPUT_DIV, INPUT_NUM_X, INPUT_NUM_Y);
 
         // Set up camera.
-        camera = new TopDownCamera(
-                INPUT_NUM_X * INPUT_DIV / 2,
-                INPUT_NUM_Y * INPUT_DIV / 2,
+        camera = new HexCamera(
+                INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2,
+                INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2,
                 INPUT_WIDTH, INPUT_HEIGHT);
         camera.setZoom(0.10);
         cameraRotationSpeed = 0;
@@ -74,20 +97,264 @@ public class PCGSimulation extends PApplet {
         // Set up zoom.
         zoomGoal = camera.getZoom();  // To ensure consistency
 
+        /** Scrollbar setup */
+        scrollbars = new ArrayList<>();
+        scrollbars.add(new Scrollbar("Phi angle",
+                INPUT_WIDTH - 300, 30, 280, 20,
+                ((HexCamera) camera).getPhiAngle(), Math.PI / 24, Math.PI * 11 / 24, this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        ((HexCamera) camera).setPhiAngle(value);
+                    }
+                }));
+
         // Set up drawer
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
         mapDrawer = new MapDrawer(this, camera);
         infoDrawer = new InfoDrawer(this);
 
-        // Drawing settings
-        smooth(3);
-        noCursor();
-
         // Set of keys pressed.
         keyPressedSet = new HashSet<>();
+
+        // Generate a set of points.
+        graph = new Graph();
+        HashSet<Triplet<Integer, Integer, Integer>> hexIndices = new HashSet<>();
+        for (int i = 0; i < NUM_HEX_RADIUS; i++) {
+            for (Triplet triplet : MathUtils.getHexagonalIndicesRingAtOffset(i)) {
+                hexIndices.add(triplet);
+            }
+        }
+        int i = 0;
+        HashMap<Triplet<Integer, Integer, Integer>, Node> nodeMap = new HashMap<>();
+        for (Triplet<Integer, Integer, Integer> triplet : hexIndices) {
+            // Add the node to the graph
+            double[] pt = MathUtils.generateOffsetBasedOnHexTripletIndices(triplet.x, triplet.y, triplet.z, HEX_RADIUS);
+            Node node = new Node(pt[0] + HEX_CENTER_X, pt[1] + HEX_CENTER_Y);
+            graph.addNodeWithIndex(node, i);
+
+            // Add the node to the node map, this will help us identify adjacent node later.
+            nodeMap.put(triplet, node);
+            i++;
+        }
+
+        for (Triplet t : nodeMap.keySet()) {
+            // System.out.println(t.x.toString() + ", " + t.y.toString() + ", " + t.z.toString());
+        }
+
+        // Connect nodes that are adjacent to each other.
+        for (Triplet<Integer, Integer, Integer> t : hexIndices) {
+            for (Triplet<Integer, Integer, Integer> adjacentTriplet : MathUtils.generateAdjacentHexagonalTriplets(t)) {
+                if (nodeMap.containsKey(adjacentTriplet)) {
+                    graph.connectNode(nodeMap.get(t), nodeMap.get(adjacentTriplet));
+                }
+            }
+        }
+
+        // Jiggle the nodes
+        for (Node node : graph.getNodes()) {
+            double[] newPt = MathUtils.polarJiggle(node.getX(), node.getY(), HEX_JIGGLE);
+            node.setX(newPt[0]);
+            node.setY(newPt[1]);
+        }
+
+        /**
+         * Create triangles out of points. This process will be split into 4 parts.
+         * + Create up triangles for top half
+         * + Create up triangles for bottom half
+         * + Create down triangles for top half
+         * + create down triangles for bottom half
+         */
+        int numPoints = NUM_HEX_RADIUS;
+        triangles = new ArrayList<>();
+        HashMap<Triplet, Triangle> upTriangleMap = new HashMap<>();
+        HashMap<Triplet, Triangle> downTriangleMap = new HashMap<>();
+        HashMap<Node, HashSet<Triangle>> nodeToTriangleMap = new HashMap<>();
+
+        Triplet<Integer, Integer, Integer> curr;
+        Triplet<Integer, Integer, Integer> topLeftTriplet = new Triplet<>(0, NUM_HEX_RADIUS - 1, -NUM_HEX_RADIUS + 1);
+        for (int row = 0; row < NUM_HEX_RADIUS - 1; row++) {
+            for (int col = 0; col < numPoints; col++) {
+                // Up triangle has the following indices relative to currTriplet
+                //          (_, _, _)
+                //          /       \
+                // (-1, _, +1) ---- (_, -1, +1)
+                curr = new Triplet<>(topLeftTriplet.x - row + col, topLeftTriplet.y - col, topLeftTriplet.z + row);
+
+                Triplet<Integer, Integer, Integer> t1 = curr;
+                Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x-1, curr.y, curr.z+1);
+                Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
+                Triangle triangle;
+                if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
+                    triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                    triangles.add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
+                        nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
+                        nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
+                        nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
+                    upTriangleMap.put(curr, triangle);
+                }
+            }
+            numPoints++;
+        }
+
+        topLeftTriplet = new Triplet<>(0, NUM_HEX_RADIUS - 1, -NUM_HEX_RADIUS + 1);
+        for (int row = 0; row < NUM_HEX_RADIUS - 1; row++) {
+            for (int col = 0; col < numPoints - 1; col++) {
+                // Down triangle has the following indices relative to currTriplet
+                // (_, _, _) ---- (+1, -1, _)
+                //        \         /
+                //        (_, -1, +1)
+                curr = new Triplet<>(topLeftTriplet.x - row + col, topLeftTriplet.y - col, topLeftTriplet.z + row);
+
+                Triplet<Integer, Integer, Integer> t1 = curr;
+                Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x+1, curr.y-1, curr.z);
+                Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
+                Triangle triangle;
+                if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
+                    triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                    triangles.add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
+                        nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
+                        nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
+                        nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
+                    downTriangleMap.put(curr, triangle);
+                }
+            }
+            numPoints++;
+        }
+
+        topLeftTriplet = new Triplet<>(0 - NUM_HEX_RADIUS + 1, NUM_HEX_RADIUS - 1, 0);
+        for (int row = 0; row < NUM_HEX_RADIUS - 1; row++) {
+            for (int col = 0; col < numPoints; col++) {
+                // Up triangle has the following indices relative to currTriplet
+                //          (_, _, _)
+                //          /       \
+                // (-1, _, +1)      (_, -1, +1)
+                curr = new Triplet<>(topLeftTriplet.x + col, topLeftTriplet.y - row - col, topLeftTriplet.z + row);
+
+                Triplet<Integer, Integer, Integer> t1 = curr;
+                Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x-1, curr.y, curr.z+1);
+                Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
+                if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
+                    Triangle triangle;
+                    if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
+                        triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                        triangles.add(triangle);
+                        if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
+                            nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
+                        }
+                        nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
+                        if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
+                            nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
+                        }
+                        nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
+                        if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
+                            nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
+                        }
+                        nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
+                        upTriangleMap.put(curr, triangle);
+                    }
+                }
+            }
+            numPoints--;
+        }
+
+        topLeftTriplet = new Triplet<>(0 - NUM_HEX_RADIUS + 1, NUM_HEX_RADIUS - 1, 0);
+        for (int row = 0; row < NUM_HEX_RADIUS - 1; row++) {
+            for (int col = 0; col < numPoints - 1; col++) {
+                // Down triangle has the following indices relative to currTriplet
+                // (_, _, _) ---- (+1, -1, _)
+                //        \         /
+                //        (_, -1, +1)
+                curr = new Triplet<>(topLeftTriplet.x - row + col, topLeftTriplet.y - col, topLeftTriplet.z + row);
+
+                Triplet<Integer, Integer, Integer> t1 = curr;
+                Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x+1, curr.y-1, curr.z);
+                Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
+                Triangle triangle;
+                if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
+                    triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                    triangles.add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
+                        nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
+                        nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
+                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
+                        nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
+                    }
+                    nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
+                    downTriangleMap.put(curr, triangle);
+                }
+            }
+            numPoints++;
+        }
+
+        /**
+         * Perform node swapping of two adjacent triangles
+         */
+        // Random node swapping.
+        // TODO: Add a condition to stop the swap if the the swap would create overlapping geometry.
+        for (Triplet<Integer, Integer, Integer> t : upTriangleMap.keySet()) {
+            Triplet<Integer, Integer, Integer> downCandidate1 = t;
+            if (MathUtils.randDouble(0, 1) < SWAP_PROBABILITY && downTriangleMap.containsKey(downCandidate1)) {
+                MapGenerationUtils.swapTriangleEdges(upTriangleMap.get(t), downTriangleMap.get(downCandidate1), nodeToTriangleMap);
+            }
+            Triplet<Integer, Integer, Integer> downCandidate2 = new Triplet<>(t.x - 1, t.y + 1, t.z);
+            if (MathUtils.randDouble(0, 1) < SWAP_PROBABILITY && downTriangleMap.containsKey(downCandidate2)) {
+                MapGenerationUtils.swapTriangleEdges(upTriangleMap.get(t), downTriangleMap.get(downCandidate2), nodeToTriangleMap);
+            }
+            Triplet<Integer, Integer, Integer> downCandidate3 = new Triplet<>(t.x - 1, t.y, t.z + 1);
+            if (MathUtils.randDouble(0, 1) < SWAP_PROBABILITY && downTriangleMap.containsKey(downCandidate3)) {
+                MapGenerationUtils.swapTriangleEdges(upTriangleMap.get(t), downTriangleMap.get(downCandidate3), nodeToTriangleMap);
+            }
+        }
+
+        /**
+         * Geometric scaling from the center.
+         * A city typically has a very dense and small area in the center, followed by very sparse geometry further away
+         * Therefore, we should scale so that city center appears in smaller block, while the surround blocks get
+         * increasingly bigger
+         */
+        for (Node node : graph.getNodes()) {
+            double dist = MathUtils.quickDistance(HEX_CENTER_X, HEX_CENTER_Y, node.getX(), node.getY());
+            double[] newPt = MathUtils.scalePoint(new double[] {HEX_CENTER_X, HEX_CENTER_Y}, node.getPt(), Math.max(Math.log(dist / BASE_SCALE_DIST), 1));
+            node.setX(newPt[0]);
+            node.setY(newPt[1]);
+        }
+
+        /**
+         * Remove nodes to create bigger lumps of stuffs
+         */
+
     }
 
     public void draw() {
+
+        // Perform some backend update before drawing
+        for (Scrollbar scrollbar : scrollbars) {
+            scrollbar.update();
+        }
 
         // Clear everything
         background(230);
@@ -152,8 +419,36 @@ public class PCGSimulation extends PApplet {
         // Drawing terrain line
         mapDrawer.drawTerrainLine(terrain);
 
-        // Draw the circle that is the drawer.
-        uiDrawer.paintCircle(mouseX, mouseY);
+        // Draw triangles
+        int[] color = DrawingConstants.TRIANGLE_COM_COLOR;
+        noStroke();
+        strokeWeight((float) (50 * camera.getZoom()));
+        fill(color[0], color[1], color[2], color[3]);
+        beginShape(TRIANGLES);
+        for (Triangle triangle : triangles) {
+            double[] centerOfMass = triangle.getCenterOfMass();
+            double[][] pts = triangle.getPoints();
+            pts[0] = MathUtils.scalePoint(centerOfMass, pts[0], PT_SCALE);
+            pts[1] = MathUtils.scalePoint(centerOfMass, pts[1], PT_SCALE);
+            pts[2] = MathUtils.scalePoint(centerOfMass, pts[2], PT_SCALE);
+            pts[0] = camera.getDrawingPosition(pts[0][0], pts[0][1], terrain.getHeightFromPos(pts[0][0], pts[0][1]));
+            pts[1] = camera.getDrawingPosition(pts[1][0], pts[1][1], terrain.getHeightFromPos(pts[1][0], pts[1][1]));
+            pts[2] = camera.getDrawingPosition(pts[2][0], pts[2][1], terrain.getHeightFromPos(pts[2][0], pts[2][1]));
+            vertex((float) pts[0][0], (float) pts[0][1]);
+            vertex((float) pts[1][0], (float) pts[1][1]);
+            vertex((float) pts[2][0], (float) pts[2][1]);
+        }
+        endShape();
+        noStroke();
+
+        // Draw pts
+        color = DrawingConstants.NODE_COLOR;
+        fill(color[0], color[1], color[2], color[3]);
+        for (Node node : graph.getNodes()) {
+            double[] drawingPt = camera.getDrawingPosition(
+                    node.getX(), node.getY(), terrain.getHeightFromPos(node.getX(), node.getY()));
+            circle((float) drawingPt[0], (float) drawingPt[1], (float) (DrawingConstants.NODE_RADIUS * camera.getZoom()));
+        }
 
         // Draw zoom information
         StringBuilder s = new StringBuilder();
@@ -161,19 +456,9 @@ public class PCGSimulation extends PApplet {
         s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
         infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
 
-        // Change the heights of all points within the paint brush.
-        double dHeight = 0;
-        if (leftMouseHold) {
-            dHeight = MapMakerConstants.HEIGHT_CHANGE / camera.getZoom();
-        } else if (rightMouseHold) {
-            dHeight = -MapMakerConstants.HEIGHT_CHANGE / camera.getZoom();
-        }
-        ArrayList<int[]> ptList = getPointsWithinBrush(
-                terrain, mouseX, mouseY, MapMakerConstants.PAINT_CIRCLE_SIZE, camera);
-        for (int[] pt : ptList) {
-            int i = pt[0];
-            int j = pt[1];
-            terrain.changeHeightAtTile(i, j, dHeight);
+        // Scroll bars
+        for (Scrollbar scrollbar : scrollbars) {
+            scrollbar.display();
         }
     }
 
@@ -200,62 +485,6 @@ public class PCGSimulation extends PApplet {
             if (zoomGoal < CameraConstants.MINIMUM_ZOOM) zoomGoal = CameraConstants.MINIMUM_ZOOM;
         }
         zoomCounter = CameraConstants.ZOOM_SMOOTHEN_STEPS;
-    }
-
-    /**
-     * Return an array of int[] denotings the index that were within the circle centering at (mouseX, mouseY) and has
-     * radius circleSize.
-     */
-    private ArrayList<int[]> getPointsWithinBrush(Terrain terrain, double mouseX, double mouseY, double circleSize, BaseCamera camera) {
-        // Get the set of candidates by getting all points potentially within the size of the circles.
-        double circleSizeActual = circleSize / camera.getZoom();
-        int sizeInNumDivs = (int) (circleSizeActual / terrain.getDiv());
-        double[] actualPositions = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-        double x = actualPositions[0];
-        double y = actualPositions[1];
-        int xDiv = (int) Math.round(x / terrain.getDiv());
-        int yDiv = (int) Math.round(y / terrain.getDiv());
-        int minX = xDiv - sizeInNumDivs / 2 - 2;
-        int maxX = xDiv + sizeInNumDivs / 2 + 2;
-        int minY = yDiv - sizeInNumDivs / 2 - 2;
-        int maxY = yDiv + sizeInNumDivs / 2 + 2;
-
-        // Check each candidate points, with i in the range of (minX, maxX) and j in (minY, maxY). If the candidate
-        // point is within the radius of the selection circle, we add them to the selection.
-        double squareRadius = MathUtils.square(circleSizeActual / 2);
-        ArrayList<int[]> ptList = new ArrayList<>();
-        for (int i = minX; i <= maxX; i++) {
-            for (int j = minY; j <= maxY; j++) {
-                if (i < 0 || i >= terrain.getNumX() || j < 0 || j >= terrain.getNumY()) {
-                    continue;
-                }
-                double[] pos = terrain.getPosFromTileIndex(i, j);
-                double posX = pos[0];
-                double posY = pos[1];
-                double squareDistance = MathUtils.squareDistance(posX, posY, x, y);
-                if (squareDistance < squareRadius) {
-                    ptList.add(new int[] {i, j});
-                }
-            }
-        }
-
-        // Return point list
-        return ptList;
-    }
-
-    @Override
-    public void mousePressed() {
-        if (mouseButton == LEFT) {
-            leftMouseHold = true;
-        } else if (mouseButton == RIGHT) {
-            rightMouseHold = true;
-        }
-    }
-
-    @Override
-    public void mouseReleased() {
-        leftMouseHold = false;
-        rightMouseHold = false;
     }
 
     public static void main(String... args){

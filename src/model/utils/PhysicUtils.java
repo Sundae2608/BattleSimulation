@@ -669,7 +669,7 @@ public final class PhysicUtils {
             terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
             visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
         }
-        // TODO: Nhét sound reduce
+        // TODO: Insert sound reduce
         // Finding whether the queryUnit is visible
         boolean visibility = true;
         for (int j = 1; j < t.length; j++) {

@@ -44,6 +44,12 @@ public class DrawingConstants {
     public final static int[] SURFACE_COLOR_SNOW = {225, 240, 240, 128};
     public final static int[] TREE_COLOR = {125, 95, 76, 255};
 
+    // Node points
+    public final static int[] NODE_COLOR = {255, 87, 33, 128};
+    public final static int[] EDGE_COLOR = {255, 87, 33, 128};
+    public final static int[] TRIANGLE_COM_COLOR = {36, 227, 106, 128};
+    public final static double NODE_RADIUS = 40;
+
     // Unit size color
     public final static float[] UNIT_SIZE_COLOR = {0, 0, 0, 25};
 
@@ -68,7 +74,10 @@ public class DrawingConstants {
     // Height scale for airborne objects
     // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
     // the height effect of arrows a little bit to make the arrow looks more palatable.
-    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 10.50;
+    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 2.50;
+
+    // Exaggerate height features for Hex Camera.
+    public static double HEX_TERRAIN_HEIGHT_SCALE = 5.0;
 
     // Path planning alpha. Drawing the planned route of an unit as a little more transparent to differentiate with
     // the path current being executed.

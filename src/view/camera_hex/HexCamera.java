@@ -3,6 +3,7 @@ package view.camera_hex;
 import model.events.EventBroadcaster;
 import model.utils.MathUtils;
 import view.camera.BaseCamera;
+import view.constants.DrawingConstants;
 
 public class HexCamera extends BaseCamera {
 
@@ -73,7 +74,7 @@ public class HexCamera extends BaseCamera {
         yReverseVector = new double[] {
                 -MathUtils.quickSin((float) angle) / zoom, MathUtils.quickCos((float) angle) / zoom
         };
-        zScale = MathUtils.quickSin((float) phiAngle) * zoom;
+        zScale = MathUtils.quickSin((float) phiAngle) * zoom * DrawingConstants.HEX_TERRAIN_HEIGHT_SCALE;
     }
 
     /**

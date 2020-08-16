@@ -259,6 +259,18 @@ public final class MathUtils {
     }
 
     /**
+     * Jiggle the point (x, y) to an adjacent point that is upto distance d away from point(x, y), toward a random
+     * direction
+     */
+    public static double[] polarJiggle(double x, double y, double scale) {
+        double randDir = randDouble(0, PIX2);
+        double unitX = quickCos((float) randDir);
+        double unitY = quickSin((float) randDir);
+        double randScale = randDouble(0, scale);
+        return new double[] {x + randScale * unitX, y + randScale * unitY};
+    }
+
+    /**
       Cap the length of the
      */
     public static double capMinMax(double x, double min, double max) {
@@ -436,6 +448,26 @@ public final class MathUtils {
     }
 
     /**
+     * Generate adjacent hexagonal triplets of a given triplet. The adjacent indices is calculated as followed:
+     *        (_, +1, -1)   (+1, _, -1)
+     *                \      /
+     * (-1, +1, _) - (_, _, _) - (+1, -1, _)
+     *               /      \
+     *      (-1, _, +1)   (_, -1, +1)
+     */
+    public static ArrayList<Triplet<Integer, Integer, Integer>> generateAdjacentHexagonalTriplets(
+            Triplet<Integer, Integer, Integer> t) {
+        ArrayList<Triplet<Integer, Integer, Integer>> hexPts = new ArrayList<>();
+        hexPts.add(new Triplet<>(t.x, t.y + 1, t.z - 1));
+        hexPts.add(new Triplet<>(t.x + 1, t.y, t.z - 1));
+        hexPts.add(new Triplet<>(t.x + 1, t.y - 1, t.z));
+        hexPts.add(new Triplet<>(t.x, t.y - 1, t.z + 1));
+        hexPts.add(new Triplet<>(t.x - 1, t.y, t.z + 1));
+        hexPts.add(new Triplet<>(t.x - 1, t.y + 1, t.z));
+        return hexPts;
+    }
+
+    /**
      * Generate offset based on hex triplet index
      */
     public static double[] generateOffsetBasedOnHexTripletIndices(int x, int y, int z, double scale) {
@@ -455,4 +487,13 @@ public final class MathUtils {
         return new double[] {offsetX, offsetY};
     }
 
+    /**
+     * Scale the point according to a ratio.
+     */
+    public static double[] scalePoint(double[] pt1, double[] pt2, double scale) {
+        return new double[] {
+                pt1[0] + (pt2[0] - pt1[0]) * scale,
+                pt1[1] + (pt2[1] - pt1[1]) * scale,
+        };
+    }
 }
