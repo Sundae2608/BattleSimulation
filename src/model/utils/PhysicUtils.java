@@ -13,6 +13,8 @@ import javafx.util.Pair;
 
 import java.util.ArrayList;
 
+import static model.utils.MathUtils.*;
+
 public final class PhysicUtils {
 
     /**
@@ -417,7 +419,7 @@ public final class PhysicUtils {
         double closestY = y1 + (dot * (y2-y1));
 
         // get distance to closest point
-        double distance = MathUtils.quickDistance(closestX, closestY, cx, cy);
+        double distance = quickDistance(closestX, closestY, cx, cy);
 
         // is the circle on the line?
         if (distance <= r) {
@@ -502,7 +504,7 @@ public final class PhysicUtils {
             double x2 = pt2[0]; double y2 = pt2[1];
             // Select the edge that has the smallest distance to the single
             double distanceToLine = Math.abs((y2 - y1) * px - (x2 - x1) * py + x2 * y1 - y2 * x1) /
-                    MathUtils.quickDistance(x1, y1, x2, y2);
+                    quickDistance(x1, y1, x2, y2);
             if (distanceToLine < minDist) {
                 minDist = distanceToLine;
                 minEdge = i;
@@ -535,7 +537,7 @@ public final class PhysicUtils {
             double x2 = pt2[0]; double y2 = pt2[1];
             // Select the edge that has the smallest distance to the single
             double distanceToLine = Math.abs((y2 - y1) * single.getX() - (x2 - x1) * single.getY() + x2 * y1 - y2 * x1) /
-                    MathUtils.quickDistance(x1, y1, x2, y2);
+                    quickDistance(x1, y1, x2, y2);
             if (distanceToLine < minDist) {
                 minDist = distanceToLine;
                 minEdge = i;
@@ -634,6 +636,10 @@ public final class PhysicUtils {
         double sinkY = thisUnit.getAverageY();
         double sinkZ = thisUnit.getAverageZ();
 
+        if ((soundX == sinkX)&&(soundY==sinkY)&&(soundZ==sinkZ)){
+            return startingNoiseLevel;
+        }
+
         // Calculating and converting travelLength from pixel to meter
         double travelLengthPixel = MathUtils.squareDistance(soundX, soundY, sinkX, sinkY);
         double travelLengthMeter = travelLengthPixel / 23;
@@ -689,10 +695,90 @@ public final class PhysicUtils {
      * @param soundSource
      * @param terrain
      * @param surfaces
-     * @param thisUnit
+     * @param unit
      * @return
      */
-    // TODO: public void double calculateBouncedNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, BaseUnit thisUnit){
+    public static double calculateBouncedNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, BaseUnit unit) {
+        // Getting the coordinate of the unit and the soundSource
+        double unitX = unit.getAverageX();
+        double unitY = unit.getAverageY();
+        double unitZ = unit.getAverageZ();
+
+        double soundSourceX = soundSource.getX();
+        double soundSourceY = soundSource.getY();
+        double soundSourceZ = soundSource.getZ();
+
+        // Drawing a cone of 30 degrees between the soundSource and the unit
+        // First get the unit vector from the soundSource and the unit
+        double[] vectorSoundSourceToUnit = unitVectorBetweenTwoPoints(soundSourceX, soundSourceY, unitX, unitY);
+
+        // Getting a normal vector wrt the vector from soundSource to the Unit
+        double[] vectorNormal = new double[2];
+        vectorNormal[0] = vectorSoundSourceToUnit[1];
+        vectorNormal[1] = -vectorSoundSourceToUnit[1];
+
+        // Calculate the distance between soundSource and the unit
+        double distance = quickDistance(soundSourceX, soundSourceY, unitX, unitY);
+
+        // Calculate the length for half the base of the cone
+        double halfConeBase = distance*quickSin((float) toRadians(30/2));
+
+        // Getting the endpoints for the base
+        double[] endPoint1 = new double[2];
+        endPoint1[0] = unitX + halfConeBase*vectorNormal[0];
+        endPoint1[1] = unitY + halfConeBase*vectorNormal[1];
+
+        double[] endPoint2 = new double[2];
+        endPoint2[0] = unitX - halfConeBase*vectorNormal[0];
+        endPoint2[1] = unitY - halfConeBase*vectorNormal[1];
+
+        // TODO: Fix this majik number 5
+        // Dividing the base into 5 sections (we will have 6 points)
+        double[][] basePoints = findEqualSpacePointsGivenEndPoints(endPoint1[0], endPoint1[1], endPoint2[0], endPoint2[1], 5);
+
+        // TODO: Fix this majik number 10
+        // Creating a list of bounce points
+        double[][] bouncePoints = new double[0][2];
+        for (int i = 0; i < basePoints.length; i++){
+            double tempBasePointX = basePoints[i][0];
+            double tempBasePointY = basePoints[i][1];
+            double[][] tempBouncePoints = findEqualSpacePointsGivenEndPoints(soundSourceX, soundSourceY, tempBasePointX, tempBasePointY, 10);
+            double[][] newTempBouncePoints = new double[0][2];
+            // Copying the tempBouncePoints into a new variable leaving the soundSource (first row) behind
+                for (int j = 1; i < tempBouncePoints.length; j++){
+                    System.arraycopy(tempBouncePoints[j], 0, newTempBouncePoints[j-1], 0, 2);
+                }
+            bouncePoints = doubleRowConcatenate(tempBouncePoints, tempBouncePoints);
+            i++;
+        }
+
+        // Manually adding the soundSource to the list of bouncePoints so that we don't have an overlap of bouncePoints
+        bouncePoints[bouncePoints.length][0] = soundSourceX;
+        bouncePoints[bouncePoints.length][1] = soundSourceY;
+
+        // Creating a summation
+        double endingNoiseLevel = 0;
+
+        // Looping through the list of bouncePoints
+        for (int i = 0; i < bouncePoints.length; i++){
+            BaseUnit dummyUnit = new BaseUnit();
+            dummyUnit.setAverageX(bouncePoints[i][0]);
+            dummyUnit.setAverageY(bouncePoints[i][1]);
+            dummyUnit.setAverageZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
+            double tempNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, dummyUnit);
+
+
+            SoundSource dummySoundSource = new SoundSource();
+            dummySoundSource.setNoise(tempNoiseLevel);
+            dummySoundSource.setX(bouncePoints[i][0]);
+            dummySoundSource.setY(bouncePoints[i][1]);
+            dummySoundSource.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
+            tempNoiseLevel = calculateDirectNoiseLevel(dummySoundSource, terrain, surfaces, unit);
+            endingNoiseLevel = endingNoiseLevel + tempNoiseLevel;
+        }
+
+        return endingNoiseLevel;
+    }
 
 
     /**

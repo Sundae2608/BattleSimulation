@@ -127,6 +127,13 @@ public class BaseUnit {
     }
 
     /**
+     * This is for a dummy base unit construction
+     */
+    public BaseUnit() {
+
+    }
+
+    /**
      * Bring flankers back to their supposed position. This happens when the unit needs to re-position
      */
     private void resetFlanker() {
@@ -1274,4 +1281,16 @@ public class BaseUnit {
     }
 
     public SoundSource getSoundSource() {return soundSource; }
+
+    public void setAverageX(double averageX) {
+        this.averageX = averageX;
+    }
+
+    public void setAverageY(double averageY) {
+        this.averageY = averageY;
+    }
+
+    public void setAverageZ(double averageZ) {
+        this.averageZ = averageZ;
+    }
 }
