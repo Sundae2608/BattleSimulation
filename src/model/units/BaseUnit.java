@@ -1090,8 +1090,8 @@ public class BaseUnit {
 
     public void updateSoundSource(){
         soundSource.setNoise(unitStats.unitSoundStats.noise);
-        soundSource.setNoiseCoordinateX(averageX);
-        soundSource.setNoiseCoordinateY(averageY);
+        soundSource.setX(averageX);
+        soundSource.setY(averageY);
         soundSource.setNoiseCoordinateZ(averageZ);
     }
 

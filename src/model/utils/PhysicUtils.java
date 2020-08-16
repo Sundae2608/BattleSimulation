@@ -575,16 +575,17 @@ public final class PhysicUtils {
 
         // Calculating the directional vector of the unit
         double anchorAngle = thisUnit.getAnchorAngle();
-        Pair<Double, Double> unitDirectionalVector;
-        double x_component = MathUtils.quickSin((float) anchorAngle);
-        double y_component = MathUtils.quickCos((float) anchorAngle);
-        unitDirectionalVector = new Pair<Double, Double>(x_component, y_component); // This is an unit vector
+        double xComponent = MathUtils.quickSin((float) anchorAngle);
+        double yComponent = MathUtils.quickCos((float) anchorAngle);
+        double[] unitDirectionalVector = new double[2];
+        unitDirectionalVector[0] = xComponent; // This is an unit vector
+        unitDirectionalVector[1] = yComponent; // This is an unit vector
 
         // Calculating vector from unit to soundSource
         double unitX = thisUnit.getAverageX();
         double unitY = thisUnit.getAverageY();
-        double soundX = soundSource.getNoiseCoordinateX();
-        double soundY = soundSource.getNoiseCoordinateY();
+        double soundX = soundSource.getX();
+        double soundY = soundSource.getY();
         double unitToSoundX = soundX - unitX;
         double unitToSoundY = soundY - unitY;
 
@@ -603,11 +604,13 @@ public final class PhysicUtils {
             // TODO: If the soundSource is an array of speakers (like rain), return the average of the sound direction...
             unitToSoundX = unitToSoundX / (MathUtils.quickRoot1((float) (unitToSoundX * unitToSoundX + unitToSoundY * unitToSoundY)));
             unitToSoundY = unitToSoundY / (MathUtils.quickRoot1((float) (unitToSoundX * unitToSoundX + unitToSoundY * unitToSoundY)));
-            Pair<Double, Double> unitToSoundVector = new Pair<>(unitToSoundX, unitToSoundY);  // This is an unit vector
+            double[] unitToSoundVector = new double[2];
+            unitToSoundVector[0] = unitToSoundX;  // This is an unit vector
+            unitToSoundVector[1] = unitToSoundY;  // This is an unit vector
 
             // Calculating perceived relative angle
-            double relativePerceivedAngle = Math.acos(unitToSoundVector.getKey() * unitDirectionalVector.getKey() +
-                    unitToSoundVector.getValue() * unitDirectionalVector.getValue());
+            double relativePerceivedAngle = Math.acos(unitToSoundVector[0] * unitDirectionalVector[0] +
+                    unitToSoundVector[1] * unitDirectionalVector[1]);
 
             // Calculating perceived noise level
             // TODO: Change this to be more versatile: soundSource would be replaced by noise level and XYZ
@@ -622,8 +625,8 @@ public final class PhysicUtils {
     public static double calculateDirectNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, BaseUnit thisUnit) {
         // Noise level and coordinate at the sound source
         double startingNoiseLevel = soundSource.getNoise();
-        double soundX = soundSource.getNoiseCoordinateX();
-        double soundY = soundSource.getNoiseCoordinateY();
+        double soundX = soundSource.getX();
+        double soundY = soundSource.getY();
         double soundZ = soundSource.getNoiseCoordinateZ();
 
         // Getting the coordinate of the current sink
@@ -654,12 +657,16 @@ public final class PhysicUtils {
         // TODO: Counting the number of passes through the terrain and modify the sound for each pass
         // Declaring the terrain height at certain coordinate and the visibility (or the direct line of hearing/sight)
         double[] terrainArrayZ = new double[t.length];
-        boolean[] visibilityArray = new boolean[t.length];
 
         // Finding the coordinate for the sample point on the line of hearing/sight
         double[] arrayX = new double[t.length];
         double[] arrayY = new double[t.length];
         double[] arrayZ = new double[t.length];
+
+        // TODO: Need to revise this sound reduce factor with environment modifier consideration
+        // TODO: In the future, may be have an array for soundModifyingCounter to take into account different surfaces
+        double soundModifyingCounter = 0; // Just a counter to see how much sound to reduce
+
 
         for (int j = 1; j < t.length; j++) {
             // This is a line equation
@@ -667,19 +674,13 @@ public final class PhysicUtils {
             arrayY[j] = (soundY - sinkY) * t[j] + sinkY;
             arrayZ[j] = (soundZ - sinkZ) * t[j] + sinkZ;
             terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
-            visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
-        }
-        // TODO: Nhét sound reduce
-        // Finding whether the queryUnit is visible
-        boolean visibility = true;
-        for (int j = 1; j < t.length; j++) {
-            visibility = visibility && visibilityArray[j];
+            if (arrayZ[j] > terrainArrayZ[j]){
+                soundModifyingCounter = soundModifyingCounter +1;
+            }
         }
 
-        //TODO: Insert environment modifier here
-        if (!visibility) {
-            endingNoiseLevel = endingNoiseLevel/2;
-        }
+        // TODO: Need revision to take care of this majik number
+        endingNoiseLevel = endingNoiseLevel - 0.1*soundModifyingCounter;
         return endingNoiseLevel;
     }
 
@@ -703,7 +704,7 @@ public final class PhysicUtils {
      * @param thisBaseUnit
      * @return
      */
-    //TODO: Nhét unit và soundsource
+    //TODO: Put unit into soundsource
     public static String getPerceivedNoiseLabel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces,
                                                 ArrayList<BaseUnit> units, BaseUnit thisBaseUnit){
         // Get soundSource label
@@ -712,11 +713,12 @@ public final class PhysicUtils {
         // Get a list of all visible unit
         ArrayList<BaseUnit> visibleUnits = checkUnitVision(thisBaseUnit, units, terrain);
 
+        // TODO: Reduce long-term dependency on floating-point check
         for (BaseUnit unit : visibleUnits){
             // Check if the soundSource is a visible unit or not through its coordinate (its very hard that 2 sound
             // sources have the same coordinate
-            boolean equalX = unit.getAverageX() == soundSource.getNoiseCoordinateX();
-            boolean equalY = unit.getAverageY() == soundSource.getNoiseCoordinateY();
+            boolean equalX = unit.getAverageX() == soundSource.getX();
+            boolean equalY = unit.getAverageY() == soundSource.getY();
             boolean equalZ = unit.getAverageZ() == soundSource.getNoiseCoordinateZ();
 
             // If sound source is a visible unit, get its political faction as well
@@ -726,8 +728,8 @@ public final class PhysicUtils {
         }
 
         // Check if the soundSource is the unit itself
-        boolean equalX = thisBaseUnit.getAverageX() == soundSource.getNoiseCoordinateX();
-        boolean equalY = thisBaseUnit.getAverageY() == soundSource.getNoiseCoordinateY();
+        boolean equalX = thisBaseUnit.getAverageX() == soundSource.getX();
+        boolean equalY = thisBaseUnit.getAverageY() == soundSource.getY();
         boolean equalZ = thisBaseUnit.getAverageZ() == soundSource.getNoiseCoordinateZ();
 
         // If sound source is itself, add self to the noise label
