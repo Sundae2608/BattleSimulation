@@ -70,6 +70,7 @@ public class BaseUnit {
     double averageY;
     double averageZ;
 
+    // TODO: Longterm: AudioType instead of string
     // Declaring sound source, the sound sink and the perceived sound sink for each unit
     SoundSource soundSource; // Because each unit is a sound source itself, each unit should host a SoundSource object
     HashMap<String, Pair<Double, Double>> soundSink; // Because each unit is a sound sink itself, each unit should host
