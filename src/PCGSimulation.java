@@ -1,7 +1,5 @@
 import controller.tunable.CustomAssigner;
-import model.algorithms.pathfinding.Graph;
-import model.algorithms.pathfinding.Node;
-import model.algorithms.pathfinding.Triangle;
+import model.algorithms.pathfinding.*;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
 import model.utils.MapGenerationUtils;
@@ -71,6 +69,8 @@ public class PCGSimulation extends PApplet {
     // Hexagonal points
     Graph graph;
     ArrayList<Triangle> triangles;
+    HashSet<Polygon> polygons;
+    Polygon mergedPolygon;
 
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
@@ -344,9 +344,37 @@ public class PCGSimulation extends PApplet {
         }
 
         /**
-         * Remove nodes to create bigger lumps of stuffs
+         * Remove nodes to create bigger lumps of stuffs.
          */
+        // First, convert them all into polygons
+        HashMap<Node, HashSet<Polygon>> nodeToPolygonMap = new HashMap<>();
+        polygons = new HashSet<>();
+        for (Triangle triangle : triangles) {
+            polygons.add(new Polygon(triangle));
+        }
+        for (Polygon polygon : polygons) {
+            for (Node node : polygon.getNodes()) {
+                if (!nodeToPolygonMap.containsKey(node)) nodeToPolygonMap.put(node, new HashSet<>());
+                nodeToPolygonMap.get(node).add(polygon);
+            }
+        }
 
+        // Pick a random point to delete from the mix
+        Node removeNode = null;
+        for (Node node : nodeToPolygonMap.keySet()) {
+            removeNode = node;
+            mergedPolygon = MapGenerationUtils.mergeMultiplePolygons(new ArrayList<>(nodeToPolygonMap.get(removeNode)));
+            break;
+        }
+
+        // Remove the destroyed node
+        for (Node node : mergedPolygon.getNodes()) {
+            for (Polygon removePolygon : nodeToPolygonMap.get(removeNode)) {
+                nodeToPolygonMap.get(node).remove(removePolygon);
+            }
+            nodeToPolygonMap.get(node).add(mergedPolygon);
+        }
+        nodeToPolygonMap.remove(removeNode);
     }
 
     public void draw() {
@@ -420,23 +448,43 @@ public class PCGSimulation extends PApplet {
         mapDrawer.drawTerrainLine(terrain);
 
         // Draw triangles
-        int[] color = DrawingConstants.TRIANGLE_COM_COLOR;
+        int[] color = DrawingConstants.POLYGON_COLOR;
+        strokeWeight((float) (10 * camera.getZoom()));
+        stroke(color[0], color[1], color[2], color[3]);
+        noFill();
+        beginShape(LINES);
+        for (Polygon polygon : polygons) {
+            double[] centerOfMass = polygon.getCenterOfMass();
+            for (Edge edge : polygon.getEdges()) {
+                double[] pt1 = new double[] {edge.getNode1().getX(), edge.getNode1().getY()};
+                double[] pt2 = new double[] {edge.getNode2().getX(), edge.getNode2().getY()};
+                pt1 = MathUtils.scalePoint(centerOfMass, pt1, PT_SCALE);
+                pt2 = MathUtils.scalePoint(centerOfMass, pt2, PT_SCALE);
+                pt1 = camera.getDrawingPosition(pt1[0], pt1[1], terrain.getHeightFromPos(pt1[0], pt1[1]));
+                pt2 = camera.getDrawingPosition(pt2[0], pt2[1], terrain.getHeightFromPos(pt2[0], pt2[1]));
+                vertex((float) pt1[0], (float) pt1[1]);
+                vertex((float) pt2[0], (float) pt2[1]);
+            }
+        }
+        endShape();
         noStroke();
-        strokeWeight((float) (50 * camera.getZoom()));
-        fill(color[0], color[1], color[2], color[3]);
-        beginShape(TRIANGLES);
-        for (Triangle triangle : triangles) {
-            double[] centerOfMass = triangle.getCenterOfMass();
-            double[][] pts = triangle.getPoints();
-            pts[0] = MathUtils.scalePoint(centerOfMass, pts[0], PT_SCALE);
-            pts[1] = MathUtils.scalePoint(centerOfMass, pts[1], PT_SCALE);
-            pts[2] = MathUtils.scalePoint(centerOfMass, pts[2], PT_SCALE);
-            pts[0] = camera.getDrawingPosition(pts[0][0], pts[0][1], terrain.getHeightFromPos(pts[0][0], pts[0][1]));
-            pts[1] = camera.getDrawingPosition(pts[1][0], pts[1][1], terrain.getHeightFromPos(pts[1][0], pts[1][1]));
-            pts[2] = camera.getDrawingPosition(pts[2][0], pts[2][1], terrain.getHeightFromPos(pts[2][0], pts[2][1]));
-            vertex((float) pts[0][0], (float) pts[0][1]);
-            vertex((float) pts[1][0], (float) pts[1][1]);
-            vertex((float) pts[2][0], (float) pts[2][1]);
+
+        // Draw merged polygons
+        color = DrawingConstants.MERGED_POLYGON_COLOR;
+        strokeWeight((float) (10 * camera.getZoom()));
+        stroke(color[0], color[1], color[2], color[3]);
+        noFill();
+        beginShape(LINES);
+        double[] centerOfMass = mergedPolygon.getCenterOfMass();
+        for (Edge edge : mergedPolygon.getEdges()) {
+            double[] pt1 = new double[] {edge.getNode1().getX(), edge.getNode1().getY()};
+            double[] pt2 = new double[] {edge.getNode2().getX(), edge.getNode2().getY()};
+            pt1 = MathUtils.scalePoint(centerOfMass, pt1, PT_SCALE);
+            pt2 = MathUtils.scalePoint(centerOfMass, pt2, PT_SCALE);
+            pt1 = camera.getDrawingPosition(pt1[0], pt1[1], terrain.getHeightFromPos(pt1[0], pt1[1]));
+            pt2 = camera.getDrawingPosition(pt2[0], pt2[1], terrain.getHeightFromPos(pt2[0], pt2[1]));
+            vertex((float) pt1[0], (float) pt1[1]);
+            vertex((float) pt2[0], (float) pt2[1]);
         }
         endShape();
         noStroke();
