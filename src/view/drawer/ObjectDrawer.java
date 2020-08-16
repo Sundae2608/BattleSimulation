@@ -10,18 +10,18 @@ import model.singles.BaseSingle;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
 import processing.core.PApplet;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 import view.settings.DrawingSettings;
 
 public class ObjectDrawer extends BaseDrawer {
 
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
     DrawingSettings drawingSettings;
     ShapeDrawer shapeDrawer;
 
-    public ObjectDrawer(PApplet inputApplet, Camera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
+    public ObjectDrawer(PApplet inputApplet, BaseCamera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
         applet = inputApplet;
         shapeDrawer = inputShapeDrawer;
         camera = inputCamera;
@@ -53,7 +53,7 @@ public class ObjectDrawer extends BaseDrawer {
         if (!DrawingUtils.drawable(drawX, drawY, camera.getWidth(), camera.getHeight())) return;
 
         // Draw the object
-        double angle = camera.getDrawingAngle(object.getAngle());
+        double angle = camera.getCameraAngleFromActualAngle(object.getAngle());
         int[] color = DrawingConstants.UNIVERSAL_OBJECT_COLOR;
         applet.fill(color[0], color[1], color[2]);
         if (object instanceof Arrow) {
@@ -94,7 +94,7 @@ public class ObjectDrawer extends BaseDrawer {
 
         // Draw the object
         int opacity = (int) (255 * Math.min(1.0, 1.0 * lifeTime / UniversalConstants.CARRIED_OBJECT_FADEAWAY));
-        double angle = camera.getDrawingAngle(object.getAngle() + single.getAngle());
+        double angle = camera.getCameraAngleFromActualAngle(object.getAngle() + single.getAngle());
         int[] color = DrawingConstants.UNIVERSAL_OBJECT_COLOR;
         applet.fill(color[0], color[1], color[2], opacity);
         if (object instanceof Arrow) {

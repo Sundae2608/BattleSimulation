@@ -11,7 +11,6 @@ public class DrawingSettings {
     private boolean produceFootage;
     private boolean drawSmooth;
     private boolean drawDamageSustained;
-    private boolean drawGrid;
     private boolean drawHeightField;
     private boolean drawMapTexture;
     private boolean drawTroopShadow;
@@ -21,6 +20,10 @@ public class DrawingSettings {
     private boolean drawTroopInPosition;
     private boolean drawSurface;
     private boolean drawVideoEffect;
+    private boolean drawUnitInfo;
+    private boolean drawPathfindingNodes;
+    private boolean drawControlArrow;
+    private boolean drawGameInfo;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -90,13 +93,6 @@ public class DrawingSettings {
     }
     public void setDrawDamageSustained(boolean drawDamageSustained) {
         this.drawDamageSustained = drawDamageSustained;
-    }
-
-    public boolean isDrawGrid() {
-        return drawGrid;
-    }
-    public void setDrawGrid(boolean drawGrid) {
-        this.drawGrid = drawGrid;
     }
 
     public boolean isDrawHeightField() {
@@ -171,5 +167,33 @@ public class DrawingSettings {
     }
     public void setDrawTroopInPosition(boolean drawTroopInPosition) {
         this.drawTroopInPosition = drawTroopInPosition;
+    }
+
+    public boolean isDrawUnitInfo() {
+        return drawUnitInfo;
+    }
+    public void setDrawUnitInfo(boolean drawUnitInfo) {
+        this.drawUnitInfo = drawUnitInfo;
+    }
+
+    public boolean isDrawPathfindingNodes() {
+        return drawPathfindingNodes;
+    }
+    public void setDrawPathfindingNodes(boolean drawPathfindingNodes) {
+        this.drawPathfindingNodes = drawPathfindingNodes;
+    }
+
+    public boolean isDrawControlArrow() {
+        return drawControlArrow;
+    }
+    public void setDrawControlArrow(boolean drawControlArrow) {
+        this.drawControlArrow = drawControlArrow;
+    }
+
+    public boolean isDrawGameInfo() {
+        return drawGameInfo;
+    }
+    public void setDrawGameInfo(boolean drawGameInfo) {
+        this.drawGameInfo = drawGameInfo;
     }
 }

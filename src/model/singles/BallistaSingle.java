@@ -153,6 +153,10 @@ public class BallistaSingle extends BaseSingle {
 
                 // Rotate the actor back to desired angle
                 angle = MovementUtils.rotate(angle, angleGoal, singleStats.rotationSpeed);
+
+                // If archer becomes too bored, he shall switch to fire at will mode.
+                boredDelay -= 1;
+                if (boredDelay == 0) state = SingleState.FIRE_AT_WILL;
                 break;
             case FIRE_AT_WILL:
                 speed = 0;

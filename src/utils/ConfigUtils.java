@@ -21,21 +21,18 @@ import model.utils.MathUtils;
 import processing.core.PApplet;
 import processing.core.PImage;
 import view.audio.*;
-import view.camera.Camera;
-import view.map.Tile;
+import view.camera.BaseCamera;
 import view.video.VideoElementPlayer;
 import view.video.VideoElementType;
 import view.video.VideoTemplate;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -104,7 +101,7 @@ public final class ConfigUtils {
             UnitType unitType = UnitType.valueOf(d.get("type"));
             SingleStats singleStats = gameStats.getSingleStats(unitType, faction);
             UnitStats unitStats = gameStats.getUnitStats(unitType, faction);
-            BaseUnit unit;
+            BaseUnit unit = null;
             switch (unitType) {
                 case PHALANX:
                     unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
@@ -128,11 +125,12 @@ public final class ConfigUtils {
                     unit = new CavalryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
                 case SWORDMAN:
-                default:
                     unit = new SwordmenUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, env);
                     break;
             }
-            units.add(unit);
+            if (unit != null) {
+                units.add(unit);
+            }
         }
         return units;
     }
@@ -183,6 +181,7 @@ public final class ConfigUtils {
             singleStats.standingDist = Double.parseDouble(d.get("standing_dist"));
             singleStats.nonRotationDist = Double.parseDouble(d.get("non_rotation_dist"));
             singleStats.attack = Double.parseDouble(d.get("attack"));
+            singleStats.defense = Double.parseDouble(d.get("defense"));
             singleStats.combatRange = Double.parseDouble(d.get("combat_range"));
             singleStats.combatDelay = Integer.parseInt(d.get("combat_delay"));
             singleStats.sustainRecovery = Double.parseDouble(d.get("sustain_recovery"));
@@ -231,7 +230,6 @@ public final class ConfigUtils {
                 case SKIRMISHER:
                 case SLINGER:
                 case SWORDMAN:
-                default:
                     break;
             }
 
@@ -246,14 +244,12 @@ public final class ConfigUtils {
                     break;
                 case CAVALRY:
                 case HORSE_ARCHER:
+                case SKIRMISHER:
+                case SWORDMAN:
                     break;
                 case PHALANX:
                     unitStats.numFirstRows = Integer.parseInt(d.get("num_first_rows"));
                     unitStats.offAngleFirstRow = Double.parseDouble(d.get("off_angle_first_row"));
-                    break;
-                case SKIRMISHER:
-                case SWORDMAN:
-                default:
                     break;
             }
 
@@ -261,12 +257,24 @@ public final class ConfigUtils {
             unitStats.speed = Double.parseDouble(d.get("unit_speed"));
             unitStats.rotationSpeed = Double.parseDouble(d.get("unit_rotation_speed"));
             unitStats.patience = Integer.parseInt(d.get("unit_patience"));
-            unitStats.staminaStats.maxStamina = Double.parseDouble(d.get("unit_max_stamina"));
-            unitStats.staminaStats.staminaDeceleratingChangeRate = Double.parseDouble(d.get("unit_stamina_decelerating_rate"));
-            unitStats.staminaStats.staminaFightingChangeRate = Double.parseDouble(d.get("unit_stamina_fighting_rate"));
-            unitStats.staminaStats.staminaMovingChangeRate = Double.parseDouble(d.get("unit_stamina_moving_rate"));
-            unitStats.staminaStats.staminaRoutingChangeRate = Double.parseDouble(d.get("unit_stamina_routing_rate"));
-            unitStats.staminaStats.staminaStandingChangeRate = Double.parseDouble(d.get("unit_stamina_standing_rate"));
+            if (d.containsKey("unit_max_stamina")) {
+                unitStats.staminaStats.maxStamina = Double.parseDouble(d.get("unit_max_stamina"));
+            }
+            if (d.containsKey("unit_stamina_decelerating_rate")) {
+                unitStats.staminaStats.staminaDeceleratingChangeRate = Double.parseDouble(d.get("unit_stamina_decelerating_rate"));
+            }
+            if (d.containsKey("unit_stamina_fighting_rate")) {
+                unitStats.staminaStats.staminaFightingChangeRate = Double.parseDouble(d.get("unit_stamina_fighting_rate"));
+            }
+            if (d.containsKey("unit_stamina_moving_rate")) {
+                unitStats.staminaStats.staminaMovingChangeRate = Double.parseDouble(d.get("unit_stamina_moving_rate"));
+            }
+            if (d.containsKey("unit_stamina_routing_rate")) {
+                unitStats.staminaStats.staminaRoutingChangeRate = Double.parseDouble(d.get("unit_stamina_routing_rate"));
+            }
+            if (d.containsKey("unit_stamina_standing_rate")) {
+                unitStats.staminaStats.staminaStandingChangeRate = Double.parseDouble(d.get("unit_stamina_standing_rate"));
+            }
 
             // Add SingleStats and UnitStats to GameStats
             gameStats.addSingleStats(unitType, faction, singleStats);
@@ -282,7 +290,7 @@ public final class ConfigUtils {
      * @return An audio broadcaster with the configs.
      * @throws IOException
      */
-    public static AudioSpeaker readAudioConfigs(String filePath, Camera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+    public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);
@@ -313,7 +321,7 @@ public final class ConfigUtils {
      * @return An audio broadcaster with the configs.
      * @throws IOException
      */
-    public static VideoElementPlayer readVideoElementConfig(String filePath, Camera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+    public static VideoElementPlayer readVideoElementConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         // Get all text from file location
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);

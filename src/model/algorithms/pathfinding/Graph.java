@@ -10,9 +10,9 @@ import java.util.*;
 public class Graph {
 
     // Hash map connecting integer ID to node.
-    private HashMap<Integer, Node> nodes;
+    HashMap<Integer, Node> nodes;
 
-    // Begin node and end node, this is used to serve
+    // Begin node and end node, this is used as internal variables to find shortest path.
     private Node beginNode;
     private Node endNode;
 
@@ -34,7 +34,7 @@ public class Graph {
     /**
      * Connect the two nodes together.
      */
-    private void connectNode(Node node1, Node node2) {
+    public void connectNode(Node node1, Node node2) {
         node1.addAdjacentNode(node2);
         node2.addAdjacentNode(node1);
     }
@@ -53,6 +53,17 @@ public class Graph {
      */
     public Collection<Node> getNodes() {
         return nodes.values();
+    }
+
+    /**
+     * Add node to the graph with a unique index.
+     * Indexing is very important to keep path finding algorithm functioning.
+     */
+    public void addNodeWithIndex(Node node, int uniqueIndex) {
+        if (nodes.containsKey(uniqueIndex)) {
+            throw new RuntimeException("Added node must have a unique integer index");
+        }
+        nodes.put(uniqueIndex, node);
     }
 
     /**

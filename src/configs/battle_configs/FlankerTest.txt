@@ -9,6 +9,16 @@
     width: 30
 },
 {
+    type: CAVALRY
+    org: unit
+    x: 5500
+    y: 12500
+    angle: 0
+    size: 240
+    faction: ROME
+    width: 30
+},
+{
     type: SWORDMAN
     org: unit
     x: 8000

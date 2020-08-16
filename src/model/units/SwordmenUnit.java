@@ -60,17 +60,7 @@ public class SwordmenUnit extends BaseUnit{
             aliveTroopsMap.put(single, i);
         }
 
-        // Goal position and direction are equal to anchor ones so that the army stand still.
-        goalX = anchorX;
-        goalY = anchorY;
-        goalAngle = anchorAngle;
-
-        // Set of flanker counts and frontline patient counters
-        frontLinePatientCounters = new int[width];
-        flankersCount = new int[width];
-        flankerOffsets = new ArrayList[width];
-        for (int i = 0; i < width; i++) {
-            flankerOffsets[i] = new ArrayList<>();
-        }
+        // Post initialization
+        postInitialization();
     }
 }

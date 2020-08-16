@@ -11,6 +11,7 @@ import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
+import view.constants.DrawingConstants;
 
 import java.util.HashMap;
 
@@ -201,7 +202,7 @@ public class BaseSingle {
                 }
             }
         }
-        damageSustain -= UniversalConstants.SUSTAIN_COOLDOWN;
+        damageSustain -= DrawingConstants.SUSTAIN_COOLDOWN;
         if (damageSustain < 0) damageSustain = 0;
         justHit -= 1;
         if (justHit < 0) justHit = 0;
