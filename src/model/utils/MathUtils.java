@@ -2,6 +2,7 @@ package model.utils;
 
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import javafx.util.Pair;
+import model.constants.GameplayConstants;
 import model.singles.BaseSingle;
 import model.surface.BaseSurface;
 

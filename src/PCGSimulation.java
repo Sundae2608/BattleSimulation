@@ -368,13 +368,13 @@ public class PCGSimulation extends PApplet {
         }
 
         // Remove the destroyed node
-        for (Node node : mergedPolygon.getNodes()) {
-            for (Polygon removePolygon : nodeToPolygonMap.get(removeNode)) {
-                nodeToPolygonMap.get(node).remove(removePolygon);
-            }
-            nodeToPolygonMap.get(node).add(mergedPolygon);
-        }
-        nodeToPolygonMap.remove(removeNode);
+//        for (Node node : mergedPolygon.getNodes()) {
+//            for (Polygon removePolygon : nodeToPolygonMap.get(removeNode)) {
+//                nodeToPolygonMap.get(node).remove(removePolygon);
+//            }
+//            nodeToPolygonMap.get(node).add(mergedPolygon);
+//        }
+//        nodeToPolygonMap.remove(removeNode);
     }
 
     public void draw() {
