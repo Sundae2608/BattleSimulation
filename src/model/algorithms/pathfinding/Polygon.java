@@ -48,4 +48,6 @@ public class Polygon {
         }
         return new double[] { avgX, avgY };
     }
+
+    // TODO: Add hashCode here. Polygon should be defined by both points and edges.
 }
