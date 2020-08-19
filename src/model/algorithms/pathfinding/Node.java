@@ -49,4 +49,6 @@ public class Node {
     public HashMap<Node, Double> getAdjacentNodes() {
         return adjacentNodes;
     }
+
+    // TODO: Add hashCode here. Node should be defined by its position
 }
