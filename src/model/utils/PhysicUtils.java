@@ -4,6 +4,7 @@ import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.singles.BaseSingle;
+import model.sound.SoundSink;
 import model.sound.SoundSource;
 import model.surface.BaseSurface;
 import model.surface.Tree;
@@ -187,40 +188,41 @@ public final class PhysicUtils {
             double queryAverageZ = queryUnit.getAverageZ();
             double div = terrain.getDiv();
 
-            // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
+            // Creating a parameter p in [0, 1] to get the line segment from the current unit to the queryUnit
             // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
             double temp = MathUtils.squareDistance(queryAverageX, queryAverageY, averageX, averageY);
-            temp = 10 * Math.ceil(MathUtils.quickRoot2((float) temp) / div); // Magic number 10
+            temp = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(MathUtils.quickRoot2((float) temp) / div);
             if (temp == 0) {
                 allVisibleUnits.add(queryUnit);
                 continue;
             }
 
-            double[] t = new double[(int) temp];
-            for (int i = 1; i < t.length; i++) {
-                t[i] = t[i-1] + 1.0 / t.length;
+            // Parameter p is used for the parametric equation of the line segment from current unit to query unit
+            double[] p = new double[(int) temp];
+            for (int i = 1; i < p.length; i++) {
+                p[i] = p[i-1] + 1.0 / p.length;
             }
 
             // Declaring the terrain height at certain coordinate and the visibility boolean
-            double[] terrainArrayZ = new double[t.length];
-            boolean[] visibilityArray = new boolean[t.length];
+            double[] terrainArrayZ = new double[p.length];
+            boolean[] visibilityArray = new boolean[p.length];
 
             // Finding the coordinate for the line of sight
-            double[] arrayX = new double[t.length];
-            double[] arrayY = new double[t.length];
-            double[] arrayZ = new double[t.length];
+            double[] arrayX = new double[p.length];
+            double[] arrayY = new double[p.length];
+            double[] arrayZ = new double[p.length];
 
-            for (int j = 1; j < t.length; j++) {
+            for (int j = 1; j < p.length; j++) {
                 // This is a line equation
-                arrayX[j] = (queryAverageX - averageX) * t[j] + averageX;
-                arrayY[j] = (queryAverageY - averageY) * t[j] + averageY;
-                arrayZ[j] = (queryAverageZ - averageZ) * t[j] + averageZ;
+                arrayX[j] = (queryAverageX - averageX) * p[j] + averageX;
+                arrayY[j] = (queryAverageY - averageY) * p[j] + averageY;
+                arrayZ[j] = (queryAverageZ - averageZ) * p[j] + averageZ;
                 terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
                 visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
             }
             // Finding whether the queryUnit is visible
             boolean visibility = true;
-            for (int j = 1; j < t.length; j++) {
+            for (int j = 1; j < p.length; j++) {
                 visibility = visibility && visibilityArray[j];
             }
             if (visibility) {
@@ -262,7 +264,7 @@ public final class PhysicUtils {
             // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
             // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
             double temp = MathUtils.squareDistance(queryAverageX, queryAverageY, averageX, averageY);
-            temp = 10 * Math.ceil(MathUtils.quickRoot2((float) temp) / div); // Magic number 10
+            temp = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(MathUtils.quickRoot2((float) temp) / div);
             if (temp == 0) {
                 allVisibleSingles.add(queryUnit);
                 continue;
@@ -419,7 +421,7 @@ public final class PhysicUtils {
         double closestY = y1 + (dot * (y2-y1));
 
         // get distance to closest point
-        double distance = quickDistance(closestX, closestY, cx, cy);
+        double distance = MathUtils.quickDistance(closestX, closestY, cx, cy);
 
         // is the circle on the line?
         if (distance <= r) {
@@ -572,9 +574,6 @@ public final class PhysicUtils {
 
     public static Pair<Double, Double> getPerceivedNoise(SoundSource soundSource, Terrain terrain,
                                                          ArrayList<BaseSurface> surfaces, BaseUnit thisUnit) {
-        // TODO: Very Extra: Rewrite the relative perceived angle code to get the dominant bounce direction of the sound
-        //  source given the many bounces that eventually reach the sink
-
         // Calculating the directional vector of the unit
         double anchorAngle = thisUnit.getAnchorAngle();
         double xComponent = MathUtils.quickSin((float) anchorAngle);
@@ -592,7 +591,7 @@ public final class PhysicUtils {
         double unitToSoundY = soundY - unitY;
 
         double unitZ = thisUnit.getAverageZ();
-        double soundZ = soundSource.getNoiseCoordinateZ();
+        double soundZ = soundSource.getZ();
         double unitToSoundZ = soundZ - unitZ;
 
         // Notice that each unit is a source for its sink as well. If it is too noisy, it might not be able to perceive the surrounding.
@@ -603,7 +602,6 @@ public final class PhysicUtils {
             Pair<Double, Double> perceivedNoise = new Pair(perceivedNoiseLevel, relativePerceivedAngle);
             return perceivedNoise;
         } else {
-            // TODO: If the soundSource is an array of speakers (like rain), return the average of the sound direction...
             unitToSoundX = unitToSoundX / (MathUtils.quickRoot1((float) (unitToSoundX * unitToSoundX + unitToSoundY * unitToSoundY)));
             unitToSoundY = unitToSoundY / (MathUtils.quickRoot1((float) (unitToSoundX * unitToSoundX + unitToSoundY * unitToSoundY)));
             double[] unitToSoundVector = new double[2];
@@ -615,33 +613,32 @@ public final class PhysicUtils {
                     unitToSoundVector[1] * unitDirectionalVector[1]);
 
             // Calculating perceived noise level
-            // TODO: Change this to be more versatile: soundSource would be replaced by noise level and XYZ
-            // thisUnit would be changed to XYZ
-           double  perceivedNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, thisUnit);
+            // TODO: Make an if statement, that we calculate only the direct noise level for ambient sound
+            double  perceivedNoiseLevel = calculateBouncedNoiseLevel(soundSource, terrain, surfaces, thisUnit.getSoundSink());
             Pair<Double, Double> perceivedNoise = new Pair(perceivedNoiseLevel, relativePerceivedAngle);
             return perceivedNoise;
         }
 
     }
 
-    public static double calculateDirectNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, BaseUnit thisUnit) {
+    public static double calculateDirectNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, SoundSink soundSink) {
         // Noise level and coordinate at the sound source
         double startingNoiseLevel = soundSource.getNoise();
-        double soundX = soundSource.getX();
-        double soundY = soundSource.getY();
-        double soundZ = soundSource.getNoiseCoordinateZ();
+        double sourceX = soundSource.getX();
+        double sourceY = soundSource.getY();
+        double sourceZ = soundSource.getZ();
 
         // Getting the coordinate of the current sink
-        double sinkX = thisUnit.getAverageX();
-        double sinkY = thisUnit.getAverageY();
-        double sinkZ = thisUnit.getAverageZ();
+        double sinkX = soundSink.getX();
+        double sinkY = soundSink.getY();
+        double sinkZ = soundSink.getZ();
 
-        if ((soundX == sinkX)&&(soundY==sinkY)&&(soundZ==sinkZ)){
+        if ((sourceX == sinkX) && (sourceY==sinkY) && (sourceZ==sinkZ)){
             return startingNoiseLevel;
         }
 
         // Calculating and converting travelLength from pixel to meter
-        double travelLengthPixel = MathUtils.squareDistance(soundX, soundY, sinkX, sinkY);
+        double travelLengthPixel = MathUtils.squareDistance(sourceX, sourceY, sinkX, sinkY);
         double travelLengthMeter = travelLengthPixel / 23;
 
         // Calculate noise level at sink without passing through environment
@@ -649,44 +646,38 @@ public final class PhysicUtils {
         // Assuming noise level is generated at d1 = 0.1m
         double endingNoiseLevel = MathUtils.square(0.1 / travelLengthMeter) * startingNoiseLevel;
 
-        // Creating a parameter t in [0, 1] to get the line segment from the source to the sink
+        // Creating a parameter p in [0, 1] to get the line segment from the sink to source
         // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
         double div = terrain.getDiv();
-        double temp = 10 * Math.ceil(MathUtils.quickRoot2((float) travelLengthPixel) / div); // Magic number 10
+        double temp = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(MathUtils.quickRoot2((float) travelLengthPixel) / div);
 
-        // TODO: t
-        double[] t = new double[(int) temp];
-        for (int i = 1; i < t.length; i++) {
-            t[i] = t[i - 1] + 1.0 / t.length;
+        // Counting the number of passes through the terrain and modify the sound for each pass
+        // Parameter p is used for the parametric equation of the line segment from sink to source
+        double[] p = new double[(int) temp];
+        for (int i = 1; i < p.length; i++) {
+            p[i] = p[i - 1] + 1.0 / p.length;
         }
-
-        // TODO: Counting the number of passes through the terrain and modify the sound for each pass
         // Declaring the terrain height at certain coordinate and the visibility (or the direct line of hearing/sight)
-        double[] terrainArrayZ = new double[t.length];
-
+        double[] terrainArrayZ = new double[p.length];
         // Finding the coordinate for the sample point on the line of hearing/sight
-        double[] arrayX = new double[t.length];
-        double[] arrayY = new double[t.length];
-        double[] arrayZ = new double[t.length];
-
-        // TODO: Need to revise this sound reduce factor with environment modifier consideration
+        double[] arrayX = new double[p.length];
+        double[] arrayY = new double[p.length];
+        double[] arrayZ = new double[p.length];
         // TODO: In the future, may be have an array for soundModifyingCounter to take into account different surfaces
         double soundModifyingCounter = 0; // Just a counter to see how much sound to reduce
-
-
-        for (int j = 1; j < t.length; j++) {
+        for (int j = 1; j < p.length; j++) {
             // This is a line equation
-            arrayX[j] = (soundX - sinkX) * t[j] + sinkX;
-            arrayY[j] = (soundY - sinkY) * t[j] + sinkY;
-            arrayZ[j] = (soundZ - sinkZ) * t[j] + sinkZ;
+            arrayX[j] = (sourceX - sinkX) * p[j] + sinkX;
+            arrayY[j] = (sourceY - sinkY) * p[j] + sinkY;
+            arrayZ[j] = (sourceZ - sinkZ) * p[j] + sinkZ;
             terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
             if (arrayZ[j] > terrainArrayZ[j]){
                 soundModifyingCounter = soundModifyingCounter +1;
             }
         }
+        endingNoiseLevel = endingNoiseLevel - GameplayConstants.TERRAIN_MODIFYING_SOUND*soundModifyingCounter;
 
-        // TODO: Need revision to take care of this majik number
-        endingNoiseLevel = endingNoiseLevel - 0.1*soundModifyingCounter;
+        // Returning value
         return endingNoiseLevel;
     }
 
@@ -695,14 +686,14 @@ public final class PhysicUtils {
      * @param soundSource
      * @param terrain
      * @param surfaces
-     * @param unit
+     * @param soundSink
      * @return
      */
-    public static double calculateBouncedNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, BaseUnit unit) {
+    public static double calculateBouncedNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, SoundSink soundSink) {
         // Getting the coordinate of the unit and the soundSource
-        double unitX = unit.getAverageX();
-        double unitY = unit.getAverageY();
-        double unitZ = unit.getAverageZ();
+        double sinkX = soundSink.getX();
+        double sinkY = soundSink.getY();
+        double sinkZ = soundSink.getZ();
 
         double soundSourceX = soundSource.getX();
         double soundSourceY = soundSource.getY();
@@ -710,7 +701,7 @@ public final class PhysicUtils {
 
         // Drawing a cone of 30 degrees between the soundSource and the unit
         // First get the unit vector from the soundSource and the unit
-        double[] vectorSoundSourceToUnit = unitVectorBetweenTwoPoints(soundSourceX, soundSourceY, unitX, unitY);
+        double[] vectorSoundSourceToUnit = unitVectorBetweenTwoPoints(soundSourceX, soundSourceY, sinkX, sinkY);
 
         // Getting a normal vector wrt the vector from soundSource to the Unit
         double[] vectorNormal = new double[2];
@@ -718,31 +709,29 @@ public final class PhysicUtils {
         vectorNormal[1] = -vectorSoundSourceToUnit[1];
 
         // Calculate the distance between soundSource and the unit
-        double distance = quickDistance(soundSourceX, soundSourceY, unitX, unitY);
+        double distance = quickDistance(soundSourceX, soundSourceY, sinkX, sinkY);
 
         // Calculate the length for half the base of the cone
-        double halfConeBase = distance*quickSin((float) toRadians(30/2));
+        double halfConeBase = distance*quickSin((float) toRadians(GameplayConstants.CONE_ANGLE/2));
 
         // Getting the endpoints for the base
         double[] endPoint1 = new double[2];
-        endPoint1[0] = unitX + halfConeBase*vectorNormal[0];
-        endPoint1[1] = unitY + halfConeBase*vectorNormal[1];
+        endPoint1[0] = sinkX + halfConeBase * vectorNormal[0];
+        endPoint1[1] = sinkY + halfConeBase * vectorNormal[1];
 
         double[] endPoint2 = new double[2];
-        endPoint2[0] = unitX - halfConeBase*vectorNormal[0];
-        endPoint2[1] = unitY - halfConeBase*vectorNormal[1];
+        endPoint2[0] = sinkX - halfConeBase * vectorNormal[0];
+        endPoint2[1] = sinkY - halfConeBase * vectorNormal[1];
 
-        // TODO: Fix this majik number 5
-        // Dividing the base into 5 sections (we will have 6 points)
-        double[][] basePoints = findEqualSpacePointsGivenEndPoints(endPoint1[0], endPoint1[1], endPoint2[0], endPoint2[1], 5);
+        // Dividing the base into NUMBER_OF_POINTS_IN_CONE_BASE - 1 sections
+        double[][] basePoints = findEqualSpacePointsGivenEndPoints(endPoint1[0], endPoint1[1], endPoint2[0], endPoint2[1], GameplayConstants.NUMBER_OF_POINTS_IN_CONE_BASE);
 
-        // TODO: Fix this majik number 10
         // Creating a list of bounce points
         double[][] bouncePoints = new double[0][2];
         for (int i = 0; i < basePoints.length; i++){
             double tempBasePointX = basePoints[i][0];
             double tempBasePointY = basePoints[i][1];
-            double[][] tempBouncePoints = findEqualSpacePointsGivenEndPoints(soundSourceX, soundSourceY, tempBasePointX, tempBasePointY, 10);
+            double[][] tempBouncePoints = findEqualSpacePointsGivenEndPoints(soundSourceX, soundSourceY, tempBasePointX, tempBasePointY, GameplayConstants.NUMBER_OF_POINTS_ALONG_CONE_HEIGHT);
             double[][] newTempBouncePoints = new double[0][2];
             // Copying the tempBouncePoints into a new variable leaving the soundSource (first row) behind
                 for (int j = 1; i < tempBouncePoints.length; j++){
@@ -761,11 +750,11 @@ public final class PhysicUtils {
 
         // Looping through the list of bouncePoints
         for (int i = 0; i < bouncePoints.length; i++){
-            BaseUnit dummyUnit = new BaseUnit();
-            dummyUnit.setAverageX(bouncePoints[i][0]);
-            dummyUnit.setAverageY(bouncePoints[i][1]);
-            dummyUnit.setAverageZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
-            double tempNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, dummyUnit);
+            SoundSink dummySoundSink = new SoundSink();
+            dummySoundSink.setX(bouncePoints[i][0]);
+            dummySoundSink.setY(bouncePoints[i][1]);
+            dummySoundSink.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
+            double tempNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, dummySoundSink);
 
 
             SoundSource dummySoundSource = new SoundSource();
@@ -773,7 +762,7 @@ public final class PhysicUtils {
             dummySoundSource.setX(bouncePoints[i][0]);
             dummySoundSource.setY(bouncePoints[i][1]);
             dummySoundSource.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
-            tempNoiseLevel = calculateDirectNoiseLevel(dummySoundSource, terrain, surfaces, unit);
+            tempNoiseLevel = calculateDirectNoiseLevel(dummySoundSource, terrain, surfaces, soundSink);
             endingNoiseLevel = endingNoiseLevel + tempNoiseLevel;
         }
 
@@ -790,7 +779,6 @@ public final class PhysicUtils {
      * @param thisBaseUnit
      * @return
      */
-    //TODO: Put unit into soundsource
     public static String getPerceivedNoiseLabel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces,
                                                 ArrayList<BaseUnit> units, BaseUnit thisBaseUnit){
         // Get soundSource label
@@ -800,12 +788,12 @@ public final class PhysicUtils {
         ArrayList<BaseUnit> visibleUnits = checkUnitVision(thisBaseUnit, units, terrain);
 
         // TODO: Reduce long-term dependency on floating-point check
-        for (BaseUnit unit : visibleUnits){
+        for (BaseUnit unit : visibleUnits) {
             // Check if the soundSource is a visible unit or not through its coordinate (its very hard that 2 sound
             // sources have the same coordinate
             boolean equalX = unit.getAverageX() == soundSource.getX();
             boolean equalY = unit.getAverageY() == soundSource.getY();
-            boolean equalZ = unit.getAverageZ() == soundSource.getNoiseCoordinateZ();
+            boolean equalZ = unit.getAverageZ() == soundSource.getZ();
 
             // If sound source is a visible unit, get its political faction as well
             if(equalX&&equalY&&equalZ){
@@ -816,7 +804,7 @@ public final class PhysicUtils {
         // Check if the soundSource is the unit itself
         boolean equalX = thisBaseUnit.getAverageX() == soundSource.getX();
         boolean equalY = thisBaseUnit.getAverageY() == soundSource.getY();
-        boolean equalZ = thisBaseUnit.getAverageZ() == soundSource.getNoiseCoordinateZ();
+        boolean equalZ = thisBaseUnit.getAverageZ() == soundSource.getZ();
 
         // If sound source is itself, add self to the noise label
         if(equalX&&equalY&&equalZ) {

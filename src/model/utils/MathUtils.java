@@ -471,9 +471,9 @@ public final class MathUtils {
         pointsCoordinates[0][1] = y1;
 
         int i = 1;
-        while ( i <=  numberOfPoints){
-            double newX = x1 + (x1 - x2)/(numberOfPoints - 1)*i;
-            double newY = y1 + (y1 - y2)/(numberOfPoints - 1)*i;
+        while (i <  numberOfPoints){
+            double newX = x1 + (x1 - x2) / (numberOfPoints - 1) * i;
+            double newY = y1 + (y1 - y2) / (numberOfPoints - 1) * i;
             int numberOfCurrentRow = pointsCoordinates.length;
             pointsCoordinates[numberOfCurrentRow][0] = newX;
             pointsCoordinates[numberOfCurrentRow][1] = newY;
@@ -490,7 +490,7 @@ public final class MathUtils {
      * @param y2
      * @return
      */
-    public static double[] unitVectorBetweenTwoPoints(double x1,double y1, double x2, double y2){
+    public static double[] unitVectorBetweenTwoPoints(double x1, double y1, double x2, double y2){
         double x12 = x2 - x1;
         double y12 = y2 - y1;
         double unitX = x12/quickNorm(x12, y12);

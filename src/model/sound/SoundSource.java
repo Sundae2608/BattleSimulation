@@ -21,6 +21,7 @@ public class SoundSource {
     ArrayList<Double> noiseArrayY;
     ArrayList<Double> noiseArrayZ;
 
+    // TODO: Change noiseLabel to enum rather than string
     String noiseLabel; // to label what kind of noise is to be received by sound sink
 
     // Constructor
@@ -62,14 +63,6 @@ public class SoundSource {
 
     public void setZ(double z) {
         this.z = z;
-    }
-
-    public double getNoiseCoordinateZ() {
-        return z;
-    }
-
-    public void setNoiseCoordinateZ(double noiseCoordinateZ) {
-        this.z = noiseCoordinateZ;
     }
 
     public String getNoiseLabel() {
