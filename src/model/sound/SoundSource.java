@@ -1,6 +1,5 @@
 package model.sound;
 
-import model.enums.SingleState;
 import model.units.unit_stats.UnitSoundStats;
 
 import java.util.ArrayList;
@@ -12,9 +11,9 @@ public class SoundSource {
 
     // TODO: change this to tuple XYZ
     // If the noise is a single point
-    double noiseCoordinateX;
-    double noiseCoordinateY;
-    double noiseCoordinateZ;
+    double x;
+    double y;
+    double z;
 
     //TODO: Maybe a Arraylist of X,Y,Z instead of just X, Y, Z
     // If the soundSource has many speakers
@@ -22,6 +21,7 @@ public class SoundSource {
     ArrayList<Double> noiseArrayY;
     ArrayList<Double> noiseArrayZ;
 
+    // TODO: Change noiseLabel to enum rather than string
     String noiseLabel; // to label what kind of noise is to be received by sound sink
 
     // Constructor
@@ -41,28 +41,28 @@ public class SoundSource {
         this.noise = noise;
     }
 
-    public double getNoiseCoordinateX() {
-        return noiseCoordinateX;
+    public double getX() {
+        return x;
     }
 
-    public void setNoiseCoordinateX(double noiseCoordinateX) {
-        this.noiseCoordinateX = noiseCoordinateX;
+    public void setX(double x) {
+        this.x = x;
     }
 
-    public double getNoiseCoordinateY() {
-        return noiseCoordinateY;
+    public double getY() {
+        return y;
     }
 
-    public void setNoiseCoordinateY(double noiseCoordinateY) {
-        this.noiseCoordinateY = noiseCoordinateY;
+    public void setY(double y) {
+        this.y = y;
     }
 
-    public double getNoiseCoordinateZ() {
-        return noiseCoordinateZ;
+    public double getZ() {
+        return z;
     }
 
-    public void setNoiseCoordinateZ(double noiseCoordinateZ) {
-        this.noiseCoordinateZ = noiseCoordinateZ;
+    public void setZ(double z) {
+        this.z = z;
     }
 
     public String getNoiseLabel() {

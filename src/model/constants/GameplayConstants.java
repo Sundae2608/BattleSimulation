@@ -52,4 +52,15 @@ public class GameplayConstants {
     // When the user right click to change formation, this is the minimum number of troops that have to make up the
     // front.
     public final static double MINIMUM_WIDTH_SELECTION = 4;
+
+    // When we check whether a direct line of sight collides with the terrain, or a direct sound pass through a terrain
+    // or not, the number of sample we take on the direct line of sight/sound is
+    // TERRAIN_COLLISION_CHECK_PER_DIV x the number of div number that can fit on the line of sight
+    public final static double TERRAIN_COLLISION_CHECK_PER_DIV = 10;
+
+    // These are the sound constants
+    public final static double CONE_ANGLE = 30; // degrees
+    public final static double TERRAIN_MODIFYING_SOUND = 0.1; // The amount of dB reduce when sound pass through the terrain (not surfaces - wood, wall, etc)
+    public final static int NUMBER_OF_POINTS_IN_CONE_BASE = 6; // This is the number of points long cone base
+    public final static int NUMBER_OF_POINTS_ALONG_CONE_HEIGHT = 11; // This is the number of points from the cone top (soundSource) to a point on the cone base
 }
