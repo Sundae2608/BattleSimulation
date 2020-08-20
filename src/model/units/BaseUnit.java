@@ -15,6 +15,7 @@ import model.monitor.MonitorEnum;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.enums.SingleState;
+import model.sound.SoundSink;
 import model.sound.SoundSource;
 import model.surface.BaseSurface;
 import model.terrain.Terrain;
@@ -70,14 +71,10 @@ public class BaseUnit {
     double averageY;
     double averageZ;
 
+    // TODO: Longterm: AudioType instead of string
     // Declaring sound source, the sound sink and the perceived sound sink for each unit
     SoundSource soundSource; // Because each unit is a sound source itself, each unit should host a SoundSource object
-    HashMap<String, Pair<Double, Double>> soundSink; // Because each unit is a sound sink itself, each unit should host
-
-    // a list of SoundSource objects along with the level of noise (left element) and respective directional angle
-    // (right element)
-    HashMap<String, Double> perceivedSoundSink; // Because each identify certain sound sources, this is a filtered
-    // version of the soundSink instance. The double here indicate the respective angle
+    SoundSink soundSink; // this object holds the soundSink/unit coordinate
 
     // Path finding variables.
     Path path;
@@ -122,8 +119,7 @@ public class BaseUnit {
         timeInFightingState = 0;
         stamina = inputUnitStats.staminaStats.maxStamina;
         soundSource = new SoundSource();
-        soundSink = new HashMap<>();
-        perceivedSoundSink = new HashMap<>();
+        soundSink = new SoundSink();
         leftFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
         rightFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
     }
@@ -978,6 +974,11 @@ public class BaseUnit {
         averageY = sumY / count;
         averageZ = sumZ / count;
 
+        // Updating soundSink
+        soundSink.setX(averageX);
+        soundSink.setY(averageY);
+        soundSink.setZ(averageZ);
+
         // Update the bounding box.
         updateBoundingBox();
 
@@ -1120,49 +1121,9 @@ public class BaseUnit {
 
     public void updateSoundSource(){
         soundSource.setNoise(unitStats.unitSoundStats.noise);
-        soundSource.setNoiseCoordinateX(averageX);
-        soundSource.setNoiseCoordinateY(averageY);
-        soundSource.setNoiseCoordinateZ(averageZ);
-    }
-
-
-    /**
-     *
-     * @param soundSources: this is a list of all the sound sources in the map
-     */
-    public void updateSoundSink(ArrayList<SoundSource> soundSources, Terrain terrain, ArrayList<BaseSurface> surfaces,
-                                ArrayList<BaseUnit> units){
-        soundSink.clear(); // Clearing and updating new Hashmap for every iteration
-
-        for (SoundSource soundSource : soundSources){
-            String perceivedNoiseLabel = PhysicUtils.getPerceivedNoiseLabel(soundSource, terrain, surfaces,
-                    units, this);
-            Pair<Double, Double> perceivedNoise = PhysicUtils.getPerceivedNoise(soundSource, terrain, surfaces, this);
-            soundSink.put(perceivedNoiseLabel, perceivedNoise);
-        }
-    }
-
-    // TODO: Need revision, since DB can be negative
-    public void updatePerceivedSoundSink(){
-        perceivedSoundSink.clear(); // Clearing and updating new Hashmap for every iteration
-        Double totalDB = 0.0;
-
-        for (String perceivedNoiseLabel : soundSink.keySet()){
-            totalDB = totalDB + soundSink.get(perceivedNoiseLabel).getKey();
-        }
-
-        for (String perceivedNoiseLabel : soundSink.keySet()){
-            // Get noise level
-            double perceivedNoiseLevel = soundSink.get(perceivedNoiseLabel).getKey();
-
-            // TODO: This threshold 0.2 should be set somewhere. It is a magic number for now
-            if (perceivedNoiseLevel/totalDB < 0.2){
-                continue;
-            } else{
-                perceivedSoundSink.put(perceivedNoiseLabel, perceivedNoiseLevel);
-            }
-        }
-
+        soundSource.setX(averageX);
+        soundSource.setY(averageY);
+        soundSource.setZ(averageZ);
     }
 
     public double getStamina() { return stamina; }
@@ -1303,4 +1264,8 @@ public class BaseUnit {
     }
 
     public SoundSource getSoundSource() {return soundSource; }
+
+    public SoundSink getSoundSink() {
+        return soundSink;
+    }
 }

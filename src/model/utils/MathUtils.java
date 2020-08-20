@@ -489,6 +489,75 @@ public final class MathUtils {
     }
 
     /**
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @param numberOfPoints: the number of equally spaced points including the two endpoints
+     * @return
+     */
+    public static double[][] findEqualSpacePointsGivenEndPoints(double x1, double y1, double x2, double y2, int numberOfPoints){
+        double[][] pointsCoordinates = new double[0][2];
+        // Adding the first endpoint to the 2D array
+        pointsCoordinates[0][0] = x1;
+        pointsCoordinates[0][1] = y1;
+
+        int i = 1;
+        while (i <  numberOfPoints){
+            double newX = x1 + (x1 - x2) / (numberOfPoints - 1) * i;
+            double newY = y1 + (y1 - y2) / (numberOfPoints - 1) * i;
+            int numberOfCurrentRow = pointsCoordinates.length;
+            pointsCoordinates[numberOfCurrentRow][0] = newX;
+            pointsCoordinates[numberOfCurrentRow][1] = newY;
+            i++;
+        }
+        return pointsCoordinates;
+    }
+
+    /**
+     * This function returns the unit vector from point 1 (x1, y1) to point 2 (x2, y2)
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return
+     */
+    public static double[] unitVectorBetweenTwoPoints(double x1, double y1, double x2, double y2){
+        double x12 = x2 - x1;
+        double y12 = y2 - y1;
+        double unitX = x12/quickNorm(x12, y12);
+        double unitY = y12/quickNorm(x12, y12);
+        double[] unitVector = new double[2];
+        unitVector[0] = unitX;
+        unitVector[1] = unitY;
+
+        return unitVector;
+    }
+
+    public static double[][] doubleRowConcatenate(double[][] var1, double [][] var2){
+        double rowLength1 = var1.length;
+        double columnLength1 = var1[0].length;
+
+        double rowLength2 = var2.length;
+        double columnLength2 = var2[0].length;
+
+        double[] temp = new double[]{columnLength1, columnLength2};
+        double minColumnLength = findMin(temp);
+
+        double[][] output = new double[0][(int) minColumnLength];
+
+        for (int i = 0; i< rowLength1; ++i){
+            if (minColumnLength >= 0) System.arraycopy(var1[i], 0, output[i], 0, (int) minColumnLength);
+        }
+
+        for (int i = 0; i< rowLength2; ++i){
+            if (minColumnLength >= 0) System.arraycopy(var2[i], 0, output[i + (int) rowLength1], 0, (int) minColumnLength);
+        }
+        return output;
+    }
+
+
+    /**
      * Scale the point according to a ratio.
      */
     public static double[] scalePoint(double[] pt1, double[] pt2, double scale) {
@@ -498,3 +567,5 @@ public final class MathUtils {
         };
     }
 }
+
+
