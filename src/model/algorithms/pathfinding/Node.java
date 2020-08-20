@@ -50,5 +50,26 @@ public class Node {
         return adjacentNodes;
     }
 
-    // TODO: Add hashCode here. Node should be defined by its position
+    @Override
+    public boolean equals(Object o)
+    {
+        // TODO: Overall all of edge graphing system so that we compare systematically from address to content.
+        // Checks specified object is "equal to" current object or not
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Node node = (Node) o;
+
+        // If they are not the same memory, check if they are the same node.
+        return x == node.x && y == node.y;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result;
+        result = Double.valueOf(x).hashCode();
+        result = 31 * result + Double.valueOf(y).hashCode();
+        return result;
+    }
 }

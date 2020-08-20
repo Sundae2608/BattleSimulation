@@ -14,14 +14,18 @@ public final class MapGenerationUtils {
 
     public static void swapTriangleEdges(Triangle t1, Triangle t2, HashMap<Node, HashSet<Triangle>> nodeToTriangleMap) {
 
-        // Remove current adjacency
-        nodeToTriangleMap.get(t1.getNode1()).remove(t1);
-        nodeToTriangleMap.get(t1.getNode2()).remove(t1);
-        nodeToTriangleMap.get(t1.getNode3()).remove(t1);
+        System.out.println(t1);
+        System.out.println(t2);
+        System.out.println();
 
-        nodeToTriangleMap.get(t2.getNode1()).remove(t2);
-        nodeToTriangleMap.get(t2.getNode2()).remove(t2);
-        nodeToTriangleMap.get(t2.getNode3()).remove(t2);
+        // Remove current adjacency
+        if (nodeToTriangleMap.containsKey(t1.getNode1())) nodeToTriangleMap.get(t1.getNode1()).remove(t1);
+        if (nodeToTriangleMap.containsKey(t1.getNode2())) nodeToTriangleMap.get(t1.getNode2()).remove(t1);
+        if (nodeToTriangleMap.containsKey(t1.getNode3())) nodeToTriangleMap.get(t1.getNode3()).remove(t1);
+
+        if (nodeToTriangleMap.containsKey(t2.getNode1())) nodeToTriangleMap.get(t2.getNode1()).remove(t2);
+        if (nodeToTriangleMap.containsKey(t2.getNode2())) nodeToTriangleMap.get(t2.getNode2()).remove(t2);
+        if (nodeToTriangleMap.containsKey(t2.getNode3())) nodeToTriangleMap.get(t2.getNode3()).remove(t2);
 
         // Check eligibility. I order to swap edge, the two triangles must share exactly two points.
         int nodeShared = 0;

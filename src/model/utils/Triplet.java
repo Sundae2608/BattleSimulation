@@ -44,8 +44,8 @@ public class Triplet<U, V, T>
     {
 		/* Computes hash code for an object by using hash codes of
 		the underlying objects */
-
-        int result = x.hashCode();
+        int result;
+        result = x.hashCode();
         result = 31 * result + y.hashCode();
         result = 31 * result + z.hashCode();
         return result;

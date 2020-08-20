@@ -49,5 +49,30 @@ public class Polygon {
         return new double[] { avgX, avgY };
     }
 
-    // TODO: Add hashCode here. Polygon should be defined by both points and edges.
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Polygon polygon = (Polygon) o;
+
+        // Polygons are equal if each edge in the first polygon is equal to exactly one edge in the second polygon.
+        HashSet<Edge> otherEdges = ((Polygon) o).getEdges();
+        if (otherEdges.size() != edges.size()) return false;
+        for (Edge edge : edges) {
+            if (!otherEdges.contains(edge)) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = 0;
+        for (Edge edge : edges) {
+            result = result ^ edge.hashCode();
+        }
+        return result;
+    }
 }

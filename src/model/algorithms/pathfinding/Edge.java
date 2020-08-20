@@ -17,14 +17,13 @@ public class Edge {
     @Override
     public boolean equals(Object o)
     {
-        // TODO: Overall all of edge graphing system so that we compare systematically from address to content.
-        // Checks specified object is "equal to" current object or not
+        // Check the memory of the object before checking the object's content.
         if (this == o) return true;
         if (o == null || getClass() != o.getClass())
             return false;
         Edge edge = (Edge) o;
 
-        // If they are not the same memory, check if they are the same node.
+        // Two edges are equal if they have the same nodes.
         return (node1 == edge.node1 && node2 == edge.node2) || (node1 == edge.node2 && node2 == edge.node1);
     }
 
