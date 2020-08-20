@@ -74,11 +74,6 @@ public class BaseUnit {
     // TODO: Longterm: AudioType instead of string
     // Declaring sound source, the sound sink and the perceived sound sink for each unit
     SoundSource soundSource; // Because each unit is a sound source itself, each unit should host a SoundSource object
-    HashMap<String, Pair<Double, Double>> soundSinkEverything; // Because each unit is a sound sink itself, each unit should host
-    // a list of SoundSource objects along with the level of noise (left element) and respective directional angle
-    // (right element)
-    HashMap<String, Double> soundSinkPerceived; // Because each identify certain sound sources, this is a filtered
-    // version of the soundSink instance. The double here indicate the respective angle
     SoundSink soundSink; // this object holds the soundSink/unit coordinate
 
     // Path finding variables.
@@ -125,8 +120,6 @@ public class BaseUnit {
         stamina = inputUnitStats.staminaStats.maxStamina;
         soundSource = new SoundSource();
         soundSink = new SoundSink();
-        soundSinkEverything = new HashMap<>();
-        perceivedSoundSink = new HashMap<>();
         leftFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
         rightFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
     }
@@ -981,6 +974,11 @@ public class BaseUnit {
         averageY = sumY / count;
         averageZ = sumZ / count;
 
+        // Updating soundSink
+        soundSink.setX(averageX);
+        soundSink.setY(averageY);
+        soundSink.setZ(averageZ);
+
         // Update the bounding box.
         updateBoundingBox();
 
@@ -1128,46 +1126,6 @@ public class BaseUnit {
         soundSource.setZ(averageZ);
     }
 
-
-    /**
-     *
-     * @param soundSources: this is a list of all the sound sources in the map
-     */
-    public void updateSoundSink(ArrayList<SoundSource> soundSources, Terrain terrain, ArrayList<BaseSurface> surfaces,
-                                ArrayList<BaseUnit> units){
-        soundSinkEverything.clear(); // Clearing and updating new Hashmap for every iteration
-
-        for (SoundSource soundSource : soundSources){
-            String perceivedNoiseLabel = PhysicUtils.getPerceivedNoiseLabel(soundSource, terrain, surfaces,
-                    units, this);
-            Pair<Double, Double> perceivedNoise = PhysicUtils.getPerceivedNoise(soundSource, terrain, surfaces, this);
-            soundSinkEverything.put(perceivedNoiseLabel, perceivedNoise);
-        }
-    }
-
-    // TODO: Need revision, since DB can be negative
-    public void updatePerceivedSoundSink(){
-        soundSinkPerceived.clear(); // Clearing and updating new Hashmap for every iteration
-        Double totalDB = 0.0;
-
-        for (String perceivedNoiseLabel : soundSinkEverything.keySet()){
-            totalDB = totalDB + soundSinkEverything.get(perceivedNoiseLabel).getKey();
-        }
-
-        for (String perceivedNoiseLabel : soundSinkEverything.keySet()){
-            // Get noise level
-            double perceivedNoiseLevel = soundSinkEverything.get(perceivedNoiseLabel).getKey();
-
-            // TODO: This threshold 0.2 should be set somewhere. It is a magic number for now
-            if (perceivedNoiseLevel/totalDB < 0.2){
-                continue;
-            } else{
-                soundSinkPerceived.put(perceivedNoiseLabel, perceivedNoiseLevel);
-            }
-        }
-
-    }
-
     public double getStamina() { return stamina; }
 
     public double getAnchorX() {
@@ -1308,9 +1266,6 @@ public class BaseUnit {
     public SoundSource getSoundSource() {return soundSource; }
 
     public SoundSink getSoundSink() {
-        soundSink.setX(this.getAverageX());
-        soundSink.setY(this.getAverageY());
-        soundSink.setZ(this.getAverageZ());
         return soundSink;
     }
 }

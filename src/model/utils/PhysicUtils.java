@@ -506,7 +506,7 @@ public final class PhysicUtils {
             double x2 = pt2[0]; double y2 = pt2[1];
             // Select the edge that has the smallest distance to the single
             double distanceToLine = Math.abs((y2 - y1) * px - (x2 - x1) * py + x2 * y1 - y2 * x1) /
-                    quickDistance(x1, y1, x2, y2);
+                    MathUtils.quickDistance(x1, y1, x2, y2);
             if (distanceToLine < minDist) {
                 minDist = distanceToLine;
                 minEdge = i;
@@ -539,7 +539,7 @@ public final class PhysicUtils {
             double x2 = pt2[0]; double y2 = pt2[1];
             // Select the edge that has the smallest distance to the single
             double distanceToLine = Math.abs((y2 - y1) * single.getX() - (x2 - x1) * single.getY() + x2 * y1 - y2 * x1) /
-                    quickDistance(x1, y1, x2, y2);
+                    MathUtils.quickDistance(x1, y1, x2, y2);
             if (distanceToLine < minDist) {
                 minDist = distanceToLine;
                 minEdge = i;
@@ -710,7 +710,7 @@ public final class PhysicUtils {
         vectorNormal[1] = -vectorSoundSourceToUnit[1];
 
         // Calculate the distance between soundSource and the unit
-        double distance = quickDistance(soundSourceX, soundSourceY, sinkX, sinkY);
+        double distance = MathUtils.quickDistance(soundSourceX, soundSourceY, sinkX, sinkY);
 
         // Calculate the length for half the base of the cone
         double halfConeBase = distance*quickSin((float) toRadians(GameplayConstants.CONE_ANGLE/2));
