@@ -125,8 +125,28 @@ public class BaseUnit {
         stamina = inputUnitStats.staminaStats.maxStamina;
         soundSource = new SoundSource();
         soundSink = new SoundSink();
+        soundSinkEverything = new HashMap<>();
+        perceivedSoundSink = new HashMap<>();
         leftFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
         rightFlankerIndices = MathUtils.getHexagonalIndicesRingAtOffset(0);
+    }
+
+    /**
+     * Post initialization.
+     */
+    public void postInitialization() {
+        // Goal position and direction are equal to anchor ones so that the army stand still.
+        goalX = anchorX;
+        goalY = anchorY;
+        goalAngle = anchorAngle;
+
+        // Set of flanker counts and frontline patient counters
+        frontLinePatientCounters = new int[width];
+        flankersCount = new int[width];
+        flankerOffsets = new ArrayList[width];
+        for (int i = 0; i < width; i++) {
+            flankerOffsets[i] = new ArrayList<>();
+        }
     }
 
     /**
@@ -278,6 +298,11 @@ public class BaseUnit {
         // Reset the flankers
         frontLinePatientCounters = new int[width];
         flankersCount = new int[width];
+        flankerOffsets = new ArrayList[width];
+        for (int i = 0; i < width; i++) {
+            flankerOffsets[i] = new ArrayList<>();
+        }
+        resetFlanker();
     }
 
     /**
@@ -743,9 +768,10 @@ public class BaseUnit {
                             pos = it.next();
 
                             // Generate a new goal offset position for that flanker
+                            double flankingSpacing = GameplayConstants.FLANKING_SPACING_RATIO * unitStats.spacing;
                             double[] offset = MathUtils.generateOffsetBasedOnHexTripletIndices(
-                                    pos.x, pos.y, pos.z, unitStats.spacing);
-                            double positionalJiggling = GameplayConstants.FLANKING_POSITION_JIGGLING_RATIO * unitStats.spacing;
+                                    pos.x, pos.y, pos.z, flankingSpacing);
+                            double positionalJiggling = GameplayConstants.FLANKING_POSITION_JIGGLING_RATIO * flankingSpacing;
                             offset[0] += MathUtils.randDouble(-1.0, 1.0) * positionalJiggling;
                             offset[1] += MathUtils.randDouble(-1.0, 1.0) * positionalJiggling;
 
@@ -894,8 +920,10 @@ public class BaseUnit {
                 // If the person is the flanker, go straight to the assigned position in flankers offset.
                 if (state == UnitState.FIGHTING) {
                     if (row < flankersCount[col]) {
-                        xGoalSingle = this.unitFoughtAgainst.getAverageX() + flankerOffsets[col].get(row)[0];
-                        yGoalSingle = this.unitFoughtAgainst.getAverageY() + flankerOffsets[col].get(row)[1];
+                        double offsetSide = flankerOffsets[col].get(row)[0];
+                        double offsetDown = flankerOffsets[col].get(row)[1];
+                        xGoalSingle = this.unitFoughtAgainst.getAverageX() + offsetSide * sideUnitX + offsetDown * downUnitX;
+                        yGoalSingle = this.unitFoughtAgainst.getAverageY() + offsetSide * sideUnitY + offsetDown * downUnitY;
                     } else {
                         xGoalSingle = topX + col * unitStats.spacing * sideUnitX
                                 + (row - flankersCount[col]) * unitStats.spacing * downUnitX;
@@ -961,7 +989,8 @@ public class BaseUnit {
     }
 
     private void updateStamina() {
-        stamina = Math.max(Math.min(stamina + stamina * unitStats.staminaStats.getStaminaChangeRate(state),
+        stamina = Math.max(Math.min(stamina +
+                        unitStats.staminaStats.maxStamina * unitStats.staminaStats.getStaminaChangeRate(state),
                 unitStats.staminaStats.maxStamina), 0);
     }
 

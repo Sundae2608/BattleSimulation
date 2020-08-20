@@ -5,15 +5,14 @@ import model.enums.UnitType;
 import model.units.BaseUnit;
 import processing.core.PApplet;
 import processing.core.PImage;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 import view.constants.MapMakerConstants;
 import view.drawer.components.Scrollbar;
 import view.settings.DrawingSettings;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 /**
  * This class contains drawers for all UI elements in the game.
@@ -25,12 +24,15 @@ public class UIDrawer extends BaseDrawer {
     HashMap<UnitType, PImage> iconMap;
 
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
     DrawingSettings drawingSettings;
 
-    List<Scrollbar> scrollbars;
+    Map<String, Scrollbar> scrollbars;
 
-    public UIDrawer(PApplet inputApplet, Camera inputCamera, DrawingSettings inputDrawingSettings) {
+    int xStart = 1000;
+    int yScrollbarStart = 900;
+
+    public UIDrawer(PApplet inputApplet, BaseCamera inputCamera, DrawingSettings inputDrawingSettings) {
         // Inject dependencies.
         applet = inputApplet;
         camera = inputCamera;
@@ -54,8 +56,7 @@ public class UIDrawer extends BaseDrawer {
         bannerTexture = applet.loadImage("imgs/BannerArt/SimplifiedBanner-03.png");
         bannerSelected = applet.loadImage("imgs/BannerArt/SimplifiedBanner-04.png");
 
-        scrollbars = new ArrayList<>();
-        scrollbars.add(new Scrollbar(applet, (float)500, (float)500, 20, 20));
+        scrollbars = new HashMap<>();
     }
 
     @Override
@@ -148,11 +149,5 @@ public class UIDrawer extends BaseDrawer {
         applet.vertex(0.5f * size, 0);
         applet.endShape(PApplet.CLOSE);
         applet.popMatrix();
-    }
-
-    public void drawScrollbar() {
-        for (Scrollbar bar: scrollbars) {
-            bar.update();
-        }
     }
 }

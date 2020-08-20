@@ -1,24 +1,23 @@
 package view.drawer;
 
-import model.constants.UniversalConstants;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.utils.MathUtils;
 import processing.core.PApplet;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 import view.settings.DrawingSettings;
 
 public class BattleSignalDrawer extends BaseDrawer {
 
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
     DrawingSettings drawingSettings;
 
     double unitShadowDrawingOffsetx;
     double unitShadowDrawingOffsetY;
 
-    public BattleSignalDrawer(PApplet inputApplet, Camera inputCamera, DrawingSettings inputDrawingSettings) {
+    public BattleSignalDrawer(PApplet inputApplet, BaseCamera inputCamera, DrawingSettings inputDrawingSettings) {
         applet = inputApplet;
         camera = inputCamera;
         drawingSettings = inputDrawingSettings;
@@ -29,9 +28,9 @@ public class BattleSignalDrawer extends BaseDrawer {
         // Pre-calculate shadow, also for optimization
         if (drawingSettings.isDrawTroopShadow()) {
             unitShadowDrawingOffsetx = MathUtils.quickCos((float)
-                    UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
+                    DrawingConstants.SHADOW_ANGLE) * DrawingConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
             unitShadowDrawingOffsetY = MathUtils.quickCos((float)
-                    UniversalConstants.SHADOW_ANGLE) * UniversalConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
+                    DrawingConstants.SHADOW_ANGLE) * DrawingConstants.UNIT_SHADOW_OFFSET * camera.getZoom();
         }
     }
 
@@ -132,7 +131,7 @@ public class BattleSignalDrawer extends BaseDrawer {
 
         // Then draw the box indicating the actual current scale of the the unit
         if (drawingSettings.isDrawTroopShadow()) {
-            int[] shadowColor = UniversalConstants.SHADOW_COLOR;
+            int[] shadowColor = DrawingConstants.SHADOW_COLOR;
             applet.fill(shadowColor[0], shadowColor[1], shadowColor[2], shadowColor[3]);
             applet.beginShape();
             applet.vertex((float) (p1[0] + unitShadowDrawingOffsetx * 2), (float) (p1[1] + unitShadowDrawingOffsetY * 2));

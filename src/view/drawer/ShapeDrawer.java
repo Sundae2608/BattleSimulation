@@ -1,12 +1,8 @@
 package view.drawer;
 
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.camera.CameraConstants;
-import view.constants.DrawingConstants;
-import model.constants.UniversalConstants;
 import processing.core.PApplet;
-import processing.core.PGraphics;
-import view.settings.DrawingSettings;
 
 import java.util.HashMap;
 
@@ -17,7 +13,7 @@ public class ShapeDrawer extends BaseDrawer {
 
     // PApplet injection
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
 
     // Weapon optimizers
     HashMap<Double, DrawingVertices> swordMap;
@@ -26,7 +22,7 @@ public class ShapeDrawer extends BaseDrawer {
     HashMap<Double, DrawingVertices> arrowShapeMap;
     HashMap<Double, DrawingVertices> cavalryShapeMap;
 
-    public ShapeDrawer(PApplet inputApplet, Camera inputCamera) {
+    public ShapeDrawer(PApplet inputApplet, BaseCamera inputCamera) {
         // Inject the applet
         applet = inputApplet;
         camera = inputCamera;

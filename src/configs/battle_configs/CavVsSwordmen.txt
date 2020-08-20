@@ -4,9 +4,9 @@
     x: 6500
     y: 12500
     angle: 0
-    size: 120
+    size: 40
     faction: ROME
-    width: 12
+    width: 8
 },
 {
     type: SWORDMAN

@@ -2,7 +2,8 @@ import model.terrain.Terrain;
 import model.utils.MathUtils;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
-import view.camera.Camera;
+import view.camera.BaseCamera;
+import view.camera.TopDownCamera;
 import view.camera.CameraConstants;
 import view.constants.MapMakerConstants;
 import view.drawer.InfoDrawer;
@@ -41,7 +42,7 @@ public class MapMakerSimulation extends PApplet {
     InfoDrawer infoDrawer;
 
     // Camera
-    Camera camera;
+    BaseCamera camera;
     double cameraRotationSpeed;
     double cameraDx;
     double cameraDy;
@@ -61,7 +62,7 @@ public class MapMakerSimulation extends PApplet {
         terrain = new Terrain(INPUT_TOP_X, INPUT_TOP_Y, INPUT_DIV, INPUT_NUM_X, INPUT_NUM_Y);
 
         // Set up camera.
-        camera = new Camera(
+        camera = new TopDownCamera(
                 INPUT_NUM_X * INPUT_DIV / 2,
                 INPUT_NUM_Y * INPUT_DIV / 2,
                 INPUT_WIDTH, INPUT_HEIGHT);
@@ -158,7 +159,7 @@ public class MapMakerSimulation extends PApplet {
         StringBuilder s = new StringBuilder();
         s.append("Camera shake level              : " + String.format("%.2f", camera.getCameraShakeLevel()) + "\n");
         s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
-        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5);
+        infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
 
         // Change the heights of all points within the paint brush.
         double dHeight = 0;
@@ -205,7 +206,7 @@ public class MapMakerSimulation extends PApplet {
      * Return an array of int[] denotings the index that were within the circle centering at (mouseX, mouseY) and has
      * radius circleSize.
      */
-    private ArrayList<int[]> getPointsWithinBrush(Terrain terrain, double mouseX, double mouseY, double circleSize, Camera camera) {
+    private ArrayList<int[]> getPointsWithinBrush(Terrain terrain, double mouseX, double mouseY, double circleSize, BaseCamera camera) {
         // Get the set of candidates by getting all points potentially within the size of the circles.
         double circleSizeActual = circleSize / camera.getZoom();
         int sizeInNumDivs = (int) (circleSizeActual / terrain.getDiv());

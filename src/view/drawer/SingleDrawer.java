@@ -8,13 +8,11 @@ import model.singles.*;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
 import processing.core.PApplet;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.camera.CameraConstants;
 import view.constants.DrawingConstants;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
-
-import java.util.HashMap;
 
 public class SingleDrawer extends BaseDrawer {
 
@@ -26,34 +24,25 @@ public class SingleDrawer extends BaseDrawer {
 
     // Dependency injections
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
     GameEnvironment env;
     ShapeDrawer shapeDrawer;
     DrawingSettings drawingSettings;
 
     // Size map storage
-    HashMap<Double, Double> eyeSizeMap;
     double currSizeEye;
-    HashMap<Double, double[]> swordmanSizeMap;
     double[] currSizeSwordman;
-    HashMap<Double, double[]> phalanxSizeMap;
     double[] currSizePhalanx;
-    HashMap<Double, double[]> archerSizeMap;
     double[] currSizeArcher;
-    HashMap<Double, double[]> balistaSizeMap;
     double[] currSizeBalista;
-    HashMap<Double, double[]> slingerSizeMap;
     double[] currSizeSlinger;
-    HashMap<Double, double[]> skirmisherSizeMap;
     double[] currSizeSkirmisher;
-    HashMap<Double, DrawingVertices> cavalryShapeMap;
-    HashMap<Double, double[]> cavalrySizeMap;
     double[] currSizeCavalry;
 
     double shadowXOffset;
     double shadowYOffset;
 
-    public SingleDrawer(PApplet inputApplet, GameEnvironment inputEnv, Camera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
+    public SingleDrawer(PApplet inputApplet, GameEnvironment inputEnv, BaseCamera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
 
         // Dependency injections
         applet = inputApplet;
@@ -61,19 +50,6 @@ public class SingleDrawer extends BaseDrawer {
         shapeDrawer = inputShapeDrawer;
         env = inputEnv;
         drawingSettings = inputDrawingSettings;
-
-        // Graphic storage
-        cavalryShapeMap = new HashMap<>();
-
-        // Initialize size map.
-        eyeSizeMap = new HashMap<>();
-        phalanxSizeMap = new HashMap<>();
-        slingerSizeMap = new HashMap<>();
-        archerSizeMap = new HashMap<>();
-        balistaSizeMap = new HashMap<>();
-        skirmisherSizeMap = new HashMap<>();
-        swordmanSizeMap = new HashMap<>();
-        cavalrySizeMap = new HashMap<>();
     }
 
 
@@ -81,99 +57,89 @@ public class SingleDrawer extends BaseDrawer {
     public void preprocess() {
         // Pre-calculate shadow, also for optimization
         if (drawingSettings.isDrawTroopShadow()) {
-            shadowXOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
-            shadowYOffset = MathUtils.quickCos((float) UniversalConstants.SHADOW_ANGLE) * UniversalConstants.SHADOW_OFFSET * camera.getZoom();
+            shadowXOffset = MathUtils.quickCos((float) DrawingConstants.SHADOW_ANGLE) * DrawingConstants.SHADOW_OFFSET * camera.getZoom();
+            shadowYOffset = MathUtils.quickCos((float) DrawingConstants.SHADOW_ANGLE) * DrawingConstants.SHADOW_OFFSET * camera.getZoom();
         }
         
-        // Eye
-        if (!eyeSizeMap.containsKey(camera.getZoom())) {
-            eyeSizeMap.put(camera.getZoom(), UniversalConstants.EYE_SIZE * camera.getZoom());
+        {
+            currSizeEye = UniversalConstants.EYE_SIZE * camera.getZoom();
         }
-        currSizeEye = eyeSizeMap.get(camera.getZoom());
 
-        // Swordman
-        if (!swordmanSizeMap.containsKey(camera.getZoom())) {
+        {
             double[] newSize = new double[4];
             double size = env.getGameStats().getSingleStats(UnitType.SWORDMAN, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            swordmanSizeMap.put(camera.getZoom(), newSize);
+            newSize[1] = newSize[0] * DrawingConstants.SHADOW_SIZE;
+            newSize[2] = newSize[0] * DrawingConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
+            newSize[3] = newSize[2] * DrawingConstants.SHADOW_SIZE;
+            currSizeSwordman = newSize;
         }
-        currSizeSwordman = swordmanSizeMap.get(camera.getZoom());
 
         // Phalanx
-        if (!phalanxSizeMap.containsKey(camera.getZoom())) {
+        {
             double[] newSize = new double[4];
             double size = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            phalanxSizeMap.put(camera.getZoom(), newSize);
+            newSize[1] = newSize[0] * DrawingConstants.SHADOW_SIZE;
+            newSize[2] = newSize[0] * DrawingConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
+            newSize[3] = newSize[2] * DrawingConstants.SHADOW_SIZE;
+            currSizePhalanx = newSize;
         }
-        currSizePhalanx = phalanxSizeMap.get(camera.getZoom());
 
         // Slinger
-        if (!slingerSizeMap.containsKey(camera.getZoom())) {
+        {
             double[] newSize = new double[4];
             double size = env.getGameStats().getSingleStats(UnitType.SLINGER, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            slingerSizeMap.put(camera.getZoom(), newSize);
+            newSize[1] = newSize[0] * DrawingConstants.SHADOW_SIZE;
+            newSize[2] = newSize[0] * DrawingConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
+            newSize[3] = newSize[2] * DrawingConstants.SHADOW_SIZE;
+            currSizeSlinger = newSize;
         }
-        currSizeSlinger = slingerSizeMap.get(camera.getZoom());
 
         // Archer
-        if (!archerSizeMap.containsKey(camera.getZoom())) {
+        {
             double[] newSize = new double[4];
             double size = env.getGameStats().getSingleStats(UnitType.ARCHER, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            archerSizeMap.put(camera.getZoom(), newSize);
+            newSize[1] = newSize[0] * DrawingConstants.SHADOW_SIZE;
+            newSize[2] = newSize[0] * DrawingConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
+            newSize[3] = newSize[2] * DrawingConstants.SHADOW_SIZE;
+            currSizeArcher = newSize;
         }
-        currSizeArcher = archerSizeMap.get(camera.getZoom());
 
-        // Balista
-        if (!balistaSizeMap.containsKey(camera.getZoom())) {
+        // Ballista
+        {
             double[] newSize = new double[4];
             double size = env.getGameStats().getSingleStats(UnitType.BALLISTA, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            balistaSizeMap.put(camera.getZoom(), newSize);
+            newSize[1] = newSize[0] * DrawingConstants.SHADOW_SIZE;
+            newSize[2] = newSize[0] * DrawingConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
+            newSize[3] = newSize[2] * DrawingConstants.SHADOW_SIZE;
+            currSizeBalista = newSize;
         }
-        currSizeBalista = balistaSizeMap.get(camera.getZoom());
 
         // Skirmisher
-        if (!skirmisherSizeMap.containsKey(camera.getZoom())) {
+        {
             double[] newSize = new double[4];
             double size = env.getGameStats().getSingleStats(UnitType.SKIRMISHER, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            skirmisherSizeMap.put(camera.getZoom(), newSize);
+            newSize[1] = newSize[0] * DrawingConstants.SHADOW_SIZE;
+            newSize[2] = newSize[0] * DrawingConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
+            newSize[3] = newSize[2] * DrawingConstants.SHADOW_SIZE;
+            currSizeSkirmisher = newSize;
         }
-        currSizeSkirmisher = skirmisherSizeMap.get(camera.getZoom());
 
         // Cavalry
-        if (!cavalrySizeMap.containsKey(camera.getZoom())) {
+        {
             double[] newSize = new double[4];
             double size = env.getGameStats().getSingleStats(UnitType.CAVALRY, PoliticalFaction.ROME).radius;
             newSize[0] = size * camera.getZoom();
-            newSize[1] = newSize[0] * UniversalConstants.SHADOW_SIZE;
-            newSize[2] = newSize[0] * UniversalConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
-            newSize[3] = newSize[2] * UniversalConstants.SHADOW_SIZE;
-            cavalrySizeMap.put(camera.getZoom(), newSize);
+            newSize[1] = newSize[0] * DrawingConstants.SHADOW_SIZE;
+            newSize[2] = newSize[0] * DrawingConstants.SIMPLIFIED_SQUARE_SIZE_RATIO;
+            newSize[3] = newSize[2] * DrawingConstants.SHADOW_SIZE;
+            currSizeCavalry = newSize;
         }
-        currSizeCavalry = cavalrySizeMap.get(camera.getZoom());
     }
     /**
      * Dead unit drawer
@@ -197,7 +163,7 @@ public class SingleDrawer extends BaseDrawer {
         if (!DrawingUtils.drawable(drawX, drawY, camera.getWidth(), camera.getHeight())) return;
 
         // Angle of the dead troop
-        double angle = camera.getDrawingAngle(single.getFacingAngle());
+        double angle = camera.getCameraAngleFromActualAngle(single.getFacingAngle());
 
         // Fill with color of dead
         int[] color = DrawingConstants.COLOR_DEAD;
@@ -266,18 +232,18 @@ public class SingleDrawer extends BaseDrawer {
         if (!DrawingUtils.drawable(drawX, drawY, camera.getWidth(), camera.getHeight())) return;
 
         // Pre calculate drawer information
-        double angle = camera.getDrawingAngle(single.getFacingAngle());
+        double angle = camera.getCameraAngleFromActualAngle(single.getFacingAngle());
         double unitX = MathUtils.quickCos((float) angle);
         double unitY = MathUtils.quickSin((float) angle);
 
         // Fill the color by political faction
         int[] color = DrawingUtils.getFactionColor(single.getPoliticalFaction());
         int[] modifiedColor = new int[4];
-        int[] shadowColor = UniversalConstants.SHADOW_COLOR;
+        int[] shadowColor = DrawingConstants.SHADOW_COLOR;
 
         // Modify the color by the amount of damage sustain
         if (drawingSettings.isDrawDamageSustained()) {
-            double sustainColorRatio = Math.min(single.getDamageSustain() / UniversalConstants.DAMAGE_SUSTAIN_MAXIMUM_EFFECT, 1.0);
+            double sustainColorRatio = Math.min(single.getDamageSustain() / DrawingConstants.DAMAGE_SUSTAIN_MAXIMUM_EFFECT, 1.0);
             modifiedColor[0] = (int) (255.0 * sustainColorRatio + (1 - sustainColorRatio) * color[0]);
             modifiedColor[1] = (int) ((1 - sustainColorRatio) * color[1]);
             modifiedColor[2] = (int) ((1 - sustainColorRatio) * color[2]);

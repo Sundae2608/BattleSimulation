@@ -15,7 +15,7 @@ public class Triplet<U, V, T>
     public final T z;
 
     // Constructs a new Triplet with the given values
-    Triplet(U x, V y, T z)
+    public Triplet(U x, V y, T z)
     {
         this.x = x;
         this.y = y;

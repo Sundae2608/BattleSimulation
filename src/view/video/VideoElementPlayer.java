@@ -4,9 +4,8 @@ import model.events.Event;
 import model.events.EventBroadcaster;
 import model.events.EventListener;
 import processing.core.PApplet;
-import processing.core.PConstants;
 import processing.core.PImage;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,10 +14,10 @@ public class VideoElementPlayer extends EventListener {
     HashMap<VideoElementType, VideoTemplate> templateMap;
     ArrayList<VideoElement> elementArrayList;
     PApplet applet;
-    Camera camera;
+    BaseCamera camera;
 
     public VideoElementPlayer(PApplet inputApplet,
-                              Camera inputCamera,
+                              BaseCamera inputCamera,
                               HashMap<VideoElementType, VideoTemplate> inputTemplateMap,
                               EventBroadcaster inputBroadcaster) {
         super(inputBroadcaster);

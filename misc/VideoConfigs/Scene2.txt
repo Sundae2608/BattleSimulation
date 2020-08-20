@@ -1,0 +1,30 @@
+{
+    type: BALLISTA
+    org: unit
+    x: 10500
+    y: 12070
+    angle: 0
+    size: 1
+    faction: ROME
+    width: 1
+},
+{
+    type: CATAPULT
+    org: unit
+    x: 11000
+    y: 14070
+    angle: 90
+    size: 1
+    faction: ROME
+    width: 1
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 11900
+    y: 10570
+    angle: 180
+    size: 2000
+    faction: GAUL
+    width: 100
+},

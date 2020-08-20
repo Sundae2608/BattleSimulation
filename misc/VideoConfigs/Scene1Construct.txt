@@ -1,0 +1,15 @@
+{
+    type: construct
+    name: Trap
+    boundary_points: -500 -300
+    boundary_points: 1800 0
+    boundary_points: 1800 3600
+    boundary_points: -500 3900
+    boundary_points: -500 3600
+    boundary_points: 1200 3300
+    boundary_points: 1200 300
+    boundary_points: -500 0
+},
+{
+    type: graph
+}

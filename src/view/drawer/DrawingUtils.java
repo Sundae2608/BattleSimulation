@@ -4,7 +4,7 @@ import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import processing.core.PImage;
 import model.enums.PoliticalFaction;
-import view.camera.Camera;
+import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 
 public final class DrawingUtils {
@@ -80,12 +80,12 @@ public final class DrawingUtils {
      * - Lowest visible column.
      * - Highest visible column.
      */
-    public static int[] getVisibleGridBoundary(Terrain terrain, Camera camera) {
+    public static int[] getVisibleGridBoundary(Terrain terrain, BaseCamera camera) {
         // The top left, top right, bottom left, bottom right represents the furthest point still visible to the cam
-        double[] topLeft = camera.getActualPositionFromScreenPosition(0, 0, terrain.getMinZ());
-        double[] topRight = camera.getActualPositionFromScreenPosition(0, camera.getHeight(), terrain.getMinZ());
-        double[] botLeft = camera.getActualPositionFromScreenPosition(camera.getWidth(), 0, terrain.getMinZ());
-        double[] botRight = camera.getActualPositionFromScreenPosition(camera.getWidth(), camera.getHeight(), terrain.getMinZ());
+        double[] topLeft = camera.getActualPositionFromScreenPosition(0, 0);
+        double[] topRight = camera.getActualPositionFromScreenPosition(0, camera.getHeight());
+        double[] botLeft = camera.getActualPositionFromScreenPosition(camera.getWidth(), 0);
+        double[] botRight = camera.getActualPositionFromScreenPosition(camera.getWidth(), camera.getHeight());
 
         // Use BFS to generate the list of all points
         double minX = Math.min(topLeft[0], Math.min(topRight[0], Math.min(botLeft[0], botRight[0])));

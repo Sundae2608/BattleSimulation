@@ -25,8 +25,8 @@ public class DrawingConstants {
     // Terrain colors
     public final static int[] COLOR_TERRAIN_DOT = {0, 0, 0, 128};  // #000000, 12%
     public final static int[] COLOR_TERRAIN_LINE = {0, 0, 0};
-    public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 160;
-    public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 50;
+    public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 130;
+    public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 30;
     public final static int COLOR_TERRAIN_LINE_ALPHA_RANGE = COLOR_TERRAIN_LINE_MAX_ALPHA - COLOR_TERRAIN_LINE_MIN_ALPHA;
     public final static int COLOR_ALPHA_UNIT_SELECTION = 170;
 
@@ -43,6 +43,13 @@ public class DrawingConstants {
     public final static int[] SURFACE_COLOR_SHADOW_RIVER = {157, 230, 246, 128};
     public final static int[] SURFACE_COLOR_SNOW = {225, 240, 240, 128};
     public final static int[] TREE_COLOR = {125, 95, 76, 255};
+
+    // Node points
+    public final static int[] NODE_COLOR = {255, 87, 33, 128};
+    public final static int[] EDGE_COLOR = {255, 87, 33, 128};
+    public final static int[] POLYGON_COLOR = {36, 227, 106, 128};
+    public final static int[] MERGED_POLYGON_COLOR = {242, 114, 70, 128};
+    public final static double NODE_RADIUS = 40;
 
     // Unit size color
     public final static float[] UNIT_SIZE_COLOR = {0, 0, 0, 25};
@@ -68,9 +75,26 @@ public class DrawingConstants {
     // Height scale for airborne objects
     // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
     // the height effect of arrows a little bit to make the arrow looks more palatable.
-    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 1.50;
+    public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 2.50;
+
+    // Exaggerate height features for Hex Camera.
+    public static double HEX_TERRAIN_HEIGHT_SCALE = 5.0;
 
     // Path planning alpha. Drawing the planned route of an unit as a little more transparent to differentiate with
     // the path current being executed.
     public final static int PATH_PLANNING_ALPHA = 128;
+
+    // Maximum effect of damage sustain
+    public final static double DAMAGE_SUSTAIN_MAXIMUM_EFFECT = 15;
+
+    // The amount of sustain damage recovering
+    public final static double SUSTAIN_COOLDOWN = 0.5;
+
+    public final static double SHADOW_ANGLE = 0;
+    public final static double SHADOW_SIZE = 1.4;
+    public final static double SHADOW_OFFSET = 3.5;
+    public final static double UNIT_SHADOW_OFFSET = 15;
+    public final static int[] SHADOW_COLOR = {0, 0, 0, 128};
+
+    public final static double SIMPLIFIED_SQUARE_SIZE_RATIO = 0.886226925453;
 }

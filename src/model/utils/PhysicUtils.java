@@ -671,6 +671,7 @@ public final class PhysicUtils {
             arrayY[j] = (sourceY - sinkY) * p[j] + sinkY;
             arrayZ[j] = (sourceZ - sinkZ) * p[j] + sinkZ;
             terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
+
             if (arrayZ[j] > terrainArrayZ[j]){
                 soundModifyingCounter = soundModifyingCounter +1;
             }

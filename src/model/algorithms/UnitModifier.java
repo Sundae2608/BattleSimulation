@@ -487,7 +487,7 @@ public class UnitModifier {
                 // No need to check if both already loses patience
                 if (unitTouchEnemy.containsKey(candidate.getUnit()) && unitTouchEnemy.containsKey(obj.getUnit())) continue;
                 // Check if opposing troop in attack range.
-                double squareDist = SingleUtils.squareDistance(obj, candidate);
+                double squareDist = SingleUtils.squareDistBetweenSingles(obj, candidate);
                 double squareCombatRange = MathUtils.square(obj.getSize() / 2 + obj.getCombatRangeStat());
                 if (squareDist < squareCombatRange) {
                     // In combat range, decrease patience from both sides
@@ -574,7 +574,7 @@ public class UnitModifier {
             for (BaseSingle candidate : candidates) {
                 if (candidate.getPoliticalFaction() == single.getPoliticalFaction()) continue;
                 if (candidate.getState() == SingleState.DEAD) continue;
-                double squareDist = SingleUtils.squareDistance(single, candidate);
+                double squareDist = SingleUtils.squareDistBetweenSingles(single, candidate);
                 double squareCombatRange = MathUtils.square(single.getSize() / 2 + single.getCombatRangeStat());
                 if (squareDist < minSquareDist) {
                     minSquareDist = squareDist;
