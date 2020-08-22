@@ -504,6 +504,7 @@ public final class PhysicUtils {
             double[] pt2 = boundary[(i + 1) % numPoints];
             double x1 = pt1[0]; double y1 = pt1[1];
             double x2 = pt2[0]; double y2 = pt2[1];
+
             // Select the edge that has the smallest distance to the single
             double distanceToLine = Math.abs((y2 - y1) * px - (x2 - x1) * py + x2 * y1 - y2 * x1) /
                     MathUtils.quickDistance(x1, y1, x2, y2);
@@ -639,30 +640,36 @@ public final class PhysicUtils {
 
         // Calculating and converting travelLength from pixel to meter
         double travelLengthPixel = MathUtils.squareDistance(sourceX, sourceY, sinkX, sinkY);
-        double travelLengthMeter = travelLengthPixel / 23;
+        double travelLengthMeter = travelLengthPixel / UniversalConstants.DIST_UNIT_PER_M;
 
         // Calculate noise level at sink without passing through environment
         // Calculation link: http://hyperphysics.phy-astr.gsu.edu/hbase/Acoustic/isprob2.html
         // Assuming noise level is generated at d1 = 0.1m
+        // TODO(tbt004): Put 0.1 into a constant.
         double endingNoiseLevel = MathUtils.square(0.1 / travelLengthMeter) * startingNoiseLevel;
 
-        // Creating a parameter p in [0, 1] to get the line segment from the sink to source
+        // Creating a parameter p in [0, 1) to get the line segment from the sink to source
         // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
+        // TODO(tbt004): Travel length should account for the difference in height.
+        //  This can be achieved by multiple div by cos of the angle to the ground of the source to sink vector.
         double div = terrain.getDiv();
-        double temp = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(MathUtils.quickRoot2((float) travelLengthPixel) / div);
+        double granularity = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(MathUtils.quickRoot2((float) travelLengthPixel) / div);
 
         // Counting the number of passes through the terrain and modify the sound for each pass
         // Parameter p is used for the parametric equation of the line segment from sink to source
-        double[] p = new double[(int) temp];
+        double[] p = new double[(int) granularity];
         for (int i = 1; i < p.length; i++) {
-            p[i] = p[i - 1] + 1.0 / p.length;
+            p[i] = 1.0 * i / p.length;
         }
+
         // Declaring the terrain height at certain coordinate and the visibility (or the direct line of hearing/sight)
         double[] terrainArrayZ = new double[p.length];
+
         // Finding the coordinate for the sample point on the line of hearing/sight
         double[] arrayX = new double[p.length];
         double[] arrayY = new double[p.length];
         double[] arrayZ = new double[p.length];
+
         // TODO: In the future, may be have an array for soundModifyingCounter to take into account different surfaces
         double soundModifyingCounter = 0; // Just a counter to see how much sound to reduce
         for (int j = 1; j < p.length; j++) {
@@ -676,7 +683,7 @@ public final class PhysicUtils {
                 soundModifyingCounter = soundModifyingCounter +1;
             }
         }
-        endingNoiseLevel = endingNoiseLevel - GameplayConstants.TERRAIN_MODIFYING_SOUND*soundModifyingCounter;
+        endingNoiseLevel = endingNoiseLevel - GameplayConstants.TERRAIN_MODIFYING_SOUND * soundModifyingCounter;
 
         // Returning value
         return endingNoiseLevel;
@@ -694,11 +701,9 @@ public final class PhysicUtils {
         // Getting the coordinate of the unit and the soundSource
         double sinkX = soundSink.getX();
         double sinkY = soundSink.getY();
-        double sinkZ = soundSink.getZ();
 
         double soundSourceX = soundSource.getX();
         double soundSourceY = soundSource.getY();
-        double soundSourceZ = soundSource.getZ();
 
         // Drawing a cone of 30 degrees between the soundSource and the unit
         // First get the unit vector from the soundSource and the unit
@@ -713,7 +718,7 @@ public final class PhysicUtils {
         double distance = MathUtils.quickDistance(soundSourceX, soundSourceY, sinkX, sinkY);
 
         // Calculate the length for half the base of the cone
-        double halfConeBase = distance*quickSin((float) toRadians(GameplayConstants.CONE_ANGLE/2));
+        double halfConeBase = distance * quickSin((float) toRadians(GameplayConstants.CONE_ANGLE/2));
 
         // Getting the endpoints for the base
         double[] endPoint1 = new double[2];
@@ -728,35 +733,34 @@ public final class PhysicUtils {
         double[][] basePoints = findEqualSpacePointsGivenEndPoints(endPoint1[0], endPoint1[1], endPoint2[0], endPoint2[1], GameplayConstants.NUMBER_OF_POINTS_IN_CONE_BASE);
 
         // Creating a list of bounce points
-        double[][] bouncePoints = new double[0][2];
-        for (int i = 0; i < basePoints.length; i++){
+        int numColumns = GameplayConstants.NUMBER_OF_POINTS_ALONG_CONE_HEIGHT - 1;
+        int numBouncePoints = GameplayConstants.NUMBER_OF_POINTS_IN_CONE_BASE * numColumns + 1;
+        double[][] bouncePoints = new double[numBouncePoints][2];
+        for (int i = 0; i < basePoints.length; i++) {
             double tempBasePointX = basePoints[i][0];
             double tempBasePointY = basePoints[i][1];
             double[][] tempBouncePoints = findEqualSpacePointsGivenEndPoints(soundSourceX, soundSourceY, tempBasePointX, tempBasePointY, GameplayConstants.NUMBER_OF_POINTS_ALONG_CONE_HEIGHT);
-            double[][] newTempBouncePoints = new double[0][2];
+
             // Copying the tempBouncePoints into a new variable leaving the soundSource (first row) behind
-                for (int j = 1; i < tempBouncePoints.length; j++){
-                    System.arraycopy(tempBouncePoints[j], 0, newTempBouncePoints[j-1], 0, 2);
-                }
-            bouncePoints = doubleRowConcatenate(tempBouncePoints, tempBouncePoints);
-            i++;
+            for (int j = 1; j < tempBouncePoints.length; j++) {
+                bouncePoints[numColumns * i + j - 1] = tempBouncePoints[j];
+            }
         }
 
         // Manually adding the soundSource to the list of bouncePoints so that we don't have an overlap of bouncePoints
-        bouncePoints[bouncePoints.length][0] = soundSourceX;
-        bouncePoints[bouncePoints.length][1] = soundSourceY;
+        bouncePoints[numBouncePoints - 1][0] = soundSourceX;
+        bouncePoints[numBouncePoints - 1][1] = soundSourceY;
 
         // Creating a summation
         double endingNoiseLevel = 0;
 
         // Looping through the list of bouncePoints
-        for (int i = 0; i < bouncePoints.length; i++){
+        for (int i = 0; i < bouncePoints.length; i++) {
             SoundSink dummySoundSink = new SoundSink();
             dummySoundSink.setX(bouncePoints[i][0]);
             dummySoundSink.setY(bouncePoints[i][1]);
             dummySoundSink.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
             double tempNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, dummySoundSink);
-
 
             SoundSource dummySoundSource = new SoundSource();
             dummySoundSource.setNoise(tempNoiseLevel);
@@ -764,12 +768,13 @@ public final class PhysicUtils {
             dummySoundSource.setY(bouncePoints[i][1]);
             dummySoundSource.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
             tempNoiseLevel = calculateDirectNoiseLevel(dummySoundSource, terrain, surfaces, soundSink);
+
+            // TODO(tbt004): Change back to linear scale before adding new noise.
+            //  Current noise level is at log scale, which does add up linearly like the equation below.
             endingNoiseLevel = endingNoiseLevel + tempNoiseLevel;
         }
-
         return endingNoiseLevel;
     }
-
 
     /**
      *
@@ -783,7 +788,7 @@ public final class PhysicUtils {
     public static String getPerceivedNoiseLabel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces,
                                                 ArrayList<BaseUnit> units, BaseUnit thisBaseUnit){
         // Get soundSource label
-        String PerceivedNoiseLabel = soundSource.getNoiseLabel();
+        String perceivedNoiseLabel = soundSource.getNoiseLabel();
 
         // Get a list of all visible unit
         ArrayList<BaseUnit> visibleUnits = checkUnitVision(thisBaseUnit, units, terrain);
@@ -797,8 +802,8 @@ public final class PhysicUtils {
             boolean equalZ = unit.getAverageZ() == soundSource.getZ();
 
             // If sound source is a visible unit, get its political faction as well
-            if(equalX&&equalY&&equalZ){
-                PerceivedNoiseLabel = PerceivedNoiseLabel + "-" + unit.getPoliticalFaction();
+            if (equalX && equalY && equalZ) {
+                perceivedNoiseLabel = perceivedNoiseLabel + "-" + unit.getPoliticalFaction();
             }
         }
 
@@ -809,10 +814,10 @@ public final class PhysicUtils {
 
         // If sound source is itself, add self to the noise label
         if(equalX&&equalY&&equalZ) {
-            PerceivedNoiseLabel = PerceivedNoiseLabel + "- self";
+            perceivedNoiseLabel = perceivedNoiseLabel + "- self";
         }
 
-        return PerceivedNoiseLabel;
+        return perceivedNoiseLabel;
     }
 }
 

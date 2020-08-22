@@ -497,7 +497,9 @@ public final class MathUtils {
      * @return
      */
     public static double[][] findEqualSpacePointsGivenEndPoints(double x1, double y1, double x2, double y2, int numberOfPoints){
-        double[][] pointsCoordinates = new double[0][2];
+        // Initialize point coordinates
+        double[][] pointsCoordinates = new double[numberOfPoints][2];
+
         // Adding the first endpoint to the 2D array
         pointsCoordinates[0][0] = x1;
         pointsCoordinates[0][1] = y1;
@@ -506,9 +508,8 @@ public final class MathUtils {
         while (i <  numberOfPoints){
             double newX = x1 + (x1 - x2) / (numberOfPoints - 1) * i;
             double newY = y1 + (y1 - y2) / (numberOfPoints - 1) * i;
-            int numberOfCurrentRow = pointsCoordinates.length;
-            pointsCoordinates[numberOfCurrentRow][0] = newX;
-            pointsCoordinates[numberOfCurrentRow][1] = newY;
+            pointsCoordinates[i][0] = newX;
+            pointsCoordinates[i][1] = newY;
             i++;
         }
         return pointsCoordinates;
@@ -534,6 +535,7 @@ public final class MathUtils {
         return unitVector;
     }
 
+    // TODO(tbt004): Debug to handle the case in which number of rows = 0
     public static double[][] doubleRowConcatenate(double[][] var1, double [][] var2){
         double rowLength1 = var1.length;
         double columnLength1 = var1[0].length;
@@ -546,11 +548,11 @@ public final class MathUtils {
 
         double[][] output = new double[0][(int) minColumnLength];
 
-        for (int i = 0; i< rowLength1; ++i){
+        for (int i = 0; i < rowLength1; ++i){
             if (minColumnLength >= 0) System.arraycopy(var1[i], 0, output[i], 0, (int) minColumnLength);
         }
 
-        for (int i = 0; i< rowLength2; ++i){
+        for (int i = 0; i < rowLength2; ++i){
             if (minColumnLength >= 0) System.arraycopy(var2[i], 0, output[i + (int) rowLength1], 0, (int) minColumnLength);
         }
         return output;
