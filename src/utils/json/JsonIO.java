@@ -6,8 +6,8 @@ import java.io.IOException;
 
 public interface JsonIO<T> {
 
-    T read(String filePath) throws IOException, ParseException;
+    T read(String filePath);
 
-    void save(T data);
+    void save(T data, String filePath) throws IOException;
 }
 

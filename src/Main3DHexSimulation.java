@@ -275,14 +275,10 @@ public class Main3DHexSimulation extends PApplet {
 
         /** Load sound files */
         // Set up audio speaker
-        try {
-            audioSpeaker = ConfigUtils.readAudioConfigs(
-                    "src/configs/audio_configs/AudioConfig.txt",
-                    camera, this, env.getBroadcaster()
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        audioSpeaker = ConfigUtils.readAudioConfigs(
+                "src/configs/audio_configs/AudioConfigJson.json",
+                camera, this, env.getBroadcaster()
+        );
 
         // Load background music
         if (audioSettings.isBackgroundMusic()) {

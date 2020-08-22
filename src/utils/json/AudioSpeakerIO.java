@@ -33,9 +33,15 @@ public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
     }
 
     @Override
-    public AudioSpeaker read(String filePath) throws IOException, ParseException {
+    public AudioSpeaker read(String filePath) {
         AudioSpeaker speaker = new AudioSpeaker(camera, applet, eventBroadcaster);
-        JSONObject jsonObject = (JSONObject)new JSONParser().parse(new FileReader(filePath));
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = (JSONObject)new JSONParser().parse(new FileReader(filePath));
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        }
+
         JSONArray jsonArray = (JSONArray) jsonObject.get("audioConfig");
 
         for(Object obj: jsonArray){
@@ -57,7 +63,7 @@ public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
     }
 
     @Override
-    public void save(AudioSpeaker audioSpeaker) {
+    public void save(AudioSpeaker audioSpeaker, String filePath) {
 
     }
 }

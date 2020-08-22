@@ -23,6 +23,7 @@ import processing.core.PApplet;
 import processing.core.PImage;
 import utils.json.AudioSpeakerIO;
 import utils.json.JsonIO;
+import utils.json.TerrainIO;
 import view.audio.*;
 import view.camera.BaseCamera;
 import view.video.VideoElementPlayer;
@@ -286,21 +287,18 @@ public final class ConfigUtils {
         return gameStats;
     }
 
+
     /**
      * Read audio configs
      * @param filePath
+     * @param camera
      * @param applet
+     * @param eventBroadcaster
      * @return An audio broadcaster with the configs.
-     * @throws IOException
      */
-    public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+    public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) {
         JsonIO jsonIO = new AudioSpeakerIO(camera, applet, eventBroadcaster);
-        try {
-            return (AudioSpeaker) jsonIO.read(filePath);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return (AudioSpeaker) jsonIO.read(filePath);
     }
 
     /**
@@ -531,6 +529,7 @@ public final class ConfigUtils {
      */
     public static Terrain createTerrainFromConfig(String filePath) throws IOException {
         // Get all text from file location
+        /*
         byte[] encoded = Files.readAllBytes(Paths.get(filePath));
         String s = new String(encoded, StandardCharsets.UTF_8);
 
@@ -562,8 +561,11 @@ public final class ConfigUtils {
 
         // Create a new terrain using the input configs.
         return new Terrain(
-            topX, topY, div, numX, numY, taper, minHeight, maxHeight,
-            perlinScale, perlinDetailScale, perlinDetailHeightRatio
+                topX, topY, div, numX, numY, minHeight, maxHeight,
+                perlinScale, perlinDetailScale, perlinDetailHeightRatio
         );
+        */
+        JsonIO jsonIo = new TerrainIO();
+        return (Terrain) jsonIo.read(filePath);
     }
 }
