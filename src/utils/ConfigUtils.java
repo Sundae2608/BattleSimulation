@@ -18,8 +18,11 @@ import model.terrain.Terrain;
 import model.units.*;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
+import org.json.simple.parser.ParseException;
 import processing.core.PApplet;
 import processing.core.PImage;
+import utils.json.AudioSpeakerIO;
+import utils.json.JsonIO;
 import view.audio.*;
 import view.camera.BaseCamera;
 import view.video.VideoElementPlayer;
@@ -291,27 +294,13 @@ public final class ConfigUtils {
      * @throws IOException
      */
     public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
-        // Get all text from file location
-        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
-        String s = new String(encoded, StandardCharsets.UTF_8);
-        String[] unitsInfo = s.split(",");
-
-        // Read each information
-        AudioSpeaker speaker = new AudioSpeaker(camera, applet, eventBroadcaster);
-        for (String info : unitsInfo) {
-
-            // Read all data of the audio config first
-            HashMap<String, String> d = parseProtoString(info);
-            String audioPath = d.get("file");
-            AudioType audioType = AudioType.valueOf(d.get("audio_type"));
-            SpeakingType speakingType = SpeakingType.valueOf(d.get("broadcast_type"));
-            float baseVolume = Float.parseFloat(d.get("base_volume"));
-            Audio audio = new Audio(
-                    audioPath, audioType, speakingType, baseVolume, applet
-            );
-            speaker.addAudio(audioType, audio);
+        JsonIO jsonIO = new AudioSpeakerIO(camera, applet, eventBroadcaster);
+        try {
+            return (AudioSpeaker) jsonIO.read(filePath);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
-        return speaker;
+        return null;
     }
 
     /**
