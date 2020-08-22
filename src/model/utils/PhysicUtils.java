@@ -235,45 +235,45 @@ public final class PhysicUtils {
     /**
      * Checks the vision of the unit base on where the units are on the terrain. Currently returning all units by
      * default for the purpose of development. (all units are visible to each other)
-     * @param unit The unit whose vision we are checking.
+     * @param single The unit whose vision we are checking.
      * @param allSingles The list of all units alive on the battle field.
      * @param terrain The terrain that all the units are operate on.
      * @return An array list containing all visible units.
      */
-    public static ArrayList<BaseSingle> checkSingleVision(BaseSingle unit, ArrayList<BaseSingle> allSingles, Terrain terrain) {
+    public static ArrayList<BaseSingle> checkSingleVision(BaseSingle single, ArrayList<BaseSingle> allSingles, Terrain terrain) {
         ArrayList<BaseSingle> allVisibleSingles = new ArrayList<BaseSingle>();
 
         // Getting the coordinate of the current unit
-        double averageX = unit.getX();
-        double averageY = unit.getY();
-        double averageZ = unit.getHeight();
+        double singleX = single.getX();
+        double singleY = single.getY();
+        double singleZ = terrain.getHeightFromPos(singleX, singleY);
 
         // Looping through the list of units
-        for (BaseSingle queryUnit : allSingles) {
+        for (BaseSingle querySingle : allSingles) {
             // If it is the same unit, there is no need to check.
-            if (queryUnit == unit) {
+            if (querySingle == single) {
                 continue;
             }
 
             // Getting the coordinate of the queryUnit
-            double queryAverageX = queryUnit.getX();
-            double queryAverageY = queryUnit.getY();
-            double queryAverageZ = queryUnit.getHeight();
+            double querySingleX = querySingle.getX();
+            double querySingleY = querySingle.getY();
+            double querySingleZ = terrain.getHeightFromPos(querySingleX, querySingleY);
             double div = terrain.getDiv();
 
             // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
             // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
-            double temp = MathUtils.squareDistance(queryAverageX, queryAverageY, averageX, averageY);
+            double temp = MathUtils.squareDistance(querySingleX, querySingleY, singleX, singleY);
             temp = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(MathUtils.quickRoot2((float) temp) / div);
             if (temp == 0) {
-                allVisibleSingles.add(queryUnit);
+                allVisibleSingles.add(querySingle);
                 continue;
             }
 
             double[] t = new double[(int) temp];
             t[0] = 0;
             for (int i = 1; i < t.length; i++) {
-                t[i] = t[i-1] + 1.0 / t.length;
+                t[i] = 1.0 * i / t.length;
             }
 
             // Declaring the terrain height at certain coordinate and the visibility boolean
@@ -287,9 +287,9 @@ public final class PhysicUtils {
 
             for (int j = 1; j < t.length; j++) {
                 // This is a line equation
-                arrayX[j] = (queryAverageX - averageX) * t[j] + averageX;
-                arrayY[j] = (queryAverageY - averageY) * t[j] + averageY;
-                arrayZ[j] = (queryAverageZ - averageZ) * t[j] + averageZ;
+                arrayX[j] = (querySingleX - singleX) * t[j] + singleX;
+                arrayY[j] = (querySingleY - singleY) * t[j] + singleY;
+                arrayZ[j] = (querySingleZ - singleZ) * t[j] + singleZ;
                 terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
                 visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
             }
@@ -299,7 +299,7 @@ public final class PhysicUtils {
                 visibility = visibility && visibilityArray[j];
             }
             if (visibility) {
-                allVisibleSingles.add(queryUnit);
+                allVisibleSingles.add(querySingle);
             }
         }
         return allVisibleSingles;
