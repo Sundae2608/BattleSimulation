@@ -10,13 +10,21 @@ import java.util.ArrayList;
 public class ForestSurface extends BaseSurface {
 
     ArrayList<Tree> trees;
+    double averageTreeRadius;
+    double sizeWiggling;
+
     public ForestSurface(SurfaceType type,
                          ArrayList<double[]> points,
                          double averageTreeRadius,
                          double sizeWiggling,
                          double averageDistance,
-                         double distanceWiggling) {
+                         double distanceWiggling,
+                         double averageTreeHeight,
+                         double heightWiggling) {
         super(type, points);
+
+        this.averageTreeRadius = averageTreeRadius;
+        this.sizeWiggling = sizeWiggling;
 
         // Generate trees for the area.
         double minX = Double.MAX_VALUE; double minY = Double.MAX_VALUE;
@@ -49,7 +57,8 @@ public class ForestSurface extends BaseSurface {
                 Tree tree = new Tree(
                         currX + MathUtils.randDouble(-distanceWiggling, distanceWiggling),
                         currY + MathUtils.randDouble(-distanceWiggling, distanceWiggling),
-                        averageTreeRadius + MathUtils.randDouble(-sizeWiggling, sizeWiggling));
+                        averageTreeRadius + MathUtils.randDouble(-sizeWiggling, sizeWiggling),
+                        averageTreeHeight + MathUtils.randDouble(-heightWiggling, heightWiggling));
                 trees.add(tree);
             }
             currY += yJump;
@@ -71,5 +80,10 @@ public class ForestSurface extends BaseSurface {
 
     public ArrayList<Tree> getTrees() {
         return trees;
+    }
+
+    public double getTreeMaxRadius() {
+        double maxRadius = averageTreeRadius + sizeWiggling;
+        return  maxRadius;
     }
 }

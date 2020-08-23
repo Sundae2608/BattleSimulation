@@ -22,6 +22,8 @@
     size_wiggling: 10
     average_distance: 250
     distance_wiggling: 60
+    average_tree_height: 300
+    height_wiggling: 30
 },
 {
     type: MARSH

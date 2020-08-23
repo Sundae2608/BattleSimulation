@@ -9,6 +9,7 @@ import java.util.ArrayList;
 public class Construct {
     String name;
     double[][] boundaryPoints;
+    double height;
 
     /**
      * Construct an object given the boundary points.
@@ -34,5 +35,9 @@ public class Construct {
 
     public double[][] getBoundaryPoints() {
         return boundaryPoints;
+    }
+
+    public double getHeight() {
+        return height;
     }
 }

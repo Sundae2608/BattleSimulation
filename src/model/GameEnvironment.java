@@ -152,7 +152,7 @@ public class GameEnvironment {
         // Update sound sinks for all units
         for (BaseUnit unit : units) {
             // Notice that each unit is a source for its sink as well. If it is too noisy, it might not be able to perceive the surrounding.
-            unit.getSoundSink().updateSoundSink(soundSources, terrain, surfaces, units, unit);
+            unit.getSoundSink().updateSoundSink(soundSources, terrain, surfaces, units, constructs, unit);
             unit.getSoundSink().updatePerceivedSoundSink();
         }
 

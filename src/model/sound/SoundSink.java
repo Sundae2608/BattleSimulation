@@ -1,6 +1,8 @@
 package model.sound;
 
 import javafx.util.Pair;
+import model.constants.GameplayConstants;
+import model.construct.Construct;
 import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
@@ -32,13 +34,13 @@ public class SoundSink {
      * @param soundSources: this is a list of all the sound sources in the map
      */
     public void updateSoundSink(ArrayList<SoundSource> soundSources, Terrain terrain, ArrayList<BaseSurface> surfaces,
-                                ArrayList<BaseUnit> units, BaseUnit thisUnit){
+                                ArrayList<BaseUnit> units, ArrayList<Construct> constructs, BaseUnit thisUnit){
         soundSinkEverything.clear(); // Clearing and updating new Hashmap for every iteration
 
         for (SoundSource soundSource : soundSources){
             String perceivedNoiseLabel = PhysicUtils.getPerceivedNoiseLabel(soundSource, terrain, surfaces,
                     units, thisUnit);
-            Pair<Double, Double> perceivedNoise = PhysicUtils.getPerceivedNoise(soundSource, terrain, surfaces, thisUnit);
+            Pair<Double, Double> perceivedNoise = PhysicUtils.getPerceivedNoise(soundSource, terrain, surfaces, constructs, thisUnit);
             soundSinkEverything.put(perceivedNoiseLabel, perceivedNoise);
         }
     }
@@ -58,7 +60,7 @@ public class SoundSink {
 
             // TODO: This threshold 0.2 should be set somewhere. It is a magic number for now
             // TODO: Sort out unique
-            if (perceivedNoiseLevel/totalDB < 0.2){
+            if (perceivedNoiseLevel/totalDB < GameplayConstants.NOISE_THRESHOLD){
                 continue;
             } else{
                 soundSinkPerceived.put(perceivedNoiseLabel, perceivedNoiseLevel);

@@ -60,7 +60,9 @@ public class GameplayConstants {
 
     // These are the sound constants
     public final static double CONE_ANGLE = 30; // degrees
+    public final static double DEFAULT_SOUND_RADIUS = 0.1; // degrees
     public final static double TERRAIN_MODIFYING_SOUND = 0.1; // The amount of dB reduce when sound pass through the terrain (not surfaces - wood, wall, etc)
     public final static int NUMBER_OF_POINTS_IN_CONE_BASE = 6; // This is the number of points long cone base
     public final static int NUMBER_OF_POINTS_ALONG_CONE_HEIGHT = 11; // This is the number of points from the cone top (soundSource) to a point on the cone base
+    public final static double NOISE_THRESHOLD = 0.2; // This is the threshold where the unit can register sound. Below this, the unit cannot.
 }

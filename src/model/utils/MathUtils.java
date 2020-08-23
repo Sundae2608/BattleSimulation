@@ -136,11 +136,19 @@ public final class MathUtils {
         return square(x1 - x2) + square(y1 - y2);
     }
 
+    public static double squareDistance3D(double x1, double y1, double z1, double x2, double y2, double z2) {
+        return square(x1 - x2) + square(y1 - y2) + square(z1 - z2);
+    }
+
     /**
      * Distance between two points, using quick root method
      */
     public static double quickDistance(double x1, double y1, double x2, double y2) {
         return quickRoot2((float) squareDistance(x1, y1, x2, y2));
+    }
+
+    public static double quickDistance3D(double x1, double y1, double z1, double x2, double y2, double z2) {
+        return quickRoot2((float) squareDistance3D(x1, y1, z1, x2, y2, z2));
     }
 
     /**
@@ -568,6 +576,8 @@ public final class MathUtils {
                 pt1[1] + (pt2[1] - pt1[1]) * scale,
         };
     }
+
+    //TODO: calculat quickLog
 }
 
 
