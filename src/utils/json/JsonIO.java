@@ -1,12 +1,9 @@
 package utils.json;
-
-import org.json.simple.parser.ParseException;
-
 import java.io.IOException;
 
 public interface JsonIO<T> {
 
-    T read(String filePath);
+    T read(String filePath) throws IOException;
 
     void save(T data, String filePath) throws IOException;
 }

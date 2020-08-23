@@ -296,7 +296,7 @@ public final class ConfigUtils {
      * @param eventBroadcaster
      * @return An audio broadcaster with the configs.
      */
-    public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) {
+    public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         JsonIO jsonIO = new AudioSpeakerIO(camera, applet, eventBroadcaster);
         return (AudioSpeaker) jsonIO.read(filePath);
     }
@@ -528,44 +528,7 @@ public final class ConfigUtils {
      * @throws IOException if the file is unavailable.
      */
     public static Terrain createTerrainFromConfig(String filePath) throws IOException {
-        // Get all text from file location
-        /*
-        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
-        String s = new String(encoded, StandardCharsets.UTF_8);
-
-        // The first object will be the map creation parameter.
-        String[] infoLines = s.split("\n");
-        HashMap<String, String> d = new HashMap<>();
-        for (String line : infoLines) {
-            line = line.trim();
-            String[] data = line.split(":");
-            if (data.length < 2) continue;
-            String key = data[0].trim();
-            String value = data[1].trim();
-            d.put(key, value);
-        }
-
-        // Extract the input configs.
-        double topX = Double.parseDouble(d.get("top_x"));
-        double topY = Double.parseDouble(d.get("top_y"));
-        double div = Double.parseDouble(d.get("div"));
-        int numX = Integer.parseInt(d.get("num_x"));
-        int numY = Integer.parseInt(d.get("num_y"));
-        int taper = Integer.parseInt(d.get("taper"));
-        double minHeight = Double.parseDouble(d.get("min_height"));
-        double maxHeight = Double.parseDouble(d.get("max_height"));
-        double perlinScale = Double.parseDouble(d.get("perlin_scale"));
-        double perlinDetailScale = Double.parseDouble(d.get("perlin_detail_scale"));
-        double perlinDetailHeightRatio = Double.parseDouble(d.get("perlin_detail_height_ratio"));
-        String texture = d.get("texture");
-
-        // Create a new terrain using the input configs.
-        return new Terrain(
-                topX, topY, div, numX, numY, minHeight, maxHeight,
-                perlinScale, perlinDetailScale, perlinDetailHeightRatio
-        );
-        */
-        JsonIO jsonIo = new TerrainIO();
-        return (Terrain) jsonIo.read(filePath);
+        JsonIO jsonIO = new TerrainIO();
+        return (Terrain) jsonIO.read(filePath);
     }
 }
