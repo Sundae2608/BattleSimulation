@@ -14,9 +14,7 @@ public class TerrainIO implements JsonIO<Terrain> {
         JSONObject terrainJsonObject = null;
         try {
             terrainJsonObject = (JSONObject)new JSONParser().parse(new FileReader(filePath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
 
@@ -50,7 +48,7 @@ public class TerrainIO implements JsonIO<Terrain> {
         terrainJsonObject.put("max_height", terrain.getMaxZ());
         terrainJsonObject.put("perlin_scale", terrain.getPerlinScale());
         terrainJsonObject.put("perlin_detail_scale", terrain.getPerlinDetailScale());
-        terrainJsonObject.put("perlin_detail_height_ratio", terrain.getPerlinDetailScale());
+        terrainJsonObject.put("perlin_detail_height_ratio", terrain.getPerlinDetailHeightRatio());
 
         FileWriter file = new FileWriter(filePath);
         file.write(terrainJsonObject.toJSONString());
