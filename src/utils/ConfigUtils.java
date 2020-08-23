@@ -18,8 +18,12 @@ import model.terrain.Terrain;
 import model.units.*;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
+import org.json.simple.parser.ParseException;
 import processing.core.PApplet;
 import processing.core.PImage;
+import utils.json.AudioSpeakerIO;
+import utils.json.JsonIO;
+import utils.json.TerrainIO;
 import view.audio.*;
 import view.camera.BaseCamera;
 import view.video.VideoElementPlayer;
@@ -283,35 +287,18 @@ public final class ConfigUtils {
         return gameStats;
     }
 
+
     /**
      * Read audio configs
      * @param filePath
+     * @param camera
      * @param applet
+     * @param eventBroadcaster
      * @return An audio broadcaster with the configs.
-     * @throws IOException
      */
     public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
-        // Get all text from file location
-        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
-        String s = new String(encoded, StandardCharsets.UTF_8);
-        String[] unitsInfo = s.split(",");
-
-        // Read each information
-        AudioSpeaker speaker = new AudioSpeaker(camera, applet, eventBroadcaster);
-        for (String info : unitsInfo) {
-
-            // Read all data of the audio config first
-            HashMap<String, String> d = parseProtoString(info);
-            String audioPath = d.get("file");
-            AudioType audioType = AudioType.valueOf(d.get("audio_type"));
-            SpeakingType speakingType = SpeakingType.valueOf(d.get("broadcast_type"));
-            float baseVolume = Float.parseFloat(d.get("base_volume"));
-            Audio audio = new Audio(
-                    audioPath, audioType, speakingType, baseVolume, applet
-            );
-            speaker.addAudio(audioType, audio);
-        }
-        return speaker;
+        JsonIO jsonIO = new AudioSpeakerIO(camera, applet, eventBroadcaster);
+        return (AudioSpeaker) jsonIO.read(filePath);
     }
 
     /**
@@ -541,40 +528,7 @@ public final class ConfigUtils {
      * @throws IOException if the file is unavailable.
      */
     public static Terrain createTerrainFromConfig(String filePath) throws IOException {
-        // Get all text from file location
-        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
-        String s = new String(encoded, StandardCharsets.UTF_8);
-
-        // The first object will be the map creation parameter.
-        String[] infoLines = s.split("\n");
-        HashMap<String, String> d = new HashMap<>();
-        for (String line : infoLines) {
-            line = line.trim();
-            String[] data = line.split(":");
-            if (data.length < 2) continue;
-            String key = data[0].trim();
-            String value = data[1].trim();
-            d.put(key, value);
-        }
-
-        // Extract the input configs.
-        double topX = Double.parseDouble(d.get("top_x"));
-        double topY = Double.parseDouble(d.get("top_y"));
-        double div = Double.parseDouble(d.get("div"));
-        int numX = Integer.parseInt(d.get("num_x"));
-        int numY = Integer.parseInt(d.get("num_y"));
-        int taper = Integer.parseInt(d.get("taper"));
-        double minHeight = Double.parseDouble(d.get("min_height"));
-        double maxHeight = Double.parseDouble(d.get("max_height"));
-        double perlinScale = Double.parseDouble(d.get("perlin_scale"));
-        double perlinDetailScale = Double.parseDouble(d.get("perlin_detail_scale"));
-        double perlinDetailHeightRatio = Double.parseDouble(d.get("perlin_detail_height_ratio"));
-        String texture = d.get("texture");
-
-        // Create a new terrain using the input configs.
-        return new Terrain(
-            topX, topY, div, numX, numY, taper, minHeight, maxHeight,
-            perlinScale, perlinDetailScale, perlinDetailHeightRatio
-        );
+        JsonIO jsonIO = new TerrainIO();
+        return (Terrain) jsonIO.read(filePath);
     }
 }
