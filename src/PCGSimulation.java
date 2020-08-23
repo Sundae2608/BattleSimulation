@@ -1,8 +1,10 @@
 import controller.tunable.CustomAssigner;
+import model.algorithms.geometry.Edge;
+import model.algorithms.geometry.Polygon;
+import model.algorithms.geometry.PolygonSystem;
 import model.algorithms.pathfinding.*;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
-import model.utils.MapGenerationUtils;
 import model.utils.Triplet;
 import processing.core.PApplet;
 import processing.event.MouseEvent;
@@ -16,9 +18,7 @@ import view.drawer.UIDrawer;
 import view.drawer.components.Scrollbar;
 import view.settings.DrawingSettings;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 public class PCGSimulation extends PApplet {
 
@@ -31,17 +31,21 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
-    private final static int NUM_HEX_RADIUS = 7;
+    private final static int NUM_HEX_RADIUS = 12;
     private final static double HEX_RADIUS = 300;
-    private final static double HEX_JIGGLE = 30;
+    private final static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
     private final static double HEX_CENTER_Y = INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2;
+    private final static double HEX_CENTER_JIGGLE = 1800;
 
-    private final static double PT_SCALE = 0.9;
+    private final static double PT_SCALE = 0.95;
     private final static double SWAP_PROBABILITY = 0.10;
 
-    private final static double SCALING_EXPONTENTIAL = 1.1;
-    private final static double BASE_SCALE_DIST = 600;
+    private final static double LOG_BASE = 20.0;
+    private final static double BASE_SCALE_DIST = 700;
+
+    // Config for the number of nodes
+    private final static double NUM_NODES_CITY_CENTER = 16;
 
     // Drawing settings
     DrawingSettings drawingSettings;
@@ -66,11 +70,9 @@ public class PCGSimulation extends PApplet {
     // Terrain
     Terrain terrain;
 
-    // Hexagonal points
+    // Polygon system
     Graph graph;
-    ArrayList<Triangle> triangles;
-    HashSet<Polygon> polygons;
-    Polygon mergedPolygon;
+    PolygonSystem polygonSystem;
 
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
@@ -166,10 +168,10 @@ public class PCGSimulation extends PApplet {
          * + create down triangles for bottom half
          */
         int numPoints = NUM_HEX_RADIUS;
-        triangles = new ArrayList<>();
-        HashMap<Triplet, Triangle> upTriangleMap = new HashMap<>();
-        HashMap<Triplet, Triangle> downTriangleMap = new HashMap<>();
-        HashMap<Node, HashSet<Triangle>> nodeToTriangleMap = new HashMap<>();
+        ArrayList<Polygon> triangles = new ArrayList<>();
+        HashMap<Triplet, Polygon> upTriangleMap = new HashMap<>();
+        HashMap<Triplet, Polygon> downTriangleMap = new HashMap<>();
+        HashMap<Node, HashSet<Polygon>> nodeToTriangleMap = new HashMap<>();
 
         Triplet<Integer, Integer, Integer> curr;
         Triplet<Integer, Integer, Integer> topLeftTriplet = new Triplet<>(0, NUM_HEX_RADIUS - 1, -NUM_HEX_RADIUS + 1);
@@ -184,9 +186,13 @@ public class PCGSimulation extends PApplet {
                 Triplet<Integer, Integer, Integer> t1 = curr;
                 Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x-1, curr.y, curr.z+1);
                 Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
-                Triangle triangle;
+                Polygon triangle;
                 if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
-                    triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                    HashSet<Edge> edges = new HashSet<>();
+                    edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t2)));
+                    edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t3)));
+                    edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
+                    triangle = new Polygon(edges);
                     triangles.add(triangle);
                     if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
                         nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
@@ -218,9 +224,13 @@ public class PCGSimulation extends PApplet {
                 Triplet<Integer, Integer, Integer> t1 = curr;
                 Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x+1, curr.y-1, curr.z);
                 Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
-                Triangle triangle;
+                Polygon triangle;
                 if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
-                    triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                    HashSet<Edge> edges = new HashSet<>();
+                    edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t2)));
+                    edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t3)));
+                    edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
+                    triangle = new Polygon(edges);
                     triangles.add(triangle);
                     if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
                         nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
@@ -253,9 +263,13 @@ public class PCGSimulation extends PApplet {
                 Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x-1, curr.y, curr.z+1);
                 Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
                 if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
-                    Triangle triangle;
+                    Polygon triangle;
                     if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
-                        triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                        HashSet<Edge> edges = new HashSet<>();
+                        edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t2)));
+                        edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t3)));
+                        edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
+                        triangle = new Polygon(edges);
                         triangles.add(triangle);
                         if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
                             nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
@@ -288,9 +302,13 @@ public class PCGSimulation extends PApplet {
                 Triplet<Integer, Integer, Integer> t1 = curr;
                 Triplet<Integer, Integer, Integer> t2 = new Triplet<>(curr.x+1, curr.y-1, curr.z);
                 Triplet<Integer, Integer, Integer> t3 = new Triplet<>(curr.x, curr.y-1, curr.z+1);
-                Triangle triangle;
+                Polygon triangle;
                 if (nodeMap.containsKey(t1) && nodeMap.containsKey(t2) && nodeMap.containsKey(t3)) {
-                    triangle = new Triangle(nodeMap.get(t1), nodeMap.get(t2), nodeMap.get(t3));
+                    HashSet<Edge> edges = new HashSet<>();
+                    edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t2)));
+                    edges.add(new Edge(nodeMap.get(t1), nodeMap.get(t3)));
+                    edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
+                    triangle = new Polygon(edges);
                     triangles.add(triangle);
                     if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
                         nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
@@ -311,70 +329,97 @@ public class PCGSimulation extends PApplet {
         }
 
         /**
-         * Perform node swapping of two adjacent triangles
+         * Create a new polygon system out of the triangles and perform random edge swapping
          */
-        // Random node swapping.
-        // TODO: Add a condition to stop the swap if the the swap would create overlapping geometry.
-        for (Triplet<Integer, Integer, Integer> t : upTriangleMap.keySet()) {
-            Triplet<Integer, Integer, Integer> downCandidate1 = t;
-            if (MathUtils.randDouble(0, 1) < SWAP_PROBABILITY && downTriangleMap.containsKey(downCandidate1)) {
-                MapGenerationUtils.swapTriangleEdges(upTriangleMap.get(t), downTriangleMap.get(downCandidate1), nodeToTriangleMap);
-            }
-            Triplet<Integer, Integer, Integer> downCandidate2 = new Triplet<>(t.x - 1, t.y + 1, t.z);
-            if (MathUtils.randDouble(0, 1) < SWAP_PROBABILITY && downTriangleMap.containsKey(downCandidate2)) {
-                MapGenerationUtils.swapTriangleEdges(upTriangleMap.get(t), downTriangleMap.get(downCandidate2), nodeToTriangleMap);
-            }
-            Triplet<Integer, Integer, Integer> downCandidate3 = new Triplet<>(t.x - 1, t.y, t.z + 1);
-            if (MathUtils.randDouble(0, 1) < SWAP_PROBABILITY && downTriangleMap.containsKey(downCandidate3)) {
-                MapGenerationUtils.swapTriangleEdges(upTriangleMap.get(t), downTriangleMap.get(downCandidate3), nodeToTriangleMap);
+        polygonSystem = new PolygonSystem();
+        for (Polygon polygon : triangles) {
+            polygonSystem.addPolygon(polygon);
+        }
+
+        // Edge swapping
+        for (Object o : polygonSystem.getEdges().toArray()) {
+            Edge edge = (Edge) o;
+            if (polygonSystem.getAdjacentPolygon(edge) != null &&
+                polygonSystem.getAdjacentPolygon(edge).size() == 2 &&
+                MathUtils.randDouble(0.0, 1.0) < SWAP_PROBABILITY) {
+                Polygon p1 = (Polygon) polygonSystem.getAdjacentPolygon(edge).toArray()[0];
+                Polygon p2 = (Polygon) polygonSystem.getAdjacentPolygon(edge).toArray()[1];
+                polygonSystem.swapTriangleEdge(p1, p2);
             }
         }
 
         /**
-         * Geometric scaling from the center.
-         * A city typically has a very dense and small area in the center, followed by very sparse geometry further away
-         * Therefore, we should scale so that city center appears in smaller block, while the surround blocks get
-         * increasingly bigger
+         * Combine nodes together according to a certain city layout.
          */
-        for (Node node : graph.getNodes()) {
-            double dist = MathUtils.quickDistance(HEX_CENTER_X, HEX_CENTER_Y, node.getX(), node.getY());
-            double[] newPt = MathUtils.scalePoint(new double[] {HEX_CENTER_X, HEX_CENTER_Y}, node.getPt(), Math.max(Math.log(dist / BASE_SCALE_DIST), 1));
-            node.setX(newPt[0]);
-            node.setY(newPt[1]);
-        }
+        double[] centerPt = MathUtils.polarJiggle(HEX_CENTER_X, HEX_CENTER_Y, HEX_CENTER_JIGGLE);
+        ArrayList<Node> nodeList = new ArrayList<>(polygonSystem.getNodes());
+        Collections.sort(nodeList, new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                double dist1 = MathUtils.quickDistance(o1.getX(), o1.getY(), centerPt[0], centerPt[1]);
+                double dist2 = MathUtils.quickDistance(o2.getX(), o2.getY(), centerPt[0], centerPt[1]);
+                if (dist1 < dist2) {
+                    return -1;
+                } else if (dist1 == dist2) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
 
-        /**
-         * Remove nodes to create bigger lumps of stuffs.
-         */
-        // First, convert them all into polygons
-        HashMap<Node, HashSet<Polygon>> nodeToPolygonMap = new HashMap<>();
-        polygons = new HashSet<>();
-        for (Triangle triangle : triangles) {
-            polygons.add(new Polygon(triangle));
+        // Make city center.
+        HashSet<Polygon> mergedPolygonSet = new HashSet<>();
+        HashSet<Polygon> polygonSet = new HashSet<>();
+        for (i = 0; i < NUM_NODES_CITY_CENTER; i++) {
+            for (Polygon polygon : polygonSystem.getAdjacentPolygon(nodeList.get(i))) {
+                polygonSet.add(polygon);
+            }
         }
-        for (Polygon polygon : polygons) {
-            for (Node node : polygon.getNodes()) {
-                if (!nodeToPolygonMap.containsKey(node)) nodeToPolygonMap.put(node, new HashSet<>());
-                nodeToPolygonMap.get(node).add(polygon);
+        mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(new ArrayList<>(polygonSet)));
+
+        // For the rest of the land, just keep merging any point that has not been parts of a polygon merged.
+        nodeList = new ArrayList<>(polygonSystem.getNodes());
+        Collections.sort(nodeList, new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                double dist1 = MathUtils.quickDistance(o1.getX(), o1.getY(), centerPt[0], centerPt[1]);
+                double dist2 = MathUtils.quickDistance(o2.getX(), o2.getY(), centerPt[0], centerPt[1]);
+                if (dist1 < dist2) {
+                    return -1;
+                } else if (dist1 == dist2) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        for (Node node : nodeList) {
+            boolean adjacentNode = false;
+            for (Polygon polygon : mergedPolygonSet) {
+                if (polygon.getNodes().contains(node)) {
+                    adjacentNode = true;
+                    break;
+                }
+            }
+            if (!adjacentNode) {
+                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
+                        new ArrayList<>(polygonSystem.getAdjacentPolygon(node)))
+                );
             }
         }
 
-        // Pick a random point to delete from the mix
-        Node removeNode = null;
-        for (Node node : nodeToPolygonMap.keySet()) {
-            removeNode = node;
-            mergedPolygon = MapGenerationUtils.mergeMultiplePolygons(new ArrayList<>(nodeToPolygonMap.get(removeNode)));
-            break;
+        // Randomly merge the remaining triangles
+        ArrayList<Polygon> remainingPolygons = new ArrayList<>(polygonSystem.getPolygons());
+        for (Polygon polygon : remainingPolygons) {
+            if (polygon.getNodes().size() == 3) {
+                Edge e = (Edge) polygon.getEdges().toArray()[0];
+                if (polygonSystem.getAdjacentPolygon(e) == null) continue;
+                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
+                        new ArrayList<>(polygonSystem.getAdjacentPolygon(e)))
+                );
+            }
         }
-
-        // Remove the destroyed node
-//        for (Node node : mergedPolygon.getNodes()) {
-//            for (Polygon removePolygon : nodeToPolygonMap.get(removeNode)) {
-//                nodeToPolygonMap.get(node).remove(removePolygon);
-//            }
-//            nodeToPolygonMap.get(node).add(mergedPolygon);
-//        }
-//        nodeToPolygonMap.remove(removeNode);
     }
 
     public void draw() {
@@ -449,53 +494,31 @@ public class PCGSimulation extends PApplet {
 
         // Draw triangles
         int[] color = DrawingConstants.POLYGON_COLOR;
-        strokeWeight((float) (10 * camera.getZoom()));
-        stroke(color[0], color[1], color[2], color[3]);
-        noFill();
-        beginShape(LINES);
-        for (Polygon polygon : polygons) {
-            double[] centerOfMass = polygon.getCenterOfMass();
-            for (Edge edge : polygon.getEdges()) {
-                double[] pt1 = new double[] {edge.getNode1().getX(), edge.getNode1().getY()};
-                double[] pt2 = new double[] {edge.getNode2().getX(), edge.getNode2().getY()};
-                pt1 = MathUtils.scalePoint(centerOfMass, pt1, PT_SCALE);
-                pt2 = MathUtils.scalePoint(centerOfMass, pt2, PT_SCALE);
-                pt1 = camera.getDrawingPosition(pt1[0], pt1[1], terrain.getHeightFromPos(pt1[0], pt1[1]));
-                pt2 = camera.getDrawingPosition(pt2[0], pt2[1], terrain.getHeightFromPos(pt2[0], pt2[1]));
-                vertex((float) pt1[0], (float) pt1[1]);
-                vertex((float) pt2[0], (float) pt2[1]);
+        noStroke();
+        fill(color[0], color[1], color[2], color[3]);
+        for (Polygon t : polygonSystem.getPolygons()) {
+            beginShape();
+            double[] centerOfMass = t.getCenterOfMass();
+            ArrayList<Node> nodes = t.getOrderedNodes();
+            for (Node node : nodes) {
+                double[] pt = new double[] {node.getX(), node.getY()};
+                pt = MathUtils.scalePoint(centerOfMass, pt, PT_SCALE);
+                pt = camera.getDrawingPosition(pt[0], pt[1], terrain.getHeightFromPos(pt[0], pt[1]));
+                vertex((float) pt[0], (float) pt[1]);
             }
+            endShape(CLOSE);
         }
-        endShape();
-        noStroke();
-
-        // Draw merged polygons
-        color = DrawingConstants.MERGED_POLYGON_COLOR;
-        strokeWeight((float) (10 * camera.getZoom()));
-        stroke(color[0], color[1], color[2], color[3]);
-        noFill();
-        beginShape(LINES);
-        double[] centerOfMass = mergedPolygon.getCenterOfMass();
-        for (Edge edge : mergedPolygon.getEdges()) {
-            double[] pt1 = new double[] {edge.getNode1().getX(), edge.getNode1().getY()};
-            double[] pt2 = new double[] {edge.getNode2().getX(), edge.getNode2().getY()};
-            pt1 = MathUtils.scalePoint(centerOfMass, pt1, PT_SCALE);
-            pt2 = MathUtils.scalePoint(centerOfMass, pt2, PT_SCALE);
-            pt1 = camera.getDrawingPosition(pt1[0], pt1[1], terrain.getHeightFromPos(pt1[0], pt1[1]));
-            pt2 = camera.getDrawingPosition(pt2[0], pt2[1], terrain.getHeightFromPos(pt2[0], pt2[1]));
-            vertex((float) pt1[0], (float) pt1[1]);
-            vertex((float) pt2[0], (float) pt2[1]);
-        }
-        endShape();
-        noStroke();
 
         // Draw pts
         color = DrawingConstants.NODE_COLOR;
-        fill(color[0], color[1], color[2], color[3]);
-        for (Node node : graph.getNodes()) {
+        for (Node node : polygonSystem.getNodes()) {
+            fill(color[0], color[1], color[2], color[3]);
             double[] drawingPt = camera.getDrawingPosition(
                     node.getX(), node.getY(), terrain.getHeightFromPos(node.getX(), node.getY()));
             circle((float) drawingPt[0], (float) drawingPt[1], (float) (DrawingConstants.NODE_RADIUS * camera.getZoom()));
+            fill(0, 0, 0);
+            text(String.valueOf(polygonSystem.getAdjacentPolygon(node).size()),
+                    (float) drawingPt[0], (float) drawingPt[1] - 10);
         }
 
         // Draw zoom information

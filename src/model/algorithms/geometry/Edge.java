@@ -1,6 +1,6 @@
-package model.algorithms.pathfinding;
+package model.algorithms.geometry;
 
-import model.utils.Triplet;
+import model.algorithms.pathfinding.Node;
 
 public class Edge {
 
