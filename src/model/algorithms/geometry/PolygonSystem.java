@@ -108,7 +108,6 @@ public class PolygonSystem {
         }
     }
 
-
     /**
      * Swap the edge of the triangle that shares edge.
      */

@@ -3,6 +3,7 @@ import model.algorithms.geometry.Edge;
 import model.algorithms.geometry.Polygon;
 import model.algorithms.geometry.PolygonSystem;
 import model.algorithms.pathfinding.*;
+import model.settings.MapGenerationSettings;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
 import model.utils.Triplet;
@@ -42,13 +43,14 @@ public class PCGSimulation extends PApplet {
     private final static double SWAP_PROBABILITY = 0.10;
 
     private final static double LOG_BASE = 20.0;
-    private final static double BASE_SCALE_DIST = 700;
+    private final static double BASE_SCALE_DIST = 7000;
 
     // Config for the number of nodes
     private final static double NUM_NODES_CITY_CENTER = 16;
 
     // Drawing settings
     DrawingSettings drawingSettings;
+    MapGenerationSettings mapGenerationSettings;
 
     // Key and mouse pressed set
     HashSet<Character> keyPressedSet;
@@ -77,6 +79,9 @@ public class PCGSimulation extends PApplet {
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
         drawingSettings = new DrawingSettings();
+
+        mapGenerationSettings = new MapGenerationSettings();
+        mapGenerationSettings.setPointExtension(true);
 
         // Drawing settings
         smooth(3);
@@ -171,7 +176,6 @@ public class PCGSimulation extends PApplet {
         ArrayList<Polygon> triangles = new ArrayList<>();
         HashMap<Triplet, Polygon> upTriangleMap = new HashMap<>();
         HashMap<Triplet, Polygon> downTriangleMap = new HashMap<>();
-        HashMap<Node, HashSet<Polygon>> nodeToTriangleMap = new HashMap<>();
 
         Triplet<Integer, Integer, Integer> curr;
         Triplet<Integer, Integer, Integer> topLeftTriplet = new Triplet<>(0, NUM_HEX_RADIUS - 1, -NUM_HEX_RADIUS + 1);
@@ -194,18 +198,6 @@ public class PCGSimulation extends PApplet {
                     edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
                     triangle = new Polygon(edges);
                     triangles.add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
-                        nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
-                        nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
-                        nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
                     upTriangleMap.put(curr, triangle);
                 }
             }
@@ -232,18 +224,6 @@ public class PCGSimulation extends PApplet {
                     edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
                     triangle = new Polygon(edges);
                     triangles.add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
-                        nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
-                        nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
-                        nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
                     downTriangleMap.put(curr, triangle);
                 }
             }
@@ -271,18 +251,6 @@ public class PCGSimulation extends PApplet {
                         edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
                         triangle = new Polygon(edges);
                         triangles.add(triangle);
-                        if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
-                            nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
-                        }
-                        nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
-                        if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
-                            nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
-                        }
-                        nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
-                        if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
-                            nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
-                        }
-                        nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
                         upTriangleMap.put(curr, triangle);
                     }
                 }
@@ -310,22 +278,24 @@ public class PCGSimulation extends PApplet {
                     edges.add(new Edge(nodeMap.get(t2), nodeMap.get(t3)));
                     triangle = new Polygon(edges);
                     triangles.add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t1))) {
-                        nodeToTriangleMap.put(nodeMap.get(t1), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t1)).add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t2))) {
-                        nodeToTriangleMap.put(nodeMap.get(t2), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t2)).add(triangle);
-                    if (!nodeToTriangleMap.containsKey(nodeMap.get(t3))) {
-                        nodeToTriangleMap.put(nodeMap.get(t3), new HashSet<>());
-                    }
-                    nodeToTriangleMap.get(nodeMap.get(t3)).add(triangle);
                     downTriangleMap.put(curr, triangle);
                 }
             }
             numPoints++;
+        }
+
+        /** Scale the points further */
+        // Point extension
+        if (mapGenerationSettings.isPointExtension()) {
+            for (Node node : graph.getNodes()) {
+                double dist = MathUtils.quickDistance(HEX_CENTER_X, HEX_CENTER_Y, node.getX(), node.getY());
+                double[] newPt = MathUtils.scalePoint(
+                        new double[]{HEX_CENTER_X, HEX_CENTER_Y},
+                        node.getPt(),
+                        Math.max(Math.log(dist / BASE_SCALE_DIST) / Math.log(LOG_BASE) + 1, 1));
+                node.setX(newPt[0]);
+                node.setY(newPt[1]);
+            }
         }
 
         /**
@@ -410,16 +380,16 @@ public class PCGSimulation extends PApplet {
         }
 
         // Randomly merge the remaining triangles
-        ArrayList<Polygon> remainingPolygons = new ArrayList<>(polygonSystem.getPolygons());
-        for (Polygon polygon : remainingPolygons) {
-            if (polygon.getNodes().size() == 3) {
-                Edge e = (Edge) polygon.getEdges().toArray()[0];
-                if (polygonSystem.getAdjacentPolygon(e) == null) continue;
-                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
-                        new ArrayList<>(polygonSystem.getAdjacentPolygon(e)))
-                );
-            }
-        }
+//        ArrayList<Polygon> remainingPolygons = new ArrayList<>(polygonSystem.getPolygons());
+//        for (Polygon polygon : remainingPolygons) {
+//            if (polygon.getNodes().size() == 3) {
+//                Edge e = (Edge) polygon.getEdges().toArray()[0];
+//                if (polygonSystem.getAdjacentPolygon(e) == null) continue;
+//                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
+//                        new ArrayList<>(polygonSystem.getAdjacentPolygon(e)))
+//                );
+//            }
+//        }
     }
 
     public void draw() {
@@ -530,6 +500,11 @@ public class PCGSimulation extends PApplet {
         // Scroll bars
         for (Scrollbar scrollbar : scrollbars) {
             scrollbar.display();
+        }
+
+        // Set up the data again.
+        if (keyPressedSet.contains('r')) {
+            setup();
         }
     }
 
