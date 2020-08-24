@@ -43,7 +43,7 @@ public class Terrain {
      * Initialize the terrain, using a 2-tier perlin noise to randomly generate terrain.
      */
     public Terrain(double inputTopX, double inputTopY, double inputDiv,
-                   int inputNumX, int inputNumY, int taper, double minHeight, double maxHeight,
+                   int inputNumX, int inputNumY, double minHeight, double maxHeight,
                    double inputPerlinScale, double inputPerlinDetailScale, double inputPerlinDetailHeightRatio) {
         topX = inputTopX;
         topY = inputTopY;
@@ -104,6 +104,12 @@ public class Terrain {
     public int getNumY() {
         return numY;
     }
+
+    public double getPerlinScale() { return perlinScale; }
+
+    public double getPerlinDetailScale() { return perlinDetailScale; }
+
+    public double getPerlinDetailHeightRatio() { return perlinDetailHeightRatio; }
 
     public double getHeightFromTileIndex(int i, int j) {
         if (i >= 0 && i < numX && j > 0 && j <= numY) {

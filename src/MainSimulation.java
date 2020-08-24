@@ -175,7 +175,7 @@ public class MainSimulation extends PApplet {
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
         String battleConfig = "misc/VideoConfigs/Scene3.txt";
-        String mapConfig = "misc/VideoConfigs/Scene1Map.txt";
+        String mapConfig = "src/configs/map_configs/TerrainConfigs.json";
         String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
@@ -259,7 +259,7 @@ public class MainSimulation extends PApplet {
         // Set up audio speaker
         try {
             audioSpeaker = ConfigUtils.readAudioConfigs(
-                    "src/configs/audio_configs/AudioConfig.txt",
+                    "src/configs/audio_configs/AudioConfigJson.json",
                     camera, this, env.getBroadcaster()
             );
         } catch (IOException e) {
