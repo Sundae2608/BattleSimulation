@@ -32,7 +32,7 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
-    private final static int NUM_HEX_RADIUS = 12;
+    private final static int NUM_HEX_RADIUS = 20;
     private final static double HEX_RADIUS = 300;
     private final static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
@@ -380,16 +380,16 @@ public class PCGSimulation extends PApplet {
         }
 
         // Randomly merge the remaining triangles
-//        ArrayList<Polygon> remainingPolygons = new ArrayList<>(polygonSystem.getPolygons());
-//        for (Polygon polygon : remainingPolygons) {
-//            if (polygon.getNodes().size() == 3) {
-//                Edge e = (Edge) polygon.getEdges().toArray()[0];
-//                if (polygonSystem.getAdjacentPolygon(e) == null) continue;
-//                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
-//                        new ArrayList<>(polygonSystem.getAdjacentPolygon(e)))
-//                );
-//            }
-//        }
+        ArrayList<Polygon> remainingPolygons = new ArrayList<>(polygonSystem.getPolygons());
+        for (Polygon polygon : remainingPolygons) {
+            if (polygon.getNodes().size() == 3) {
+                Edge e = (Edge) polygon.getEdges().toArray()[0];
+                if (polygonSystem.getAdjacentPolygon(e) == null) continue;
+                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
+                        new ArrayList<>(polygonSystem.getAdjacentPolygon(e)))
+                );
+            }
+        }
     }
 
     public void draw() {
