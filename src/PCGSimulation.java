@@ -390,6 +390,9 @@ public class PCGSimulation extends PApplet {
                 );
             }
         }
+
+        // TODO: Draw roads.
+        // TODO: Add random rectangles.
     }
 
     public void draw() {
