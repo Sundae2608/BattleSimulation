@@ -34,6 +34,11 @@ public class Edge {
 		return result;
     }
 
+    public double getLength() {
+        return Math.sqrt((node1.getX()-node2.getX())*(node1.getX()-node2.getX())
+                + (node1.getY()-node2.getY())*(node1.getY()-node2.getY()));
+    }
+
     public Node getNode1() {
         return node1;
     }

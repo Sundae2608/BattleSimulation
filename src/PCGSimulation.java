@@ -383,10 +383,19 @@ public class PCGSimulation extends PApplet {
         ArrayList<Polygon> remainingPolygons = new ArrayList<>(polygonSystem.getPolygons());
         for (Polygon polygon : remainingPolygons) {
             if (polygon.getNodes().size() == 3) {
-                Edge e = (Edge) polygon.getEdges().toArray()[0];
-                if (polygonSystem.getAdjacentPolygon(e) == null) continue;
+                double maxEdgeLength = 0;
+                Edge maxEdge = null;
+                for (Edge edge : polygon.getEdges()) {
+                    if (edge.getLength() > maxEdgeLength) {
+                        maxEdgeLength = edge.getLength();
+                        maxEdge = edge;
+                    }
+                }
+
+                if (maxEdge == null) continue;
+                if (polygonSystem.getAdjacentPolygon(maxEdge) == null) continue;
                 mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
-                        new ArrayList<>(polygonSystem.getAdjacentPolygon(e)))
+                        new ArrayList<>(polygonSystem.getAdjacentPolygon(maxEdge)))
                 );
             }
         }
