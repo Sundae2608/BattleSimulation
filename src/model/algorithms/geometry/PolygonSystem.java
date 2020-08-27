@@ -259,6 +259,7 @@ public class PolygonSystem {
         Node prevNode = new Node(prevCom[0], prevCom[1]);
         for (int i = 0; i < numAngles; i++) {
             double[] nextCom =  angleToCom.get(angleList.get((i + 1) % numAngles));
+            // TODO: Don't create new node all the time. Instead used shared node and shared edge.
             Node nextNode = new Node(nextCom[0], nextCom[1]);
             edges.add(new Edge(prevNode, nextNode));
             nodes.add(nextNode);
