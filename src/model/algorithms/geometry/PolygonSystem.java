@@ -239,7 +239,7 @@ public class PolygonSystem {
      */
     private Polygon createPolygonByConnectCOMAroundNode(Node node) {
         HashSet<Polygon> polygonList = nodeToPolygonMap.get(node);
-
+T
         // A map converting the angle to the COM
         HashMap<Double, double[]> angleToCom = new HashMap<>();
         for (Polygon polygon : polygonList) {

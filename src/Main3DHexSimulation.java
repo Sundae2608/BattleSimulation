@@ -123,7 +123,7 @@ public class Main3DHexSimulation extends PApplet {
         // Game settings
         gameSettings = new GameSettings();
         gameSettings.setApplyTerrainModifier(true);
-        gameSettings.setBorderInwardCollision(false);  // TODO: Bugged
+        gameSettings.setBorderInwardCollision(false);  // TODO: Bugged. Kept this false.
         gameSettings.setAllyCollision(false);
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
