@@ -89,7 +89,7 @@ public class Scrollbar {
         assigner.updateValue(getValue());
     }
 
-    private float constrain(float val, float minv, float maxv) {
+    protected float constrain(float val, float minv, float maxv) {
         return Math.min(Math.max(val, minv), maxv);
     }
 

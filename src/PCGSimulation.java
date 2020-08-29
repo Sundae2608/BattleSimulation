@@ -16,6 +16,7 @@ import view.constants.DrawingConstants;
 import view.drawer.InfoDrawer;
 import view.drawer.MapDrawer;
 import view.drawer.UIDrawer;
+import view.drawer.components.AsynchronousScrollbar;
 import view.drawer.components.Scrollbar;
 import view.settings.DrawingSettings;
 
@@ -106,7 +107,7 @@ public class PCGSimulation extends PApplet {
 
         /** Scrollbar setup */
         scrollbars = new ArrayList<>();
-        scrollbars.add(new Scrollbar("Phi angle",
+        scrollbars.add(new AsynchronousScrollbar("Phi angle",
                 INPUT_WIDTH - 300, 30, 280, 20,
                 ((HexCamera) camera).getPhiAngle(), Math.PI / 24, Math.PI * 11 / 24, this,
                 new CustomAssigner() {
@@ -143,10 +144,6 @@ public class PCGSimulation extends PApplet {
             // Add the node to the node map, this will help us identify adjacent node later.
             nodeMap.put(triplet, node);
             i++;
-        }
-
-        for (Triplet t : nodeMap.keySet()) {
-            // System.out.println(t.x.toString() + ", " + t.y.toString() + ", " + t.z.toString());
         }
 
         // Connect nodes that are adjacent to each other.
