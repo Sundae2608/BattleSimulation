@@ -1,4 +1,4 @@
-import controller.tunable.CustomAssigner;
+import view.components.*;
 import model.algorithms.geometry.Edge;
 import model.algorithms.geometry.Polygon;
 import model.algorithms.geometry.PolygonSystem;
@@ -16,8 +16,6 @@ import view.constants.DrawingConstants;
 import view.drawer.InfoDrawer;
 import view.drawer.MapDrawer;
 import view.drawer.UIDrawer;
-import view.drawer.components.AsynchronousScrollbar;
-import view.drawer.components.Scrollbar;
 import view.settings.DrawingSettings;
 
 import java.util.*;
@@ -68,7 +66,10 @@ public class PCGSimulation extends PApplet {
     double cameraDy;
     int zoomCounter;
     double zoomGoal;
+
+    // UI components
     ArrayList<Scrollbar> scrollbars;
+    Button resetButton;
 
     // Terrain
     Terrain terrain;
@@ -88,43 +89,7 @@ public class PCGSimulation extends PApplet {
         smooth(3);
     }
 
-    public void setup() {
-        // Set up terrain.
-        terrain = new Terrain(INPUT_TOP_X, INPUT_TOP_Y, INPUT_DIV, INPUT_NUM_X, INPUT_NUM_Y);
-
-        // Set up camera.
-        camera = new HexCamera(
-                INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2,
-                INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2,
-                INPUT_WIDTH, INPUT_HEIGHT);
-        camera.setZoom(0.10);
-        cameraRotationSpeed = 0;
-        cameraDx = 0;
-        cameraDy = 0;
-
-        // Set up zoom.
-        zoomGoal = camera.getZoom();  // To ensure consistency
-
-        /** Scrollbar setup */
-        scrollbars = new ArrayList<>();
-        scrollbars.add(new AsynchronousScrollbar("Phi angle",
-                INPUT_WIDTH - 300, 30, 280, 20,
-                ((HexCamera) camera).getPhiAngle(), Math.PI / 24, Math.PI * 11 / 24, this,
-                new CustomAssigner() {
-                    @Override
-                    public void updateValue(double value) {
-                        ((HexCamera) camera).setPhiAngle(value);
-                    }
-                }));
-
-        // Set up drawer
-        uiDrawer = new UIDrawer(this, camera, drawingSettings);
-        mapDrawer = new MapDrawer(this, camera);
-        infoDrawer = new InfoDrawer(this);
-
-        // Set of keys pressed.
-        keyPressedSet = new HashSet<>();
-
+    private void resetContentGeneration() {
         // Generate a set of points.
         graph = new Graph();
         HashSet<Triplet<Integer, Integer, Integer>> hexIndices = new HashSet<>();
@@ -307,8 +272,8 @@ public class PCGSimulation extends PApplet {
         for (Object o : polygonSystem.getEdges().toArray()) {
             Edge edge = (Edge) o;
             if (polygonSystem.getAdjacentPolygon(edge) != null &&
-                polygonSystem.getAdjacentPolygon(edge).size() == 2 &&
-                MathUtils.randDouble(0.0, 1.0) < SWAP_PROBABILITY) {
+                    polygonSystem.getAdjacentPolygon(edge).size() == 2 &&
+                    MathUtils.randDouble(0.0, 1.0) < SWAP_PROBABILITY) {
                 Polygon p1 = (Polygon) polygonSystem.getAdjacentPolygon(edge).toArray()[0];
                 Polygon p2 = (Polygon) polygonSystem.getAdjacentPolygon(edge).toArray()[1];
                 polygonSystem.swapTriangleEdge(p1, p2);
@@ -401,12 +366,61 @@ public class PCGSimulation extends PApplet {
         // TODO: Add random rectangles.
     }
 
+    public void setup() {
+        // Set up terrain.
+        terrain = new Terrain(INPUT_TOP_X, INPUT_TOP_Y, INPUT_DIV, INPUT_NUM_X, INPUT_NUM_Y);
+
+        // Set up camera.
+        camera = new HexCamera(
+                INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2,
+                INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2,
+                INPUT_WIDTH, INPUT_HEIGHT);
+        camera.setZoom(0.10);
+        cameraRotationSpeed = 0;
+        cameraDx = 0;
+        cameraDy = 0;
+
+        // Set up zoom.
+        zoomGoal = camera.getZoom();  // To ensure consistency
+
+        /** Scrollbar setup */
+        scrollbars = new ArrayList<>();
+        scrollbars.add(new Scrollbar("Phi angle",
+                INPUT_WIDTH - 300, 30, 280, 20,
+                ((HexCamera) camera).getPhiAngle(), Math.PI / 24, Math.PI * 11 / 24, this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        ((HexCamera) camera).setPhiAngle(value);
+                    }
+                }));
+        resetButton = new Button("Reset",
+                INPUT_WIDTH - 300, 70, 280, 20, this, new CustomProcedure() {
+            @Override
+            public void proc() {
+                resetContentGeneration();
+            }
+        });
+
+        // Set up drawer
+        uiDrawer = new UIDrawer(this, camera, drawingSettings);
+        mapDrawer = new MapDrawer(this, camera);
+        infoDrawer = new InfoDrawer(this);
+
+        // Set of keys pressed.
+        keyPressedSet = new HashSet<>();
+
+        // Create content
+        resetContentGeneration();
+    }
+
     public void draw() {
 
         // Perform some backend update before drawing
         for (Scrollbar scrollbar : scrollbars) {
             scrollbar.update();
         }
+        resetButton.update();
 
         // Clear everything
         background(230);
@@ -496,6 +510,7 @@ public class PCGSimulation extends PApplet {
                     node.getX(), node.getY(), terrain.getHeightFromPos(node.getX(), node.getY()));
             circle((float) drawingPt[0], (float) drawingPt[1], (float) (DrawingConstants.NODE_RADIUS * camera.getZoom()));
             fill(0, 0, 0);
+            textAlign(LEFT, TOP);
             text(String.valueOf(polygonSystem.getAdjacentPolygon(node).size()),
                     (float) drawingPt[0], (float) drawingPt[1] - 10);
         }
@@ -506,10 +521,11 @@ public class PCGSimulation extends PApplet {
         s.append("Zoom level                      : " + String.format("%.2f", camera.getZoom()) + "\n");
         infoDrawer.drawTextBox(s.toString(), 5, INPUT_HEIGHT - 5, 400);
 
-        // Scroll bars
+        // UI components
         for (Scrollbar scrollbar : scrollbars) {
             scrollbar.display();
         }
+        resetButton.display();
 
         // Set up the data again.
         if (keyPressedSet.contains('r')) {

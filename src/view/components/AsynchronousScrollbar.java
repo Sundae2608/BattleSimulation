@@ -1,6 +1,5 @@
-package view.drawer.components;
+package view.components;
 
-import controller.tunable.CustomAssigner;
 import processing.core.PApplet;
 
 public class AsynchronousScrollbar extends Scrollbar {

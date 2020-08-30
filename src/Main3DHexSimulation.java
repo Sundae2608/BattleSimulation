@@ -1,4 +1,4 @@
-import controller.tunable.CustomAssigner;
+import view.components.CustomAssigner;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
@@ -31,7 +31,7 @@ import model.singles.*;
 import model.units.*;
 import model.utils.*;
 import view.constants.DrawingConstants;
-import view.drawer.components.Scrollbar;
+import view.components.Scrollbar;
 import view.settings.AudioSettings;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;

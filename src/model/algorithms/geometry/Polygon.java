@@ -43,6 +43,9 @@ public class Polygon {
     public ArrayList<Node> getOrderedNodes() {
         ArrayList<Node> orderedList = new ArrayList<>();
         HashSet<Node> visitedNode = new HashSet<>();
+        if (edges.size() == 0) {
+            return orderedList;
+        }
         Edge currEdge = (Edge) edges.toArray()[0];
         Node currNode = currEdge.node1;
         while (orderedList.size() != edges.size()) {
