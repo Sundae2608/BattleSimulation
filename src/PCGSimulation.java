@@ -1,3 +1,4 @@
+import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import view.components.*;
 import model.algorithms.geometry.Edge;
 import model.algorithms.geometry.Polygon;
@@ -31,12 +32,12 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
-    private final static int NUM_HEX_RADIUS = 20;
-    private final static double HEX_RADIUS = 300;
-    private final static double HEX_JIGGLE = 120;
+    private static int NUM_HEX_RADIUS = 20;
+    private static double HEX_RADIUS = 300;
+    private static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
     private final static double HEX_CENTER_Y = INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2;
-    private final static double HEX_CENTER_JIGGLE = 1800;
+    private static double HEX_CENTER_JIGGLE = 1800;
 
     private final static double PT_SCALE = 0.95;
     private final static double SWAP_PROBABILITY = 0.10;
@@ -45,7 +46,8 @@ public class PCGSimulation extends PApplet {
     private final static double BASE_SCALE_DIST = 7000;
 
     // Config for the number of nodes
-    private final static double NUM_NODES_CITY_CENTER = 16;
+    private static int NUM_NODES_INNER_WALL = 16;
+    private static int NUM_BLOCKS_OUTER_WALL = 20;
 
     // Drawing settings
     DrawingSettings drawingSettings;
@@ -77,6 +79,7 @@ public class PCGSimulation extends PApplet {
     // Polygon system
     Graph graph;
     PolygonSystem polygonSystem;
+    int cityGenerationSeed;
 
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
@@ -87,9 +90,19 @@ public class PCGSimulation extends PApplet {
 
         // Drawing settings
         smooth(3);
+
+        // Some seed at the beginning
+        cityGenerationSeed = 42;
     }
 
+    /**
+     * Main function to generate terrain based on Configs.
+     */
     private void resetContentGeneration() {
+
+        // Reset random generator
+        MathUtils.random = new XoShiRo256PlusRandom(cityGenerationSeed);
+
         // Generate a set of points.
         graph = new Graph();
         HashSet<Triplet<Integer, Integer, Integer>> hexIndices = new HashSet<>();
@@ -283,13 +296,13 @@ public class PCGSimulation extends PApplet {
         /**
          * Combine nodes together according to a certain city layout.
          */
-        double[] centerPt = MathUtils.polarJiggle(HEX_CENTER_X, HEX_CENTER_Y, HEX_CENTER_JIGGLE);
+        double[] innerWallCenter = MathUtils.polarJiggle(HEX_CENTER_X, HEX_CENTER_Y, HEX_CENTER_JIGGLE);
         ArrayList<Node> nodeList = new ArrayList<>(polygonSystem.getNodes());
         Collections.sort(nodeList, new Comparator<Node>() {
             @Override
             public int compare(Node o1, Node o2) {
-                double dist1 = MathUtils.quickDistance(o1.getX(), o1.getY(), centerPt[0], centerPt[1]);
-                double dist2 = MathUtils.quickDistance(o2.getX(), o2.getY(), centerPt[0], centerPt[1]);
+                double dist1 = MathUtils.quickDistance(o1.getX(), o1.getY(), innerWallCenter[0], innerWallCenter[1]);
+                double dist2 = MathUtils.quickDistance(o2.getX(), o2.getY(), innerWallCenter[0], innerWallCenter[1]);
                 if (dist1 < dist2) {
                     return -1;
                 } else if (dist1 == dist2) {
@@ -300,23 +313,26 @@ public class PCGSimulation extends PApplet {
             }
         });
 
-        // Make city center.
+        // A set that keeps tracked of all merged polygons.
         HashSet<Polygon> mergedPolygonSet = new HashSet<>();
-        HashSet<Polygon> polygonSet = new HashSet<>();
-        for (i = 0; i < NUM_NODES_CITY_CENTER; i++) {
+
+        // Make city center.
+        HashSet<Polygon> cityCenterPolygonSet = new HashSet<>();
+        for (i = 0; i < NUM_NODES_INNER_WALL; i++) {
             for (Polygon polygon : polygonSystem.getAdjacentPolygon(nodeList.get(i))) {
-                polygonSet.add(polygon);
+                cityCenterPolygonSet.add(polygon);
             }
         }
-        mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(new ArrayList<>(polygonSet)));
+        Polygon cityCenterPolygon = polygonSystem.mergeMultiplePolygons(new ArrayList<>(cityCenterPolygonSet));
+        mergedPolygonSet.add(cityCenterPolygon);
 
         // For the rest of the land, just keep merging any point that has not been parts of a polygon merged.
         nodeList = new ArrayList<>(polygonSystem.getNodes());
         Collections.sort(nodeList, new Comparator<Node>() {
             @Override
             public int compare(Node o1, Node o2) {
-                double dist1 = MathUtils.quickDistance(o1.getX(), o1.getY(), centerPt[0], centerPt[1]);
-                double dist2 = MathUtils.quickDistance(o2.getX(), o2.getY(), centerPt[0], centerPt[1]);
+                double dist1 = MathUtils.quickDistance(o1.getX(), o1.getY(), innerWallCenter[0], innerWallCenter[1]);
+                double dist2 = MathUtils.quickDistance(o2.getX(), o2.getY(), innerWallCenter[0], innerWallCenter[1]);
                 if (dist1 < dist2) {
                     return -1;
                 } else if (dist1 == dist2) {
@@ -335,9 +351,11 @@ public class PCGSimulation extends PApplet {
                 }
             }
             if (!adjacentNode) {
-                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
-                        new ArrayList<>(polygonSystem.getAdjacentPolygon(node)))
-                );
+                if (polygonSystem.getAdjacentPolygon(node) != null) {
+                    Polygon mergedPolygon = polygonSystem.mergeMultiplePolygons(
+                            new ArrayList<>(polygonSystem.getAdjacentPolygon(node)));
+                    mergedPolygonSet.add(mergedPolygon);
+                }
             }
         }
 
@@ -356,14 +374,41 @@ public class PCGSimulation extends PApplet {
 
                 if (maxEdge == null) continue;
                 if (polygonSystem.getAdjacentPolygon(maxEdge) == null) continue;
-                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(
-                        new ArrayList<>(polygonSystem.getAdjacentPolygon(maxEdge)))
-                );
+
+                // Remove polygon to be merged
+                ArrayList<Polygon> mergingPolygons = new ArrayList<>(polygonSystem.getAdjacentPolygon(maxEdge));
+                for (Polygon p : mergingPolygons) {
+                    mergedPolygonSet.remove(p);
+                }
+                mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(mergingPolygons));
             }
         }
 
-        // TODO: Draw roads.
-        // TODO: Add random rectangles.
+        // Merge the remaining blocks to form an outer wall using a different city center.
+        double[] outerWallCenter = MathUtils.polarJiggle(innerWallCenter[0], innerWallCenter[1], HEX_CENTER_JIGGLE);
+        HashSet<Polygon> remainingBlocks = polygonSystem.getPolygons();
+        ArrayList<Polygon> remainingBlocksArr = new ArrayList<>(remainingBlocks);
+        Collections.sort(remainingBlocksArr, new Comparator<Polygon>() {
+            @Override
+            public int compare(Polygon o1, Polygon o2) {
+                double[] com1 = o1.getCenterOfMass();
+                double[] com2 = o2.getCenterOfMass();
+                double dist1 = MathUtils.quickDistance(com1[0], com1[1], outerWallCenter[0], outerWallCenter[1]);
+                double dist2 = MathUtils.quickDistance(com2[0], com2[1], outerWallCenter[0], outerWallCenter[1]);
+                if (dist1 < dist2) {
+                    return -1;
+                } else if (dist1 == dist2) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
+        });
+        ArrayList<Polygon> mergingBlocks = new ArrayList<>();
+        for (i = 1; i < Math.min(NUM_BLOCKS_OUTER_WALL, remainingBlocksArr.size()); i++) {
+            mergingBlocks.add(remainingBlocksArr.get(i));
+        }
+        mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(mergingBlocks));
     }
 
     public void setup() {
@@ -387,17 +432,85 @@ public class PCGSimulation extends PApplet {
         scrollbars = new ArrayList<>();
         scrollbars.add(new Scrollbar("Phi angle",
                 INPUT_WIDTH - 300, 30, 280, 20,
-                ((HexCamera) camera).getPhiAngle(), Math.PI / 24, Math.PI * 11 / 24, this,
+                ((HexCamera) camera).getPhiAngle(), Math.PI / 24, Math.PI * 11 / 24,
+                ScrollbarMode.DOUBLE,this,
                 new CustomAssigner() {
                     @Override
                     public void updateValue(double value) {
                         ((HexCamera) camera).setPhiAngle(value);
                     }
                 }));
-        resetButton = new Button("Reset",
-                INPUT_WIDTH - 300, 70, 280, 20, this, new CustomProcedure() {
+        scrollbars.add(new AsynchronousScrollbar("Num hex radius",
+                INPUT_WIDTH - 300, 90, 280, 20,
+                NUM_HEX_RADIUS, 5, 30,
+                ScrollbarMode.INTEGER,this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        NUM_HEX_RADIUS = (int) Math.round(value);
+                        resetContentGeneration();
+                    }
+                }));
+        scrollbars.add(new AsynchronousScrollbar("Radius of each hex",
+                INPUT_WIDTH - 300, 150, 280, 20,
+                HEX_RADIUS, 100, 600,
+                ScrollbarMode.DOUBLE,this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        HEX_RADIUS = value;
+                        resetContentGeneration();
+                    }
+                }));
+        scrollbars.add(new AsynchronousScrollbar("Hex Jiggle",
+                INPUT_WIDTH - 300, 210, 280, 20,
+                HEX_JIGGLE, 50, 200,
+                ScrollbarMode.DOUBLE,this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        HEX_JIGGLE = value;
+                        resetContentGeneration();
+                    }
+                }));
+        scrollbars.add(new AsynchronousScrollbar("Hex Center Jiggle",
+                INPUT_WIDTH - 300, 270, 280, 20,
+                HEX_CENTER_JIGGLE, 0, 6000,
+                ScrollbarMode.DOUBLE,this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        HEX_CENTER_JIGGLE = value;
+                        resetContentGeneration();
+                    }
+                }));
+        scrollbars.add(new AsynchronousScrollbar("Num nodes - City Center",
+                INPUT_WIDTH - 300, 330, 280, 20,
+                NUM_NODES_INNER_WALL, 10, 25,
+                ScrollbarMode.INTEGER,this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        NUM_NODES_INNER_WALL = (int) value;
+                        resetContentGeneration();
+                    }
+                }));
+        scrollbars.add(new AsynchronousScrollbar("Num nodes - Outer Wall",
+                INPUT_WIDTH - 300, 390, 280, 20,
+                NUM_BLOCKS_OUTER_WALL, 15, 200,
+                ScrollbarMode.INTEGER,this,
+                new CustomAssigner() {
+                    @Override
+                    public void updateValue(double value) {
+                        NUM_BLOCKS_OUTER_WALL = (int) value;
+                        resetContentGeneration();
+                    }
+                }));
+        resetButton = new Button("Reset seed",
+                INPUT_WIDTH - 300, 430, 280, 20, this, new CustomProcedure() {
             @Override
             public void proc() {
+                cityGenerationSeed = (int) Math.random();
                 resetContentGeneration();
             }
         });
@@ -485,32 +598,33 @@ public class PCGSimulation extends PApplet {
         // Drawing terrain line
         mapDrawer.drawTerrainLine(terrain);
 
-        // Draw triangles
+        // Draw polygons
         int[] color = DrawingConstants.POLYGON_COLOR;
-        noStroke();
-        fill(color[0], color[1], color[2], color[3]);
-        for (Polygon t : polygonSystem.getPolygons()) {
-            beginShape();
-            double[] centerOfMass = t.getCenterOfMass();
-            ArrayList<Node> nodes = t.getOrderedNodes();
-            for (Node node : nodes) {
-                double[] pt = new double[] {node.getX(), node.getY()};
-                pt = MathUtils.scalePoint(centerOfMass, pt, PT_SCALE);
-                pt = camera.getDrawingPosition(pt[0], pt[1], terrain.getHeightFromPos(pt[0], pt[1]));
-                vertex((float) pt[0], (float) pt[1]);
-            }
-            endShape(CLOSE);
+        stroke(color[0], color[1], color[2]);
+        strokeWeight(1);
+        beginShape(LINES);
+        for (Edge e : polygonSystem.getEdges()) {
+            double[] pt1 = new double[] {e.getNode1().getX(), e.getNode1().getY()};
+            double[] pt2 = new double[] {e.getNode2().getX(), e.getNode2().getY()};
+            if (!camera.positionIsVisible(pt1[0], pt1[1]) && !camera.positionIsVisible(pt2[0], pt2[0])) continue;
+            pt1 = camera.getDrawingPosition(pt1[0], pt1[1], terrain.getHeightFromPos(pt1[0], pt1[1]));
+            pt2 = camera.getDrawingPosition(pt2[0], pt2[1], terrain.getHeightFromPos(pt2[0], pt2[1]));
+            vertex((float) pt1[0], (float) pt1[1]);
+            vertex((float) pt2[0], (float) pt2[1]);
         }
+        endShape(CLOSE);
 
         // Draw pts
         color = DrawingConstants.NODE_COLOR;
         for (Node node : polygonSystem.getNodes()) {
+            noStroke();
             fill(color[0], color[1], color[2], color[3]);
+            if (!camera.positionIsVisible(node.getX(), node.getY())) continue;
             double[] drawingPt = camera.getDrawingPosition(
                     node.getX(), node.getY(), terrain.getHeightFromPos(node.getX(), node.getY()));
             circle((float) drawingPt[0], (float) drawingPt[1], (float) (DrawingConstants.NODE_RADIUS * camera.getZoom()));
             fill(0, 0, 0);
-            textAlign(LEFT, TOP);
+            textAlign(LEFT, BOTTOM);
             text(String.valueOf(polygonSystem.getAdjacentPolygon(node).size()),
                     (float) drawingPt[0], (float) drawingPt[1] - 10);
         }

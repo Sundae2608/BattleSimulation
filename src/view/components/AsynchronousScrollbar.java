@@ -7,8 +7,10 @@ public class AsynchronousScrollbar extends Scrollbar {
     public AsynchronousScrollbar(String inputTitle,
                                  float x, float y, int width, int height,
                                  double startingValue, double inputMinValue, double inputMaxValue,
+                                 ScrollbarMode inputScrollbarMode,
                                  PApplet applet, CustomAssigner customAssigner) {
-        super(inputTitle, x, y, width, height, startingValue, inputMinValue, inputMaxValue, applet, customAssigner);
+        super(inputTitle, x, y, width, height, startingValue, inputMinValue, inputMaxValue, inputScrollbarMode, applet,
+                customAssigner);
     }
 
     public void update() {
@@ -19,14 +21,18 @@ public class AsynchronousScrollbar extends Scrollbar {
         if (!pApplet.mousePressed) {
             if (locked) {
                 locked = false;
-                assigner.updateValue(getValue());
+                assigner.updateValue(value);
             }
         }
         if (locked) {
-            float newSliderPos = constrain(pApplet.mouseX, sliderMinPos, sliderMaxPos);
-            if (Math.abs(newSliderPos - sliderPos) > 1) {
-                sliderPos = newSliderPos;
+            double tempValue = value;
+            double tempSliderPos = constrain(pApplet.mouseX, sliderMinPos, sliderMaxPos);
+            tempValue = getValueFromSliderPos(tempSliderPos);
+            if (scrollbarMode == ScrollbarMode.INTEGER) {
+                tempValue = Math.round(tempValue);
             }
+            sliderPos = (float) getSliderPosFromValue(tempValue);
+            value = tempValue;
         }
     }
 }

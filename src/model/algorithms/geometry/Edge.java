@@ -1,6 +1,7 @@
 package model.algorithms.geometry;
 
 import model.algorithms.pathfinding.Node;
+import model.utils.MathUtils;
 
 public class Edge {
 
@@ -35,8 +36,7 @@ public class Edge {
     }
 
     public double getLength() {
-        return Math.sqrt((node1.getX()-node2.getX())*(node1.getX()-node2.getX())
-                + (node1.getY()-node2.getY())*(node1.getY()-node2.getY()));
+        return MathUtils.distance(node1.getX(), node1.getY(), node2.getX(), node2.getY());
     }
 
     public Node getNode1() {

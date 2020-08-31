@@ -18,6 +18,7 @@ import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.BaseCamera;
 import view.camera.CameraConstants;
+import view.components.ScrollbarMode;
 import view.constants.ControlConstants;
 import view.drawer.*;
 import model.GameEnvironment;
@@ -206,7 +207,7 @@ public class MainSimulation extends PApplet {
         UnitStats romanCavUnitStats = env.getGameStats().getUnitStats(UnitType.CAVALRY, PoliticalFaction.ROME);
         scrollbars.add(new Scrollbar("Cavalry size",
                 INPUT_WIDTH - 300, 30, 280, 20,
-                romanCavSingleStats.radius, 10, 120, this, new CustomAssigner() {
+                romanCavSingleStats.radius, 10, 120, ScrollbarMode.DOUBLE, this, new CustomAssigner() {
             @Override
             public void updateValue(double value) {
                 double currSpacingDiff = romanCavUnitStats.spacing - romanCavSingleStats.radius;
@@ -219,7 +220,7 @@ public class MainSimulation extends PApplet {
         SingleStats phalanxSingleStats = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.GAUL);
         scrollbars.add(new Scrollbar("Phalanx mass",
                 INPUT_WIDTH - 300, 90, 280, 20,
-                phalanxSingleStats.mass, 10, 9000, this, new CustomAssigner() {
+                phalanxSingleStats.mass, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
             @Override
             public void updateValue(double value) {
                 phalanxSingleStats.mass = value;
@@ -228,7 +229,7 @@ public class MainSimulation extends PApplet {
 
         scrollbars.add(new Scrollbar("Phalanx damage",
                 INPUT_WIDTH - 300, 150, 280, 20,
-                phalanxSingleStats.attack, 10, 9000, this, new CustomAssigner() {
+                phalanxSingleStats.attack, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
             @Override
             public void updateValue(double value) {
                 phalanxSingleStats.attack = value;

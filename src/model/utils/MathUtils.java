@@ -11,7 +11,7 @@ import java.util.*;
 public final class MathUtils {
 
     // RNG
-    private final static XoShiRo256PlusRandom random = new XoShiRo256PlusRandom();
+    public static XoShiRo256PlusRandom random = new XoShiRo256PlusRandom();
 
     // Hackish number
     static final double sq2p1 = 2.414213562373095048802e0;

@@ -17,7 +17,7 @@ public class Scrollbar {
     float barWidth;
     float barHeight;
 
-    // Minimum and maximum position of the scroll bar.
+    // Minimum and maximum position of the scroll bar
     float sliderPos;
     float sliderMinPos;
     float sliderMaxPos;
@@ -25,6 +25,7 @@ public class Scrollbar {
     boolean locked;
 
     // Current value, min value and max value of the scroll bar.
+    ScrollbarMode scrollbarMode;
     double value;
     double minValue;
     double maxValue;
@@ -47,12 +48,13 @@ public class Scrollbar {
      * @param height bar height
      */
     public Scrollbar(String inputTitle, float x, float y, int width, int height,
-                     double startingValue, double inputMinValue, double inputMaxValue, PApplet applet,
-                     CustomAssigner customAssigner) {
+                     double startingValue, double inputMinValue, double inputMaxValue, ScrollbarMode inputScrollbarMode,
+                     PApplet applet, CustomAssigner customAssigner) {
         // Assign starting value
         value = startingValue;
         minValue = inputMinValue;
         maxValue = inputMaxValue;
+        scrollbarMode = inputScrollbarMode;
 
         // Assign the applet
         pApplet = applet;
@@ -65,7 +67,7 @@ public class Scrollbar {
         barHeight = height;
         sliderMinPos = xPos;
         sliderMaxPos = xPos + barWidth - SLIDER_BAR_WIDTH;
-        sliderPos = xPos + (float) (value / (inputMaxValue - inputMinValue) * (sliderMaxPos - sliderMinPos));
+        sliderPos = sliderMinPos + (float) ((value - inputMinValue) / (inputMaxValue - inputMinValue) * (sliderMaxPos - sliderMinPos));
 
         // Assigner
         assigner = customAssigner;
@@ -79,13 +81,19 @@ public class Scrollbar {
         if (!pApplet.mousePressed) {
             locked = false;
         }
+        double tempValue = value;
         if (locked) {
-            float newSliderPos = constrain(pApplet.mouseX, sliderMinPos, sliderMaxPos);
-            if (Math.abs(newSliderPos - sliderPos) > 1) {
-                sliderPos = newSliderPos;
+            // TODO: This is a little bit hacky, since it reuses getValue() function which relies on outside sliderPos
+            //  Refactor this part to be nicer.
+            double tempSliderPos = constrain(pApplet.mouseX, sliderMinPos, sliderMaxPos);
+            tempValue = getValueFromSliderPos(tempSliderPos);
+            if (scrollbarMode == ScrollbarMode.INTEGER) {
+                tempValue = Math.round(tempValue);
             }
+            sliderPos = (float) getSliderPosFromValue(tempValue);
         }
-        assigner.updateValue(getValue());
+        value = tempValue;
+        assigner.updateValue(tempValue);
     }
 
     protected float constrain(float val, float minv, float maxv) {
@@ -103,7 +111,11 @@ public class Scrollbar {
 
     public void display() {
         pApplet.noStroke();
-        pApplet.fill(255, 255, 255, 200);
+        if (this instanceof AsynchronousScrollbar) {
+            pApplet.fill(226, 245, 250, 200);
+        } else {
+            pApplet.fill(255, 255, 255, 200);
+        }
         pApplet.rect(xPos - 10, yPos - 25, barWidth + 25, barHeight + 32);
         pApplet.fill(204);
         pApplet.rect(xPos, yPos, barWidth, barHeight);
@@ -120,13 +132,17 @@ public class Scrollbar {
                     VALUE_BAR_WIDTH, VALUE_BAR_HEIGHT);
             pApplet.fill(255, 255, 255);
             pApplet.textAlign(PApplet.CENTER);
-            pApplet.text(String.format("%.2f", getValue()), sliderPos + SLIDER_BAR_WIDTH / 2 + 2, yPos + barHeight + 18);
+            pApplet.text(String.format("%.2f", value), sliderPos + SLIDER_BAR_WIDTH / 2 + 2, yPos + barHeight + 18);
             pApplet.textAlign(PApplet.LEFT);
         }
     }
 
-    public double getValue() {
-        double sliderFraction = (sliderPos - xPos) / barWidth;
+    public double getValueFromSliderPos(double sliderPos) {
+        double sliderFraction = (sliderPos - sliderMinPos) / (sliderMaxPos - sliderMinPos);
         return sliderFraction * (maxValue - minValue) + minValue;
+    }
+
+    public double getSliderPosFromValue(double value) {
+        return sliderMinPos + (value - minValue) / (maxValue - minValue) * (sliderMaxPos - sliderMinPos);
     }
 }
