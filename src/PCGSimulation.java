@@ -295,6 +295,10 @@ public class PCGSimulation extends PApplet {
 
         /**
          * Combine nodes together according to a certain city layout.
+         * TODO: Refactor the node to use a Vertex instead.
+         * TODO: Create a path from the center, and the smoothen it.
+         * TODO: Optionally, we can try to smoothen all path that create land blocks. Path in the old days are curved
+         *  anyway.
          */
         double[] innerWallCenter = MathUtils.polarJiggle(HEX_CENTER_X, HEX_CENTER_Y, HEX_CENTER_JIGGLE);
         ArrayList<Node> nodeList = new ArrayList<>(polygonSystem.getNodes());
