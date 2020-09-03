@@ -299,6 +299,7 @@ public class PCGSimulation extends PApplet {
          * TODO: Create a path from the center, and the smoothen it.
          * TODO: Optionally, we can try to smoothen all path that create land blocks. Path in the old days are curved
          *  anyway.
+         * TODO: Need to figure out how to extend a path into an object.
          */
         double[] innerWallCenter = MathUtils.polarJiggle(HEX_CENTER_X, HEX_CENTER_Y, HEX_CENTER_JIGGLE);
         ArrayList<Node> nodeList = new ArrayList<>(polygonSystem.getNodes());
