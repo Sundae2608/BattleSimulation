@@ -9,12 +9,23 @@
     width: 60
 },
 {
-    type: SWORDMAN
+    type: CAVALRY
     org: unit
     x: -300
     y: 1800
     angle: 180
-    size: 600
+    size: 200
     faction: GAUL
-    width: 50
+    width: 20
+},
+
+{
+    type: CAVALRY
+    org: unit
+    x: -300
+    y: 2500
+    angle: 180
+    size: 200
+    faction: GAUL
+    width: 20
 },

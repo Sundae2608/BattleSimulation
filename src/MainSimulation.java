@@ -130,6 +130,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setCavalryCollision(true);
         gameSettings.setEnableFlankingMechanics(true);
         gameSettings.setCountWrongFormationChanges(true);
+        gameSettings.setProcessSoundBounce(false);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
@@ -143,7 +144,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
-        drawingSettings.setDrawMapTexture(true);
+        drawingSettings.setDrawMapTexture(false);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);

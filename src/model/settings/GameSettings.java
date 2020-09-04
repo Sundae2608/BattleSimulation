@@ -23,11 +23,12 @@ public class GameSettings {
     // Count the number of erroneous formation changes.
     private boolean countWrongFormationChanges;
 
-    // Intention skipping
+    // Intention skipping settings
     private int unitIntentionSkipping;
-
-    // Intention skipping
     private int singleIntentionSkipping;
+
+    // Sound bouncing processing settings
+    private boolean processSoundBounce;
 
     public GameSettings() {}
 
@@ -94,5 +95,12 @@ public class GameSettings {
     }
     public void setSingleIntentionSkipping(int singleIntentionSkipping) {
         this.singleIntentionSkipping = singleIntentionSkipping;
+    }
+
+    public boolean isProcessSoundBounce() {
+        return processSoundBounce;
+    }
+    public void setProcessSoundBounce(boolean processSoundBounce) {
+        this.processSoundBounce = processSoundBounce;
     }
 }

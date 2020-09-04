@@ -32,7 +32,7 @@ public class BaseSingle {
     double speed;
     double angle;
     double facingAngle;
-    double height;
+    double height;  // z
 
     // Position goal
     double xGoal;
