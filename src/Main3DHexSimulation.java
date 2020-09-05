@@ -130,6 +130,7 @@ public class Main3DHexSimulation extends PApplet {
         gameSettings.setCavalryCollision(true);
         gameSettings.setEnableFlankingMechanics(true);
         gameSettings.setCountWrongFormationChanges(true);
+        gameSettings.setProcessSoundBounce(false);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
