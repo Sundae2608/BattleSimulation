@@ -27,7 +27,9 @@ public class GameSettings {
     private int unitIntentionSkipping;
     private int singleIntentionSkipping;
 
-    // Sound bouncing processing settings
+    // Sound bouncing processing setting. Currently an experimental feature that is false by default.
+    // Very heavy on processing.
+    // TODO: Add some logging for sound bouncing processing.
     private boolean processSoundBounce;
 
     public GameSettings() {}
