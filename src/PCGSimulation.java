@@ -1,4 +1,5 @@
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
+import model.utils.PhysicUtils;
 import view.components.*;
 import model.algorithms.geometry.Edge;
 import model.algorithms.geometry.Polygon;
@@ -605,19 +606,38 @@ public class PCGSimulation extends PApplet {
 
         // Draw polygons
         int[] color = DrawingConstants.POLYGON_COLOR;
-        stroke(color[0], color[1], color[2]);
+        stroke(color[0], color[1], color[2], 100);
         strokeWeight(1);
-        beginShape(LINES);
-        for (Edge e : polygonSystem.getEdges()) {
-            double[] pt1 = new double[] {e.getNode1().getX(), e.getNode1().getY()};
-            double[] pt2 = new double[] {e.getNode2().getX(), e.getNode2().getY()};
-            if (!camera.positionIsVisible(pt1[0], pt1[1]) && !camera.positionIsVisible(pt2[0], pt2[0])) continue;
-            pt1 = camera.getDrawingPosition(pt1[0], pt1[1], terrain.getHeightFromPos(pt1[0], pt1[1]));
-            pt2 = camera.getDrawingPosition(pt2[0], pt2[1], terrain.getHeightFromPos(pt2[0], pt2[1]));
-            vertex((float) pt1[0], (float) pt1[1]);
-            vertex((float) pt2[0], (float) pt2[1]);
+        for (Polygon polygon : polygonSystem.getPolygons()) {
+            double[][] boundaryPts = polygon.getBoundaryPoints();
+
+            // Check if the polygon should be drawn. The polygon should be drawn if one of the point is visible to
+            // the camera
+            boolean visible = false;
+            for (double[] pt : boundaryPts) {
+                if (camera.positionIsVisible(pt[0], pt[1])) {
+                    visible = true;
+                    break;
+                }
+            }
+            if (!visible) continue;
+
+            // Determine the color of the polygon
+            double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+            if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
+                fill(color[0],color[1],color[2],50);
+            } else {
+                fill(color[0],color[1],color[2],23);
+            }
+            beginShape();
+            for (int i = 0; i < boundaryPts.length; i++) {
+                double x = boundaryPts[i][0];
+                double y = boundaryPts[i][1];
+                double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
+                vertex((float) drawingPt[0], (float) drawingPt[1]);
+            }
+            endShape(CLOSE);
         }
-        endShape(CLOSE);
 
         // Draw pts
         color = DrawingConstants.NODE_COLOR;

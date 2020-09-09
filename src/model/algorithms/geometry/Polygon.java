@@ -71,6 +71,19 @@ public class Polygon {
         return orderedList;
     }
 
+    /**
+     * Get an array of boundary points from the polygon.
+     */
+    public double[][] getBoundaryPoints() {
+        ArrayList<Node> orderedNodes = getOrderedNodes();
+        double[][] pts = new double[orderedNodes.size()][2];
+        for (int i = 0; i < orderedNodes.size(); i++) {
+            pts[i][0] = orderedNodes.get(i).getX();
+            pts[i][1] = orderedNodes.get(i).getY();
+        }
+        return pts;
+    }
+
     public double[] getCenterOfMass() {
         double sumX = 0;
         double sumY = 0;
