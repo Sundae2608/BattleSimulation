@@ -175,7 +175,7 @@ public class MainSimulation extends PApplet {
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "misc/VideoConfigs/Scene3.txt";
+        String battleConfig = "src/configs/battle_configs/BattleConfigLowComputerSetting.txt";
         String mapConfig = "src/configs/map_configs/TerrainConfigs.json";
         String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
@@ -195,7 +195,7 @@ public class MainSimulation extends PApplet {
         /** Camera setup */
 
         // Add unit to view.camera
-        camera = new TopDownCamera(0, 0, INPUT_WIDTH, INPUT_HEIGHT,
+        camera = new TopDownCamera(5000, 5000, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
         cameraRotationSpeed = 0;
         cameraDx = 0;

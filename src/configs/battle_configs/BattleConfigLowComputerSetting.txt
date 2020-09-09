@@ -1,0 +1,160 @@
+{
+    type: SWORDMAN
+    org: unit
+    x: 5000
+    y: 5000
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 5000
+    y: 6000
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 5000
+    y: 7000
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 5000
+    y: 8000
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 5000
+    y: 9000
+    angle: 0
+    size: 60
+    faction: ROME
+    width: 10
+},
+{
+    type: ARCHER
+    org: unit
+    x: 4500
+    y: 7000
+    angle: 0
+    size: 100
+    faction: ROME
+    width: 20
+},
+{
+    type: CAVALRY
+    org: unit
+    x: 5000
+    y: 10000
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 8
+},
+{
+    type: CAVALRY
+    org: unit
+    x: 5000
+    y: 4000
+    angle: 0
+    size: 40
+    faction: ROME
+    width: 8
+},
+{f
+    type: SWORDMAN
+    org: unit
+    x: 6000
+    y: 5000
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 6000
+    y: 6000
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 6000
+    y: 7000
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 6000
+    y: 8000
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 10
+},
+{
+    type: SWORDMAN
+    org: unit
+    x: 6000
+    y: 9000
+    angle: 180
+    size: 60
+    faction: GAUL
+    width: 10
+},
+{
+    type: ARCHER
+    org: unit
+    x: 6500
+    y: 7000
+    angle: 180
+    size: 100
+    faction: GAUL
+    width: 20
+},
+{
+    type: CAVALRY
+    org: unit
+    x: 6000
+    y: 10000
+    angle: 180
+    size: 40
+    faction: GAUL
+    width: 8
+},
+{
+    type: CAVALRY
+    org: unit
+    x: 6000
+    y: 4000
+    angle: 180
+    size: 40
+    faction: GAUL
+    width: 8
+}
