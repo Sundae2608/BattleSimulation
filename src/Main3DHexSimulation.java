@@ -18,7 +18,7 @@ import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.BaseCamera;
 import view.camera.CameraConstants;
-import view.camera_hex.HexCamera;
+import view.camera.HexCamera;
 import view.components.ScrollbarMode;
 import view.constants.ControlConstants;
 import view.drawer.*;

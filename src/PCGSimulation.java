@@ -13,7 +13,7 @@ import processing.core.PApplet;
 import processing.event.MouseEvent;
 import view.camera.BaseCamera;
 import view.camera.CameraConstants;
-import view.camera_hex.HexCamera;
+import view.camera.HexCamera;
 import view.constants.DrawingConstants;
 import view.drawer.InfoDrawer;
 import view.drawer.MapDrawer;

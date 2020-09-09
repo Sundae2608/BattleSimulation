@@ -1,4 +1,4 @@
-package view.camera_hex;
+package view.camera;
 
 import model.events.EventBroadcaster;
 import model.utils.MathUtils;
