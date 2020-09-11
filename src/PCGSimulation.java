@@ -1,4 +1,5 @@
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
+import model.algorithms.geometry.EntityType;
 import model.utils.PhysicUtils;
 import view.components.*;
 import model.algorithms.geometry.Edge;
@@ -330,6 +331,7 @@ public class PCGSimulation extends PApplet {
             }
         }
         Polygon cityCenterPolygon = polygonSystem.mergeMultiplePolygons(new ArrayList<>(cityCenterPolygonSet));
+        cityCenterPolygon.setEntityType(EntityType.CityCenter);
         mergedPolygonSet.add(cityCenterPolygon);
 
         // For the rest of the land, just keep merging any point that has not been parts of a polygon merged.
@@ -414,7 +416,22 @@ public class PCGSimulation extends PApplet {
         for (i = 1; i < Math.min(NUM_BLOCKS_OUTER_WALL, remainingBlocksArr.size()); i++) {
             mergingBlocks.add(remainingBlocksArr.get(i));
         }
-        mergedPolygonSet.add(polygonSystem.mergeMultiplePolygons(mergingBlocks));
+        Polygon outerWall = polygonSystem.mergeMultiplePolygons(mergingBlocks);
+        outerWall.setEntityType(EntityType.OuterWall);
+        mergedPolygonSet.add(outerWall);
+
+        List<Polygon> edgePolygons = polygonSystem.getPolygonsOnTheEdge();
+        Polygon riverBegin, riverEnd;
+        if (edgePolygons.size() >= 2) {
+            riverBegin = edgePolygons.get(0);
+            riverEnd = edgePolygons.get(1);
+
+            List<Polygon> riverComponents = polygonSystem.findRiverPathBFS(riverBegin, riverEnd, new HashSet<>());
+            Polygon river = polygonSystem.mergeMultiplePolygons(riverComponents);
+            river.setEntityType(EntityType.River);
+            mergedPolygonSet.add(river);
+
+        }
     }
 
     public void setup() {
@@ -604,10 +621,69 @@ public class PCGSimulation extends PApplet {
         // Drawing terrain line
         mapDrawer.drawTerrainLine(terrain);
 
-        // Draw polygons
+        // Draw polygons - except for river
         int[] color = DrawingConstants.POLYGON_COLOR;
         stroke(color[0], color[1], color[2], 100);
         strokeWeight(1);
+        for (Polygon polygon : polygonSystem.getPolygons()) {
+            if (polygon.getEntityType() == EntityType.River) {
+                continue;
+            }
+            double[][] boundaryPts = polygon.getBoundaryPoints();
+
+            // Check if the polygon should be drawn. The polygon should be drawn if one of the point is visible to
+            // the camera
+            boolean visible = false;
+            for (double[] pt : boundaryPts) {
+                if (camera.positionIsVisible(pt[0], pt[1])) {
+                    visible = true;
+                    break;
+                }
+            }
+            if (!visible) continue;
+
+            // Determine the color of the polygon
+            double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+            if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
+                fill(color[0],color[1],color[2],50);
+            } else {
+                fill(color[0],color[1],color[2],23);
+            }
+            beginShape();
+            for (int i = 0; i < boundaryPts.length; i++) {
+                double x = boundaryPts[i][0];
+                double y = boundaryPts[i][1];
+                double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
+                vertex((float) drawingPt[0], (float) drawingPt[1]);
+            }
+            endShape(CLOSE);
+        }
+
+        // Draw river
+        beginShape();
+        for (Polygon polygon : polygonSystem.getEntities(EntityType.River)) {
+            List<Node> orderedNode = polygon.getOrderedNodes();
+            if (orderedNode.size() >= 2) {
+                Node begin = orderedNode.get(0), end = orderedNode.get(orderedNode.size() - 1);
+                double[] ptBeg = new double[]{begin.getX(), begin.getY()};
+                double[] ptEnd = new double[]{end.getX(), end.getY()};
+                if (!camera.positionIsVisible(ptBeg[0], ptBeg[1])) continue;
+                if (!camera.positionIsVisible(ptEnd[0], ptEnd[1])) continue;
+                ptBeg = camera.getDrawingPosition(ptBeg[0], ptBeg[1], terrain.getHeightFromPos(ptBeg[0], ptBeg[1]));
+                ptEnd = camera.getDrawingPosition(ptEnd[0], ptEnd[1], terrain.getHeightFromPos(ptEnd[0], ptEnd[1]));
+                curveVertex((float) ptBeg[0], (float) ptBeg[1]);
+
+                for (Node node : orderedNode) {
+                    double[] pt = new double[]{node.getX(), node.getY()};
+                    if (!camera.positionIsVisible(pt[0], pt[1])) continue;
+                    pt = camera.getDrawingPosition(pt[0], pt[1], terrain.getHeightFromPos(pt[0], pt[1]));
+                    curveVertex((float) pt[0], (float) pt[1]);
+                }
+
+                curveVertex((float) ptEnd[0], (float) ptEnd[1]);
+            }
+        }
+        endShape(CLOSE);
         for (Polygon polygon : polygonSystem.getPolygons()) {
             double[][] boundaryPts = polygon.getBoundaryPoints();
 
