@@ -78,7 +78,7 @@
     faction: ROME
     width: 8
 },
-{f
+{
     type: SWORDMAN
     org: unit
     x: 6000
