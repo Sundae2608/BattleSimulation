@@ -14,7 +14,7 @@ public class Polygon {
     public Polygon() {
         nodes = new HashSet<>();
         edges = new HashSet<>();
-        entityType = EntityType.Initial;
+        entityType = EntityType.DEFAULT;
     }
 
     public Polygon(HashSet<Edge> inputEdges) {
@@ -24,13 +24,13 @@ public class Polygon {
             nodes.add(e.node1);
             nodes.add(e.node2);
         }
-        entityType = EntityType.Initial;
+        entityType = EntityType.DEFAULT;
     }
 
     public Polygon(HashSet<Node> inputNodes, HashSet<Edge> inputEdges) {
         nodes = inputNodes;
         edges = inputEdges;
-        entityType = EntityType.Initial;
+        entityType = EntityType.DEFAULT;
     }
 
     public HashSet<Node> getNodes() {

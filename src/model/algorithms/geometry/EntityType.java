@@ -1,8 +1,8 @@
 package model.algorithms.geometry;
 
 public enum EntityType {
-    Initial,
-    River,
-    CityCenter,
-    OuterWall
+    DEFAULT,
+    RIVER,
+    CITY_CENTER,
+    OUTER_WALL
 }

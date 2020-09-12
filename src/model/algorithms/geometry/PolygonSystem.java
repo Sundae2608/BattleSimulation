@@ -251,7 +251,7 @@ public class PolygonSystem {
 
             for (Edge currentEdge : currentPathEnd.getEdges()) {
                 for (Polygon nextPolygon : getAdjacentPolygon(currentEdge)) {
-                    if (!visited.contains(nextPolygon) && nextPolygon.getEntityType() == EntityType.Initial) {
+                    if (!visited.contains(nextPolygon) && nextPolygon.getEntityType() == EntityType.DEFAULT) {
                         visited.add(nextPolygon);
                         List<Polygon> nextPath = new ArrayList<>(currentPath);
                         nextPath.add(nextPolygon);
@@ -283,17 +283,17 @@ public class PolygonSystem {
      * Return all polygons near the border of the map
      * @return
      */
-    public List<Polygon> getPolygonsOnTheEdge() {
-        List<Polygon> polygonsAtEdge = new ArrayList<>();
+    public List<Polygon> getPolygonsNearTheEdge() {
+        List<Polygon> polygonsNearEdge = new ArrayList<>();
         for (Polygon polygon : getPolygons()) {
             for (Edge edge : polygon.getEdges()) {
-                if (edgeToPolygonMap.get(edge).size()==1) {
-                    polygonsAtEdge.add(polygon);
+                if (edgeToPolygonMap.get(edge).size() == 1) {
+                    polygonsNearEdge.add(polygon);
                     break;
                 }
             }
         }
-        return polygonsAtEdge;
+        return polygonsNearEdge;
     }
 
     /**

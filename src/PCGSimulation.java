@@ -331,7 +331,7 @@ public class PCGSimulation extends PApplet {
             }
         }
         Polygon cityCenterPolygon = polygonSystem.mergeMultiplePolygons(new ArrayList<>(cityCenterPolygonSet));
-        cityCenterPolygon.setEntityType(EntityType.CityCenter);
+        cityCenterPolygon.setEntityType(EntityType.CITY_CENTER);
         mergedPolygonSet.add(cityCenterPolygon);
 
         // For the rest of the land, just keep merging any point that has not been parts of a polygon merged.
@@ -417,10 +417,10 @@ public class PCGSimulation extends PApplet {
             mergingBlocks.add(remainingBlocksArr.get(i));
         }
         Polygon outerWall = polygonSystem.mergeMultiplePolygons(mergingBlocks);
-        outerWall.setEntityType(EntityType.OuterWall);
+        outerWall.setEntityType(EntityType.OUTER_WALL);
         mergedPolygonSet.add(outerWall);
 
-        List<Polygon> edgePolygons = polygonSystem.getPolygonsOnTheEdge();
+        List<Polygon> edgePolygons = polygonSystem.getPolygonsNearTheEdge();
         Polygon riverBegin, riverEnd;
         if (edgePolygons.size() >= 2) {
             riverBegin = edgePolygons.get(0);
@@ -428,7 +428,7 @@ public class PCGSimulation extends PApplet {
 
             List<Polygon> riverComponents = polygonSystem.findRiverPathBFS(riverBegin, riverEnd, new HashSet<>());
             Polygon river = polygonSystem.mergeMultiplePolygons(riverComponents);
-            river.setEntityType(EntityType.River);
+            river.setEntityType(EntityType.RIVER);
             mergedPolygonSet.add(river);
 
         }
@@ -625,7 +625,7 @@ public class PCGSimulation extends PApplet {
 
         // Draw river
         beginShape();
-        for (Polygon polygon : polygonSystem.getEntities(EntityType.River)) {
+        for (Polygon polygon : polygonSystem.getEntities(EntityType.RIVER)) {
             double[][] boundaryPts = polygon.getBoundaryPoints();
 
             // Check if the polygon should be drawn. The polygon should be drawn if one of the point is visible to
@@ -673,7 +673,7 @@ public class PCGSimulation extends PApplet {
         stroke(color[0], color[1], color[2], 100);
         strokeWeight(1);
         for (Polygon polygon : polygonSystem.getPolygons()) {
-            if (polygon.getEntityType() == EntityType.River) continue;
+            if (polygon.getEntityType() == EntityType.RIVER) continue;
             double[][] boundaryPts = polygon.getBoundaryPoints();
 
             // Check if the polygon should be drawn. The polygon should be drawn if one of the point is visible to
