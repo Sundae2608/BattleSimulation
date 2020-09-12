@@ -7,12 +7,14 @@ import java.util.HashSet;
 
 public class Polygon {
 
-    HashSet<Node> nodes;
-    HashSet<Edge> edges;
+    private HashSet<Node> nodes;
+    private HashSet<Edge> edges;
+    private EntityType entityType;
 
     public Polygon() {
         nodes = new HashSet<>();
         edges = new HashSet<>();
+        entityType = EntityType.DEFAULT;
     }
 
     public Polygon(HashSet<Edge> inputEdges) {
@@ -22,11 +24,13 @@ public class Polygon {
             nodes.add(e.node1);
             nodes.add(e.node2);
         }
+        entityType = EntityType.DEFAULT;
     }
 
     public Polygon(HashSet<Node> inputNodes, HashSet<Edge> inputEdges) {
         nodes = inputNodes;
         edges = inputEdges;
+        entityType = EntityType.DEFAULT;
     }
 
     public HashSet<Node> getNodes() {
@@ -35,6 +39,14 @@ public class Polygon {
 
     public HashSet<Edge> getEdges() {
         return edges;
+    }
+
+    public EntityType getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(EntityType entityType) {
+        this.entityType = entityType;
     }
 
     /**

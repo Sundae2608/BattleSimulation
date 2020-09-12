@@ -165,19 +165,19 @@ public class PolygonSystem {
 
         // Check to make sure no newly separated resides within another triangles.
         if (PhysicUtils.checkPolygonPointCollision(
-            new double[][]{
-                {nodes2[0].getX(), nodes2[0].getY()},
-                {nodes2[1].getX(), nodes2[1].getY()},
-                {nodes2[2].getX(), nodes2[2].getY()},
-            }, sharedNodesArr.get(0).getX(), sharedNodesArr.get(0).getY())) {
+                new double[][]{
+                        {nodes2[0].getX(), nodes2[0].getY()},
+                        {nodes2[1].getX(), nodes2[1].getY()},
+                        {nodes2[2].getX(), nodes2[2].getY()},
+                }, sharedNodesArr.get(0).getX(), sharedNodesArr.get(0).getY())) {
             return;
         }
         if (PhysicUtils.checkPolygonPointCollision(
-            new double[][]{
-                {nodes1[0].getX(), nodes1[0].getY()},
-                {nodes1[1].getX(), nodes1[1].getY()},
-                {nodes1[2].getX(), nodes1[2].getY()},
-            }, sharedNodesArr.get(1).getX(), sharedNodesArr.get(1).getY())) {
+                new double[][]{
+                        {nodes1[0].getX(), nodes1[0].getY()},
+                        {nodes1[1].getX(), nodes1[1].getY()},
+                        {nodes1[2].getX(), nodes1[2].getY()},
+                }, sharedNodesArr.get(1).getX(), sharedNodesArr.get(1).getY())) {
             return;
         }
 
@@ -201,7 +201,7 @@ public class PolygonSystem {
     /**
      * Merge multiple polygons together
      */
-    public Polygon mergeMultiplePolygons(ArrayList<Polygon> polygons) {
+    public Polygon mergeMultiplePolygons(List<Polygon> polygons) {
         HashSet<Edge> uniqueEdges = new HashSet<>();
         HashSet<Edge> duplicatedEdges = new HashSet<>();
         for (Polygon polygon : polygons) {
@@ -232,6 +232,68 @@ public class PolygonSystem {
 
         // Return new polygon for external processing.
         return newPolygon;
+    }
+
+    public List<Polygon> findRiverPathBFS(Polygon riverBegin, Polygon riverEnd, HashSet<Polygon> visited) {
+        Queue<List<Polygon>> pathQueue = new LinkedList<>();
+        List<Polygon> path = new ArrayList<>();
+        path.add(riverBegin);
+        pathQueue.add(path);
+        visited.add(riverBegin);
+
+        while (!pathQueue.isEmpty()) {
+            List<Polygon> currentPath = pathQueue.poll();
+            Polygon currentPathEnd = currentPath.get(currentPath.size()-1);
+
+            if (currentPathEnd == riverEnd) {
+                return currentPath;
+            }
+
+            for (Edge currentEdge : currentPathEnd.getEdges()) {
+                for (Polygon nextPolygon : getAdjacentPolygon(currentEdge)) {
+                    if (!visited.contains(nextPolygon) && nextPolygon.getEntityType() == EntityType.DEFAULT) {
+                        visited.add(nextPolygon);
+                        List<Polygon> nextPath = new ArrayList<>(currentPath);
+                        nextPath.add(nextPolygon);
+                        pathQueue.add(nextPath);
+                    }
+                }
+            }
+        }
+        return path;
+    }
+
+    /**
+     * Get all entities of the same type - note that these entities are after merge
+     * Returning a list of the same entity type because we can have more than one city center, river, etc.
+     * @param entityType
+     * @return
+     */
+    public List<Polygon> getEntities(EntityType entityType) {
+        List<Polygon> entities = new ArrayList<>();
+        for (Polygon polygon : getPolygons()) {
+            if (polygon.getEntityType() == entityType) {
+                entities.add(polygon);
+            }
+        }
+        return entities;
+    }
+
+    /**
+     * Return all polygons near the border of the map
+     * @return
+     */
+    public List<Polygon> getPolygonsNearTheEdge() {
+        List<Polygon> polygonsNearEdge = new ArrayList<>();
+        for (Polygon polygon : getPolygons()) {
+            for (Edge edge : polygon.getEdges()) {
+                if (edgeToPolygonMap.get(edge).size() == 1) {
+                    polygonsNearEdge.add(polygon);
+                    break;
+                }
+            }
+        }
+        return polygonsNearEdge;
     }
 
     /**
