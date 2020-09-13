@@ -28,6 +28,26 @@ public class PolygonSystem {
         edgeToPolygonMap = new HashMap<>();
     }
 
+    /**
+     * Construct a new polygon system based on the input polygons
+     */
+    public PolygonSystem(HashSet<Polygon> inputPolygons) {
+        nodes = new HashSet<>();
+        edges = new HashSet<>();
+        polygons = new HashSet<>();
+
+        nodeToEdgeMap = new HashMap<>();
+        nodeToPolygonMap = new HashMap<>();
+        edgeToPolygonMap = new HashMap<>();
+
+        for (Polygon p : inputPolygons) {
+            addPolygon(p);
+        }
+    }
+
+    /**
+     * Add a new polygon to the polygon system
+     */
     public void addPolygon(Polygon polygon) {
         polygons.add(polygon);
         for (Node node : polygon.getNodes()) {
@@ -57,6 +77,9 @@ public class PolygonSystem {
         }
     }
 
+    /**
+     * Remove a polygon from the polygon system
+     */
     public void removePolygon(Polygon polygon) {
         // Do nothing if the polygon is already not in the system.
         if (!polygons.contains(polygon)) {
@@ -234,7 +257,15 @@ public class PolygonSystem {
         return newPolygon;
     }
 
-    public List<Polygon> findRiverPathBFS(Polygon riverBegin, Polygon riverEnd, HashSet<Polygon> visited) {
+    /**
+     * Use BFS to the shortest path from one polygon to another polygon.
+     * We use this search algorithm to construct a list of polygons that would make a river.
+     * @param riverBegin The beginning polygon.
+     * @param riverEnd The ending polygon.
+     * @return A list of polygon (not necessary in order) that constructs the path from beginning to the end.
+     */
+    public List<Polygon> findRiverPathBFS(Polygon riverBegin, Polygon riverEnd) {
+        HashSet<Polygon> visited = new HashSet<>();
         Queue<List<Polygon>> pathQueue = new LinkedList<>();
         List<Polygon> path = new ArrayList<>();
         path.add(riverBegin);
@@ -267,7 +298,6 @@ public class PolygonSystem {
      * Get all entities of the same type - note that these entities are after merge
      * Returning a list of the same entity type because we can have more than one city center, river, etc.
      * @param entityType
-     * @return
      */
     public List<Polygon> getEntities(EntityType entityType) {
         List<Polygon> entities = new ArrayList<>();
@@ -281,7 +311,6 @@ public class PolygonSystem {
 
     /**
      * Return all polygons near the border of the map
-     * @return
      */
     public List<Polygon> getPolygonsNearTheEdge() {
         List<Polygon> polygonsNearEdge = new ArrayList<>();
@@ -332,7 +361,7 @@ public class PolygonSystem {
 
     /**
      * Create intermediate polygons
-     * TODO: Add picture documentation for something as opague and hard to describe as this one.
+     * TODO: Add picture documentation for something as opaque and hard to describe as this one.
      */
     public PolygonSystem createIntermediatePolygons() {
         PolygonSystem newSystem = new PolygonSystem();

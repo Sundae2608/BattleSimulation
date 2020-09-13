@@ -427,8 +427,7 @@ public class PCGSimulation extends PApplet {
         if (edgePolygons.size() >= 2) {
             riverBegin = edgePolygons.get(0);
             riverEnd = edgePolygons.get(1);
-
-            List<Polygon> riverComponents = polygonSystem.findRiverPathBFS(riverBegin, riverEnd, new HashSet<>());
+            List<Polygon> riverComponents = polygonSystem.findRiverPathBFS(riverBegin, riverEnd);
             Polygon river = polygonSystem.mergeMultiplePolygons(riverComponents);
             river.setEntityType(EntityType.RIVER);
             mergedPolygonSet.add(river);
