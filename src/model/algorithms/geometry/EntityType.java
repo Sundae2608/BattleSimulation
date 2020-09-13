@@ -4,5 +4,6 @@ public enum EntityType {
     DEFAULT,
     RIVER,
     CITY_CENTER,
-    OUTER_WALL
+    OUTER_WALL,
+    HOUSE
 }

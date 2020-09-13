@@ -13,7 +13,7 @@ public class PolygonSystem {
     HashSet<Polygon> polygons;
 
     // Relational maps
-    HashMap<Vertex, HashSet<Edge>> vertexToEdge;
+    HashMap<Vertex, HashSet<Edge>> vertexToEdgeMap;
     HashMap<Vertex, HashSet<Polygon>> vertexToPolygonMap;
     HashMap<Edge, HashSet<Polygon>> edgeToPolygonMap;
 
@@ -22,7 +22,7 @@ public class PolygonSystem {
         edges = new HashSet<>();
         polygons = new HashSet<>();
 
-        vertexToEdge = new HashMap<>();
+        vertexToEdgeMap = new HashMap<>();
         vertexToPolygonMap = new HashMap<>();
         edgeToPolygonMap = new HashMap<>();
     }
@@ -35,7 +35,7 @@ public class PolygonSystem {
         edges = new HashSet<>();
         polygons = new HashSet<>();
 
-        vertexToEdge = new HashMap<>();
+        vertexToEdgeMap = new HashMap<>();
         vertexToPolygonMap = new HashMap<>();
         edgeToPolygonMap = new HashMap<>();
 
@@ -52,7 +52,7 @@ public class PolygonSystem {
         edges = new HashSet<>();
         polygons = new HashSet<>();
 
-        vertexToEdge = new HashMap<>();
+        vertexToEdgeMap = new HashMap<>();
         vertexToPolygonMap = new HashMap<>();
         edgeToPolygonMap = new HashMap<>();
 
@@ -81,15 +81,15 @@ public class PolygonSystem {
             edges.add(edge);
             edgeToPolygonMap.get(edge).add(polygon);
 
-            if (!vertexToEdge.containsKey(edge.vertex1)) {
-                vertexToEdge.put(edge.vertex1, new HashSet<>());
+            if (!vertexToEdgeMap.containsKey(edge.vertex1)) {
+                vertexToEdgeMap.put(edge.vertex1, new HashSet<>());
             }
-            vertexToEdge.get(edge.vertex1).add(edge);
+            vertexToEdgeMap.get(edge.vertex1).add(edge);
 
-            if (!vertexToEdge.containsKey(edge.vertex2)) {
-                vertexToEdge.put(edge.vertex2, new HashSet<>());
+            if (!vertexToEdgeMap.containsKey(edge.vertex2)) {
+                vertexToEdgeMap.put(edge.vertex2, new HashSet<>());
             }
-            vertexToEdge.get(edge.vertex2).add(edge);
+            vertexToEdgeMap.get(edge.vertex2).add(edge);
         }
     }
 
@@ -429,5 +429,9 @@ public class PolygonSystem {
 
     public HashSet<Polygon> getAdjacentPolygon(Vertex v) {
         return vertexToPolygonMap.get(v);
+    }
+
+    public HashSet<Edge> getAdjacentEdges(Vertex v) {
+        return vertexToEdgeMap.get(v);
     }
 }

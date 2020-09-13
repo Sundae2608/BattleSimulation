@@ -11,7 +11,7 @@ public class ObjectHasher {
     private int yDiv;
     private ArrayList<BaseObject> objects;
 
-    // Hash map containing
+    // Hash map connecting the hash code of a block to the objects
     private HashMap<Long, ArrayList<BaseObject>> hashMap;
 
     public ObjectHasher(int xDivision, int yDivision) {
