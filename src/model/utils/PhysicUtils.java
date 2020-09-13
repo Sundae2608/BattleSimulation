@@ -307,7 +307,6 @@ public final class PhysicUtils {
 
     /**
      * Check whether point (px, py) lies within the polygon constructed by vertices.
-     * @return
      */
     public static boolean checkPolygonPointCollision(double[][] vertices, double px, double py) {
         boolean collision = false;
@@ -395,6 +394,42 @@ public final class PhysicUtils {
         }
 
         // never got a hit
+        return false;
+    }
+
+    /**
+     * Check whether the two polygons, specified by double[][] boundaryPts1 and double[][] boundaryPts2, collide with
+     * each other
+     */
+    public static boolean checkPolygonPolygonCollision(double[][] boundaryPts1, double[][] boundaryPts2) {
+        // Go through each edge and see whether each edge of polygon 1 touch polygon 2. Return true if any edge
+        // collide with the polygon.
+        for (int i = 0; i < boundaryPts1.length; i++) {
+            double[] vc = boundaryPts1[i];
+            double[] vn = boundaryPts1[(i + 1) % boundaryPts1.length];
+            if (checkLinePolygonCollision(vc[0], vc[1], vn[0], vn[1], boundaryPts2)) {
+                return true;
+            }
+        }
+        for (int i = 0; i < boundaryPts2.length; i++) {
+            double[] vc = boundaryPts2[i];
+            double[] vn = boundaryPts2[(i + 1) % boundaryPts2.length];
+            if (checkLinePolygonCollision(vc[0], vc[1], vn[0], vn[1], boundaryPts1)) {
+                return true;
+            }
+        }
+
+        // If all the edges do not touch the polygon, check whether polygon 1 is inside polygon 2 and vice versa.
+        for (int i = 0; i < boundaryPts1.length; i++) {
+            double[] v = boundaryPts1[i];
+            if (checkPolygonPointCollision(boundaryPts2, v[0], v[1])) return true;
+        }
+        for (int i = 0; i < boundaryPts2.length; i++) {
+            double[] v = boundaryPts2[i];
+            if (checkPolygonPointCollision(boundaryPts1, v[0], v[1])) return true;
+        }
+
+        // If none of the edge touches, and none of the points are in others' polygons
         return false;
     }
 

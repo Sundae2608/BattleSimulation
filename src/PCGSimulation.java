@@ -2,7 +2,6 @@ import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import model.algorithms.geometry.*;
 import model.utils.PhysicUtils;
 import view.components.*;
-import model.algorithms.pathfinding.*;
 import model.settings.MapGenerationSettings;
 import model.terrain.Terrain;
 import model.utils.MathUtils;
@@ -31,7 +30,7 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
-    private static int NUM_HEX_RADIUS = 20;
+    private static int NUM_HEX_RADIUS = 14;
     private static double HEX_RADIUS = 300;
     private static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
@@ -45,10 +44,10 @@ public class PCGSimulation extends PApplet {
     private final static double BASE_SCALE_DIST = 7000;
 
     // Config for the number of nodes
-    private static int NUM_VERTICES_INNER_WALL = 16;
-    private static int NUM_BLOCKS_OUTER_WALL = 20;
+    private static int NUM_VERTICES_INNER_WALL = 10;
+    private static int NUM_BLOCKS_OUTER_WALL = 50;
 
-    // Drawing settings
+    // Settings
     DrawingSettings drawingSettings;
     MapGenerationSettings mapGenerationSettings;
 
@@ -78,6 +77,8 @@ public class PCGSimulation extends PApplet {
 
     // Polygon system
     ArrayList<Vertex> vertexList;
+    PolygonFactory polygonFactory;
+    PolygonHasher polygonHasher;
     PolygonSystem polygonSystem;
     int cityGenerationSeed;
 
@@ -85,16 +86,27 @@ public class PCGSimulation extends PApplet {
     Polygon cityCenterPolygon;
     Polygon cityOuterWallPolygon;
     Polygon riverPolygon;
+    ArrayList<Polygon> polygonHouses;
 
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
         drawingSettings = new DrawingSettings();
-        drawingSettings.setDrawNumAdjacentPolygons(true);
+        drawingSettings.setShowNumAdjacentPolygons(true);
         drawingSettings.setDrawPolygonEdges(false);
         drawingSettings.setDrawVertices(false);
 
         mapGenerationSettings = new MapGenerationSettings();
         mapGenerationSettings.setPointExtension(true);
+        HouseGenerationSettings houseGenerationSettings = new HouseGenerationSettings();
+        houseGenerationSettings.setDistanceFromEdge(50.0);
+        houseGenerationSettings.setDistanceFromEdgeWiggle(8.0);
+        houseGenerationSettings.setDistanceFromOther(16.0);
+        houseGenerationSettings.setDistanceFromOtherWiggle(4.0);
+        houseGenerationSettings.setHouseWidth(80.0);
+        houseGenerationSettings.setHouseWidthWiggle(30.0);
+        houseGenerationSettings.setHouseLength(80.0);
+        houseGenerationSettings.setHouseLengthWiggle(60.0);
+        mapGenerationSettings.setHouseGenerationSettings(houseGenerationSettings);
 
         // Drawing settings
         smooth(3);
@@ -258,7 +270,9 @@ public class PCGSimulation extends PApplet {
             numPoints++;
         }
 
-        /** Scale the points further */
+        /**
+         * Scale the points further
+         */
         // Point extension
         if (mapGenerationSettings.isPointExtension()) {
             for (Vertex v : vertexList) {
@@ -294,7 +308,6 @@ public class PCGSimulation extends PApplet {
 
         /**
          * Combine nodes together according to a certain city layout.
-         * TODO: Refactor the node to use a Vertex instead.
          * TODO: Create a path from the center, and the smoothen it.
          * TODO: Optionally, we can try to smoothen all path that create land blocks. Path in the old days are curved
          *  anyway.
@@ -386,9 +399,8 @@ public class PCGSimulation extends PApplet {
                 cityCenterPolygonSet.add(polygon);
             }
         }
-        PolygonSystem cityCenterSystem = new PolygonSystem(cityCenterPolygonSet);
-        cityCenterPolygon = cityCenterSystem.mergeMultiplePolygons(cityCenterPolygonSet);
-        cityCenterPolygon.setEntityType(EntityType.CITY_CENTER);
+        cityCenterPolygon = polygonFactory.createPolygonFromSmallerPolygons(
+                cityCenterPolygonSet, EntityType.CITY_CENTER);
         mergedPolygonSet.add(cityCenterPolygon);
 
         // Merge the remaining blocks to form an outer wall using a different city center.
@@ -411,31 +423,44 @@ public class PCGSimulation extends PApplet {
                 }
             }
         });
-        ArrayList<Polygon> mergingBlocks = new ArrayList<>();
+        HashSet<Polygon> mergingBlocks = new HashSet<>();
         for (i = 0; i < Math.min(NUM_BLOCKS_OUTER_WALL, remainingBlocksArr.size()); i++) {
             mergingBlocks.add(remainingBlocksArr.get(i));
         }
-        PolygonSystem cityOuterwallSystem = new PolygonSystem(mergingBlocks);
-        cityOuterWallPolygon = cityOuterwallSystem.mergeMultiplePolygons(mergingBlocks);
-        cityOuterWallPolygon.setEntityType(EntityType.OUTER_WALL);
+        PolygonSystem outerWallSystem = new PolygonSystem(mergingBlocks);
+        cityOuterWallPolygon = polygonFactory.createPolygonFromSmallerPolygons(
+                outerWallSystem.getPolygons(), EntityType.OUTER_WALL);
         mergedPolygonSet.add(cityOuterWallPolygon);
 
+        // Make river by connecting to edge polygon together.
         List<Polygon> edgePolygons = polygonSystem.getPolygonsNearTheEdge();
         Polygon riverBegin, riverEnd;
         if (edgePolygons.size() >= 2) {
             riverBegin = edgePolygons.get(0);
             riverEnd = edgePolygons.get(1);
             List<Polygon> riverComponents = polygonSystem.findRiverPathBFS(riverBegin, riverEnd);
-            PolygonSystem riverPolygonSystem = new PolygonSystem(riverComponents);
-            riverPolygon = riverPolygonSystem.mergeMultiplePolygons(riverComponents);
-            riverPolygon.setEntityType(EntityType.RIVER);
+            riverPolygon = polygonFactory.createPolygonFromSmallerPolygons(riverComponents, EntityType.RIVER);
             mergedPolygonSet.add(riverPolygon);
+        }
+
+        // Create houses
+        polygonHouses = new ArrayList<>();
+        polygonHasher = new PolygonHasher(INPUT_DIV, INPUT_DIV);
+        for (Edge e : outerWallSystem.getEdges()) {
+            ArrayList<Polygon> newHouses = polygonFactory.createHousePolygonsFromEdge(
+                    e, mapGenerationSettings.getHouseGenerationSettings(), polygonHasher);
+            for (Polygon p : newHouses) {
+                polygonHouses.add(p);
+            }
         }
     }
 
     public void setup() {
         // Set up terrain.
         terrain = new Terrain(INPUT_TOP_X, INPUT_TOP_Y, INPUT_DIV, INPUT_NUM_X, INPUT_NUM_Y);
+
+        // Setup polygon factory
+        polygonFactory = new PolygonFactory();
 
         // Set up camera.
         camera = new HexCamera(
@@ -539,22 +564,11 @@ public class PCGSimulation extends PApplet {
             }
         });
 
-        //
+        // Checkboxes
         checkBoxes = new ArrayList<>();
-        checkBoxes.add(new CheckBox("Show # adjacent polygons",
-                drawingSettings.isDrawNumAdjacentPolygons(),
-            INPUT_WIDTH - 300, 470, 280, 25, this,
-            new CustomProcedure() {
-                @Override
-                public void proc() { drawingSettings.setDrawNumAdjacentPolygons(true); }
-            },
-            new CustomProcedure() {
-                @Override
-                public void proc() { drawingSettings.setDrawNumAdjacentPolygons(false);  }
-            }));
         checkBoxes.add(new CheckBox("Show polygon edges",
             drawingSettings.isDrawPolygonEdges(),
-            INPUT_WIDTH - 300, 510, 280, 25, this,
+            INPUT_WIDTH - 300, 470, 280, 25, this,
             new CustomProcedure() {
                 @Override
                 public void proc() { drawingSettings.setDrawPolygonEdges(true); }
@@ -563,6 +577,50 @@ public class PCGSimulation extends PApplet {
                 @Override
                 public void proc() { drawingSettings.setDrawPolygonEdges(false);  }
             }));
+        checkBoxes.add(new CheckBox("Show vertices",
+                drawingSettings.isDrawPolygonEdges(),
+                INPUT_WIDTH - 300, 510, 280, 25, this,
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setDrawVertices(true); }
+                },
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setDrawVertices(false);  }
+                }));
+        checkBoxes.add(new CheckBox("Show # adjacent polygons",
+                drawingSettings.isShowNumAdjacentPolygons(),
+                INPUT_WIDTH - 300, 550, 280, 25, this,
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setShowNumAdjacentPolygons(true); }
+                },
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setShowNumAdjacentPolygons(false);  }
+                }));
+        checkBoxes.add(new CheckBox("Show # adjacent edges",
+                drawingSettings.isShowNumAdjacentPolygons(),
+                INPUT_WIDTH - 300, 590, 280, 25, this,
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setShowNumAdjacentEdges(true); }
+                },
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setShowNumAdjacentEdges(false);  }
+                }));
+        checkBoxes.add(new CheckBox("Show houses",
+                drawingSettings.isDrawHouses(),
+                INPUT_WIDTH - 300, 630, 280, 25, this,
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setDrawHouses(true); }
+                },
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setDrawHouses(false);  }
+                }));
 
         // Set up drawer
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
@@ -712,9 +770,11 @@ public class PCGSimulation extends PApplet {
             // Determine the color of the polygon
             double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
             if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
-                fill(color[0],color[1],color[2],50);
+                stroke(color[0],color[1],color[2],50);
+                strokeWeight(4);
             } else {
-                fill(color[0],color[1],color[2],23);
+                stroke(color[0],color[1],color[2],23);
+                strokeWeight(4);
             }
             double ptBegX = boundaryPts[0][0];
             double ptBegY = boundaryPts[0][1];
@@ -725,30 +785,29 @@ public class PCGSimulation extends PApplet {
                 double x = boundaryPts[i][0];
                 double y = boundaryPts[i][1];
                 double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
-                vertex((float) drawingPt[0], (float) drawingPt[1]);
+                curveVertex((float) drawingPt[0], (float) drawingPt[1]);
             }
             double ptEndX = boundaryPts[boundaryPts.length-1][0];
             double ptEndY = boundaryPts[boundaryPts.length-1][1];
             double[] ptEnd = camera.getDrawingPosition(ptEndX, ptEndY, terrain.getHeightFromPos(ptEndX, ptEndY));
-            vertex((float) ptEnd[0], (float) ptEnd[1]);
+            curveVertex((float) ptEnd[0], (float) ptEnd[1]);
             endShape(CLOSE);
         }
 
         // Draw city center polygon
+        noFill();
         boundaryPts = cityCenterPolygon.getBoundaryPoints();
         if (camera.boundaryPointsAreVisible(boundaryPts)) {
             // Determine the color of the polygon
             double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
             boolean mouseOver = PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1]);
-            if (mouseOver) {
-                fill(color[0],color[1],color[2],50);
+            if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
+                stroke(color[0],color[1],color[2],150);
+                strokeWeight(4);
             } else {
-                fill(color[0],color[1],color[2],23);
+                stroke(color[0],color[1],color[2],100);
+                strokeWeight(4);
             }
-            double ptBegX = boundaryPts[0][0];
-            double ptBegY = boundaryPts[0][1];
-            double[] ptBeg = camera.getDrawingPosition(ptBegX, ptBegY, terrain.getHeightFromPos(ptBegX, ptBegY));
-            vertex((float) ptBeg[0], (float) ptBeg[1]);
             beginShape();
             for (int i = 0; i < boundaryPts.length; i++) {
                 double x = boundaryPts[i][0];
@@ -756,12 +815,7 @@ public class PCGSimulation extends PApplet {
                 double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
                 vertex((float) drawingPt[0], (float) drawingPt[1]);
             }
-            double ptEndX = boundaryPts[boundaryPts.length-1][0];
-            double ptEndY = boundaryPts[boundaryPts.length-1][1];
-            double[] ptEnd = camera.getDrawingPosition(ptEndX, ptEndY, terrain.getHeightFromPos(ptEndX, ptEndY));
-            vertex((float) ptEnd[0], (float) ptEnd[1]);
             endShape(CLOSE);
-
             if (mouseOver) {
                 fill(0, 0, 0);
                 rect(mouseX, mouseY, 100, 30);
@@ -773,18 +827,17 @@ public class PCGSimulation extends PApplet {
 
         // Draw city outer wall polygon
         boundaryPts = cityOuterWallPolygon.getBoundaryPoints();
+        noFill();
         if (camera.boundaryPointsAreVisible(boundaryPts)) {
             // Determine the color of the polygon
             double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
             if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
-                fill(color[0],color[1],color[2],50);
+                stroke(color[0],color[1],color[2],150);
+                strokeWeight(4);
             } else {
-                fill(color[0],color[1],color[2],23);
+                stroke(color[0],color[1],color[2],100);
+                strokeWeight(4);
             }
-            double ptBegX = boundaryPts[0][0];
-            double ptBegY = boundaryPts[0][1];
-            double[] ptBeg = camera.getDrawingPosition(ptBegX, ptBegY, terrain.getHeightFromPos(ptBegX, ptBegY));
-            vertex((float) ptBeg[0], (float) ptBeg[1]);
             beginShape();
             for (int i = 0; i < boundaryPts.length; i++) {
                 double x = boundaryPts[i][0];
@@ -792,14 +845,43 @@ public class PCGSimulation extends PApplet {
                 double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
                 vertex((float) drawingPt[0], (float) drawingPt[1]);
             }
-            double ptEndX = boundaryPts[boundaryPts.length-1][0];
-            double ptEndY = boundaryPts[boundaryPts.length-1][1];
-            double[] ptEnd = camera.getDrawingPosition(ptEndX, ptEndY, terrain.getHeightFromPos(ptEndX, ptEndY));
-            vertex((float) ptEnd[0], (float) ptEnd[1]);
             endShape(CLOSE);
         }
 
-        // Draw pts
+        // Draw houses
+        noStroke();
+        if (drawingSettings.isDrawHouses()) {
+            for (Polygon polygon : polygonHouses) {
+                boundaryPts = polygon.getBoundaryPoints();
+                if (camera.boundaryPointsAreVisible(boundaryPts)) {
+                    // Determine the color of the polygon
+                    double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                    if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
+                        fill(color[0],color[1],color[2],50);
+                    } else {
+                        fill(color[0],color[1],color[2],23);
+                    }
+                    double ptBegX = boundaryPts[0][0];
+                    double ptBegY = boundaryPts[0][1];
+                    double[] ptBeg = camera.getDrawingPosition(ptBegX, ptBegY, terrain.getHeightFromPos(ptBegX, ptBegY));
+                    vertex((float) ptBeg[0], (float) ptBeg[1]);
+                    beginShape();
+                    for (int i = 0; i < boundaryPts.length; i++) {
+                        double x = boundaryPts[i][0];
+                        double y = boundaryPts[i][1];
+                        double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
+                        vertex((float) drawingPt[0], (float) drawingPt[1]);
+                    }
+                    double ptEndX = boundaryPts[boundaryPts.length-1][0];
+                    double ptEndY = boundaryPts[boundaryPts.length-1][1];
+                    double[] ptEnd = camera.getDrawingPosition(ptEndX, ptEndY, terrain.getHeightFromPos(ptEndX, ptEndY));
+                    vertex((float) ptEnd[0], (float) ptEnd[1]);
+                    endShape(CLOSE);
+                }
+            }
+        }
+
+        // Draw points
         if (drawingSettings.isDrawVertices()) {
             color = DrawingConstants.NODE_COLOR;
             for (Vertex vertex : polygonSystem.getVertices()) {
@@ -809,10 +891,16 @@ public class PCGSimulation extends PApplet {
                 double[] drawingPt = camera.getDrawingPosition(
                         vertex.getX(), vertex.getY(), terrain.getHeightFromPos(vertex.getX(), vertex.getY()));
                 circle((float) drawingPt[0], (float) drawingPt[1], (float) (DrawingConstants.NODE_RADIUS * camera.getZoom()));
-                if (drawingSettings.isDrawNumAdjacentPolygons()) {
+                if (drawingSettings.isShowNumAdjacentPolygons()) {
                     fill(0, 0, 0);
                     textAlign(LEFT, BOTTOM);
                     text(String.valueOf(polygonSystem.getAdjacentPolygon(vertex).size()),
+                            (float) drawingPt[0], (float) drawingPt[1] - 10);
+                }
+                if (drawingSettings.isShowNumAdjacentEdges()) {
+                    fill(0, 0, 0);
+                    textAlign(LEFT, BOTTOM);
+                    text(String.valueOf(polygonSystem.getAdjacentEdges(vertex).size()),
                             (float) drawingPt[0], (float) drawingPt[1] - 10);
                 }
             }

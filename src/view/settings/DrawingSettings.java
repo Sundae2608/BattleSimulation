@@ -26,9 +26,11 @@ public class DrawingSettings {
     private boolean drawGameInfo;
 
     // Drawing settings for Procedural Content Generation Simulation.
-    private boolean drawNumAdjacentPolygons;
+    private boolean showNumAdjacentPolygons;
+    private boolean showNumAdjacentEdges;
     private boolean drawPolygonEdges;
     private boolean drawVertices;
+    private boolean drawHouses;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -202,12 +204,20 @@ public class DrawingSettings {
         this.drawGameInfo = drawGameInfo;
     }
 
-    public boolean isDrawNumAdjacentPolygons() {
-        return drawNumAdjacentPolygons;
+    public boolean isShowNumAdjacentPolygons() {
+        return showNumAdjacentPolygons;
     }
-    public void setDrawNumAdjacentPolygons(boolean drawNumAdjacentPolygons) {
-        this.drawNumAdjacentPolygons = drawNumAdjacentPolygons;
+    public void setShowNumAdjacentPolygons(boolean showNumAdjacentPolygons) {
+        this.showNumAdjacentPolygons = showNumAdjacentPolygons;
     }
+
+    public boolean isShowNumAdjacentEdges() {
+        return showNumAdjacentEdges;
+    }
+    public void setShowNumAdjacentEdges(boolean showNumAdjacentEdges) {
+        this.showNumAdjacentEdges = showNumAdjacentEdges;
+    }
+
     public boolean isDrawPolygonEdges() {
         return drawPolygonEdges;
     }
@@ -220,5 +230,12 @@ public class DrawingSettings {
     }
     public void setDrawVertices(boolean drawVertices) {
         this.drawVertices = drawVertices;
+    }
+
+    public boolean isDrawHouses() {
+        return drawHouses;
+    }
+    public void setDrawHouses(boolean drawHouses) {
+        this.drawHouses = drawHouses;
     }
 }
