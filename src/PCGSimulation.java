@@ -765,17 +765,19 @@ public class PCGSimulation extends PApplet {
         }
 
         // Draw river polygon
+        color = DrawingConstants.POLYGON_RIVER_COLOR;
         double[][] boundaryPts = riverPolygon.getBoundaryPoints();
         if (camera.boundaryPointsAreVisible(boundaryPts)) {
             // Determine the color of the polygon
             double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
             if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
-                stroke(color[0],color[1],color[2],50);
+                stroke(color[0],color[1],color[2],150);
                 strokeWeight(4);
             } else {
-                stroke(color[0],color[1],color[2],23);
+                stroke(color[0],color[1],color[2],100);
                 strokeWeight(4);
             }
+            fill(color[0],color[1],color[2],128);
             double ptBegX = boundaryPts[0][0];
             double ptBegY = boundaryPts[0][1];
             double[] ptBeg = camera.getDrawingPosition(ptBegX, ptBegY, terrain.getHeightFromPos(ptBegX, ptBegY));
@@ -796,6 +798,7 @@ public class PCGSimulation extends PApplet {
 
         // Draw city center polygon
         noFill();
+        color = DrawingConstants.POLYGON_COLOR;
         boundaryPts = cityCenterPolygon.getBoundaryPoints();
         if (camera.boundaryPointsAreVisible(boundaryPts)) {
             // Determine the color of the polygon
