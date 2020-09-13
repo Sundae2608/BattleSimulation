@@ -821,24 +821,33 @@ public final class PhysicUtils {
         return perceivedNoiseLabel;
     }
 
+    /**
+     * This functions get the absol
+     * @param x
+     * @param y
+     * @param terrain
+     * @param surfaces
+     * @param constructs
+     * @return
+     */
     public static double getAbsoluteBarrierHeight(double x, double y, Terrain terrain, ArrayList<BaseSurface> surfaces, ArrayList<Construct> constructs) {
         double barrierHeight = terrain.getHeightFromPos(x, y);
 
         // Adding barrierHeight from surfaces
         // Looping through surfaces
         for (BaseSurface surface : surfaces){
-            // If surfaces is type FOREST, then we start checking if our point is in that surface
-            if (surface.getType() == SurfaceType.FOREST) {
-                // If our point is in the FOREST surface, then we loop through and check each tree to see if our point is within the radius
-                if (checkPolygonPointCollision(surface.getSurfaceBoundary(), x, y)) {
-                    ArrayList<Tree> trees = ((ForestSurface) surface).getTrees();
-                    for (Tree tree : trees){
-                        if (checkPointCircleCollision(x, y, tree.getX(), tree.getY(), tree.getRadius())) {
+            // Check if our point is in the surface, then we start checking if our point is in that surface
+            if (checkPolygonPointCollision(surface.getSurfaceBoundary(), x, y)) {
+
+                // If surfaces is type FOREST, check each tree to see if our point is within the radius
+                if (surface.getType() == SurfaceType.FOREST) {
+                        Tree tree = ((ForestSurface) surface).getTreeHasher().getSingleTreeByCoordinate(x,y);
+                        if (tree != null){
                             barrierHeight = barrierHeight + tree.getHeight();
                         }
-                    }
-
                 }
+
+                // [TODO] - (Trung): If surface in of type (city, wall etc.)
             }
         }
 

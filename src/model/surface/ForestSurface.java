@@ -1,5 +1,6 @@
 package model.surface;
 
+import model.algorithms.TreeHasher;
 import model.enums.SurfaceType;
 import model.singles.BaseSingle;
 import model.utils.MathUtils;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 public class ForestSurface extends BaseSurface {
 
     ArrayList<Tree> trees;
+    TreeHasher treeHasher;
     double averageTreeRadius;
     double sizeWiggling;
 
@@ -71,6 +73,9 @@ public class ForestSurface extends BaseSurface {
                 currY = minY + (row % 2) * averageDistance / 2;
             }
         }
+
+        treeHasher.addObjectArray(trees);
+        treeHasher.hashObjects();
     }
 
     @Override
@@ -80,6 +85,10 @@ public class ForestSurface extends BaseSurface {
 
     public ArrayList<Tree> getTrees() {
         return trees;
+    }
+
+    public TreeHasher getTreeHasher() {
+        return treeHasher;
     }
 
     public double getTreeMaxRadius() {
