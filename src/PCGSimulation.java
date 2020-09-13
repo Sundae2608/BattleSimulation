@@ -72,6 +72,7 @@ public class PCGSimulation extends PApplet {
 
     // UI components
     ArrayList<Scrollbar> scrollbars;
+    ArrayList<CheckBox> checkBoxes;
     Button resetButton;
 
     // Terrain
@@ -85,6 +86,7 @@ public class PCGSimulation extends PApplet {
     public void settings() {
         size(INPUT_WIDTH, INPUT_HEIGHT, P2D);
         drawingSettings = new DrawingSettings();
+        drawingSettings.setDrawNumAdjacentPolygons(true);
 
         mapGenerationSettings = new MapGenerationSettings();
         mapGenerationSettings.setPointExtension(true);
@@ -512,6 +514,8 @@ public class PCGSimulation extends PApplet {
                         resetContentGeneration();
                     }
                 }));
+
+        // Reset button
         resetButton = new Button("Reset seed",
                 INPUT_WIDTH - 300, 430, 280, 20, this, new CustomProcedure() {
             @Override
@@ -520,6 +524,24 @@ public class PCGSimulation extends PApplet {
                 resetContentGeneration();
             }
         });
+
+        //
+        checkBoxes = new ArrayList<>();
+        checkBoxes.add(new CheckBox("Show # adjacent polygons",
+                drawingSettings.isDrawNumAdjacentPolygons(),
+            INPUT_WIDTH - 300, 470, 280, 25, this,
+            new CustomProcedure() {
+                @Override
+                public void proc() {
+                    drawingSettings.setDrawNumAdjacentPolygons(true);
+                }
+            },
+            new CustomProcedure() {
+                @Override
+                public void proc() {
+                    drawingSettings.setDrawNumAdjacentPolygons(false);
+                }
+            }));
 
         // Set up drawer
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
@@ -540,6 +562,9 @@ public class PCGSimulation extends PApplet {
             scrollbar.update();
         }
         resetButton.update();
+        for (CheckBox checkBox : checkBoxes) {
+            checkBox.update();
+        }
 
         // Clear everything
         background(230);
@@ -648,10 +673,12 @@ public class PCGSimulation extends PApplet {
             double[] drawingPt = camera.getDrawingPosition(
                     node.getX(), node.getY(), terrain.getHeightFromPos(node.getX(), node.getY()));
             circle((float) drawingPt[0], (float) drawingPt[1], (float) (DrawingConstants.NODE_RADIUS * camera.getZoom()));
-            fill(0, 0, 0);
-            textAlign(LEFT, BOTTOM);
-            text(String.valueOf(polygonSystem.getAdjacentPolygon(node).size()),
-                    (float) drawingPt[0], (float) drawingPt[1] - 10);
+            if (drawingSettings.isDrawNumAdjacentPolygons()) {
+                fill(0, 0, 0);
+                textAlign(LEFT, BOTTOM);
+                text(String.valueOf(polygonSystem.getAdjacentPolygon(node).size()),
+                        (float) drawingPt[0], (float) drawingPt[1] - 10);
+            }
         }
 
         // Draw zoom information
@@ -665,6 +692,9 @@ public class PCGSimulation extends PApplet {
             scrollbar.display();
         }
         resetButton.display();
+        for (CheckBox checkBox : checkBoxes) {
+            checkBox.display();
+        }
 
         // Set up the data again.
         if (keyPressedSet.contains('r')) {
