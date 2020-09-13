@@ -24,6 +24,7 @@ public class DrawingSettings {
     private boolean drawPathfindingNodes;
     private boolean drawControlArrow;
     private boolean drawGameInfo;
+    private boolean drawNumAdjacentPolygons;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -195,5 +196,12 @@ public class DrawingSettings {
     }
     public void setDrawGameInfo(boolean drawGameInfo) {
         this.drawGameInfo = drawGameInfo;
+    }
+
+    public boolean isDrawNumAdjacentPolygons() {
+        return drawNumAdjacentPolygons;
+    }
+    public void setDrawNumAdjacentPolygons(boolean drawNumAdjacentPolygons) {
+        this.drawNumAdjacentPolygons = drawNumAdjacentPolygons;
     }
 }
