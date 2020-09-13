@@ -46,6 +46,23 @@ public class PolygonSystem {
     }
 
     /**
+     * Construct a new polygon system based on the input polygons
+     */
+    public PolygonSystem(List<Polygon> inputPolygons) {
+        nodes = new HashSet<>();
+        edges = new HashSet<>();
+        polygons = new HashSet<>();
+
+        nodeToEdgeMap = new HashMap<>();
+        nodeToPolygonMap = new HashMap<>();
+        edgeToPolygonMap = new HashMap<>();
+
+        for (Polygon p : inputPolygons) {
+            addPolygon(p);
+        }
+    }
+
+    /**
      * Add a new polygon to the polygon system
      */
     public void addPolygon(Polygon polygon) {
@@ -258,8 +275,20 @@ public class PolygonSystem {
     }
 
     /**
+     * Merge multiple polygons together given a list of polygons.
+     */
+    public Polygon mergeMultiplePolygons(Set<Polygon> polygons) {
+        List<Polygon> polygonList = new ArrayList<>();
+        for (Polygon p : polygons) {
+            polygonList.add(p);
+        }
+        return mergeMultiplePolygons(polygonList);
+    }
+
+    /**
      * Use BFS to the shortest path from one polygon to another polygon.
      * We use this search algorithm to construct a list of polygons that would make a river.
+     * TODO: Rename the river object.
      * @param riverBegin The beginning polygon.
      * @param riverEnd The ending polygon.
      * @return A list of polygon (not necessary in order) that constructs the path from beginning to the end.
