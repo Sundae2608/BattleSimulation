@@ -24,7 +24,11 @@ public class DrawingSettings {
     private boolean drawPathfindingNodes;
     private boolean drawControlArrow;
     private boolean drawGameInfo;
+
+    // Drawing settings for Procedural Content Generation Simulation.
     private boolean drawNumAdjacentPolygons;
+    private boolean drawPolygonEdges;
+    private boolean drawVertices;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -203,5 +207,18 @@ public class DrawingSettings {
     }
     public void setDrawNumAdjacentPolygons(boolean drawNumAdjacentPolygons) {
         this.drawNumAdjacentPolygons = drawNumAdjacentPolygons;
+    }
+    public boolean isDrawPolygonEdges() {
+        return drawPolygonEdges;
+    }
+    public void setDrawPolygonEdges(boolean drawPolygonEdges) {
+        this.drawPolygonEdges = drawPolygonEdges;
+    }
+
+    public boolean isDrawVertices() {
+        return drawVertices;
+    }
+    public void setDrawVertices(boolean drawVertices) {
+        this.drawVertices = drawVertices;
     }
 }

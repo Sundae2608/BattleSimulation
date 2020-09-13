@@ -1,18 +1,16 @@
 package model.algorithms.geometry;
 
-import model.algorithms.pathfinding.Node;
 import model.utils.MathUtils;
 
 public class Edge {
 
     // Each edge contains two nodes
-    Node node1;
-    Node node2;
+    Vertex vertex1;
+    Vertex vertex2;
 
-    public Edge(Node inputNode1, Node inputNode2) {
-        // TODO: Make edge hashable
-        node1 = inputNode1;
-        node2 = inputNode2;
+    public Edge(Vertex inputNode1, Vertex inputNode2) {
+        vertex1 = inputNode1;
+        vertex2 = inputNode2;
     }
 
     @Override
@@ -25,25 +23,25 @@ public class Edge {
         Edge edge = (Edge) o;
 
         // Two edges are equal if they have the same nodes.
-        return (node1 == edge.node1 && node2 == edge.node2) || (node1 == edge.node2 && node2 == edge.node1);
+        return (vertex1 == edge.vertex1 && vertex2 == edge.vertex2) || (vertex1 == edge.vertex2 && vertex2 == edge.vertex1);
     }
 
     @Override
     public int hashCode()
     {
-		int result = node1.hashCode() ^ node2.hashCode();
+		int result = vertex1.hashCode() ^ vertex2.hashCode();
 		return result;
     }
 
     public double getLength() {
-        return MathUtils.distance(node1.getX(), node1.getY(), node2.getX(), node2.getY());
+        return MathUtils.distance(vertex1.getX(), vertex1.getY(), vertex2.getX(), vertex2.getY());
     }
 
-    public Node getNode1() {
-        return node1;
+    public Vertex getVertex1() {
+        return vertex1;
     }
 
-    public Node getNode2() {
-        return node2;
+    public Vertex getVertex2() {
+        return vertex2;
     }
 }
