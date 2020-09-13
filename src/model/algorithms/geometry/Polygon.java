@@ -1,40 +1,38 @@
 package model.algorithms.geometry;
 
-import model.algorithms.pathfinding.Node;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Polygon {
 
-    private HashSet<Node> nodes;
+    private HashSet<Vertex> vertices;
     private HashSet<Edge> edges;
     private EntityType entityType;
 
     public Polygon() {
-        nodes = new HashSet<>();
+        vertices = new HashSet<>();
         edges = new HashSet<>();
         entityType = EntityType.DEFAULT;
     }
 
     public Polygon(HashSet<Edge> inputEdges) {
         edges = inputEdges;
-        nodes = new HashSet<>();
+        vertices = new HashSet<>();
         for (Edge e : inputEdges) {
-            nodes.add(e.node1);
-            nodes.add(e.node2);
+            vertices.add(e.vertex1);
+            vertices.add(e.vertex2);
         }
         entityType = EntityType.DEFAULT;
     }
 
-    public Polygon(HashSet<Node> inputNodes, HashSet<Edge> inputEdges) {
-        nodes = inputNodes;
+    public Polygon(HashSet<Vertex> inputVertexs, HashSet<Edge> inputEdges) {
+        vertices = inputVertexs;
         edges = inputEdges;
         entityType = EntityType.DEFAULT;
     }
 
-    public HashSet<Node> getNodes() {
-        return nodes;
+    public HashSet<Vertex> getVertices() {
+        return vertices;
     }
 
     public HashSet<Edge> getEdges() {
@@ -52,28 +50,28 @@ public class Polygon {
     /**
      * Return the list of edges in the order that makes them connect to each other and becomes polygons.
      */
-    public ArrayList<Node> getOrderedNodes() {
-        ArrayList<Node> orderedList = new ArrayList<>();
-        HashSet<Node> visitedNode = new HashSet<>();
+    public ArrayList<Vertex> getOrderedVertices() {
+        ArrayList<Vertex> orderedList = new ArrayList<>();
+        HashSet<Vertex> visitedVertex = new HashSet<>();
         if (edges.size() == 0) {
             return orderedList;
         }
         Edge currEdge = (Edge) edges.toArray()[0];
-        Node currNode = currEdge.node1;
+        Vertex currVertex = currEdge.vertex1;
         while (orderedList.size() != edges.size()) {
-            orderedList.add(currNode);
-            visitedNode.add(currNode);
+            orderedList.add(currVertex);
+            visitedVertex.add(currVertex);
             boolean found = false;
             for (Edge edge : edges) {
-                if (edge != currEdge && edge.getNode1() == currNode && !visitedNode.contains(edge.getNode2()) && !found) {
+                if (edge != currEdge && edge.getVertex1() == currVertex && !visitedVertex.contains(edge.getVertex2())) {
                     currEdge = edge;
-                    currNode = edge.getNode2();
+                    currVertex = edge.getVertex2();
                     found = true;
                     break;
                 }
-                if (edge != currEdge && edge.getNode2() == currNode && !visitedNode.contains(edge.getNode1()) && !found) {
+                if (edge != currEdge && edge.getVertex2() == currVertex && !visitedVertex.contains(edge.getVertex1())) {
                     currEdge = edge;
-                    currNode = edge.getNode1();
+                    currVertex = edge.getVertex1();
                     found = true;
                     break;
                 }
@@ -87,11 +85,11 @@ public class Polygon {
      * Get an array of boundary points from the polygon.
      */
     public double[][] getBoundaryPoints() {
-        ArrayList<Node> orderedNodes = getOrderedNodes();
-        double[][] pts = new double[orderedNodes.size()][2];
-        for (int i = 0; i < orderedNodes.size(); i++) {
-            pts[i][0] = orderedNodes.get(i).getX();
-            pts[i][1] = orderedNodes.get(i).getY();
+        ArrayList<Vertex> orderVertices = getOrderedVertices();
+        double[][] pts = new double[orderVertices.size()][2];
+        for (int i = 0; i < orderVertices.size(); i++) {
+            pts[i][0] = orderVertices.get(i).getX();
+            pts[i][1] = orderVertices.get(i).getY();
         }
         return pts;
     }
@@ -100,10 +98,10 @@ public class Polygon {
         double sumX = 0;
         double sumY = 0;
         int count = 0;
-        for (Node node : nodes) {
+        for (Vertex vertex : vertices) {
             count += 1;
-            sumX += node.getX();
-            sumY += node.getY();
+            sumX += vertex.getX();
+            sumY += vertex.getY();
         }
         return new double[] {sumX / count, sumY / count};
     }
