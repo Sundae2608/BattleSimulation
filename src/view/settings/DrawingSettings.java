@@ -31,6 +31,7 @@ public class DrawingSettings {
     private boolean drawPolygonEdges;
     private boolean drawVertices;
     private boolean drawHouses;
+    private boolean drawRiver;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -237,5 +238,12 @@ public class DrawingSettings {
     }
     public void setDrawHouses(boolean drawHouses) {
         this.drawHouses = drawHouses;
+    }
+
+    public boolean isDrawRiver() {
+        return drawRiver;
+    }
+    public void setDrawRiver(boolean drawRiver) {
+        this.drawRiver = drawRiver;
     }
 }

@@ -31,7 +31,7 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_Y = 50;
 
     private static int NUM_HEX_RADIUS = 14;
-    private static double HEX_RADIUS = 500;
+    private static double HEX_RADIUS = 600;
     private static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
     private final static double HEX_CENTER_Y = INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2;
@@ -94,18 +94,20 @@ public class PCGSimulation extends PApplet {
         drawingSettings.setShowNumAdjacentPolygons(true);
         drawingSettings.setDrawPolygonEdges(false);
         drawingSettings.setDrawVertices(false);
+        drawingSettings.setDrawHouses(true);
+        drawingSettings.setDrawRiver(false);
 
         mapGenerationSettings = new MapGenerationSettings();
         mapGenerationSettings.setPointExtension(true);
         HouseGenerationSettings houseGenerationSettings = new HouseGenerationSettings();
-        houseGenerationSettings.setDistanceFromEdge(50.0);
-        houseGenerationSettings.setDistanceFromEdgeWiggle(8.0);
-        houseGenerationSettings.setDistanceFromOther(16.0);
-        houseGenerationSettings.setDistanceFromOtherWiggle(4.0);
-        houseGenerationSettings.setHouseWidth(80.0);
-        houseGenerationSettings.setHouseWidthWiggle(60.0);
-        houseGenerationSettings.setHouseArea(6400.0);
-        houseGenerationSettings.setHouseAreaWiggle(2000.0);
+        houseGenerationSettings.setDistanceFromEdge(100.0);
+        houseGenerationSettings.setDistanceFromEdgeWiggle(16.0);
+        houseGenerationSettings.setDistanceFromOther(32.0);
+        houseGenerationSettings.setDistanceFromOtherWiggle(10.0);
+        houseGenerationSettings.setHouseWidth(160.0);
+        houseGenerationSettings.setHouseWidthWiggle(100.0);
+        houseGenerationSettings.setHouseArea(25600.0);
+        houseGenerationSettings.setHouseAreaWiggle(10000.0);
         mapGenerationSettings.setHouseGenerationSettings(houseGenerationSettings);
 
         // Drawing settings
@@ -500,7 +502,7 @@ public class PCGSimulation extends PApplet {
                 }));
         scrollbars.add(new AsynchronousScrollbar("Radius of each hex",
                 INPUT_WIDTH - 300, 150, 280, 20,
-                HEX_RADIUS, 100, 600,
+                HEX_RADIUS, 100, 1000,
                 ScrollbarMode.DOUBLE,this,
                 new CustomAssigner() {
                     @Override
@@ -620,6 +622,17 @@ public class PCGSimulation extends PApplet {
                 new CustomProcedure() {
                     @Override
                     public void proc() { drawingSettings.setDrawHouses(false);  }
+                }));
+        checkBoxes.add(new CheckBox("Draw river",
+                drawingSettings.isDrawRiver(),
+                INPUT_WIDTH - 300, 670, 280, 25, this,
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setDrawRiver(true); }
+                },
+                new CustomProcedure() {
+                    @Override
+                    public void proc() { drawingSettings.setDrawRiver(false);  }
                 }));
 
         // Set up drawer
@@ -764,36 +777,40 @@ public class PCGSimulation extends PApplet {
             endShape(CLOSE);
         }
 
+
         // Draw river polygon
-        color = DrawingConstants.POLYGON_RIVER_COLOR;
-        double[][] boundaryPts = riverPolygon.getBoundaryPoints();
-        if (camera.boundaryPointsAreVisible(boundaryPts)) {
-            // Determine the color of the polygon
-            double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
-            if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
-                stroke(color[0],color[1],color[2],150);
-                strokeWeight(4);
-            } else {
-                stroke(color[0],color[1],color[2],100);
-                strokeWeight(4);
+        double[][] boundaryPts;
+        if (drawingSettings.isDrawRiver()) {
+            color = DrawingConstants.POLYGON_RIVER_COLOR;
+            boundaryPts = riverPolygon.getBoundaryPoints();
+            if (camera.boundaryPointsAreVisible(boundaryPts)) {
+                // Determine the color of the polygon
+                double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
+                    stroke(color[0],color[1],color[2],150);
+                    strokeWeight(4);
+                } else {
+                    stroke(color[0],color[1],color[2],100);
+                    strokeWeight(4);
+                }
+                fill(color[0],color[1],color[2],128);
+                double ptBegX = boundaryPts[0][0];
+                double ptBegY = boundaryPts[0][1];
+                double[] ptBeg = camera.getDrawingPosition(ptBegX, ptBegY, terrain.getHeightFromPos(ptBegX, ptBegY));
+                vertex((float) ptBeg[0], (float) ptBeg[1]);
+                beginShape();
+                for (int i = 0; i < boundaryPts.length; i++) {
+                    double x = boundaryPts[i][0];
+                    double y = boundaryPts[i][1];
+                    double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
+                    curveVertex((float) drawingPt[0], (float) drawingPt[1]);
+                }
+                double ptEndX = boundaryPts[boundaryPts.length-1][0];
+                double ptEndY = boundaryPts[boundaryPts.length-1][1];
+                double[] ptEnd = camera.getDrawingPosition(ptEndX, ptEndY, terrain.getHeightFromPos(ptEndX, ptEndY));
+                curveVertex((float) ptEnd[0], (float) ptEnd[1]);
+                endShape(CLOSE);
             }
-            fill(color[0],color[1],color[2],128);
-            double ptBegX = boundaryPts[0][0];
-            double ptBegY = boundaryPts[0][1];
-            double[] ptBeg = camera.getDrawingPosition(ptBegX, ptBegY, terrain.getHeightFromPos(ptBegX, ptBegY));
-            vertex((float) ptBeg[0], (float) ptBeg[1]);
-            beginShape();
-            for (int i = 0; i < boundaryPts.length; i++) {
-                double x = boundaryPts[i][0];
-                double y = boundaryPts[i][1];
-                double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
-                curveVertex((float) drawingPt[0], (float) drawingPt[1]);
-            }
-            double ptEndX = boundaryPts[boundaryPts.length-1][0];
-            double ptEndY = boundaryPts[boundaryPts.length-1][1];
-            double[] ptEnd = camera.getDrawingPosition(ptEndX, ptEndY, terrain.getHeightFromPos(ptEndX, ptEndY));
-            curveVertex((float) ptEnd[0], (float) ptEnd[1]);
-            endShape(CLOSE);
         }
 
         // Draw city center polygon
