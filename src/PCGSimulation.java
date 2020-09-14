@@ -31,7 +31,7 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_Y = 50;
 
     private static int NUM_HEX_RADIUS = 14;
-    private static double HEX_RADIUS = 300;
+    private static double HEX_RADIUS = 500;
     private static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
     private final static double HEX_CENTER_Y = INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2;
@@ -103,9 +103,9 @@ public class PCGSimulation extends PApplet {
         houseGenerationSettings.setDistanceFromOther(16.0);
         houseGenerationSettings.setDistanceFromOtherWiggle(4.0);
         houseGenerationSettings.setHouseWidth(80.0);
-        houseGenerationSettings.setHouseWidthWiggle(30.0);
-        houseGenerationSettings.setHouseLength(80.0);
-        houseGenerationSettings.setHouseLengthWiggle(60.0);
+        houseGenerationSettings.setHouseWidthWiggle(60.0);
+        houseGenerationSettings.setHouseArea(6400.0);
+        houseGenerationSettings.setHouseAreaWiggle(2000.0);
         mapGenerationSettings.setHouseGenerationSettings(houseGenerationSettings);
 
         // Drawing settings

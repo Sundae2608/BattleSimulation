@@ -7,8 +7,8 @@ public class HouseGenerationSettings {
     private double distanceFromOtherWiggle;
     private double houseWidth;
     private double houseWidthWiggle;
-    private double houseLength;
-    private double HouseLengthWiggle;
+    private double houseArea;
+    private double houseAreaWiggle;
 
     public double getDistanceFromEdge() {
         return distanceFromEdge;
@@ -52,17 +52,17 @@ public class HouseGenerationSettings {
         this.houseWidthWiggle = houseWidthWiggle;
     }
 
-    public double getHouseLength() {
-        return houseLength;
+    public double getHouseArea() {
+        return houseArea;
     }
-    public void setHouseLength(double houseLength) {
-        this.houseLength = houseLength;
+    public void setHouseArea(double houseArea) {
+        this.houseArea = houseArea;
     }
 
-    public double getHouseLengthWiggle() {
-        return HouseLengthWiggle;
+    public double getHouseAreaWiggle() {
+        return houseAreaWiggle;
     }
-    public void setHouseLengthWiggle(double houseLengthWiggle) {
-        HouseLengthWiggle = houseLengthWiggle;
+    public void setHouseAreaWiggle(double houseAreaWiggle) {
+        this.houseAreaWiggle = houseAreaWiggle;
     }
 }

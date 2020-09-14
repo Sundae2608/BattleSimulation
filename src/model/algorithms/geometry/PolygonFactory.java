@@ -51,14 +51,16 @@ public class PolygonFactory {
 
         // Generate the left-side houses
         ArrayList<Polygon> polygons = new ArrayList<>();
-        double currentDist = settings.getHouseLength();
+        double currentDist = settings.getHouseWidth();
         while (true) {
             // Generate a house if possible
             double width = settings.getHouseWidth() +
                     MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getHouseLength()) break;
-            double length = settings.getHouseLength() +
-                    MathUtils.randDouble(-settings.getHouseLengthWiggle(), settings.getHouseLengthWiggle());
+            if (currentDist + width > roadDistance - settings.getHouseWidth()) break;
+            double area = settings.getHouseArea() +
+                    MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
+            double length = area / width;
+            System.out.println(String.valueOf(width) + " " + String.valueOf(length));
             double distFromEdge = settings.getDistanceFromEdge() +
                     MathUtils.randDouble(-settings.getDistanceFromEdgeWiggle(), settings.getDistanceFromEdgeWiggle());
             Polygon polygon = generateHouseBoundaryPoints(
@@ -87,7 +89,7 @@ public class PolygonFactory {
         }
 
         // Generate the right-side houses
-        currentDist = settings.getHouseLength();
+        currentDist = settings.getHouseWidth();
         beginX = vertex2.x;
         beginY = vertex2.y;
         angle = angle + Math.PI;
@@ -95,9 +97,11 @@ public class PolygonFactory {
             // Generate a house if possible
             double width = settings.getHouseWidth() +
                     MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getHouseLength()) break;
-            double length = settings.getHouseLength() +
-                    MathUtils.randDouble(-settings.getHouseLengthWiggle(), settings.getHouseLengthWiggle());
+            if (currentDist + width > roadDistance - settings.getHouseWidth()) break;
+            double area = settings.getHouseArea() +
+                    MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
+            double length = area / width;
+            System.out.println(String.valueOf(width) + " " + String.valueOf(length));
             double distFromEdge = settings.getDistanceFromEdge() +
                     MathUtils.randDouble(-settings.getDistanceFromEdgeWiggle(), settings.getDistanceFromEdgeWiggle());
             Polygon polygon = generateHouseBoundaryPoints(
