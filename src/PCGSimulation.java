@@ -561,7 +561,7 @@ public class PCGSimulation extends PApplet {
                 INPUT_WIDTH - 300, 430, 280, 20, this, new CustomProcedure() {
             @Override
             public void proc() {
-                cityGenerationSeed = (int) Math.random();
+                cityGenerationSeed = (int) (Integer.MAX_VALUE * Math.random());
                 resetContentGeneration();
             }
         });
