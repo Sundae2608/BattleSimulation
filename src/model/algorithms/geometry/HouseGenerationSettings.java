@@ -5,6 +5,7 @@ public class HouseGenerationSettings {
     private double distanceFromEdgeWiggle;
     private double distanceFromOther;
     private double distanceFromOtherWiggle;
+    private double distanceFromCrossRoad;
     private double houseWidth;
     private double houseWidthWiggle;
     private double houseArea;
@@ -36,6 +37,13 @@ public class HouseGenerationSettings {
     }
     public void setDistanceFromOtherWiggle(double distanceFromOtherWiggle) {
         this.distanceFromOtherWiggle = distanceFromOtherWiggle;
+    }
+
+    public double getDistanceFromCrossRoad() {
+        return distanceFromCrossRoad;
+    }
+    public void setDistanceFromCrossRoad(double distanceFromCrossRoad) {
+        this.distanceFromCrossRoad = distanceFromCrossRoad;
     }
 
     public double getHouseWidth() {
