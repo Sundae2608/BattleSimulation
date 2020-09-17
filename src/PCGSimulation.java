@@ -108,6 +108,7 @@ public class PCGSimulation extends PApplet {
         houseGenerationSettings.setHouseWidthWiggle(100.0);
         houseGenerationSettings.setHouseArea(25600.0);
         houseGenerationSettings.setHouseAreaWiggle(10000.0);
+        houseGenerationSettings.setDistanceFromCrossRoad(100.0);
         mapGenerationSettings.setHouseGenerationSettings(houseGenerationSettings);
 
         // Drawing settings

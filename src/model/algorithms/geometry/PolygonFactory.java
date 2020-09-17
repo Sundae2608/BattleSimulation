@@ -51,12 +51,12 @@ public class PolygonFactory {
 
         // Generate the left-side houses
         ArrayList<Polygon> polygons = new ArrayList<>();
-        double currentDist = settings.getDistanceFromEdge();
+        double currentDist = settings.getDistanceFromCrossRoad();
         while (true) {
             // Generate a house if possible
             double width = settings.getHouseWidth() +
                     MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getDistanceFromEdge()) break;
+            if (currentDist + width > roadDistance - settings.getDistanceFromCrossRoad()) break;
             double area = settings.getHouseArea() +
                     MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
             double length = area / width;
@@ -88,7 +88,7 @@ public class PolygonFactory {
         }
 
         // Generate the right-side houses
-        currentDist = settings.getDistanceFromEdge();
+        currentDist = settings.getDistanceFromCrossRoad();
         beginX = vertex2.x;
         beginY = vertex2.y;
         angle = angle + Math.PI;
@@ -96,7 +96,7 @@ public class PolygonFactory {
             // Generate a house if possible
             double width = settings.getHouseWidth() +
                     MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getDistanceFromEdge()) break;
+            if (currentDist + width > roadDistance - settings.getDistanceFromCrossRoad()) break;
             double area = settings.getHouseArea() +
                     MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
             double length = area / width;
