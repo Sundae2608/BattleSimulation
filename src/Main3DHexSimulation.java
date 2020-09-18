@@ -131,6 +131,7 @@ public class Main3DHexSimulation extends PApplet {
         gameSettings.setEnableFlankingMechanics(true);
         gameSettings.setCountWrongFormationChanges(true);
         gameSettings.setProcessSoundBounce(false);
+        gameSettings.setUseRoundedSurfaceCollision(true);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
