@@ -23,6 +23,10 @@ public class GameSettings {
     // Count the number of erroneous formation changes.
     private boolean countWrongFormationChanges;
 
+    // If true, we will round down the surface data into grids of binary collision, which makes the collision checking
+    // between troops and surface a lot faster but inaccurate.
+    private boolean useRoundedSurfaceCollision;
+
     // Intention skipping settings
     private int unitIntentionSkipping;
     private int singleIntentionSkipping;
@@ -104,5 +108,12 @@ public class GameSettings {
     }
     public void setProcessSoundBounce(boolean processSoundBounce) {
         this.processSoundBounce = processSoundBounce;
+    }
+
+    public boolean isUseRoundedSurfaceCollision() {
+        return useRoundedSurfaceCollision;
+    }
+    public void setUseRoundedSurfaceCollision(boolean useRoundedSurfaceCollision) {
+        this.useRoundedSurfaceCollision = useRoundedSurfaceCollision;
     }
 }

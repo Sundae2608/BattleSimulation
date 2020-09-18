@@ -4,7 +4,9 @@ import model.enums.SurfaceType;
 import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.surface.Tree;
+import model.utils.PhysicUtils;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,31 +17,68 @@ public class SurfaceHasher {
     private ArrayList<BaseSurface> surfaces;
     private ArrayList<Tree> trees;
 
-    // Hash view.map containing
-    private HashMap<Long, ArrayList<Tree>> hashMap;
+    // Hash map containing trees
+    private HashMap<Long, ArrayList<Tree>> treeHashMap;
+    private HashMap<Long, ArrayList<BaseSurface>> surfaceHashMap;
 
     public SurfaceHasher(int xDivision, int yDivision, ArrayList<BaseSurface> inputSurfaces) {
         xDiv = xDivision;
         yDiv = yDivision;
         surfaces = inputSurfaces;
         trees = new ArrayList<>();
+        treeHashMap = new HashMap<>();
+        surfaceHashMap = new HashMap<>();
+
+        // Add surface to surface hash map
         for (BaseSurface surface : surfaces) {
+            int minXHash = Integer.MAX_VALUE;
+            int maxXHash = Integer.MIN_VALUE;
+            int minYHash = Integer.MAX_VALUE;
+            int maxYHash = Integer.MIN_VALUE;
+            for (double[] pt : surface.getSurfaceBoundary()) {
+                int xHash = (int) pt[0] / xDiv;
+                int yHash = (int) pt[1] / yDiv;
+                if (xHash > maxXHash) {
+                    maxXHash = xHash;
+                }
+                if (xHash < minXHash) {
+                    minXHash = xHash;
+                }
+                if (yHash > minYHash) {
+                    maxYHash = yHash;
+                }
+                if (yHash < minYHash) {
+                    minYHash = yHash;
+                }
+            }
+
+            for (int i = minXHash; i < maxXHash; i++) {
+                for (int j = minYHash; j < maxYHash; j++) {
+                    double x = i * xDiv + xDiv / 2;
+                    double y = j * yDiv + yDiv / 2;
+                    if (PhysicUtils.checkPolygonPointCollision(surface.getSurfaceBoundary(), x, y)) {
+                        long hash = pairHash(i, j);
+                        if (!surfaceHashMap.containsKey(hash)) treeHashMap.put(hash, new ArrayList<>());
+                        surfaceHashMap.get(hash).add(surface);
+                    }
+                }
+            }
+
+            // It it is a forest, we add the trees in
             if (surface.getType() == SurfaceType.FOREST) {
                 for (Tree tree : ((ForestSurface) surface).getTrees()) {
                     trees.add(tree);
                 }
             }
         }
-        hashMap = new HashMap<>();
 
-        // TODO: Hash all surfaces. Construct only needs to be hashed once.
-        //  Do this when there is a lot of objects. Currently, always doing the check is not too expensive.
+        // Add tree object to tree hash map
         for (Tree tree : trees) {
             int xHash = (int)tree.getX() / xDiv;
             int yHash = (int)tree.getY() / yDiv;
             long hash = pairHash(xHash, yHash);
-            if (!hashMap.containsKey(hash)) hashMap.put(hash, new ArrayList<>());
-            hashMap.get(hash).add(tree);
+            if (!treeHashMap.containsKey(hash)) treeHashMap.put(hash, new ArrayList<>());
+            treeHashMap.get(hash).add(tree);
         }
     }
 
@@ -47,7 +86,10 @@ public class SurfaceHasher {
      * Return the list of potential surface candidates based on position (x, y).
      */
     public ArrayList<BaseSurface> getCandidateSurfaces(double x, double y) {
-        return surfaces;
+        int xHash = (int) x / xDiv;
+        int yHash = (int) y / yDiv;
+        long hash = pairHash(xHash, yHash);
+        return surfaceHashMap.get(hash);
     }
 
     /**
@@ -61,8 +103,8 @@ public class SurfaceHasher {
         for (int i = xHash - 1; i < xHash + 2; i++) {
             for (int j = yHash - 1; j < yHash + 2; j++) {
                 long hash = pairHash(i, j);
-                if (!hashMap.containsKey(hash)) continue;
-                for (Tree tree : hashMap.get(hash)) {
+                if (!treeHashMap.containsKey(hash)) continue;
+                for (Tree tree : treeHashMap.get(hash)) {
                     returnTrees.add(tree);
                 }
             }

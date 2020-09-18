@@ -144,7 +144,8 @@ public class UnitModifier {
             ArrayList<BaseSurface> candidateSurfaces =
                     surfaceHasher.getCandidateSurfaces(single.getX(), single.getY());
             for (BaseSurface surface : candidateSurfaces) {
-                if (PhysicUtils.checkSurfaceAndTroopPositionCollision(surface, single)) {
+                if (gameSettings.isUseRoundedSurfaceCollision() ||
+                        PhysicUtils.checkSurfaceAndTroopPositionCollision(surface, single)) {
                     surface.impactSingle(single);
                 }
                 monitor.count(MonitorEnum.COLLISION_TROOP_AND_TERRAIN);
