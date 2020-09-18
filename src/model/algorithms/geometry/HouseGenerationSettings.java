@@ -1,5 +1,7 @@
 package model.algorithms.geometry;
 
+import model.settings.MapGenerationMode;
+
 public class HouseGenerationSettings {
     private double distanceFromEdge;
     private double distanceFromEdgeWiggle;
@@ -10,6 +12,7 @@ public class HouseGenerationSettings {
     private double houseWidthWiggle;
     private double houseArea;
     private double houseAreaWiggle;
+    private MapGenerationMode mapGenerationMode;
 
     public double getDistanceFromEdge() {
         return distanceFromEdge;
@@ -72,5 +75,12 @@ public class HouseGenerationSettings {
     }
     public void setHouseAreaWiggle(double houseAreaWiggle) {
         this.houseAreaWiggle = houseAreaWiggle;
+    }
+
+    public MapGenerationMode getMapGenerationMode() {
+        return mapGenerationMode;
+    }
+    public void setMapGenerationMode(MapGenerationMode mapGenerationMode) {
+        this.mapGenerationMode = mapGenerationMode;
     }
 }

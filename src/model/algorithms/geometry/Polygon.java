@@ -1,6 +1,9 @@
 package model.algorithms.geometry;
 
+import model.utils.MathUtils;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class Polygon {
@@ -25,8 +28,8 @@ public class Polygon {
         entityType = EntityType.DEFAULT;
     }
 
-    public Polygon(HashSet<Vertex> inputVertexs, HashSet<Edge> inputEdges) {
-        vertices = inputVertexs;
+    public Polygon(HashSet<Vertex> inputVertices, HashSet<Edge> inputEdges) {
+        vertices = inputVertices;
         edges = inputEdges;
         entityType = EntityType.DEFAULT;
     }
@@ -49,6 +52,7 @@ public class Polygon {
 
     /**
      * Return the list of edges in the order that makes them connect to each other and becomes polygons.
+     * The vertices will be in counter-clockwise order.
      */
     public ArrayList<Vertex> getOrderedVertices() {
         ArrayList<Vertex> orderedList = new ArrayList<>();
@@ -77,6 +81,22 @@ public class Polygon {
                 }
             }
             if (!found) break;
+        }
+
+        // Calculate the sum of angles, and possibly reverse the list of ordering based on this sum to make sure the
+        // vertices are returned in clockwise order.
+        double sumAngle = 0;
+        int numVertices = orderedList.size();
+        for (int i = 0; i < numVertices; i++) {
+            Vertex v1 = orderedList.get(i);
+            Vertex v2 = orderedList.get((i + 1) % numVertices);
+            Vertex v3 = orderedList.get((i + 2) % numVertices);
+            sumAngle += MathUtils.angleFromPts(v1.x, v1.y, v2.x, v2.y, v3.x, v3.y);
+        }
+
+        // If the sum of angle is equal to (n + 2) * PI, then we should reverse the ordered list.
+        if (MathUtils.doubleEqual(sumAngle, (numVertices + 2) * Math.PI)) {
+            Collections.reverse(orderedList);
         }
         return orderedList;
     }

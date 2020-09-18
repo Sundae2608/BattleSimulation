@@ -32,6 +32,7 @@ public class DrawingSettings {
     private boolean drawVertices;
     private boolean drawHouses;
     private boolean drawRiver;
+    private boolean drawRiverAsCurved;
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -245,5 +246,12 @@ public class DrawingSettings {
     }
     public void setDrawRiver(boolean drawRiver) {
         this.drawRiver = drawRiver;
+    }
+
+    public boolean isDrawRiverAsCurved() {
+        return drawRiverAsCurved;
+    }
+    public void setDrawRiverAsCurved(boolean drawRiverAsCurved) {
+        this.drawRiverAsCurved = drawRiverAsCurved;
     }
 }
