@@ -1,5 +1,6 @@
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import model.algorithms.geometry.*;
+import model.settings.MapGenerationMode;
 import model.utils.PhysicUtils;
 import view.components.*;
 import model.settings.MapGenerationSettings;
@@ -96,6 +97,7 @@ public class PCGSimulation extends PApplet {
         drawingSettings.setDrawVertices(false);
         drawingSettings.setDrawHouses(true);
         drawingSettings.setDrawRiver(false);
+        drawingSettings.setDrawRiverAsCurved(false);
 
         mapGenerationSettings = new MapGenerationSettings();
         mapGenerationSettings.setPointExtension(true);
@@ -108,6 +110,8 @@ public class PCGSimulation extends PApplet {
         houseGenerationSettings.setHouseWidthWiggle(100.0);
         houseGenerationSettings.setHouseArea(25600.0);
         houseGenerationSettings.setHouseAreaWiggle(10000.0);
+        houseGenerationSettings.setDistanceFromCrossRoad(100.0);
+        houseGenerationSettings.setMapGenerationMode(MapGenerationMode.POLYGON_BASED);
         mapGenerationSettings.setHouseGenerationSettings(houseGenerationSettings);
 
         // Drawing settings
@@ -316,7 +320,6 @@ public class PCGSimulation extends PApplet {
          * TODO: Need to figure out how to extend a path into an object.
          */
 
-
         // A set that keeps tracked of all merged polygons.
         HashSet<Polygon> mergedPolygonSet = new HashSet<>();
 
@@ -448,11 +451,22 @@ public class PCGSimulation extends PApplet {
         // Create houses
         polygonHouses = new ArrayList<>();
         polygonHasher = new PolygonHasher(INPUT_DIV, INPUT_DIV);
-        for (Edge e : outerWallSystem.getEdges()) {
-            ArrayList<Polygon> newHouses = polygonFactory.createHousePolygonsFromEdge(
-                    e, mapGenerationSettings.getHouseGenerationSettings(), polygonHasher);
-            for (Polygon p : newHouses) {
-                polygonHouses.add(p);
+        if (mapGenerationSettings.getHouseGenerationSettings().getMapGenerationMode() ==
+                MapGenerationMode.EDGE_BASED) {
+            for (Edge e : outerWallSystem.getEdges()) {
+                ArrayList<Polygon> newHouses = polygonFactory.createHousePolygonsFromEdge(
+                        e, mapGenerationSettings.getHouseGenerationSettings(), polygonHasher);
+                for (Polygon p : newHouses) {
+                    polygonHouses.add(p);
+                }
+            }
+        } else {
+            for (Polygon p : outerWallSystem.getPolygons()) {
+                ArrayList<Polygon> newHouses = polygonFactory.createHousePolygonsFromPolygon(
+                        p, mapGenerationSettings.getHouseGenerationSettings(), polygonHasher);
+                for (Polygon polygon : newHouses) {
+                    polygonHouses.add(polygon);
+                }
             }
         }
     }
@@ -794,21 +808,17 @@ public class PCGSimulation extends PApplet {
                     strokeWeight(4);
                 }
                 fill(color[0],color[1],color[2],128);
-                double ptBegX = boundaryPts[0][0];
-                double ptBegY = boundaryPts[0][1];
-                double[] ptBeg = camera.getDrawingPosition(ptBegX, ptBegY, terrain.getHeightFromPos(ptBegX, ptBegY));
-                vertex((float) ptBeg[0], (float) ptBeg[1]);
                 beginShape();
                 for (int i = 0; i < boundaryPts.length; i++) {
                     double x = boundaryPts[i][0];
                     double y = boundaryPts[i][1];
                     double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
-                    curveVertex((float) drawingPt[0], (float) drawingPt[1]);
+                    if (drawingSettings.isDrawRiverAsCurved()) {
+                        curveVertex((float) drawingPt[0], (float) drawingPt[1]);
+                    } else {
+                        vertex((float) drawingPt[0], (float) drawingPt[1]);
+                    }
                 }
-                double ptEndX = boundaryPts[boundaryPts.length-1][0];
-                double ptEndY = boundaryPts[boundaryPts.length-1][1];
-                double[] ptEnd = camera.getDrawingPosition(ptEndX, ptEndY, terrain.getHeightFromPos(ptEndX, ptEndY));
-                curveVertex((float) ptEnd[0], (float) ptEnd[1]);
                 endShape(CLOSE);
             }
         }

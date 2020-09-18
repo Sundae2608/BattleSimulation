@@ -27,11 +27,73 @@ public class PolygonFactory {
     }
 
     /**
+     * Create house polygons that are inside of the main Polygon.
+     */
+    public ArrayList<Polygon> createHousePolygonsFromPolygon(
+            Polygon polygon, HouseGenerationSettings settings, PolygonHasher hasher) {
+        // Go through each edge of the polygon in clockwise order, and generate all the houses on the left side.
+        ArrayList<Polygon> returnPolygons = new ArrayList<>();
+        ArrayList<Vertex> verticesList = polygon.getOrderedVertices();
+        int numPts = verticesList.size();
+        for (int i = 0; i < numPts; i++) {
+            Vertex v1 = verticesList.get(i);
+            Vertex v2 = verticesList.get((i + 1) % numPts);
+            double roadDistance = MathUtils.quickDistance(v1.x, v1.y, v2.x, v2.y);
+            double angle = MathUtils.atan2(v2.y - v1.y, v2.x - v1.x);
+            double beginX = v1.x;
+            double beginY = v1.y;
+            double roadUnitX = MathUtils.quickCos((float) angle);
+            double roadUnitY = MathUtils.quickSin((float) angle);
+            double rightSideUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+            double rightSideUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+
+            // Generate the left-side houses
+            double currentDist = settings.getDistanceFromCrossRoad();
+
+            while (true) {
+                // Generate a house if possible
+                double width = settings.getHouseWidth() +
+                        MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
+                if (currentDist + width > roadDistance) break;
+                double area = settings.getHouseArea() +
+                        MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
+                double length = area / width;
+                double distFromEdge = settings.getDistanceFromEdge() +
+                        MathUtils.randDouble(-settings.getDistanceFromEdgeWiggle(), settings.getDistanceFromEdgeWiggle());
+                Polygon newPolygon = generateHouseBoundaryPoints(
+                        beginX + roadUnitX * currentDist + distFromEdge * rightSideUnitX,
+                        beginY + roadUnitY * currentDist + distFromEdge * rightSideUnitY,
+                        angle, width, length);
+                newPolygon.setEntityType(EntityType.HOUSE);
+
+                // Check the newly generated house with the hasher and make sure that it does not collide with existing
+                // house
+                boolean collide = false;
+                for (Polygon p : hasher.getCollisionObjects(newPolygon)) {
+                    if (PhysicUtils.checkPolygonPolygonCollision(
+                            p.getBoundaryPoints(), newPolygon.getBoundaryPoints())) {
+                        collide = true;
+                        break;
+                    };
+                }
+                if (!collide) {
+                    returnPolygons.add(newPolygon);
+                    hasher.addObject(newPolygon);
+                }
+                double distFromHouse = settings.getDistanceFromOther() +
+                        MathUtils.randDouble(-settings.getDistanceFromOtherWiggle(), settings.getDistanceFromEdgeWiggle());
+                currentDist = currentDist + width + distFromHouse;
+            }
+        }
+        return returnPolygons;
+    }
+
+    /**
      * Create a list of rectangular polygons representing houses along the edge, which supposedly represent the streets.
      * @param e The edge in question
      * @param settings Settings to generate house
-     * @param hasher
-     * @return
+     * @param hasher A hasher which hashed all polygons to ensure generated polygons do not overlap.
+     * @return The list of polygons, each of which representing a house.
      */
     public ArrayList<Polygon> createHousePolygonsFromEdge(
             Edge e, HouseGenerationSettings settings, PolygonHasher hasher) {
@@ -51,12 +113,12 @@ public class PolygonFactory {
 
         // Generate the left-side houses
         ArrayList<Polygon> polygons = new ArrayList<>();
-        double currentDist = settings.getDistanceFromEdge();
+        double currentDist = settings.getDistanceFromCrossRoad();
         while (true) {
             // Generate a house if possible
             double width = settings.getHouseWidth() +
                     MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getDistanceFromEdge()) break;
+            if (currentDist + width > roadDistance - settings.getDistanceFromCrossRoad()) break;
             double area = settings.getHouseArea() +
                     MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
             double length = area / width;
@@ -88,7 +150,7 @@ public class PolygonFactory {
         }
 
         // Generate the right-side houses
-        currentDist = settings.getDistanceFromEdge();
+        currentDist = settings.getDistanceFromCrossRoad();
         beginX = vertex2.x;
         beginY = vertex2.y;
         angle = angle + Math.PI;
@@ -96,7 +158,7 @@ public class PolygonFactory {
             // Generate a house if possible
             double width = settings.getHouseWidth() +
                     MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getDistanceFromEdge()) break;
+            if (currentDist + width > roadDistance - settings.getDistanceFromCrossRoad()) break;
             double area = settings.getHouseArea() +
                     MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
             double length = area / width;
