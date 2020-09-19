@@ -462,6 +462,8 @@ public class Main3DHexSimulation extends PApplet {
                 for (int i = 0; i < pts.length; i++) {
                     // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
                     //  though it is a very static value.
+                    //  It is probably okay to keep the has map inside a drawer. Call it a TerrainDrawer or something.
+                    //  This would perfectly fit the philosophy of the drawers.
                     double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
                             env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
                     vertex((float) drawingPts[0], (float) drawingPts[1]);
