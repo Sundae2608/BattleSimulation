@@ -47,15 +47,67 @@ public class TreeHasher {
 
         // Add objects into hashmap with key according to their position
         ArrayList<Tree> newObjects = new ArrayList<>();
+
         for (Tree obj : objects) {
+            ArrayList<Integer> xHashes = new ArrayList<Integer>();
+            ArrayList<Integer>  yHashes = new ArrayList<Integer>();
+
             // Assign Tree object to correct position
-            int xHash = (int)obj.getX() / xDiv;
-            int yHash = (int)obj.getY() / yDiv;
-            long key = pairHash(xHash, yHash);
-            if (!hashMap.containsKey(key)) {
-                hashMap.put(key, new ArrayList<>());
+            double X = obj.getX();
+            double Y = obj.getY();
+            double radius = obj.getRadius();
+
+            // Checking whether a tree is in multiple squares at the same time.
+            // The maximum number of squares that a tree can be in is 4.
+            // Here, we consider a tree to be inside a square.
+            int xHash1 = (int) ((X - radius)/xDiv);
+            int xHash2 = (int) ((X + radius)/xDiv);
+
+            int yHash1 = (int) ((Y - radius)/yDiv);
+            int yHash2 = (int) ((Y + radius)/yDiv);
+
+            if (xHash1 == xHash2){
+                if (yHash1 == yHash2){
+                    // List is be hashed has 1 tree
+                    xHashes.add(xHash1);
+                    yHashes.add(yHash1);
+                } else {
+                    // List is be hashed has 2 trees
+                    xHashes.add(xHash1);
+                    yHashes.add(yHash1);
+                    xHashes.add(xHash2);
+                    yHashes.add(yHash2);
+                }
+            } else {
+                if (yHash1 == yHash2){
+                    // List is be hashed has 2 trees
+                    xHashes.add(xHash1);
+                    yHashes.add(yHash1);
+                    xHashes.add(xHash2);
+                    yHashes.add(yHash2);
+                } else {
+                    // List is be hashed has 4 trees
+                    xHashes.add(xHash1);
+                    yHashes.add(yHash1);
+
+                    xHashes.add(xHash1);
+                    yHashes.add(yHash2);
+
+                    xHashes.add(xHash2);
+                    yHashes.add(yHash1);
+
+                    xHashes.add(xHash2);
+                    yHashes.add(yHash2);
+                }
             }
-            hashMap.get(key).add(obj);
+
+            for (int i = 0; i<xHashes.size(); i++){
+                long key = pairHash(xHashes.get(i), yHashes.get(i));
+                if (!hashMap.containsKey(key)) {
+                    hashMap.put(key, new ArrayList<>());
+                }
+                hashMap.get(key).add(obj);
+            }
 
             // Add to new list of objects. This is so that new object list has all the dead troops cleared out of the
             // collision field
@@ -83,26 +135,12 @@ public class TreeHasher {
         int xHash = (int) x / xDiv;
         int yHash = (int) y / yDiv;
 
-        // Getting the current integer cell as well as 8 neighboring cells
-        int[] hashAdder = new int[] {-1, 0, 1};
-        ArrayList<Integer> xHashes = new ArrayList<Integer>();
-        ArrayList<Integer>  yHashes = new ArrayList<Integer>();
-
-        for (int i : hashAdder){
-            for (int j : hashAdder){
-                xHashes.add(xHash + (Integer)hashAdder[i]);
-                yHashes.add(yHash + (Integer)hashAdder[j]);
-            }
-        }
-
-        // Getting a list of trees in those 9 cells
         ArrayList<Tree> trees = new ArrayList<>();
-        for (int i = 1; i < xHashes.size(); i++) {
-            long key = pairHash((int) xHashes.get(i), (int) yHashes.get(i));
+            long key = pairHash((int) xHash, (int) yHash);
             if (hashMap.get(key) != null) {
                 trees.addAll(hashMap.get(key));
             }
-        }
+
         return trees;
     }
 
