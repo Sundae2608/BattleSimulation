@@ -272,6 +272,64 @@ public class PolygonSystem {
         return newPolygon;
     }
 
+    public void cutPolygon(Polygon polygon, double[] pointA, double[] pointB) {
+        // Make sure that both points A and B are outside of the polygon
+
+        // Find intersections between each edge and the line AB
+        List<double[]> intersectionPoints = new ArrayList<>();
+        for (Edge edge : polygon.getEdges()) {
+            intersectionPoints.add(findIntersectionPoint(edge.getVertex1().getPt(), edge.getVertex2().getPt(),
+                    pointA, pointB));
+        }
+
+    }
+
+    private double[] findIntersectionPoint(double[] pointA, double[] pointB, double[] pointC, double[] pointD) {
+        // line AB: a1x + b1y = c1
+        double a1 = pointB[1] - pointA[1];
+        double b1 = pointA[0] - pointB[0];
+        double c1 = a1*pointA[0] - b1*pointA[1];
+
+        double a2 = pointD[1] - pointC[1];
+        double b2 = pointC[0] - pointD[0];
+        double c2 = a2*pointC[0] - b2*pointC[1];
+
+        boolean isParallel = a1*b2 - a2*b1 == 0;
+
+        if (isParallel) {
+            return null;
+        } else {
+            double[] result = new double[2];
+            result[0] = (b2*c1 - b1*c2)/(a1*b2 - a2*b1);
+            result[1] = (a1*c2 - a2*c1)/(a1*b2 - a2*b1);
+
+            // make sure that the intersection point is inside the 2 input lines
+            if (isPointInMiddle(pointA, pointB, result) && isPointInMiddle(pointC, pointD, result)) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Determine if C is between A and B
+     * @return
+     */
+    private boolean isPointInMiddle(double[] pointA, double[] pointB, double[] pointC) {
+        boolean xInMiddle = false;
+
+        if ((pointC[0] >= pointA[0] && pointC[0] <= pointB[0]) || (pointC[0] <= pointA[0] && pointC[0] >= pointB[0])) {
+            xInMiddle = true;
+        }
+
+        boolean yInMiddle = false;
+        if ((pointC[1] >= pointA[1] && pointC[1] <= pointB[1]) || (pointC[1] <= pointA[1] && pointC[1] >= pointB[1])) {
+            yInMiddle = true;
+        }
+
+        return xInMiddle && yInMiddle;
+    }
+
     /**
      * Merge multiple polygons together given a list of polygons.
      */
