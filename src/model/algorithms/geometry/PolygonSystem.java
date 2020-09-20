@@ -1,6 +1,5 @@
 package model.algorithms.geometry;
 
-import model.algorithms.pathfinding.Node;
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 
@@ -9,33 +8,70 @@ import java.util.*;
 public class PolygonSystem {
 
     // Object sets
-    HashSet<Node> nodes;
+    HashSet<Vertex> vertices;
     HashSet<Edge> edges;
     HashSet<Polygon> polygons;
 
     // Relational maps
-    HashMap<Node, HashSet<Edge>> nodeToEdgeMap;
-    HashMap<Node, HashSet<Polygon>> nodeToPolygonMap;
+    HashMap<Vertex, HashSet<Edge>> vertexToEdgeMap;
+    HashMap<Vertex, HashSet<Polygon>> vertexToPolygonMap;
     HashMap<Edge, HashSet<Polygon>> edgeToPolygonMap;
 
     public PolygonSystem() {
-        nodes = new HashSet<>();
+        vertices = new HashSet<>();
         edges = new HashSet<>();
         polygons = new HashSet<>();
 
-        nodeToEdgeMap = new HashMap<>();
-        nodeToPolygonMap = new HashMap<>();
+        vertexToEdgeMap = new HashMap<>();
+        vertexToPolygonMap = new HashMap<>();
         edgeToPolygonMap = new HashMap<>();
     }
 
+    /**
+     * Construct a new polygon system based on the input polygons
+     */
+    public PolygonSystem(HashSet<Polygon> inputPolygons) {
+        vertices = new HashSet<>();
+        edges = new HashSet<>();
+        polygons = new HashSet<>();
+
+        vertexToEdgeMap = new HashMap<>();
+        vertexToPolygonMap = new HashMap<>();
+        edgeToPolygonMap = new HashMap<>();
+
+        for (Polygon p : inputPolygons) {
+            addPolygon(p);
+        }
+    }
+
+    /**
+     * Construct a new polygon system based on the input polygons
+     */
+    public PolygonSystem(List<Polygon> inputPolygons) {
+        vertices = new HashSet<>();
+        edges = new HashSet<>();
+        polygons = new HashSet<>();
+
+        vertexToEdgeMap = new HashMap<>();
+        vertexToPolygonMap = new HashMap<>();
+        edgeToPolygonMap = new HashMap<>();
+
+        for (Polygon p : inputPolygons) {
+            addPolygon(p);
+        }
+    }
+
+    /**
+     * Add a new polygon to the polygon system
+     */
     public void addPolygon(Polygon polygon) {
         polygons.add(polygon);
-        for (Node node : polygon.getNodes()) {
-            if (!nodeToPolygonMap.containsKey(node)) {
-                nodeToPolygonMap.put(node, new HashSet<>());
+        for (Vertex v : polygon.getVertices()) {
+            if (!vertexToPolygonMap.containsKey(v)) {
+                vertexToPolygonMap.put(v, new HashSet<>());
             }
-            nodes.add(node);
-            nodeToPolygonMap.get(node).add(polygon);
+            vertices.add(v);
+            vertexToPolygonMap.get(v).add(polygon);
         }
 
         for (Edge edge : polygon.getEdges()) {
@@ -45,32 +81,35 @@ public class PolygonSystem {
             edges.add(edge);
             edgeToPolygonMap.get(edge).add(polygon);
 
-            if (!nodeToEdgeMap.containsKey(edge.node1)) {
-                nodeToEdgeMap.put(edge.node1, new HashSet<>());
+            if (!vertexToEdgeMap.containsKey(edge.vertex1)) {
+                vertexToEdgeMap.put(edge.vertex1, new HashSet<>());
             }
-            nodeToEdgeMap.get(edge.node1).add(edge);
+            vertexToEdgeMap.get(edge.vertex1).add(edge);
 
-            if (!nodeToEdgeMap.containsKey(edge.node2)) {
-                nodeToEdgeMap.put(edge.node2, new HashSet<>());
+            if (!vertexToEdgeMap.containsKey(edge.vertex2)) {
+                vertexToEdgeMap.put(edge.vertex2, new HashSet<>());
             }
-            nodeToEdgeMap.get(edge.node2).add(edge);
+            vertexToEdgeMap.get(edge.vertex2).add(edge);
         }
     }
 
+    /**
+     * Remove a polygon from the polygon system
+     */
     public void removePolygon(Polygon polygon) {
         // Do nothing if the polygon is already not in the system.
         if (!polygons.contains(polygon)) {
             return;
         }
 
-        // Remove the polygon, but only remove the nodes and the edges if the polygon represents the last node and edge
-        // associated with that polygon.
-        for (Node node : polygon.getNodes()) {
-            if (nodeToPolygonMap.get(node) == null) continue;
-            nodeToPolygonMap.get(node).remove(polygon);
-            if (nodeToPolygonMap.get(node).size() == 0) {
-                nodeToPolygonMap.remove(node);
-                nodes.remove(node);
+        // Remove the polygon, but only remove the vertices and the edges if the polygon represents the last vertex
+        // and edge associated with that polygon.
+        for (Vertex v : polygon.getVertices()) {
+            if (vertexToPolygonMap.get(v) == null) continue;
+            vertexToPolygonMap.get(v).remove(polygon);
+            if (vertexToPolygonMap.get(v).size() == 0) {
+                vertexToPolygonMap.remove(v);
+                vertices.remove(v);
             }
         }
         for (Edge edge : polygon.getEdges()) {
@@ -85,100 +124,98 @@ public class PolygonSystem {
     }
 
     /**
-     * Move one of the node in the system.
-     * Moving a node in the system can't simply be just changing position x and y alone but also changing all the
-     * hashed position in each of the hashmap involving the changed nodes.
+     * Move one of the vertex in the system.
+     * Moving a vertex in the system can't simply be just changing position x and y alone but also changing all the
+     * hashed position in each of the hashmap involving the changed vertices.
      */
-    public void moveNode(Node node, double newX, double newY) {
+    public void moveVertex(Vertex v, double newX, double newY) {
 
-        /** Remove all artifact of the current node from the current tracking HashMaps */
-        // Remove the nodes and store the polygons
-        ArrayList<Polygon> affectedPolygonsThroughNode = new ArrayList<>(nodeToPolygonMap.get(node));
-        for (Polygon polygon : affectedPolygonsThroughNode) {
+        // Remove all artifact of the current vertex from the current tracking HashMaps
+        ArrayList<Polygon> affectedPolygonsThroughVertex = new ArrayList<>(vertexToPolygonMap.get(v));
+        for (Polygon polygon : affectedPolygonsThroughVertex) {
             removePolygon(polygon);
         }
 
-        /** Change the node position */
-        node.setX(newX);
-        node.setY(newY);
+        // Change the vertex position
+        v.setX(newX);
+        v.setY(newY);
 
-        /** Re add the polygons */
-        for (Polygon polygon : affectedPolygonsThroughNode) {
+        // Re-add the polygons
+        for (Polygon polygon : affectedPolygonsThroughVertex) {
             addPolygon(polygon);
         }
     }
-
 
     /**
      * Swap the edge of the triangle that shares edge.
      */
     public void swapTriangleEdge(Polygon p1, Polygon p2) {
         // Check to make sure both polygons are triangles
-        if (p1.getNodes().size() != 3 || p2.getNodes().size() != 3) {
+        if (p1.getVertices().size() != 3 || p2.getVertices().size() != 3) {
             return;
         }
 
         // Check eligibility. I order to swap edge, the two triangles must share exactly two points.
-        HashSet<Node> sharedNodes = new HashSet<>();
-        for (Node node1 : p1.getNodes()) {
-            for (Node node2 : p2.getNodes()) {
-                if (node1 == node2) sharedNodes.add(node1);
+        HashSet<Vertex> sharedVertices = new HashSet<>();
+        for (Vertex v1 : p1.getVertices()) {
+            for (Vertex v2 : p2.getVertices()) {
+                if (v1 == v2) sharedVertices.add(v1);
             }
         }
-        if (sharedNodes.size() != 2) {
+        if (sharedVertices.size() != 2) {
             // Two triangle must share exactly two points.
             return;
         }
 
-        ArrayList<Node> separateNodesArr = new ArrayList<>();
-        for (Node node : p1.getNodes()) {
-            if (!sharedNodes.contains(node)) separateNodesArr.add(node);
+        ArrayList<Vertex> separateVerticesArr = new ArrayList<>();
+        for (Vertex v : p1.getVertices()) {
+            if (!sharedVertices.contains(v)) separateVerticesArr.add(v);
         }
-        for (Node node : p2.getNodes()) {
-            if (!sharedNodes.contains(node)) separateNodesArr.add(node);
+        for (Vertex v : p2.getVertices()) {
+            if (!sharedVertices.contains(v)) separateVerticesArr.add(v);
         }
-        ArrayList<Node> sharedNodesArr = new ArrayList<>(sharedNodes);
+        ArrayList<Vertex> sharedVerticesArr = new ArrayList<>(sharedVertices);
 
-        // Calculate the length of the shared nodes and separate nodes to have the correct scaling factors.
-        double sharedNodeLen = MathUtils.quickDistance(
-                sharedNodesArr.get(0).getX(), sharedNodesArr.get(0).getY(),
-                sharedNodesArr.get(1).getX(), sharedNodesArr.get(1).getY());
-        double separatedNodeLen = MathUtils.quickDistance(
-                separateNodesArr.get(0).getX(), separateNodesArr.get(0).getY(),
-                separateNodesArr.get(1).getX(), separateNodesArr.get(1).getY()
+        // Calculate the length of the shared vertices and separate vertices to have the correct scaling factors.
+        double sharedVertexLen = MathUtils.quickDistance(
+                sharedVerticesArr.get(0).getX(), sharedVerticesArr.get(0).getY(),
+                sharedVerticesArr.get(1).getX(), sharedVerticesArr.get(1).getY());
+        double separatedVertexLen = MathUtils.quickDistance(
+                separateVerticesArr.get(0).getX(), separateVerticesArr.get(0).getY(),
+                separateVerticesArr.get(1).getX(), separateVerticesArr.get(1).getY()
         );
-        double scalingFactor = sharedNodeLen / separatedNodeLen;
+        double scalingFactor = sharedVertexLen / separatedVertexLen;
 
-        // Separate nodes will now be shared, while shared node will be distributed to each node.
-        Node[] nodes1 = new Node[]{separateNodesArr.get(0), separateNodesArr.get(1), sharedNodesArr.get(0)};
+        // Separate vertices will now be shared, while shared vertex will be distributed to each vertex.
+        Vertex[] vertices1 = new Vertex[]{separateVerticesArr.get(0), separateVerticesArr.get(1), sharedVerticesArr.get(0)};
         HashSet<Edge> edges1 = new HashSet<>();
-        edges1.add(new Edge(nodes1[0], nodes1[1]));
-        edges1.add(new Edge(nodes1[0], nodes1[2]));
-        edges1.add(new Edge(nodes1[1], nodes1[2]));
-        Polygon newPolygon1 = new Polygon(new HashSet<>(Arrays.asList(nodes1)), edges1);
+        edges1.add(new Edge(vertices1[0], vertices1[1]));
+        edges1.add(new Edge(vertices1[0], vertices1[2]));
+        edges1.add(new Edge(vertices1[1], vertices1[2]));
+        Polygon newPolygon1 = new Polygon(new HashSet<>(Arrays.asList(vertices1)), edges1);
 
-        Node[] nodes2 =  new Node[]{separateNodesArr.get(0), separateNodesArr.get(1), sharedNodesArr.get(1)};
+        Vertex[] vertices2 =  new Vertex[]{separateVerticesArr.get(0), separateVerticesArr.get(1), sharedVerticesArr.get(1)};
         HashSet<Edge> edges2 = new HashSet<>();
-        edges2.add(new Edge(nodes2[0], nodes2[1]));
-        edges2.add(new Edge(nodes2[0], nodes2[2]));
-        edges2.add(new Edge(nodes2[1], nodes2[2]));
-        Polygon newPolygon2 = new Polygon(new HashSet<>(Arrays.asList(nodes2)), edges2);
+        edges2.add(new Edge(vertices2[0], vertices2[1]));
+        edges2.add(new Edge(vertices2[0], vertices2[2]));
+        edges2.add(new Edge(vertices2[1], vertices2[2]));
+        Polygon newPolygon2 = new Polygon(new HashSet<>(Arrays.asList(vertices2)), edges2);
 
         // Check to make sure no newly separated resides within another triangles.
         if (PhysicUtils.checkPolygonPointCollision(
-            new double[][]{
-                {nodes2[0].getX(), nodes2[0].getY()},
-                {nodes2[1].getX(), nodes2[1].getY()},
-                {nodes2[2].getX(), nodes2[2].getY()},
-            }, sharedNodesArr.get(0).getX(), sharedNodesArr.get(0).getY())) {
+                new double[][]{
+                        {vertices2[0].getX(), vertices2[0].getY()},
+                        {vertices2[1].getX(), vertices2[1].getY()},
+                        {vertices2[2].getX(), vertices2[2].getY()},
+                }, sharedVerticesArr.get(0).getX(), sharedVerticesArr.get(0).getY())) {
             return;
         }
         if (PhysicUtils.checkPolygonPointCollision(
-            new double[][]{
-                {nodes1[0].getX(), nodes1[0].getY()},
-                {nodes1[1].getX(), nodes1[1].getY()},
-                {nodes1[2].getX(), nodes1[2].getY()},
-            }, sharedNodesArr.get(1).getX(), sharedNodesArr.get(1).getY())) {
+                new double[][]{
+                        {vertices1[0].getX(), vertices1[0].getY()},
+                        {vertices1[1].getX(), vertices1[1].getY()},
+                        {vertices1[2].getX(), vertices1[2].getY()},
+                }, sharedVerticesArr.get(1).getX(), sharedVerticesArr.get(1).getY())) {
             return;
         }
 
@@ -188,21 +225,21 @@ public class PolygonSystem {
         addPolygon(newPolygon1);
         addPolygon(newPolygon2);
 
-        // The shared nodes need to get closer to each other
+        // The shared vertices need to get closer to each other
         double[] centerPt = new double[] {
-                (separateNodesArr.get(0).getX() + separateNodesArr.get(1).getX()) / 2,
-                (separateNodesArr.get(0).getY() + separateNodesArr.get(1).getY()) / 2,
+                (separateVerticesArr.get(0).getX() + separateVerticesArr.get(1).getX()) / 2,
+                (separateVerticesArr.get(0).getY() + separateVerticesArr.get(1).getY()) / 2,
         };
-        double[] newPtNode1 = MathUtils.scalePoint(centerPt, separateNodesArr.get(0).getPt(), scalingFactor);
-        double[] newPtNode2 = MathUtils.scalePoint(centerPt, separateNodesArr.get(1).getPt(), scalingFactor);
-        moveNode(separateNodesArr.get(0), newPtNode1[0], newPtNode1[1]);
-        moveNode(separateNodesArr.get(1), newPtNode2[0], newPtNode2[1]);
+        double[] newPtVertex1 = MathUtils.scalePoint(centerPt, separateVerticesArr.get(0).getPt(), scalingFactor);
+        double[] newPtVertex2 = MathUtils.scalePoint(centerPt, separateVerticesArr.get(1).getPt(), scalingFactor);
+        moveVertex(separateVerticesArr.get(0), newPtVertex1[0], newPtVertex1[1]);
+        moveVertex(separateVerticesArr.get(1), newPtVertex2[0], newPtVertex2[1]);
     }
 
     /**
      * Merge multiple polygons together
      */
-    public Polygon mergeMultiplePolygons(ArrayList<Polygon> polygons) {
+    public Polygon mergeMultiplePolygons(List<Polygon> polygons) {
         HashSet<Edge> uniqueEdges = new HashSet<>();
         HashSet<Edge> duplicatedEdges = new HashSet<>();
         for (Polygon polygon : polygons) {
@@ -217,15 +254,15 @@ public class PolygonSystem {
             }
         }
 
-        // Get all the nodes from the edges
-        HashSet<Node> nodes = new HashSet<>();
+        // Get all the vertices from the edges
+        HashSet<Vertex> vertices = new HashSet<>();
         for (Edge e : uniqueEdges) {
-            nodes.add(e.getNode1());
-            nodes.add(e.getNode2());
+            vertices.add(e.getVertex1());
+            vertices.add(e.getVertex2());
         }
 
         // Create the new polygon, remove old polygon and add this new polygon in
-        Polygon newPolygon = new Polygon(nodes, uniqueEdges);
+        Polygon newPolygon = new Polygon(vertices, uniqueEdges);
         for (Polygon polygon : polygons) {
             removePolygon(polygon);
         }
@@ -236,16 +273,96 @@ public class PolygonSystem {
     }
 
     /**
-     * Create a polygon by connecting COM around node.
+     * Merge multiple polygons together given a list of polygons.
      */
-    private Polygon createPolygonByConnectCOMAroundNode(Node node) {
-        HashSet<Polygon> polygonList = nodeToPolygonMap.get(node);
+    public Polygon mergeMultiplePolygons(Set<Polygon> polygons) {
+        List<Polygon> polygonList = new ArrayList<>();
+        for (Polygon p : polygons) {
+            polygonList.add(p);
+        }
+        return mergeMultiplePolygons(polygonList);
+    }
+
+    /**
+     * Use BFS to the shortest path from one polygon to another polygon.
+     * We use this search algorithm to construct a list of polygons that would make a river.
+     * TODO: Rename the river object.
+     * @param riverBegin The beginning polygon.
+     * @param riverEnd The ending polygon.
+     * @return A list of polygon (not necessary in order) that constructs the path from beginning to the end.
+     */
+    public List<Polygon> findRiverPathBFS(Polygon riverBegin, Polygon riverEnd) {
+        HashSet<Polygon> visited = new HashSet<>();
+        Queue<List<Polygon>> pathQueue = new LinkedList<>();
+        List<Polygon> path = new ArrayList<>();
+        path.add(riverBegin);
+        pathQueue.add(path);
+        visited.add(riverBegin);
+
+        while (!pathQueue.isEmpty()) {
+            List<Polygon> currentPath = pathQueue.poll();
+            Polygon currentPathEnd = currentPath.get(currentPath.size()-1);
+
+            if (currentPathEnd == riverEnd) {
+                return currentPath;
+            }
+
+            for (Edge currentEdge : currentPathEnd.getEdges()) {
+                for (Polygon nextPolygon : getAdjacentPolygon(currentEdge)) {
+                    if (!visited.contains(nextPolygon) && nextPolygon.getEntityType() == EntityType.DEFAULT) {
+                        visited.add(nextPolygon);
+                        List<Polygon> nextPath = new ArrayList<>(currentPath);
+                        nextPath.add(nextPolygon);
+                        pathQueue.add(nextPath);
+                    }
+                }
+            }
+        }
+        return path;
+    }
+
+    /**
+     * Get all entities of the same type - note that these entities are after merge
+     * Returning a list of the same entity type because we can have more than one city center, river, etc.
+     * @param entityType
+     */
+    public List<Polygon> getEntities(EntityType entityType) {
+        List<Polygon> entities = new ArrayList<>();
+        for (Polygon polygon : getPolygons()) {
+            if (polygon.getEntityType() == entityType) {
+                entities.add(polygon);
+            }
+        }
+        return entities;
+    }
+
+    /**
+     * Return all polygons near the border of the map
+     */
+    public List<Polygon> getPolygonsNearTheEdge() {
+        List<Polygon> polygonsNearEdge = new ArrayList<>();
+        for (Polygon polygon : getPolygons()) {
+            for (Edge edge : polygon.getEdges()) {
+                if (edgeToPolygonMap.get(edge).size() == 1) {
+                    polygonsNearEdge.add(polygon);
+                    break;
+                }
+            }
+        }
+        return polygonsNearEdge;
+    }
+
+    /**
+     * Create a polygon by connecting COM around vertex.
+     */
+    private Polygon createPolygonByConnectCOMAroundVertex(Vertex vertex) {
+        HashSet<Polygon> polygonList = vertexToPolygonMap.get(vertex);
 
         // A map converting the angle to the COM
         HashMap<Double, double[]> angleToCom = new HashMap<>();
         for (Polygon polygon : polygonList) {
             double[] com = polygon.getCenterOfMass();
-            double angle = Math.atan2(com[1] - node.getY(), com[0] - node.getX());
+            double angle = Math.atan2(com[1] - vertex.getY(), com[0] - vertex.getX());
             angleToCom.put(angle, com);
         }
 
@@ -255,28 +372,29 @@ public class PolygonSystem {
 
         int numAngles = angleList.size();
         HashSet<Edge> edges = new HashSet<>();
-        HashSet<Node> nodes = new HashSet<>();
+        HashSet<Vertex> vertices = new HashSet<>();
         double[] prevCom = angleToCom.get(angleList.get(0));
-        Node prevNode = new Node(prevCom[0], prevCom[1]);
+        Vertex prevVertex = new Vertex(prevCom[0], prevCom[1]);
         for (int i = 0; i < numAngles; i++) {
             double[] nextCom =  angleToCom.get(angleList.get((i + 1) % numAngles));
-            Node nextNode = new Node(nextCom[0], nextCom[1]);
-            edges.add(new Edge(prevNode, nextNode));
-            nodes.add(nextNode);
-            prevNode = nextNode;
+            // TODO: Don't create new vertex all the time. Instead used shared vertex and shared edge.
+            Vertex nextVertex = new Vertex(nextCom[0], nextCom[1]);
+            edges.add(new Edge(prevVertex, nextVertex));
+            vertices.add(nextVertex);
+            prevVertex = nextVertex;
         }
-        return new Polygon(nodes, edges);
+        return new Polygon(vertices, edges);
     }
 
     /**
      * Create intermediate polygons
-     * TODO: Add picture documentation for something as opague and hard to describe as this one.
+     * TODO: Add picture documentation for something as opaque and hard to describe as this one.
      */
     public PolygonSystem createIntermediatePolygons() {
         PolygonSystem newSystem = new PolygonSystem();
-        for (Node node : nodes) {
-            if (nodeToPolygonMap.get(node) != null) {
-                Polygon newPolygon = createPolygonByConnectCOMAroundNode(node);
+        for (Vertex v : vertices) {
+            if (vertexToPolygonMap.get(v) != null) {
+                Polygon newPolygon = createPolygonByConnectCOMAroundVertex(v);
                 if (newPolygon.getEdges().size() >= 3) {
                     newSystem.addPolygon(newPolygon);
                 }
@@ -289,12 +407,12 @@ public class PolygonSystem {
         return polygons;
     }
 
-    public HashSet<Node> getNodes() {
-        return nodes;
+    public HashSet<Vertex> getVertices() {
+        return vertices;
     }
 
-    public void setNodes(HashSet<Node> nodes) {
-        this.nodes = nodes;
+    public void setVertices(HashSet<Vertex> vertices) {
+        this.vertices = vertices;
     }
 
     public HashSet<Edge> getEdges() {
@@ -309,7 +427,11 @@ public class PolygonSystem {
         return edgeToPolygonMap.get(e);
     }
 
-    public HashSet<Polygon> getAdjacentPolygon(Node n) {
-        return nodeToPolygonMap.get(n);
+    public HashSet<Polygon> getAdjacentPolygon(Vertex v) {
+        return vertexToPolygonMap.get(v);
+    }
+
+    public HashSet<Edge> getAdjacentEdges(Vertex v) {
+        return vertexToEdgeMap.get(v);
     }
 }

@@ -11,7 +11,7 @@ import java.util.*;
 public final class MathUtils {
 
     // RNG
-    private final static XoShiRo256PlusRandom random = new XoShiRo256PlusRandom();
+    public static XoShiRo256PlusRandom random = new XoShiRo256PlusRandom();
 
     // Hackish number
     static final double sq2p1 = 2.414213562373095048802e0;
@@ -578,6 +578,19 @@ public final class MathUtils {
     }
 
     //TODO: calculat quickLog
+    /**
+     * Find the angle formed by three points (x1, y1), (x2, y2), (x3, y3). (x2, y2) is the middle point.
+     * @return a double representing the angle in the range of [0, 2 * pi]
+     */
+    public static double angleFromPts(double x1, double y1, double x2, double y2, double x3, double y3) {
+        double[] vector1 = new double[] { x1 - x2, y1 - y2 };
+        double[] vector2 = new double[] { x3 - x2, y3 - y2 };
+        double angle = atan2(vector2[0], vector2[1]) - atan2(vector1[0], vector1[1]);
+        if (angle < 0) {
+            angle += PIX2;
+        }
+        return angle;
+    }
 }
 
 

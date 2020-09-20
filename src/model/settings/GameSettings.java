@@ -23,11 +23,18 @@ public class GameSettings {
     // Count the number of erroneous formation changes.
     private boolean countWrongFormationChanges;
 
-    // Intention skipping
-    private int unitIntentionSkipping;
+    // If true, we will round down the surface data into grids of binary collision, which makes the collision checking
+    // between troops and surface a lot faster but inaccurate.
+    private boolean useRoundedSurfaceCollision;
 
-    // Intention skipping
+    // Intention skipping settings
+    private int unitIntentionSkipping;
     private int singleIntentionSkipping;
+
+    // Sound bouncing processing setting. Currently an experimental feature that is false by default.
+    // Very heavy on processing.
+    // TODO: Add some logging for sound bouncing processing.
+    private boolean processSoundBounce;
 
     public GameSettings() {}
 
@@ -94,5 +101,19 @@ public class GameSettings {
     }
     public void setSingleIntentionSkipping(int singleIntentionSkipping) {
         this.singleIntentionSkipping = singleIntentionSkipping;
+    }
+
+    public boolean isProcessSoundBounce() {
+        return processSoundBounce;
+    }
+    public void setProcessSoundBounce(boolean processSoundBounce) {
+        this.processSoundBounce = processSoundBounce;
+    }
+
+    public boolean isUseRoundedSurfaceCollision() {
+        return useRoundedSurfaceCollision;
+    }
+    public void setUseRoundedSurfaceCollision(boolean useRoundedSurfaceCollision) {
+        this.useRoundedSurfaceCollision = useRoundedSurfaceCollision;
     }
 }

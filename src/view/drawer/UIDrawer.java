@@ -8,7 +8,7 @@ import processing.core.PImage;
 import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 import view.constants.MapMakerConstants;
-import view.drawer.components.Scrollbar;
+import view.components.Scrollbar;
 import view.settings.DrawingSettings;
 
 import java.util.HashMap;

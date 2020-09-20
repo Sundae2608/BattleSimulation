@@ -95,6 +95,30 @@ public abstract class BaseCamera extends EventListener {
     }
 
     /**
+     * Check whether all the given points are visible on camera.
+     * The input must be a 2D array of doubles and can either be of dimension (n x 2) or (n x 3)
+     */
+    public boolean boundaryPointsAreVisible(double[][] boundaryPts) {
+        if (boundaryPts.length <= 0 || (boundaryPts[0].length != 2 && boundaryPts[0].length != 3)) {
+            throw new RuntimeException("Input boundary points must be double[][] of size (n x 2) or (n x 3)");
+        }
+        if (boundaryPts[0].length == 2) {
+            for (int i = 0; i < boundaryPts.length; i++) {
+                if (positionIsVisible(boundaryPts[i][0], boundaryPts[i][1])) {
+                    return true;
+                }
+            }
+        } else if (boundaryPts[0].length == 3) {
+            for (int i = 0; i < boundaryPts.length; i++) {
+                if (positionIsVisible(boundaryPts[i][0], boundaryPts[i][1], boundaryPts[i][2])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Abstract methods to get the actual position from the screen position.
      * Each camera needs to implement these methods on their own.
      */

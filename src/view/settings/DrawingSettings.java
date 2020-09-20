@@ -25,6 +25,15 @@ public class DrawingSettings {
     private boolean drawControlArrow;
     private boolean drawGameInfo;
 
+    // Drawing settings for Procedural Content Generation Simulation.
+    private boolean showNumAdjacentPolygons;
+    private boolean showNumAdjacentEdges;
+    private boolean drawPolygonEdges;
+    private boolean drawVertices;
+    private boolean drawHouses;
+    private boolean drawRiver;
+    private boolean drawRiverAsCurved;
+
     // Smooth zoom processing
     private boolean smoothCameraMovement;
     private int smoothRotationSteps;
@@ -195,5 +204,54 @@ public class DrawingSettings {
     }
     public void setDrawGameInfo(boolean drawGameInfo) {
         this.drawGameInfo = drawGameInfo;
+    }
+
+    public boolean isShowNumAdjacentPolygons() {
+        return showNumAdjacentPolygons;
+    }
+    public void setShowNumAdjacentPolygons(boolean showNumAdjacentPolygons) {
+        this.showNumAdjacentPolygons = showNumAdjacentPolygons;
+    }
+
+    public boolean isShowNumAdjacentEdges() {
+        return showNumAdjacentEdges;
+    }
+    public void setShowNumAdjacentEdges(boolean showNumAdjacentEdges) {
+        this.showNumAdjacentEdges = showNumAdjacentEdges;
+    }
+
+    public boolean isDrawPolygonEdges() {
+        return drawPolygonEdges;
+    }
+    public void setDrawPolygonEdges(boolean drawPolygonEdges) {
+        this.drawPolygonEdges = drawPolygonEdges;
+    }
+
+    public boolean isDrawVertices() {
+        return drawVertices;
+    }
+    public void setDrawVertices(boolean drawVertices) {
+        this.drawVertices = drawVertices;
+    }
+
+    public boolean isDrawHouses() {
+        return drawHouses;
+    }
+    public void setDrawHouses(boolean drawHouses) {
+        this.drawHouses = drawHouses;
+    }
+
+    public boolean isDrawRiver() {
+        return drawRiver;
+    }
+    public void setDrawRiver(boolean drawRiver) {
+        this.drawRiver = drawRiver;
+    }
+
+    public boolean isDrawRiverAsCurved() {
+        return drawRiverAsCurved;
+    }
+    public void setDrawRiverAsCurved(boolean drawRiverAsCurved) {
+        this.drawRiverAsCurved = drawRiverAsCurved;
     }
 }

@@ -121,20 +121,6 @@ public class TopDownCamera extends BaseCamera {
         return new double[] {posX2, posY2};
     }
 
-    public double getActualAngleFromCameraAngle(double angleInCamera) {
-        double newAngle = angleInCamera - angle;
-        if (newAngle > Math.PI) newAngle -= MathUtils.PIX2;
-        else if (newAngle < - Math.PI) newAngle +=MathUtils.PIX2;
-        return newAngle;
-    }
-
-    public double getCameraAngleFromActualAngle(double actualAngle) {
-        double newAngle = actualAngle + angle;
-        if (newAngle > Math.PI) newAngle -= MathUtils.PIX2;
-        else if (newAngle < - Math.PI) newAngle +=MathUtils.PIX2;
-        return newAngle;
-    }
-
     @Override
     protected void updateCameraPreprocessing() {
         // This method does not have preprocessing to update.
