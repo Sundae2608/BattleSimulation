@@ -679,7 +679,7 @@ public final class PhysicUtils {
             arrayZ[j] = (sourceZ - sinkZ) * p[j] + sinkZ;
             terrainArrayZ[j] = getAbsoluteBarrierHeight(arrayX[j], arrayY[j], terrain, surfaces, constructs);
 
-            if (arrayZ[j] > terrainArrayZ[j]){
+            if (arrayZ[j] < terrainArrayZ[j]){
                 soundModifyingCounter = soundModifyingCounter +1;
             }
         }
