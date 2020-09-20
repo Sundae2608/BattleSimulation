@@ -1,4 +1,4 @@
-import controller.tunable.CustomAssigner;
+import view.components.CustomAssigner;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
@@ -18,7 +18,7 @@ import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.BaseCamera;
 import view.camera.CameraConstants;
-import view.camera_hex.HexCamera;
+import view.components.ScrollbarMode;
 import view.constants.ControlConstants;
 import view.drawer.*;
 import model.GameEnvironment;
@@ -32,7 +32,7 @@ import model.singles.*;
 import model.units.*;
 import model.utils.*;
 import view.constants.DrawingConstants;
-import view.drawer.components.Scrollbar;
+import view.components.Scrollbar;
 import view.settings.AudioSettings;
 import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
@@ -130,6 +130,8 @@ public class MainSimulation extends PApplet {
         gameSettings.setCavalryCollision(true);
         gameSettings.setEnableFlankingMechanics(true);
         gameSettings.setCountWrongFormationChanges(true);
+        gameSettings.setProcessSoundBounce(false);
+        gameSettings.setUseRoundedSurfaceCollision(true);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
@@ -143,7 +145,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setSmoothRotationSteps(40);
         drawingSettings.setSmoothPlanShowingSteps(100);
         drawingSettings.setDrawHeightField(true);
-        drawingSettings.setDrawMapTexture(true);
+        drawingSettings.setDrawMapTexture(false);
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
@@ -174,8 +176,8 @@ public class MainSimulation extends PApplet {
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "misc/VideoConfigs/Scene3.txt";
-        String mapConfig = "misc/VideoConfigs/Scene1Map.txt";
+        String battleConfig = "src/configs/battle_configs/BattleConfigLowComputerSetting.txt";
+        String mapConfig = "src/configs/map_configs/TerrainConfigs.json";
         String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
         String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
         String gameConfig = "src/configs/game_configs/GameConfig.txt";
@@ -194,7 +196,7 @@ public class MainSimulation extends PApplet {
         /** Camera setup */
 
         // Add unit to view.camera
-        camera = new TopDownCamera(0, 0, INPUT_WIDTH, INPUT_HEIGHT,
+        camera = new TopDownCamera(5000, 5000, INPUT_WIDTH, INPUT_HEIGHT,
                 env.getBroadcaster());
         cameraRotationSpeed = 0;
         cameraDx = 0;
@@ -207,7 +209,7 @@ public class MainSimulation extends PApplet {
         UnitStats romanCavUnitStats = env.getGameStats().getUnitStats(UnitType.CAVALRY, PoliticalFaction.ROME);
         scrollbars.add(new Scrollbar("Cavalry size",
                 INPUT_WIDTH - 300, 30, 280, 20,
-                romanCavSingleStats.radius, 10, 120, this, new CustomAssigner() {
+                romanCavSingleStats.radius, 10, 120, ScrollbarMode.DOUBLE, this, new CustomAssigner() {
             @Override
             public void updateValue(double value) {
                 double currSpacingDiff = romanCavUnitStats.spacing - romanCavSingleStats.radius;
@@ -220,7 +222,7 @@ public class MainSimulation extends PApplet {
         SingleStats phalanxSingleStats = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.GAUL);
         scrollbars.add(new Scrollbar("Phalanx mass",
                 INPUT_WIDTH - 300, 90, 280, 20,
-                phalanxSingleStats.mass, 10, 9000, this, new CustomAssigner() {
+                phalanxSingleStats.mass, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
             @Override
             public void updateValue(double value) {
                 phalanxSingleStats.mass = value;
@@ -229,7 +231,7 @@ public class MainSimulation extends PApplet {
 
         scrollbars.add(new Scrollbar("Phalanx damage",
                 INPUT_WIDTH - 300, 150, 280, 20,
-                phalanxSingleStats.attack, 10, 9000, this, new CustomAssigner() {
+                phalanxSingleStats.attack, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
             @Override
             public void updateValue(double value) {
                 phalanxSingleStats.attack = value;
@@ -259,7 +261,7 @@ public class MainSimulation extends PApplet {
         // Set up audio speaker
         try {
             audioSpeaker = ConfigUtils.readAudioConfigs(
-                    "src/configs/audio_configs/AudioConfig.txt",
+                    "src/configs/audio_configs/AudioConfigJson.json",
                     camera, this, env.getBroadcaster()
             );
         } catch (IOException e) {

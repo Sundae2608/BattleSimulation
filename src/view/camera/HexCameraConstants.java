@@ -1,4 +1,4 @@
-package view.camera_hex;
+package view.camera;
 
 public class HexCameraConstants {
     // Camera rotation speed

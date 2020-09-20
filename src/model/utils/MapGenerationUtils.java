@@ -1,7 +1,7 @@
 package model.utils;
 
 import model.algorithms.geometry.Edge;
-import model.algorithms.pathfinding.Node;
+import model.algorithms.geometry.Vertex;
 import model.algorithms.geometry.Polygon;
 
 import java.util.ArrayList;
@@ -30,12 +30,12 @@ public final class MapGenerationUtils {
         }
 
         // Get all the nodes from the edges
-        HashSet<Node> nodes = new HashSet<>();
+        HashSet<Vertex> vertices = new HashSet<>();
         for (Edge e : newEdges) {
-            nodes.add(e.getNode1());
-            nodes.add(e.getNode2());
+            vertices.add(e.getVertex1());
+            vertices.add(e.getVertex2());
         }
-        return new Polygon(nodes, newEdges);
+        return new Polygon(vertices, newEdges);
     }
 
     /**
@@ -57,13 +57,13 @@ public final class MapGenerationUtils {
         }
 
         // Get all the nodes from the edges
-        HashSet<Node> nodes = new HashSet<>();
+        HashSet<Vertex> vertices = new HashSet<>();
         for (Edge e : uniqueEdges) {
-            nodes.add(e.getNode1());
-            nodes.add(e.getNode2());
+            vertices.add(e.getVertex1());
+            vertices.add(e.getVertex2());
         }
 
         // Return the polygon
-        return new Polygon(nodes, uniqueEdges);
+        return new Polygon(vertices, uniqueEdges);
     }
 }
