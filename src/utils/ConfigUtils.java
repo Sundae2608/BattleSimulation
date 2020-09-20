@@ -466,6 +466,9 @@ public final class ConfigUtils {
             double sizeWiggling = 0.0;
             double averageDistance = 0.0;
             double distanceWiggling = 0.0;
+            double averageTreeHeight = 0.0;
+            double heightWiggling = 0.0;
+
             for (int j = 0; j < infoLines.length; j++) {
                 String line = infoLines[j];
                 String[] data = line.split(":");
@@ -485,6 +488,10 @@ public final class ConfigUtils {
                     averageDistance = Double.valueOf(data[1].trim());
                 } else if (fieldName.equals("distance_wiggling")) {
                     distanceWiggling = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("average_tree_height")) {
+                    averageTreeHeight = Double.valueOf(data[1].trim());
+                } else if (fieldName.equals("height_wiggling")) {
+                    heightWiggling = Double.valueOf(data[1].trim());
                 }
             }
 
@@ -505,7 +512,7 @@ public final class ConfigUtils {
                     break;
                 case FOREST:
                     surface = new ForestSurface(
-                            type, pts, averageTreeRadius, sizeWiggling, averageDistance, distanceWiggling);
+                            type, pts, averageTreeRadius, sizeWiggling, averageDistance, distanceWiggling, averageTreeHeight, heightWiggling);
                     break;
                 case RIVERSIDE:
                     surface = new RiversideSurface(type, pts);

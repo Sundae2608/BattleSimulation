@@ -5,10 +5,13 @@ public class Tree {
     double x;
     double y;
     double radius;
-    public Tree(double inputX, double inputY, double inputRadius) {
+    double height;
+
+    public Tree(double inputX, double inputY, double inputRadius, double inputHeight) {
         x = inputX;
         y = inputY;
         radius = inputRadius;
+        height = inputHeight;
     }
 
     public double getX() {
@@ -21,5 +24,9 @@ public class Tree {
 
     public double getRadius() {
         return radius;
+    }
+
+    public double getHeight() {
+        return height;
     }
 }
