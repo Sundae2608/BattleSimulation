@@ -1,8 +1,10 @@
 package model.algorithms;
 
+import javafx.util.Pair;
 import model.surface.Tree;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import static model.utils.PhysicUtils.checkPointCircleCollision;
 
@@ -66,43 +68,16 @@ public class TreeHasher {
             int yHash1 = (int) ((Y - radius)/yDiv);
             int yHash2 = (int) ((Y + radius)/yDiv);
 
-            if (xHash1 == xHash2){
-                if (yHash1 == yHash2){
-                    // List is be hashed has 1 tree
-                    xHashes.add(xHash1);
-                    yHashes.add(yHash1);
-                } else {
-                    // List is be hashed has 2 trees
-                    xHashes.add(xHash1);
-                    yHashes.add(yHash1);
-                    xHashes.add(xHash2);
-                    yHashes.add(yHash2);
-                }
-            } else {
-                if (yHash1 == yHash2){
-                    // List is be hashed has 2 trees
-                    xHashes.add(xHash1);
-                    yHashes.add(yHash1);
-                    xHashes.add(xHash2);
-                    yHashes.add(yHash2);
-                } else {
-                    // List is be hashed has 4 trees
-                    xHashes.add(xHash1);
-                    yHashes.add(yHash1);
+            HashSet<Pair<Integer, Integer>> hashPts = new HashSet<>();
 
-                    xHashes.add(xHash1);
-                    yHashes.add(yHash2);
-
-                    xHashes.add(xHash2);
-                    yHashes.add(yHash1);
-
-                    xHashes.add(xHash2);
-                    yHashes.add(yHash2);
+            for (int i = xHash1; i <= xHash2; i++) {
+                for (int j = yHash1; j <= yHash2; j++) {
+                    hashPts.add(new Pair<>(i, j));
                 }
             }
 
-            for (int i = 0; i<xHashes.size(); i++){
-                long key = pairHash(xHashes.get(i), yHashes.get(i));
+            for (Pair<Integer, Integer> pair : hashPts){
+                long key = pairHash(pair.getKey(), pair.getValue());
                 if (!hashMap.containsKey(key)) {
                     hashMap.put(key, new ArrayList<>());
                 }
@@ -136,10 +111,10 @@ public class TreeHasher {
         int yHash = (int) y / yDiv;
 
         ArrayList<Tree> trees = new ArrayList<>();
-            long key = pairHash((int) xHash, (int) yHash);
-            if (hashMap.get(key) != null) {
-                trees.addAll(hashMap.get(key));
-            }
+        long key = pairHash((int) xHash, (int) yHash);
+        if (hashMap.get(key) != null) {
+            trees.addAll(hashMap.get(key));
+        }
 
         return trees;
     }
