@@ -89,7 +89,11 @@ public class SurfaceHasher {
         int xHash = (int) x / xDiv;
         int yHash = (int) y / yDiv;
         long hash = pairHash(xHash, yHash);
-        return surfaceHashMap.get(hash);
+        if (surfaceHashMap.containsKey(hash)) {
+            return surfaceHashMap.get(hash);
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     /**

@@ -1,5 +1,6 @@
 package model.algorithms.geometry;
 
+import it.unimi.dsi.fastutil.bytes.ByteHash;
 import model.objects.BaseObject;
 
 import java.util.ArrayList;
@@ -52,6 +53,28 @@ public class PolygonHasher {
             }
         }
         polygons.add(p);
+    }
+
+    /**
+     * Return the list of potential collision of a circle at (x, y) with radius r.
+     */
+    public ArrayList<Polygon> getCollisionObjects(double x, double y, double r) {
+        int xHash1 = (int) ((x - r) / xDiv);
+        int xHash2 = (int) ((x + r) / xDiv);
+
+        int yHash1 = (int) ((y - r) / yDiv);
+        int yHash2 = (int) ((y + r) / yDiv);
+        ArrayList<Polygon> collideList = new ArrayList<>();
+        for (int i = xHash1; i <= xHash2; i++) {
+            for (int j = yHash1; j <= yHash2; j++) {
+                long key = pairHash(i, j);
+                if (!hashMap.containsKey(key)) continue;
+                for (Polygon otherPolygon : hashMap.get(key)) {
+                    collideList.add(otherPolygon);
+                }
+            }
+        }
+        return collideList;
     }
 
     /**

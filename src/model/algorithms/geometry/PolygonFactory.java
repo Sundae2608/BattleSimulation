@@ -1,14 +1,46 @@
 package model.algorithms.geometry;
 
+import model.algorithms.geometry.house_generation.HouseDirection;
+import model.algorithms.geometry.house_generation.HouseGenerationSettings;
+import model.algorithms.geometry.house_generation.HouseSizeSettings;
+import model.algorithms.geometry.house_generation.HouseType;
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
 public class PolygonFactory {
 
+    // Internal storage of settings
+    HouseGenerationSettings houseGenSettings;
+
+    // Singleton variables for house type probabilities. Help save time when selecting house randomly from probability.
+    private HashMap<HouseType, Double> cumulativeMaps;
+    private HouseType[] houseTypeKeys;
+    private double sumProb;
+
+    public PolygonFactory(HouseGenerationSettings inputHouseGenerationSettings) {
+        houseGenSettings = inputHouseGenerationSettings;
+
+        // Process house type probability singletons, which are later used to randomly select house type.
+        HashMap<HouseType, Double> probMap = houseGenSettings.getHouseTypeProb();
+        houseTypeKeys = new HouseType[probMap.size()];
+        int i = 0;
+        for (HouseType key : probMap.keySet()) {
+            houseTypeKeys[i] = key;
+            i++;
+        }
+        cumulativeMaps = new HashMap<>();
+        double currProb = 0;
+        for (HouseType key : houseTypeKeys) {
+            currProb += probMap.get(key);
+            cumulativeMaps.put(key, currProb);
+        }
+        sumProb = currProb;
+    }
     /**
      * Create a bigger polygon with certain type by merging from input of smaller polygon.
      * @param inputPolygons
@@ -27,13 +59,68 @@ public class PolygonFactory {
     }
 
     /**
+     * Pick a random house type based on probability given by HouseGenerationSettings
+     */
+    private HouseType randHouseType() {
+
+        // Pick one random house type based on given probability
+        double rand = MathUtils.randDouble(0, sumProb);
+        for (HouseType key : houseTypeKeys) {
+            if (rand < cumulativeMaps.get(key)) {
+                return key;
+            }
+        }
+        return houseTypeKeys[houseTypeKeys.length- 1];
+    }
+
+    /**
+     *
+     * @param topLeftX x-position of the top-left corner of the build
+     * @param topLeftY y-position of the top-left corner of the build
+     * @param angle the angle that the front of the house will be facing
+     * @return
+     */
+    private Polygon generateHouse(
+            double topLeftX, double topLeftY, double angle, HouseGenerationSettings houseGenSettings) {
+        HouseType type = randHouseType();
+        HouseSizeSettings houseSizeSettings = houseGenSettings.getHouseTypeSizeSettings().get(type);
+
+        // Get width and height
+        double width = houseSizeSettings.getHouseWidth() +
+                MathUtils.randDouble(-houseSizeSettings.getHouseWidthWiggle(), houseSizeSettings.getHouseWidthWiggle());
+        double area = houseSizeSettings.getHouseArea() +
+                MathUtils.randDouble(-houseSizeSettings.getHouseAreaWiggle(), houseSizeSettings.getHouseAreaWiggle());
+        double length = area / width;
+
+        // Build the house
+        Polygon p;
+        switch (type) {
+            case TRIANGLE:
+                p = generateTriangleHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+            case L:
+                p = generateLHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+            case O:
+                p = generateOHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+            case REGULAR:
+            default:
+                p = generateRectangleHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+        }
+        p.setEntityType(EntityType.HOUSE);
+        return p;
+    }
+
+    /**
      * Create house polygons that are inside of the main Polygon.
      */
     public ArrayList<Polygon> createHousePolygonsFromPolygon(
-            Polygon polygon, HouseGenerationSettings settings, PolygonHasher hasher) {
+            Polygon mainPolygon, PolygonHasher hasher) {
         // Go through each edge of the polygon in clockwise order, and generate all the houses on the left side.
         ArrayList<Polygon> returnPolygons = new ArrayList<>();
-        ArrayList<Vertex> verticesList = polygon.getOrderedVertices();
+        ArrayList<Vertex> verticesList = mainPolygon.getOrderedVertices();
         int numPts = verticesList.size();
         for (int i = 0; i < numPts; i++) {
             Vertex v1 = verticesList.get(i);
@@ -48,23 +135,27 @@ public class PolygonFactory {
             double rightSideUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
 
             // Generate the left-side houses
-            double currentDist = settings.getDistanceFromCrossRoad();
-
+            double currentDist = houseGenSettings.getDistanceFromCrossRoad();
+            Polygon lastPolygon = null;
             while (true) {
                 // Generate a house if possible
-                double width = settings.getHouseWidth() +
-                        MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-                if (currentDist + width > roadDistance) break;
-                double area = settings.getHouseArea() +
-                        MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
-                double length = area / width;
-                double distFromEdge = settings.getDistanceFromEdge() +
-                        MathUtils.randDouble(-settings.getDistanceFromEdgeWiggle(), settings.getDistanceFromEdgeWiggle());
-                Polygon newPolygon = generateHouseBoundaryPoints(
-                        beginX + roadUnitX * currentDist + distFromEdge * rightSideUnitX,
-                        beginY + roadUnitY * currentDist + distFromEdge * rightSideUnitY,
-                        angle, width, length);
-                newPolygon.setEntityType(EntityType.HOUSE);
+                double distFromEdge = houseGenSettings.getDistanceFromEdge() +
+                        MathUtils.randDouble(-houseGenSettings.getDistanceFromEdgeWiggle(), houseGenSettings.getDistanceFromEdgeWiggle());
+                double topleftX = beginX + roadUnitX * currentDist + distFromEdge * rightSideUnitX;
+                double topLeftY = beginY + roadUnitY * currentDist + distFromEdge * rightSideUnitY;
+                if (lastPolygon != null &&
+                        PhysicUtils.checkPolygonPointCollision(lastPolygon.getBoundaryPoints(), topleftX, topLeftY)) {
+                    // TODO: Be careful! This code will fail if distanceFromOther() == 0. Implement a check to ensure
+                    //  that will not happen.
+                    double distFromHouse = houseGenSettings.getDistanceFromOther() +
+                            MathUtils.randDouble(
+                                    -houseGenSettings.getDistanceFromOtherWiggle(),
+                                    houseGenSettings.getDistanceFromOtherWiggle());
+                    currentDist = currentDist + distFromHouse;
+                    continue;
+                }
+                Polygon newPolygon = generateHouse(
+                        topleftX, topLeftY, angle, houseGenSettings);
 
                 // Check the newly generated house with the hasher and make sure that it does not collide with existing
                 // house
@@ -76,13 +167,19 @@ public class PolygonFactory {
                         break;
                     };
                 }
-                if (!collide) {
+
+                // Check newly generated house to make sure that they are fully inside the polygon
+                boolean inside = PhysicUtils.checkPolygonContainsPolygon(
+                        mainPolygon.getBoundaryPoints(), newPolygon.getBoundaryPoints());
+                if (!collide && inside) {
                     returnPolygons.add(newPolygon);
                     hasher.addObject(newPolygon);
+                    lastPolygon = newPolygon;
                 }
-                double distFromHouse = settings.getDistanceFromOther() +
-                        MathUtils.randDouble(-settings.getDistanceFromOtherWiggle(), settings.getDistanceFromEdgeWiggle());
-                currentDist = currentDist + width + distFromHouse;
+                double distFromHouse = houseGenSettings.getDistanceFromOther() +
+                        MathUtils.randDouble(-houseGenSettings.getDistanceFromOtherWiggle(), houseGenSettings.getDistanceFromOtherWiggle());
+                currentDist = currentDist + distFromHouse;
+                if (currentDist > roadDistance - houseGenSettings.getDistanceFromCrossRoad()) break;
             }
         }
         return returnPolygons;
@@ -91,12 +188,11 @@ public class PolygonFactory {
     /**
      * Create a list of rectangular polygons representing houses along the edge, which supposedly represent the streets.
      * @param e The edge in question
-     * @param settings Settings to generate house
      * @param hasher A hasher which hashed all polygons to ensure generated polygons do not overlap.
      * @return The list of polygons, each of which representing a house.
      */
     public ArrayList<Polygon> createHousePolygonsFromEdge(
-            Edge e, HouseGenerationSettings settings, PolygonHasher hasher) {
+            Edge e, PolygonHasher hasher) {
         // Pre-calculate  several directional information
         Vertex vertex1 = e.getVertex1();
         Vertex vertex2 = e.getVertex2();
@@ -106,76 +202,78 @@ public class PolygonFactory {
         double beginY = vertex1.y;
         double roadUnitX = MathUtils.quickCos((float) angle);
         double roadUnitY = MathUtils.quickSin((float) angle);
-        double rightSideUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
-        double rightSideUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
-        double leftSideUnitX = MathUtils.quickCos((float) (angle - MathUtils.PIO2));
-        double leftSideUnitY = MathUtils.quickSin((float) (angle - MathUtils.PIO2));
+        double rightSideUnitX = MathUtils.quickCos((float) (angle - MathUtils.PIO2));
+        double rightSideUnitY = MathUtils.quickSin((float) (angle - MathUtils.PIO2));
+        double leftSideUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double leftSideUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
 
         // Generate the left-side houses
         ArrayList<Polygon> polygons = new ArrayList<>();
-        double currentDist = settings.getDistanceFromCrossRoad();
+        double currentDist = houseGenSettings.getDistanceFromCrossRoad();
+        Polygon lastPolygon = null;
         while (true) {
             // Generate a house if possible
-            double width = settings.getHouseWidth() +
-                    MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getDistanceFromCrossRoad()) break;
-            double area = settings.getHouseArea() +
-                    MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
-            double length = area / width;
-            double distFromEdge = settings.getDistanceFromEdge() +
-                    MathUtils.randDouble(-settings.getDistanceFromEdgeWiggle(), settings.getDistanceFromEdgeWiggle());
-            Polygon polygon = generateHouseBoundaryPoints(
-                    beginX + roadUnitX * currentDist + distFromEdge * rightSideUnitX,
-                    beginY + roadUnitY * currentDist + distFromEdge * rightSideUnitY,
-                    angle, width, length);
-            polygon.setEntityType(EntityType.HOUSE);
+            double distFromEdge = houseGenSettings.getDistanceFromEdge() +
+                    MathUtils.randDouble(-houseGenSettings.getDistanceFromEdgeWiggle(), houseGenSettings.getDistanceFromEdgeWiggle());
+            double topleftX = beginX + roadUnitX * currentDist + distFromEdge * leftSideUnitX;
+            double topLeftY = beginY + roadUnitY * currentDist + distFromEdge * leftSideUnitY;
+            if (lastPolygon != null && PhysicUtils.checkPolygonPointCollision(lastPolygon.getBoundaryPoints(), topleftX, topLeftY)) {
+                double distFromHouse = houseGenSettings.getDistanceFromOther() +
+                        MathUtils.randDouble(-houseGenSettings.getDistanceFromOtherWiggle(), houseGenSettings.getDistanceFromOtherWiggle());
+                currentDist = currentDist + distFromHouse;
+                continue;
+            }
+            Polygon newPolygon = generateHouse(
+                    topleftX, topLeftY, angle, houseGenSettings);
 
             // Check the newly generated house with the hasher and make sure that it does not collide with existing
             // house
             boolean collide = false;
-            for (Polygon p : hasher.getCollisionObjects(polygon)) {
+            for (Polygon p : hasher.getCollisionObjects(newPolygon)) {
                 if (PhysicUtils.checkPolygonPolygonCollision(
-                        p.getBoundaryPoints(), polygon.getBoundaryPoints())) {
+                        p.getBoundaryPoints(), newPolygon.getBoundaryPoints())) {
                     collide = true;
                     break;
                 };
             }
             if (!collide) {
-                polygons.add(polygon);
-                hasher.addObject(polygon);
+                polygons.add(newPolygon);
+                hasher.addObject(newPolygon);
+                lastPolygon = newPolygon;
             }
-            double distFromHouse = settings.getDistanceFromOther() +
-                    MathUtils.randDouble(-settings.getDistanceFromOtherWiggle(), settings.getDistanceFromEdgeWiggle());
-            currentDist = currentDist + width + distFromHouse;
+            double distFromHouse = houseGenSettings.getDistanceFromOther() +
+                    MathUtils.randDouble(
+                            -houseGenSettings.getDistanceFromOtherWiggle(), houseGenSettings.getDistanceFromEdgeWiggle());
+            currentDist = currentDist + distFromHouse;
+            if (currentDist > roadDistance -  houseGenSettings.getDistanceFromCrossRoad()) break;
         }
 
         // Generate the right-side houses
-        currentDist = settings.getDistanceFromCrossRoad();
+        currentDist = houseGenSettings.getDistanceFromCrossRoad();
         beginX = vertex2.x;
         beginY = vertex2.y;
         angle = angle + Math.PI;
+        lastPolygon = null;
         while (true) {
             // Generate a house if possible
-            double width = settings.getHouseWidth() +
-                    MathUtils.randDouble(-settings.getHouseWidthWiggle(), settings.getHouseWidthWiggle());
-            if (currentDist + width > roadDistance - settings.getDistanceFromCrossRoad()) break;
-            double area = settings.getHouseArea() +
-                    MathUtils.randDouble(-settings.getHouseAreaWiggle(), settings.getHouseAreaWiggle());
-            double length = area / width;
-            double distFromEdge = settings.getDistanceFromEdge() +
-                    MathUtils.randDouble(-settings.getDistanceFromEdgeWiggle(), settings.getDistanceFromEdgeWiggle());
-            Polygon polygon = generateHouseBoundaryPoints(
-                    beginX - roadUnitX * currentDist + distFromEdge * leftSideUnitX,
-                    beginY - roadUnitY * currentDist + distFromEdge * leftSideUnitY,
-                    angle, width, length);
-            polygon.setEntityType(EntityType.HOUSE);
+            double distFromEdge = houseGenSettings.getDistanceFromEdge() +
+                    MathUtils.randDouble(-houseGenSettings.getDistanceFromEdgeWiggle(), houseGenSettings.getDistanceFromEdgeWiggle());
+            double topleftX = beginX + roadUnitX * currentDist + distFromEdge * rightSideUnitX;
+            double topLeftY = beginY + roadUnitY * currentDist + distFromEdge * rightSideUnitY;
+            if (lastPolygon != null && PhysicUtils.checkPolygonPointCollision(lastPolygon.getBoundaryPoints(), topleftX, topLeftY)) {
+                double distFromHouse = houseGenSettings.getDistanceFromOther() +
+                        MathUtils.randDouble(-houseGenSettings.getDistanceFromOtherWiggle(), houseGenSettings.getDistanceFromOtherWiggle());
+                currentDist = currentDist + distFromHouse;
+                continue;
+            }
+            Polygon newPolygon = generateHouse(topleftX, topLeftY, angle, houseGenSettings);
 
             // Check the newly generated house with the hasher and make sure that it does not collide with existing
             // house
             boolean collide = false;
-            for (Polygon p : hasher.getCollisionObjects(polygon)) {
+            for (Polygon p : hasher.getCollisionObjects(newPolygon)) {
                 if (PhysicUtils.checkPolygonPolygonCollision(
-                        p.getBoundaryPoints(), polygon.getBoundaryPoints())) {
+                        p.getBoundaryPoints(), newPolygon.getBoundaryPoints())) {
                     collide = true;
                     break;
                 };
@@ -183,12 +281,14 @@ public class PolygonFactory {
 
             // Add the polygon to the system, and reconfigure the settings to generate the next house.
             if (!collide) {
-                polygons.add(polygon);
-                hasher.addObject(polygon);
+                polygons.add(newPolygon);
+                hasher.addObject(newPolygon);
+                lastPolygon = newPolygon;
             }
-            double distFromHouse = settings.getDistanceFromOther() +
-                    MathUtils.randDouble(-settings.getDistanceFromOtherWiggle(), settings.getDistanceFromEdgeWiggle());
-            currentDist = currentDist + width + distFromHouse;
+            double distFromHouse = houseGenSettings.getDistanceFromOther() +
+                    MathUtils.randDouble(-houseGenSettings.getDistanceFromOtherWiggle(), houseGenSettings.getDistanceFromEdgeWiggle());
+            currentDist = currentDist + distFromHouse;
+            if (currentDist > roadDistance -  houseGenSettings.getDistanceFromCrossRoad()) break;
         }
 
         // Return the polygon list
@@ -196,18 +296,121 @@ public class PolygonFactory {
     }
 
     /**
-     * Generate a polygon that that makes up a rectangle based on:
+     * Generate an l-shape polygon that makes up a rectangle based on:
+     * + point (x, y) as the top left corner of the polygon.
+     * + angle as the angle of the rectangle facing downward.
+     * + (width, length) as the dimension of that polygon
+     * The L-shape will fit perfect inside the rectangle, but will be facing in one of random 4 directions
+     * (UP, DOWN, LEFT, RIGHT) relative to the given angle and will be either be a regular L or a flip L.
+     */
+    private Polygon generateLHouse(
+            double topLeftX, double topLeftY, double angle, double width, double length) {
+        // Randomize the house to be built in one of 4 possible direction
+        double rand = MathUtils.randDouble(0, 1);
+        HouseDirection houseDir;
+        if (rand <= 0.25) {
+            houseDir = HouseDirection.UP;
+        } else if (rand <= 0.5) {
+            houseDir = HouseDirection.RIGHT;
+        } else if (rand <= 0.75) {
+            houseDir = HouseDirection.DOWN;
+        } else {
+            houseDir = HouseDirection.LEFT;
+        }
+
+        // Move the top left point and the angle respectively
+        double sideUnitX = MathUtils.quickCos((float) angle);
+        double sideUnitY = MathUtils.quickSin((float) angle);
+        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+        if (houseDir == HouseDirection.RIGHT) {
+            topLeftX += sideUnitX * width;
+            topLeftY += sideUnitY * width;
+            angle += MathUtils.PIO2;
+        } else if (houseDir == HouseDirection.DOWN) {
+            topLeftX += sideUnitX * width + downUnitX * length;
+            topLeftY += sideUnitY * width + downUnitY * length;
+            angle += Math.PI;
+        } else if (houseDir == HouseDirection.LEFT) {
+            topLeftX += downUnitX * length;
+            topLeftY += downUnitY * length;
+            angle += (MathUtils.PIO2 * 3);
+        }
+        sideUnitX = MathUtils.quickCos((float) angle);
+        sideUnitY = MathUtils.quickSin((float) angle);
+        downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+
+        // Randomly select whether the house will be a regular L or a flipped L.
+        Vertex v1, v2, v3, v4, v5, v6;
+        rand = MathUtils.randDouble(0, 1);
+        if (rand < 0.5) {
+            // Regular L shape
+            v1 = new Vertex(topLeftX, topLeftY);
+            v2 = new Vertex(
+                    topLeftX + width * 0.5 * sideUnitX,
+                    topLeftY + width * 0.5 * sideUnitY);
+            v3 = new Vertex(
+                    topLeftX + width * 0.5 * sideUnitX + length * 0.5 * downUnitX,
+                    topLeftY + width * 0.5 * sideUnitY + length * 0.5 * downUnitY);
+            v4 = new Vertex(
+                    topLeftX + width * sideUnitX + length * 0.5 * downUnitX,
+                    topLeftY + width * sideUnitY + length * 0.5 * downUnitY);
+            v5 = new Vertex(
+                    topLeftX + width * sideUnitX + length * downUnitX,
+                    topLeftY + width * sideUnitY + length * downUnitY);
+            v6 = new Vertex(
+                    topLeftX + length * downUnitX,
+                    topLeftY + length * downUnitY);
+        } else {
+            // Flipped L shape
+            v1 = new Vertex(
+                    topLeftX + width * 0.5 * sideUnitX,
+                    topLeftY + width * 0.5 * sideUnitY);
+            v2 = new Vertex(
+                    topLeftX + width * sideUnitX,
+                    topLeftY + width * sideUnitY);
+            v3 = new Vertex(
+                    topLeftX + width * sideUnitX + length * downUnitX,
+                    topLeftY + width * sideUnitY + length * downUnitY);
+            v4 = new Vertex(
+                    topLeftX + length * downUnitX,
+                    topLeftY + length * downUnitY);
+            v5 = new Vertex(
+                    topLeftX + length * 0.5 * downUnitX,
+                    topLeftY + length * 0.5 * downUnitY);
+            v6 = new Vertex(
+                    topLeftX + width * 0.5 * sideUnitX + length * 0.5 * downUnitX,
+                    topLeftY + width * 0.5 * sideUnitY + length * 0.5 * downUnitY);
+        }
+        Edge e1 = new Edge(v1, v2);
+        Edge e2 = new Edge(v2, v3);
+        Edge e3 = new Edge(v3, v4);
+        Edge e4 = new Edge(v4, v5);
+        Edge e5 = new Edge(v5, v6);
+        Edge e6 = new Edge(v6, v1);
+        HashSet<Vertex> vertexSet = new HashSet<>();
+        HashSet<Edge> edgeSet = new HashSet<>();
+        vertexSet.add(v1); vertexSet.add(v2); vertexSet.add(v3); vertexSet.add(v4); vertexSet.add(v5); vertexSet.add(v6);
+        edgeSet.add(e1); edgeSet.add(e2); edgeSet.add(e3); edgeSet.add(e4); edgeSet.add(e5); edgeSet.add(e6);
+        Polygon p = new Polygon(vertexSet, edgeSet);
+        return p;
+    }
+
+    /**
+     * Generate a polygon that fills a rectangle based on:
      * + point (x, y) as the top left corner of the polygon.
      * + angle as the angle of the rectangle facing downward.
      * + (width, length) as the dimension of that polygon
      */
-    private Polygon generateHouseBoundaryPoints(
+    private Polygon generateRectangleHouse(
             double topLeftX, double topLeftY, double angle, double width, double length) {
         double sideUnitX = MathUtils.quickCos((float) angle);
         double sideUnitY = MathUtils.quickSin((float) angle);
         double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
         double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
-        Vertex v1 = new Vertex(topLeftX, topLeftY);
+        Vertex v1 = new Vertex(
+                topLeftX, topLeftY);
         Vertex v2 = new Vertex(
                 topLeftX + width * sideUnitX,
                 topLeftY + width * sideUnitY);
@@ -224,7 +427,210 @@ public class PolygonFactory {
         HashSet<Vertex> vertexSet = new HashSet<>();
         HashSet<Edge> edgeSet = new HashSet<>();
         vertexSet.add(v1); vertexSet.add(v2); vertexSet.add(v3); vertexSet.add(v4);
-        edgeSet.add(e1); edgeSet.add(e2); edgeSet.add(e3) ;edgeSet.add(e4);
+        edgeSet.add(e1); edgeSet.add(e2); edgeSet.add(e3); edgeSet.add(e4);
+        Polygon p = new Polygon(vertexSet, edgeSet);
+        return p;
+    }
+
+    /**
+     * Generate an triangle polygon that fills a rectangle based on:
+     * + point (x, y) as the top left corner of the polygon.
+     * + angle as the angle of the rectangle facing downward.
+     * + (width, length) as the dimension of that polygon
+     * The triangle will fit perfect inside the rectangle, but will be facing in one of random 4 directions
+     * (UP, DOWN, LEFT, RIGHT);
+     */
+    private Polygon generateTriangleHouse(
+            double topLeftX, double topLeftY, double angle, double width, double length) {
+        // Randomize the house to be built in one of 4 possible direction
+        double rand = MathUtils.randDouble(0, 1);
+        HouseDirection houseDir;
+        if (rand <= 0.25) {
+            houseDir = HouseDirection.UP;
+        } else if (rand <= 0.5) {
+            houseDir = HouseDirection.RIGHT;
+        } else if (rand <= 0.75) {
+            houseDir = HouseDirection.DOWN;
+        } else {
+            houseDir = HouseDirection.LEFT;
+        }
+
+        // Create 3 vertices based on house direction
+        double sideUnitX = MathUtils.quickCos((float) angle);
+        double sideUnitY = MathUtils.quickSin((float) angle);
+        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+        Vertex v1, v2, v3;
+        if (houseDir == HouseDirection.UP) {
+            v1 = new Vertex(topLeftX, topLeftY);
+            v2 = new Vertex(
+                    topLeftX + width * sideUnitX + length * downUnitX,
+                    topLeftY + width * sideUnitY + length * downUnitY);
+            v3 = new Vertex(
+                    topLeftX + length * downUnitX,
+                    topLeftY + length * downUnitY);
+        } else if (houseDir == HouseDirection.RIGHT) {
+            v1 = new Vertex(topLeftX, topLeftY);
+            v2 = new Vertex(
+                    topLeftX + width * sideUnitX,
+                    topLeftY + width * sideUnitY);
+            v3 = new Vertex(
+                    topLeftX + length * downUnitX,
+                    topLeftY + length * downUnitY);
+        } else if (houseDir == HouseDirection.DOWN) {
+            v1 = new Vertex(topLeftX, topLeftY);
+            v2 = new Vertex(
+                    topLeftX + width * sideUnitX,
+                    topLeftY + width * sideUnitY);
+            v3 = new Vertex(
+                    topLeftX + width * sideUnitX + length * downUnitX,
+                    topLeftY + width * sideUnitY + length * downUnitY);
+        } else {
+            v1 = new Vertex(
+                    topLeftX + width * sideUnitX,
+                    topLeftY + width * sideUnitY);
+            v2 = new Vertex(
+                    topLeftX + width * sideUnitX + length * downUnitX,
+                    topLeftY + width * sideUnitY + length * downUnitY);
+            v3 = new Vertex(
+                    topLeftX + length * downUnitX,
+                    topLeftY + length * downUnitY);
+        }
+        Edge e1 = new Edge(v1, v2);
+        Edge e2 = new Edge(v2, v3);
+        Edge e3 = new Edge(v3, v1);
+        HashSet<Vertex> vertexSet = new HashSet<>();
+        HashSet<Edge> edgeSet = new HashSet<>();
+        vertexSet.add(v1); vertexSet.add(v2); vertexSet.add(v3);
+        edgeSet.add(e1); edgeSet.add(e2); edgeSet.add(e3);
+        Polygon p = new Polygon(vertexSet, edgeSet);
+        return p;
+    }
+
+    /**
+     * Generate an O-Shaped polygon that fills a rectangle based on:
+     * + point (x, y) as the top left corner of the polygon.
+     * + angle as the angle of the rectangle facing downward.
+     * + (width, length) as the dimension of that polygon
+     * The house will fill the rectangle, but their gate will face one of 4 directions
+     * (UP, DOWN, LEFT, RIGHT).
+     */
+    private Polygon generateOHouse(
+            double topLeftX, double topLeftY, double angle, double width, double length) {
+        // Randomize the house to be built in one of 4 possible direction
+        double rand = MathUtils.randDouble(0, 1);
+        HouseDirection houseDir;
+        if (rand <= 0.25) {
+            houseDir = HouseDirection.UP;
+        } else if (rand <= 0.5) {
+            houseDir = HouseDirection.RIGHT;
+        } else if (rand <= 0.75) {
+            houseDir = HouseDirection.DOWN;
+        } else {
+            houseDir = HouseDirection.LEFT;
+        }
+
+        // Create 3 vertices based on house direction
+        double sideUnitX = MathUtils.quickCos((float) angle);
+        double sideUnitY = MathUtils.quickSin((float) angle);
+        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+        if (houseDir == HouseDirection.RIGHT) {
+            topLeftX += sideUnitX * width * 1.0;
+            topLeftY += sideUnitY * width * 1.0;
+            angle += MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        } else if (houseDir == HouseDirection.DOWN) {
+            topLeftX += sideUnitX * width * 1.0 + downUnitX * length * 1.0;
+            topLeftY += sideUnitY * width * 1.0 + downUnitY * length * 1.0;
+            angle += Math.PI;
+        } else if (houseDir == HouseDirection.LEFT) {
+            topLeftX += downUnitX * length * 1.0;
+            topLeftY += downUnitY * length * 1.0;
+            angle -= MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        }
+        sideUnitX = MathUtils.quickCos((float) angle);
+        sideUnitY = MathUtils.quickSin((float) angle);
+        downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+        Vertex v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12;
+        v1 = new Vertex(topLeftX, topLeftY);
+        v2 = new Vertex(
+                topLeftX + sideUnitX * width * 0.45,
+                topLeftY + sideUnitY * width * 0.45);
+        v3 = new Vertex(
+                topLeftX + sideUnitX * width * 0.45 + downUnitX * length * 0.2,
+                topLeftY + sideUnitY * width * 0.45 + downUnitY * length * 0.2);
+        v4 = new Vertex(
+                topLeftX + sideUnitX * width * 0.2 + downUnitX * length * 0.2,
+                topLeftY + sideUnitY * width * 0.2 + downUnitY * length * 0.2);
+        v5 = new Vertex(
+                topLeftX + sideUnitX * width * 0.2 + downUnitX * length * 0.8,
+                topLeftY + sideUnitY * width * 0.2 + downUnitY * length * 0.8);
+        v6 = new Vertex(
+                topLeftX + sideUnitX * width * 0.8 + downUnitX * length * 0.8,
+                topLeftY + sideUnitY * width * 0.8 + downUnitY * length * 0.8);
+        v7 = new Vertex(
+                topLeftX + sideUnitX * width * 0.8 + downUnitX * length * 0.2,
+                topLeftY + sideUnitY * width * 0.8 + downUnitY * length * 0.2);
+        v8 = new Vertex(
+                topLeftX + sideUnitX * width * 0.55 + downUnitX * length * 0.2,
+                topLeftY + sideUnitY * width * 0.55 + downUnitY * length * 0.2);
+        v9 = new Vertex(
+                topLeftX + sideUnitX * width * 0.55 + downUnitX * length * 0.0,
+                topLeftY + sideUnitY * width * 0.55 + downUnitY * length * 0.0);
+        v10 = new Vertex(
+                topLeftX + sideUnitX * width * 1.0 + downUnitX * length * 0.0,
+                topLeftY + sideUnitY * width * 1.0 + downUnitY * length * 0.0);
+        v11 = new Vertex(
+                topLeftX + sideUnitX * width * 1.0 + downUnitX * length * 1.0,
+                topLeftY + sideUnitY * width * 1.0 + downUnitY * length * 1.0);
+        v12 = new Vertex(
+                topLeftX + downUnitX * length * 1.0,
+                topLeftY + downUnitY * length * 1.0);
+        Edge e1 = new Edge(v1, v2);
+        Edge e2 = new Edge(v2, v3);
+        Edge e3 = new Edge(v3, v4);
+        Edge e4 = new Edge(v4, v5);
+        Edge e5 = new Edge(v5, v6);
+        Edge e6 = new Edge(v6, v7);
+        Edge e7 = new Edge(v7, v8);
+        Edge e8 = new Edge(v8, v9);
+        Edge e9 = new Edge(v9, v10);
+        Edge e10 = new Edge(v10, v11);
+        Edge e11 = new Edge(v11, v12);
+        Edge e12 = new Edge(v12, v1);
+        HashSet<Vertex> vertexSet = new HashSet<>();
+        HashSet<Edge> edgeSet = new HashSet<>();
+        vertexSet.add(v1);
+        vertexSet.add(v2);
+        vertexSet.add(v3);
+        vertexSet.add(v4);
+        vertexSet.add(v5);
+        vertexSet.add(v6);
+        vertexSet.add(v7);
+        vertexSet.add(v8);
+        vertexSet.add(v9);
+        vertexSet.add(v10);
+        vertexSet.add(v11);
+        vertexSet.add(v12);
+        edgeSet.add(e1);
+        edgeSet.add(e2);
+        edgeSet.add(e3);
+        edgeSet.add(e4);
+        edgeSet.add(e5);
+        edgeSet.add(e6);
+        edgeSet.add(e7);
+        edgeSet.add(e8);
+        edgeSet.add(e9);
+        edgeSet.add(e10);
+        edgeSet.add(e11);
+        edgeSet.add(e12);
         Polygon p = new Polygon(vertexSet, edgeSet);
         return p;
     }
