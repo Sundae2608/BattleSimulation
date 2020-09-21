@@ -1,12 +1,14 @@
 package model.settings;
 
-import model.algorithms.geometry.HouseGenerationSettings;
+import model.algorithms.geometry.house_generation.HouseGenerationSettings;
+import model.algorithms.geometry.tree_generation.TreeGenerationSettings;
 
 public class MapGenerationSettings {
 
     boolean pointExtension;
     boolean straightenCurve;
     HouseGenerationSettings houseGenerationSettings;
+    TreeGenerationSettings treeGenerationSettings;
 
     public boolean isPointExtension() {
         return pointExtension;
@@ -30,5 +32,13 @@ public class MapGenerationSettings {
 
     public void setHouseGenerationSettings(HouseGenerationSettings houseGenerationSettings) {
         this.houseGenerationSettings = houseGenerationSettings;
+    }
+
+    public TreeGenerationSettings getTreeGenerationSettings() {
+        return treeGenerationSettings;
+    }
+
+    public void setTreeGenerationSettings(TreeGenerationSettings treeGenerationSettings) {
+        this.treeGenerationSettings = treeGenerationSettings;
     }
 }

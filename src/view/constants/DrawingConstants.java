@@ -47,9 +47,13 @@ public class DrawingConstants {
     // Node points
     public final static int[] NODE_COLOR = {255, 87, 33, 128};
     public final static int[] EDGE_COLOR = {255, 87, 33, 128};
-    public final static int[] POLYGON_COLOR = {0, 0, 0};
+    public final static int[] MOUSE_OVER_POLYGON_COLOR = {100, 100, 100};
+    public final static int[] NORMAL_POLYGON_COLOR = {128, 128, 128};
     public final static int[] POLYGON_RIVER_COLOR = {123, 190, 235};
     public final static int[] MERGED_POLYGON_COLOR = {242, 114, 70, 128};
+    public final static int[] HOUSE_ROOF_COLOR = {214, 90, 84};
+    public final static int[] TREE_LEAF_COLOR = {92, 194, 106};
+    public final static int[] ROAD_COLOR = {217, 138, 76};
     public final static double NODE_RADIUS = 40;
 
     // Unit size color

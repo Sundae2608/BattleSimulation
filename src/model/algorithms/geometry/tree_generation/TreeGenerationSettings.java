@@ -1,22 +1,19 @@
-package model.algorithms.geometry;
+package model.algorithms.geometry.tree_generation;
 
-import model.settings.MapGenerationMode;
-
-public class HouseGenerationSettings {
+public class TreeGenerationSettings {
     private double distanceFromEdge;
     private double distanceFromEdgeWiggle;
     private double distanceFromOther;
     private double distanceFromOtherWiggle;
     private double distanceFromCrossRoad;
-    private double houseWidth;
-    private double houseWidthWiggle;
-    private double houseArea;
-    private double houseAreaWiggle;
-    private MapGenerationMode mapGenerationMode;
+
+    private double size;
+    private double sizeWiggle;
 
     public double getDistanceFromEdge() {
         return distanceFromEdge;
     }
+
     public void setDistanceFromEdge(double distanceFromEdge) {
         this.distanceFromEdge = distanceFromEdge;
     }
@@ -24,6 +21,7 @@ public class HouseGenerationSettings {
     public double getDistanceFromEdgeWiggle() {
         return distanceFromEdgeWiggle;
     }
+
     public void setDistanceFromEdgeWiggle(double distanceFromEdgeWiggle) {
         this.distanceFromEdgeWiggle = distanceFromEdgeWiggle;
     }
@@ -31,6 +29,7 @@ public class HouseGenerationSettings {
     public double getDistanceFromOther() {
         return distanceFromOther;
     }
+
     public void setDistanceFromOther(double distanceFromOther) {
         this.distanceFromOther = distanceFromOther;
     }
@@ -38,6 +37,7 @@ public class HouseGenerationSettings {
     public double getDistanceFromOtherWiggle() {
         return distanceFromOtherWiggle;
     }
+
     public void setDistanceFromOtherWiggle(double distanceFromOtherWiggle) {
         this.distanceFromOtherWiggle = distanceFromOtherWiggle;
     }
@@ -45,42 +45,24 @@ public class HouseGenerationSettings {
     public double getDistanceFromCrossRoad() {
         return distanceFromCrossRoad;
     }
+
     public void setDistanceFromCrossRoad(double distanceFromCrossRoad) {
         this.distanceFromCrossRoad = distanceFromCrossRoad;
     }
 
-    public double getHouseWidth() {
-        return houseWidth;
-    }
-    public void setHouseWidth(double houseWidth) {
-        this.houseWidth = houseWidth;
+    public double getSize() {
+        return size;
     }
 
-    public double getHouseWidthWiggle() {
-        return houseWidthWiggle;
-    }
-    public void setHouseWidthWiggle(double houseWidthWiggle) {
-        this.houseWidthWiggle = houseWidthWiggle;
+    public void setSize(double size) {
+        this.size = size;
     }
 
-    public double getHouseArea() {
-        return houseArea;
-    }
-    public void setHouseArea(double houseArea) {
-        this.houseArea = houseArea;
+    public double getSizeWiggle() {
+        return sizeWiggle;
     }
 
-    public double getHouseAreaWiggle() {
-        return houseAreaWiggle;
-    }
-    public void setHouseAreaWiggle(double houseAreaWiggle) {
-        this.houseAreaWiggle = houseAreaWiggle;
-    }
-
-    public MapGenerationMode getMapGenerationMode() {
-        return mapGenerationMode;
-    }
-    public void setMapGenerationMode(MapGenerationMode mapGenerationMode) {
-        this.mapGenerationMode = mapGenerationMode;
+    public void setSizeWiggle(double sizeWiggle) {
+        this.sizeWiggle = sizeWiggle;
     }
 }

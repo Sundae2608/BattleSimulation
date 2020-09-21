@@ -339,6 +339,15 @@ public final class PhysicUtils {
     }
 
     /**
+     * Check whether circle (x1, y1) with radius r1 collides with circle (x2, y2) with radius r2.
+     * @return true if the two collides, false otherwise.
+     */
+    public static boolean checkCircleCircleCollision(double x1, double y1, double r1, double x2, double y2, double r2) {
+        double dist = MathUtils.quickDistance(x1, y1, x2, y2);
+        return dist <= r1 + r2;
+    }
+
+    /**
      * If (px, py) is within the circle at (cx, cy) with radius r, return the point in which t
      */
     public static double[] getCirclePushPoint(double cx, double cy, double r, double px, double py) {
@@ -431,6 +440,31 @@ public final class PhysicUtils {
 
         // If none of the edge touches, and none of the points are in others' polygons
         return false;
+    }
+
+    /**
+     * Check whether polygon 1, specified by double[][] boundaryPts1 contains polygon2, specified by
+     * double[][] boundaryPts2.
+     */
+    public static boolean checkPolygonContainsPolygon(double[][] boundaryPts1, double[][] boundaryPts2) {
+        // If any edge of polygon 2 cuts polygon 1, then polygon 1 does not contain polygon 2.
+        for (int i = 0; i < boundaryPts2.length; i++) {
+            double[] vc = boundaryPts2[i];
+            double[] vn = boundaryPts2[(i + 1) % boundaryPts2.length];
+            if (checkLinePolygonCollision(vc[0], vc[1], vn[0], vn[1], boundaryPts1)) {
+                return false;
+            }
+        }
+
+        // If all points in polygon 2 is in polygon 1
+        for (int i = 0; i < boundaryPts2.length; i++) {
+            double[] v = boundaryPts2[i];
+            if (!checkPolygonPointCollision(boundaryPts1, v[0], v[1])) return false;
+        }
+
+        // If no edge of polygon 2 cuts polygon 1, and all points of polygon 2 are within polygon 1, then polygon 2
+        // is inside polygon 1.
+        return true;
     }
 
     /**
