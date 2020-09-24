@@ -9,4 +9,4 @@ to make a game session. This include:
 * Surface config
 
 This is quite unsustainable in the long-term. The goal should be that all config
-reside in one single .json file, and use our JSONReader library
+reside in one single .json file, and use our JSONReader library. This way, config is easily copiable and transferable.
