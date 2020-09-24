@@ -166,7 +166,7 @@
       "type": "graph"
     }
   ],
-  "graphic_config": [
+  "video_element_confib": [
     {
       "type": "EXPLOSION",
       "video_path": "videos/explosion/"
@@ -201,31 +201,31 @@
     },
     {
       "audio_type": "SOLDIER_FIGHTING",
-      "file": "audios/"unit",_sound/medieval_combat.mp3",
+      "file": "audios/unit_sound/medieval_combat.mp3",
       "broadcast_type": "AMBIENT",
       "base_volume": "0.7"
     },
     {
       "audio_type": "SOLDIER_MARCHING",
-      "file": "audios/"unit",_sound/footrunning.mp3",
+      "file": "audios/unit_sound/footrunning.mp3",
       "broadcast_type": "AMBIENT",
       "base_volume": "0.35"
     },
     {
-      "audio_type": ""CAVALRY",_RUNNING",
-      "file": "audios/"unit",_sound/"CAVALRY",march.mp3",
+      "audio_type": "CAVALRY_RUNNING",
+      "file": "audios/unit_sound/cavalrymarch.mp3",
       "broadcast_type": "AMBIENT",
       "base_volume": "0.7"
     },
     {
-      "audio_type": ""CAVALRY",_CHARGE",
-      "file": "audios/"unit",_sound/"CAVALRY",charge.mp3",
+      "audio_type": "CAVALRY_CHARGE",
+      "file": "audios/unit_sound/cavalrycharge.mp3",
       "broadcast_type": "BURST",
       "base_volume": "1.0"
     },
     {
       "audio_type": "SOLDIER_CHARGE",
-      "file": "audios/"unit",_sound/"CAVALRY",charge.mp3",
+      "file": "audios/unit_sound/cavalrycharge.mp3",
       "broadcast_type": "BURST",
       "base_volume": "0.5"
     },

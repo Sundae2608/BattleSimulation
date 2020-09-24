@@ -18,12 +18,12 @@ import model.terrain.Terrain;
 import model.units.*;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
-import org.json.simple.parser.ParseException;
 import processing.core.PApplet;
 import processing.core.PImage;
 import utils.json.AudioSpeakerIO;
 import utils.json.JsonIO;
 import utils.json.TerrainIO;
+import utils.json.VideoElementPlayerIO;
 import view.audio.*;
 import view.camera.BaseCamera;
 import view.video.VideoElementPlayer;
@@ -287,20 +287,6 @@ public final class ConfigUtils {
         return gameStats;
     }
 
-
-    /**
-     * Read audio configs
-     * @param filePath
-     * @param camera
-     * @param applet
-     * @param eventBroadcaster
-     * @return An audio broadcaster with the configs.
-     */
-    public static AudioSpeaker readAudioConfigs(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
-        JsonIO jsonIO = new AudioSpeakerIO(camera, applet, eventBroadcaster);
-        return (AudioSpeaker) jsonIO.read(filePath);
-    }
-
     /**
      * Read audio configs
      * @param filePath
@@ -309,78 +295,8 @@ public final class ConfigUtils {
      * @throws IOException
      */
     public static VideoElementPlayer readVideoElementConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
-        // Get all text from file location
-        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
-        String s = new String(encoded, StandardCharsets.UTF_8);
-        String[] unitsInfo = s.split(",");
-
-        // Read each information
-        HashMap<VideoElementType, VideoTemplate> templateMap = new HashMap<>();
-        for (String info : unitsInfo) {
-
-            HashMap<String, String> d = parseProtoString(info);
-
-            // Get the element type
-            VideoElementType elementType = VideoElementType.valueOf(d.get("type"));
-            File folder = new File(String.valueOf(Paths.get(d.get("video_path"))));
-
-            // Build the sequence
-            File[] listOfFiles = folder.listFiles();
-            ArrayList<PImage> sequence = new ArrayList<>();
-            for (int i = 0; i < listOfFiles.length; i++) {
-                PImage image = applet.loadImage(listOfFiles[i].getCanonicalPath());
-                sequence.add(image);
-            }
-
-            // Create the template and add it to the template map
-            templateMap.put(elementType, new VideoTemplate(elementType, sequence));
-        }
-
-        // Return the video element player
-        VideoElementPlayer player = new VideoElementPlayer(applet, camera, templateMap, eventBroadcaster);
-        return player;
-    }
-
-    public static PImage[][] createTerrainTilesFromConfig(String folderPath, PApplet applet) {
-        // Initialize the tile list
-        PImage[][] images;
-
-        // Inspect the file names in the folder.
-        Pattern numberPattern = Pattern.compile("[0-9]+");
-        File folder = new File(Paths.get(folderPath).toString());
-        File[] fileList = folder.listFiles();
-
-        // Find the highest row and column number, they would be used to initiate the PImage array.
-        int maxRow = 0;
-        int maxCol = 0;
-        for (File file : fileList) {
-            String fileName = file.getName();
-            Matcher m = numberPattern.matcher(fileName);
-            m.find();
-            int row = Integer.valueOf(m.group());
-            if (row > maxRow) {
-                maxRow = row;
-            }
-            m.find();
-            int col = Integer.valueOf(m.group());
-            if (col > maxCol) {
-                maxCol = col;
-            }
-        }
-        // We add one because row and column is 0-indexed.
-        images = new PImage[maxRow + 1][maxCol + 1];
-
-        // Load each images and put them into respective rol and col
-        for (File file : fileList) {
-            String fileName = file.getName();
-            Matcher m = numberPattern.matcher(fileName);
-            m.find();
-            int row = Integer.valueOf(m.group());
-            m.find();
-            int col = Integer.valueOf(m.group());
-            images[row][col] = applet.loadImage(Paths.get(folderPath, fileName).toString());
-        }
-        return images;
+        JsonIO jsonIO = new VideoElementPlayerIO(camera, applet, eventBroadcaster);
+        return (VideoElementPlayer) jsonIO.read(filePath);
     }
 
     /**
@@ -519,6 +435,19 @@ public final class ConfigUtils {
             if (surface != null) surfaces.add(surface);
         }
         return surfaces;
+    }
+
+    /**
+     * Read audio configs
+     * @param filePath
+     * @param camera
+     * @param applet
+     * @param eventBroadcaster
+     * @return An audio broadcaster with the configs.
+     */
+    public static AudioSpeaker readAudioConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+        JsonIO jsonIO = new AudioSpeakerIO(camera, applet, eventBroadcaster);
+        return (AudioSpeaker) jsonIO.read(filePath);
     }
 
     /**

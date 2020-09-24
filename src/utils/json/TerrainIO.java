@@ -11,23 +11,23 @@ import java.io.IOException;
 public class TerrainIO implements JsonIO<Terrain> {
     @Override
     public Terrain read(String filePath) {
-        JSONObject terrainJsonObject = null;
+        JSONObject obj = null;
         try {
-            terrainJsonObject = (JSONObject)new JSONParser().parse(new FileReader(filePath));
+            obj = (JSONObject)new JSONParser().parse(new FileReader(filePath));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
 
-        double topX = (double) terrainJsonObject.get("top_x");
-        double topY = (double) terrainJsonObject.get("top_y");
-        double div = (double) terrainJsonObject.get("div");
-        int numX = Math.toIntExact((Long) terrainJsonObject.get("num_x"));
-        int numY = Math.toIntExact((Long) terrainJsonObject.get("num_y"));
-        double minHeight = (double) terrainJsonObject.get("min_height");
-        double maxHeight = (double) terrainJsonObject.get("max_height");
-        double perlinScale = (double) terrainJsonObject.get("perlin_scale");
-        double perlinDetailScale = (double) terrainJsonObject.get("perlin_detail_scale");
-        double perlinDetailHeightRatio = (double) terrainJsonObject.get("perlin_detail_height_ratio");
+        double topX = (double) obj.get("top_x");
+        double topY = (double) obj.get("top_y");
+        double div = (double) obj.get("div");
+        int numX = Math.toIntExact((Long) obj.get("num_x"));
+        int numY = Math.toIntExact((Long) obj.get("num_y"));
+        double minHeight = (double) obj.get("min_height");
+        double maxHeight = (double) obj.get("max_height");
+        double perlinScale = (double) obj.get("perlin_scale");
+        double perlinDetailScale = (double) obj.get("perlin_detail_scale");
+        double perlinDetailHeightRatio = (double) obj.get("perlin_detail_height_ratio");
 
         // Create a new terrain using the input configs.
         return new Terrain(

@@ -260,7 +260,7 @@ public class MainSimulation extends PApplet {
         /** Load sound files */
         // Set up audio speaker
         try {
-            audioSpeaker = ConfigUtils.readAudioConfigs(
+            audioSpeaker = ConfigUtils.readAudioConfig(
                     "src/configs/audio_configs/AudioConfigJson.json",
                     camera, this, env.getBroadcaster()
             );

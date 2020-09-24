@@ -42,9 +42,9 @@ public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
             e.printStackTrace();
         }
 
-        JSONArray jsonArray = (JSONArray) jsonObject.get("audioConfig");
+        JSONArray jsonArray = (JSONArray) jsonObject.get("audio_config");
 
-        for(Object obj: jsonArray){
+        for(Object obj : jsonArray){
             JSONObject audioTypeJsonObject;
             if (obj instanceof JSONObject) {
                 audioTypeJsonObject = (JSONObject)obj;
