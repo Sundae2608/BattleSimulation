@@ -1,0 +1,257 @@
+{
+  "battle_config": [
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 5000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 6000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 7000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 8000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 9000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "ARCHER",
+      "org": "unit",
+      "x": 4500,
+      "y": 7000,
+      "angle": 0,
+      "size": 100,
+      "faction": "ROME",
+      "width": 20
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 5000,
+      "y": 10000,
+      "angle": 0,
+      "size": 40,
+      "faction": "ROME",
+      "width": 8
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 5000,
+      "y": 4000,
+      "angle": 0,
+      "size": 40,
+      "faction": "ROME",
+      "width": 8
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 5000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 6000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 7000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 8000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 9000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "ARCHER",
+      "org": "unit",
+      "x": 6500,
+      "y": 7000,
+      "angle": 180,
+      "size": 100,
+      "faction": "GAUL",
+      "width": 20
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 6000,
+      "y": 10000,
+      "angle": 180,
+      "size": 40,
+      "faction": "GAUL",
+      "width": 8
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 6000,
+      "y": 4000,
+      "angle": 180,
+      "size": 40,
+      "faction": "GAUL",
+      "width": 8
+    }
+  ],
+  "construct_config": [
+    {
+      "type": "graph"
+    }
+  ],
+  "graphic_config": [
+    {
+      "type": "EXPLOSION",
+      "video_path": "videos/explosion/"
+    }
+  ],
+  "terrain_config": {
+    "top_x": 0.0,
+    "top_y": 0.0,
+    "div": 300.0,
+    "num_x": 60,
+    "num_y": 60,
+    "taper": 10,
+    "min_height": -40.0,
+    "max_height": 40.0,
+    "perlin_scale": 0.2,
+    "perlin_detail_scale": 0.4,
+    "perlin_detail_height_ratio": 0.05
+  },
+  "surface_config": [],
+  "audio_config": [
+    {
+      "audio_type": "LEFT_CLICK",
+      "file": "audios/click/click2.mp3",
+      "broadcast_type": "OVERLAY",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": "RIGHT_CLICK",
+      "file": "audios/click/click1.mp3",
+      "broadcast_type": "OVERLAY",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": "SOLDIER_FIGHTING",
+      "file": "audios/"unit",_sound/medieval_combat.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": "SOLDIER_MARCHING",
+      "file": "audios/"unit",_sound/footrunning.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.35"
+    },
+    {
+      "audio_type": ""CAVALRY",_RUNNING",
+      "file": "audios/"unit",_sound/"CAVALRY",march.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": ""CAVALRY",_CHARGE",
+      "file": "audios/"unit",_sound/"CAVALRY",charge.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "1.0"
+    },
+    {
+      "audio_type": "SOLDIER_CHARGE",
+      "file": "audios/"unit",_sound/"CAVALRY",charge.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.5"
+    },
+    {
+      "audio_type": "EXPLOSION",
+      "file": "audios/explosions/explosion.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.3"
+    },
+    {
+      "audio_type": "BALLISTA_HIT_GROUND",
+      "file": "audios/explosions/ballista_hit.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.1"
+    },
+    {
+      "audio_type": "BALLISTA_HIT_FLESH",
+      "file": "audios/explosions/ballista_hit_flesh.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.1"
+    },
+    {
+      "audio_type": "ARROW_CROWD_HIT",
+      "file": "audios/arrow/crowded_arrow_hit_light.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.3"
+    }
+  ]
+}
