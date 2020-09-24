@@ -166,7 +166,7 @@
       "type": "graph"
     }
   ],
-  "video_element_confib": [
+  "video_element_config": [
     {
       "type": "EXPLOSION",
       "video_path": "videos/explosion/"
@@ -185,7 +185,21 @@
     "perlin_detail_scale": 0.4,
     "perlin_detail_height_ratio": 0.05
   },
-  "surface_config": [],
+  "surface_config": [
+    {
+      "type": "FOREST",
+      "boundary_points": [
+        [-1400, 700],
+        [-1400, 2550],
+        [1050, 2550],
+        [1050, 700]
+      ],
+      "average_tree_radius": 45,
+      "size_wiggling": 10,
+      "average_distance": 250,
+      "distance_wiggling": 60
+    }
+  ],
   "audio_config": [
     {
       "audio_type": "LEFT_CLICK",
