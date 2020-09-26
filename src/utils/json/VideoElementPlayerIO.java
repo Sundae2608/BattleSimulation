@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class VideoElementPlayerIO implements JsonIO<VideoElementPlayer> {
+public class VideoElementPlayerIO extends JsonIO<VideoElementPlayer> {
 
     private BaseCamera camera;
     private PApplet applet;
@@ -69,10 +69,5 @@ public class VideoElementPlayerIO implements JsonIO<VideoElementPlayer> {
         // Return the video element player
         VideoElementPlayer player = new VideoElementPlayer(applet, camera, templateMap, eventBroadcaster);
         return player;
-    }
-
-    @Override
-    public void save(VideoElementPlayer data, String filePath) throws IOException {
-
     }
 }

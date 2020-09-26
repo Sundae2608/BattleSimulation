@@ -58,7 +58,7 @@ public class SurfaceHasher {
                     double y = j * yDiv + yDiv / 2;
                     if (PhysicUtils.checkPolygonPointCollision(surface.getSurfaceBoundary(), x, y)) {
                         long hash = pairHash(i, j);
-                        if (!surfaceHashMap.containsKey(hash)) treeHashMap.put(hash, new ArrayList<>());
+                        if (!surfaceHashMap.containsKey(hash)) surfaceHashMap.put(hash, new ArrayList<>());
                         surfaceHashMap.get(hash).add(surface);
                     }
                 }

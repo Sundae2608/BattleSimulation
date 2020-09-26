@@ -176,11 +176,11 @@ public class Main3DHexSimulation extends PApplet {
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "misc/VideoConfigs/Scene2.txt";
-        String mapConfig = "src/configs/map_configs/Terrain3DConfigs.json";
-        String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
-        String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
-        String gameConfig = "src/configs/game_configs/GameConfig.txt";
+        String battleConfig = "src/configs/whole_configs/ai_config.json";
+        String mapConfig = "src/configs/whole_configs/ai_config.json";
+        String constructsConfig = "src/configs/whole_configs/ai_config.json";
+        String surfaceConfig = "src/configs/whole_configs/ai_config.json";
+        String gameConfig = "src/configs/game_configs/game_config.json";
         env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
 
         // Check to make sure that the game environment is valid
@@ -274,7 +274,7 @@ public class Main3DHexSimulation extends PApplet {
         /** Setup video element player */
         try {
             videoElementPlayer = ConfigUtils.readVideoElementConfig(
-                    "src/configs/graphic_configs/GraphicConfig.txt",
+                    "src/configs/whole_configs/ai_config.json",
                     camera, this, env.getBroadcaster()
             );
         } catch (IOException e) {
@@ -285,7 +285,7 @@ public class Main3DHexSimulation extends PApplet {
         // Set up audio speaker
         try {
             audioSpeaker = ConfigUtils.readAudioConfig(
-                    "src/configs/audio_configs/AudioConfigJson.json",
+                    "src/configs/audio_configs/audio_config.json",
                     camera, this, env.getBroadcaster()
             );
         } catch (IOException e) {

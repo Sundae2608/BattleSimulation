@@ -11,6 +11,7 @@ import model.singles.SingleStats;
 import model.terrain.Terrain;
 import model.units.*;
 import model.units.unit_stats.UnitStats;
+import model.utils.MathUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -20,7 +21,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class BattleUnitsIO implements JsonIO<ArrayList<BaseUnit>> {
+public class BattleUnitsIO extends JsonIO<ArrayList<BaseUnit>> {
 
     private GameStats gameStats;
     private ObjectHasher hasher;
@@ -56,13 +57,13 @@ public class BattleUnitsIO implements JsonIO<ArrayList<BaseUnit>> {
         for(Object obj : jsonArray){
             JSONObject unitObject;
             if (obj instanceof JSONObject) {
-                unitObject = (JSONObject)obj;
-                double x = (Double) unitObject.get("x");
-                double y = (Double) unitObject.get("y");
-                double angle = (Double) unitObject.get("angle");
-                int unitSize = (Integer) unitObject.get("size");
+                unitObject = (JSONObject) obj;
+                double x = getDouble(unitObject.get("x"));
+                double y = getDouble(unitObject.get("y"));
+                double angle = MathUtils.toRadians(getDouble(unitObject.get("angle")));
+                int unitSize = getInt(unitObject.get("size"));
                 PoliticalFaction faction = PoliticalFaction.valueOf((String) unitObject.get("faction"));
-                int unitWidth = (Integer) unitObject.get("width");
+                int unitWidth = getInt(unitObject.get("width"));
                 UnitType unitType = UnitType.valueOf((String) unitObject.get("type"));
 
                 SingleStats singleStats = gameStats.getSingleStats(unitType, faction);
@@ -101,10 +102,5 @@ public class BattleUnitsIO implements JsonIO<ArrayList<BaseUnit>> {
             }
         }
         return units;
-    }
-
-    @Override
-    public void save(ArrayList<BaseUnit> data, String filePath) throws IOException {
-
     }
 }

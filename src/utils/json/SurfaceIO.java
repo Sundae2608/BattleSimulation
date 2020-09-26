@@ -11,7 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class SurfaceIO implements JsonIO<ArrayList<BaseSurface>> {
+public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
     @Override
     public ArrayList<BaseSurface> read(String filePath) throws IOException {
         // Initialize the JSON object
@@ -21,11 +21,11 @@ public class SurfaceIO implements JsonIO<ArrayList<BaseSurface>> {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-        JSONArray jsonArray = (JSONArray) jsonObject.get("game_config");
+        JSONArray jsonArray = (JSONArray) jsonObject.get("surface_config");
 
         // Read each surface config and create the surface
         ArrayList<BaseSurface> surfaces = new ArrayList<>();
-        for(Object obj : jsonArray) {
+        for (Object obj : jsonArray) {
             JSONObject surfaceObject;
             if (obj instanceof JSONObject) {
                 surfaceObject = (JSONObject) obj;
@@ -41,16 +41,16 @@ public class SurfaceIO implements JsonIO<ArrayList<BaseSurface>> {
                 ArrayList<double[]> pts = new ArrayList<>();
                 for (int i = 0; i < numPts; i++) {
                     double[] newPt = new double[] {
-                            Double.valueOf((String) ((JSONObject) boundaryPtsObj.get(0)).get("x")),
-                            Double.valueOf((String) ((JSONObject) boundaryPtsObj.get(0)).get("y"))
+                            getDouble(((JSONObject) boundaryPtsObj.get(i)).get("x")),
+                            getDouble(((JSONObject) boundaryPtsObj.get(i)).get("y"))
                     };
                     pts.add(newPt);
                 }
                 if (type == SurfaceType.FOREST) {
-                    averageTreeRadius = Double.valueOf((String) surfaceObject.get("average_tree_radius"));
-                    sizeWiggling = Double.valueOf((String) surfaceObject.get("average_tree_radius"));
-                    averageDistance = Double.valueOf((String) surfaceObject.get("average_tree_radius"));
-                    distanceWiggling = Double.valueOf((String) surfaceObject.get("average_tree_radius"));
+                    averageTreeRadius = getDouble(surfaceObject.get("average_tree_radius"));
+                    sizeWiggling = getDouble(surfaceObject.get("average_tree_radius"));
+                    averageDistance = getDouble(surfaceObject.get("average_tree_radius"));
+                    distanceWiggling = getDouble(surfaceObject.get("average_tree_radius"));
                 }
 
                 // Based on the surface type, create the surface and add to the surface array.
@@ -85,10 +85,5 @@ public class SurfaceIO implements JsonIO<ArrayList<BaseSurface>> {
             }
         }
         return surfaces;
-    }
-
-    @Override
-    public void save(ArrayList<BaseSurface> data, String filePath) throws IOException {
-
     }
 }

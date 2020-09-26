@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
+public class AudioSpeakerIO extends JsonIO<AudioSpeaker> {
     private BaseCamera camera;
     private PApplet applet;
     private EventBroadcaster eventBroadcaster;
@@ -60,10 +60,5 @@ public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
             }
         }
         return speaker;
-    }
-
-    @Override
-    public void save(AudioSpeaker audioSpeaker, String filePath) {
-
     }
 }

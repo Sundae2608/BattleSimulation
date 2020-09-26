@@ -282,80 +282,6 @@
   ],
   "constructs_and_graph_config": {
     "constructs": [
-      {
-        "name": "Roman forum",
-        "boundary_points": [
-          {
-            "x": 12530,
-            "y": 11400
-          },
-          {
-            "x": 13740,
-            "y": 11890
-          },
-          {
-
-            "x": 14580,
-            "y": 12530
-          },
-          {
-            "x": 15160,
-            "y": 12650
-          },
-          {
-            "x": 14740,
-            "y": 13130
-          },
-          {
-            "x": 11920,
-            "y": 14700
-          },
-          {
-            "x": 10050,
-            "y": 15380
-          },
-          {
-            "x": 8000,
-            "y": 16380
-          },
-          {
-            "x": 6970,
-            "y": 18180
-          },
-          {
-            "x": 6830,
-            "y": 16640
-          },
-          {
-            "x": 7120,
-            "y": 15020
-          },
-          {
-            "x": 6830,
-            "y": 16640
-          },
-          {
-            "x": 6830,
-            "y": 16640
-          },
-          {
-            "x": 7120,
-            "y": 15020
-          },
-          {
-            "x": 9200,
-            "y": 13960
-          },
-          {
-            "x": 11000,
-            "y": 13290
-          },
-          {
-            "x": 12120,
-            "y": 12270
-          }
-        ]
-      }
     ],
     "graph": {
       "nodes": [
@@ -507,122 +433,227 @@
       ],
       "edges": [
         {
-          "node1": 1.000000,
-          "node2": 5390.000000
+          "node1": 1,
+          "node2": 2
         },
         {
-          "node1": 2.000000,
-          "node2": 11380.000000
+          "node1": 2,
+          "node2": 3
         },
         {
-          "node1": 3.000000,
-          "node2": 18040.000000
+          "node1": 3,
+          "node2": 4
         },
         {
-          "node1": 4.000000,
-          "node2": 21950.000000
+          "node1": 4,
+          "node2": 5
         },
         {
-          "node1": 5.000000,
-          "node2": 26740.000000
+          "node1": 5,
+          "node2": 6
         },
         {
-          "node1": 6.000000,
-          "node2": 30140.000000
+          "node1": 6,
+          "node2": 12
         },
         {
-          "node1": 7.000000,
-          "node2": 4900.000000
+          "node1": 12,
+          "node2": 21
         },
         {
-          "node1": 8.000000,
-          "node2": 8810.000000
+          "node1": 21,
+          "node2": 26
         },
         {
-          "node1": 9.000000,
-          "node2": 15250.000000
+          "node1": 26,
+          "node2": 29
         },
         {
-          "node1": 10.000000,
-          "node2": 22440.000000
+          "node1": 29,
+          "node2": 28
         },
         {
-          "node1": 11.000000,
-          "node2": 26600.000000
+          "node1": 28,
+          "node2": 27
         },
         {
-          "node1": 12.000000,
-          "node2": 29860.000000
+          "node1": 27,
+          "node2": 24
         },
         {
-          "node1": 13.000000,
-          "node2": 11210.000000
+          "node1": 24,
+          "node2": 23
         },
         {
-          "node1": 14.000000,
-          "node2": 16620.000000
+          "node1": 23,
+          "node2": 22
         },
         {
-          "node1": 15.000000,
-          "node2": 19610.000000
+          "node1": 22,
+          "node2": 16
         },
         {
-          "node1": 16.000000,
-          "node2": 3910.000000
+          "node1": 16,
+          "node2": 7
         },
         {
-          "node1": 17.000000,
-          "node2": 15900.000000
+          "node1": 7,
+          "node2": 1
         },
         {
-          "node1": 18.000000,
-          "node2": 18730.000000
+          "node1": 7,
+          "node2": 8
         },
         {
-          "node1": 19.000000,
-          "node2": 22590.000000
+          "node1": 8,
+          "node2": 9
         },
         {
-          "node1": 20.000000,
-          "node2": 26740.000000
+          "node1": 9,
+          "node2": 3
         },
         {
-          "node1": 21.000000,
-          "node2": 32140.000000
+          "node1": 23,
+          "node2": 17
         },
         {
-          "node1": 22.000000,
-          "node2": 7510.000000
+          "node1": 17,
+          "node2": 18
         },
         {
-          "node1": 23.000000,
-          "node2": 13620.000000
+          "node1": 18,
+          "node2": 15
         },
         {
-          "node1": 24.000000,
-          "node2": 21600.000000
+          "node1": 15,
+          "node2": 10
         },
         {
-          "node1": 25.000000,
-          "node2": 28060.000000
+          "node1": 10,
+          "node2": 4
         },
         {
-          "node1": 26.000000,
-          "node2": 33550.000000
+          "node1": 8,
+          "node2": 13
         },
         {
-          "node1": 27.000000,
-          "node2": 23250.000000
+          "node1": 13,
+          "node2": 17
         },
         {
-          "node1": 28.000000,
-          "node2": 28960.000000
+          "node1": 9,
+          "node2": 14
         },
         {
-          "node1": 29.000000,
-          "node2": 31540.000000
+          "node1": 14,
+          "node2": 15
         },
+        {
+          "node1": 10,
+          "node2": 11
+        },
+        {
+          "node1": 11,
+          "node2": 12
+        },
+        {
+          "node1": 18,
+          "node2": 19
+        },
+        {
+          "node1": 19,
+          "node2": 20
+        },
+        {
+          "node1": 11,
+          "node2": 20
+        },
+        {
+          "node1": 20,
+          "node2": 25
+        }
       ]
     }
-  }
+  },
+  "terrain_config": {
+    "top_x": 0.0,
+    "top_y": 0.0,
+    "div": 300.0,
+    "num_x": 60,
+    "num_y": 60,
+    "taper": 10,
+    "min_height": -40.0,
+    "max_height": 40.0,
+    "perlin_scale": 0.2,
+    "perlin_detail_scale": 0.4,
+    "perlin_detail_height_ratio": 0.05
+  },
+  "audio_config":[
+    {
+      "audio_type": "LEFT_CLICK",
+      "file": "audios/click/click2.mp3",
+      "broadcast_type": "OVERLAY",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": "RIGHT_CLICK",
+      "file": "audios/click/click1.mp3",
+      "broadcast_type": "OVERLAY",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": "SOLDIER_FIGHTING",
+      "file": "audios/unit_sound/medieval_combat.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": "SOLDIER_MARCHING",
+      "file": "audios/unit_sound/footrunning.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.35"
+    },
+    {
+      "audio_type": "CAVALRY_RUNNING",
+      "file": "audios/unit_sound/cavalrymarch.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.7"
+    },
+    {
+      "audio_type": "CAVALRY_CHARGE",
+      "file": "audios/unit_sound/cavalrycharge.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "1.0"
+    },
+    {
+      "audio_type": "SOLDIER_CHARGE",
+      "file": "audios/unit_sound/cavalrycharge.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.5"
+    },
+    {
+      "audio_type": "EXPLOSION",
+      "file": "audios/explosions/explosion.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.3"
+    },
+    {
+      "audio_type": "BALLISTA_HIT_GROUND",
+      "file": "audios/explosions/ballista_hit.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.1"
+    },
+    {
+      "audio_type": "BALLISTA_HIT_FLESH",
+      "file": "audios/explosions/ballista_hit_flesh.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": "0.1"
+    },
+    {
+      "audio_type": "ARROW_CROWD_HIT",
+      "file": "audios/arrow/crowded_arrow_hit_light.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": "0.3"
+    }
+  ]
 }

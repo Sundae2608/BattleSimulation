@@ -69,58 +69,8 @@ public final class ConfigUtils {
      * Create constructs from config file.
      */
     public static Pair<Graph, ArrayList<Construct>> createConstructsAndGraphsFromConfig(String filePath) throws IOException {
-        // Get all text from file location
-        byte[] encoded = Files.readAllBytes(Paths.get(filePath));
-        String s = new String(encoded, StandardCharsets.UTF_8);
-        // The first object will be the map creation parameter.
-        String[] objects = s.split(",");
-
-        // Each of the next object will be a construct with a boundary.
-        ArrayList<Construct> constructs = new ArrayList<>();
-        Graph graph = null;
-        for (int i = 0; i < objects.length; i++) {
-            String[] infoLines = objects[i].split("\n");
-            String type = "";
-            String name = "";
-            ArrayList<double[]> pts = new ArrayList<>();
-            HashMap<Integer, double[]> nodes = new HashMap<>();
-            ArrayList<int[]> edges = new ArrayList<>();
-            for (int j = 0; j < infoLines.length; j++) {
-                String line = infoLines[j];
-                String[] data = line.split(":");
-                String fieldName = data[0].trim();
-                if (data.length < 2) continue;
-                if (fieldName.equals("type")) {
-                    type = data[1].trim();
-                }
-                if (type.equals("construct")) {
-                    if (fieldName.equals("name")) {
-                        name = data[1].trim();
-                    } else if (fieldName.equals("boundary_points")) {
-                        String[] ptData = data[1].trim().split(" ");
-                        double[] pt = new double[]{Double.valueOf(ptData[0]), Double.valueOf(ptData[1])};
-                        pts.add(pt);
-                    }
-                } else if (type.equals("graph")) {
-                    if (fieldName.equals("node")) {
-                        String[] nodeData = data[1].trim().split(" ");
-                        int nodeId = Integer.valueOf(nodeData[0].trim());
-                        double[] pt = new double[]{Double.valueOf(nodeData[1].trim()), Double.valueOf(nodeData[2].trim())};
-                        nodes.put(nodeId, pt);
-                    } else if (fieldName.equals("edge")) {
-                        String[] edgeData = data[1].trim().split(" ");
-                        int[] edge = new int[]{Integer.valueOf(edgeData[0]), Integer.valueOf(edgeData[1])};
-                        edges.add(edge);
-                    }
-                }
-            }
-            if (type.equals("construct")) {
-                constructs.add(new Construct(name, pts));
-            } else if (type.equals("graph")) {
-                graph = new Graph(nodes, edges);
-            }
-        }
-        return new Pair<>(graph, constructs);
+        JsonIO jsonIO = new ConstructsAndGraphIO();
+        return (Pair<Graph, ArrayList<Construct>>) jsonIO.read(filePath);
     }
 
     /**
