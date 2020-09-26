@@ -1268,4 +1268,12 @@ public class BaseUnit {
     public SoundSink getSoundSink() {
         return soundSink;
     }
+
+    public Terrain getTerrain() {
+        return terrain;
+    }
+
+    public void setTerrain(Terrain terrain) {
+        this.terrain = terrain;
+    }
 }

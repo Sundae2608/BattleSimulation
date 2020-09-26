@@ -33,6 +33,7 @@ public class BaseSingle {
     double angle;
     double facingAngle;
     double height;  // z
+    Terrain terrain;
 
     // Position goal
     double xGoal;
@@ -60,8 +61,12 @@ public class BaseSingle {
      * Initialize a troop. Since this is the base objects. Attributed assign will be among the most basic shared stats
      * such as:
      * - damageSustain
+     * Refactor BaseSingle to include more stuffs.
      */
-    public BaseSingle(SingleStats singleStats) {
+    public BaseSingle(SingleStats singleStats, BaseUnit baseUnit) {
+        unit = baseUnit;
+        terrain = unit.getTerrain();
+
         damageSustain = 0.0;
         justHit = 0;
         screamDeath = false;
@@ -231,6 +236,9 @@ public class BaseSingle {
         // Deal at least base damage
         double damage = singleStats.attack;
         double angleDiff;
+
+        // Bonus damage if attacking the single from above.
+
 
         // Bonus damage if attacking the single from the flank or from behind.
         double angleFromSingle = MathUtils.atan2(y - other.y, x - other.x);

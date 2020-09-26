@@ -197,9 +197,9 @@ public class MainSimulation extends PApplet {
 
         /** Camera setup */
 
-        // Add unit to view.camera
-        camera = new TopDownCamera(5000, 5000, INPUT_WIDTH, INPUT_HEIGHT,
-                env.getBroadcaster());
+        // Calculate average position of units, and create a camera.
+        double[] cameraPos = calculateAveragePositions(env.getUnits());
+        camera = new TopDownCamera(cameraPos[0], cameraPos[1], INPUT_WIDTH, INPUT_HEIGHT, env.getBroadcaster());
         cameraRotationSpeed = 0;
         cameraDx = 0;
         cameraDy = 0;
@@ -956,7 +956,21 @@ public class MainSimulation extends PApplet {
     void portrayDeadSingle(BaseSingle single, Terrain terrain) {
         singleDrawer.drawDeadSingle(single, terrain);
     }
-      
+
+    private double[] calculateAveragePositions(ArrayList<BaseUnit> units) {
+        double sumX = 0;
+        double sumY = 0;
+        int count = 0;
+        for (BaseUnit unit : units) {
+            sumX += unit.getAnchorX() * unit.getNumAlives();
+            sumY += unit.getAnchorY() * unit.getNumAlives();
+            count += unit.getNumAlives();
+        }
+        return new double[] {
+                sumX / count, sumY / count
+        };
+    }
+
     public static void main(String[] args){
         PApplet.main("MainSimulation");
     }
