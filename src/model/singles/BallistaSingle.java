@@ -33,10 +33,9 @@ public class BallistaSingle extends BaseSingle {
                           PoliticalFaction faction,
                           BaseUnit inputUnit,
                           SingleStats inputSingleStats,
-                          int index,
                           ObjectHasher inputHasher) {
         // Parent constructor
-        super(inputSingleStats);
+        super(inputSingleStats, inputUnit);
 
         // Assign hasher
         hasher = inputHasher;
@@ -51,7 +50,6 @@ public class BallistaSingle extends BaseSingle {
         politicalFaction = faction;
 
         // Set default stat up stats
-        unit = inputUnit;
         singleStats = inputSingleStats;
 
         // Default constants
@@ -66,7 +64,7 @@ public class BallistaSingle extends BaseSingle {
     }
 
     @Override
-    public void updateIntention(Terrain terrain) {
+    public void updateIntention() {
 
         // Can't have intention if already dead
         if (state == SingleState.DEAD) return;

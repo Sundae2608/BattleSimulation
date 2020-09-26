@@ -10,11 +10,10 @@ public class CavalrySingle extends BaseSingle {
                          double yInit,
                          PoliticalFaction faction,
                          BaseUnit inputUnit,
-                         SingleStats inputSingleStats,
-                         int index) {
+                         SingleStats inputSingleStats) {
 
         // Parent constructor
-        super(inputSingleStats);
+        super(inputSingleStats, inputUnit);
 
         // Position attribute
         x = xInit;
@@ -24,7 +23,6 @@ public class CavalrySingle extends BaseSingle {
 
         // Set up political faction
         politicalFaction = faction;
-        unit = inputUnit;
 
         // Set default stat up stats
         singleStats = inputSingleStats;

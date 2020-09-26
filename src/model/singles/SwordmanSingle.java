@@ -10,11 +10,10 @@ public class SwordmanSingle extends BaseSingle {
                           double yInit,
                           PoliticalFaction faction,
                           BaseUnit inputUnit,
-                          SingleStats inputSingleStats,
-                          int index) {
+                          SingleStats inputSingleStats) {
 
         // Parent constructor
-        super(inputSingleStats);
+        super(inputSingleStats, inputUnit);
 
         // Positional attribues
         x = xInit;
@@ -24,7 +23,6 @@ public class SwordmanSingle extends BaseSingle {
 
         // Set up political faction
         politicalFaction = faction;
-        unit = inputUnit;
 
         // Set default stat up stats
         singleStats = inputSingleStats;
