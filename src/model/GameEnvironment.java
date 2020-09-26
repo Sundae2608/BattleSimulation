@@ -148,6 +148,7 @@ public class GameEnvironment {
             for (BaseUnit unit : units) {
                 unit.updateSoundSource();
             }
+        }
 
         // Update sound sinks for all units
         for (BaseUnit unit : units) {
