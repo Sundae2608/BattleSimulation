@@ -57,7 +57,6 @@ public class GameEnvironment {
     ArrayList<SoundSource> soundSources;
 
     /**
-     *
      * @param battleConfig Path to the txt file that contains all the game information
      */
     public GameEnvironment(String gameConfig, String terrainConfig, String constructsConfig, String surfaceConfig,
@@ -69,6 +68,13 @@ public class GameEnvironment {
         deadUnits = new HashSet<>();
         aliveUnits = new HashSet<>();
         soundSources = new ArrayList<>();
+
+        // Read game stats.
+        try {
+            gameStats = ConfigUtils.readGameStats(gameConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // Read terrain configuration.
         try {
@@ -95,18 +101,11 @@ public class GameEnvironment {
         unitModifier = new UnitModifier(
                 deadContainer, terrain, constructs, surfaces, gameSettings, broadcaster, monitor);
 
-        // Read game stats.
-        try {
-            gameStats = ConfigUtils.readGameStats(gameConfig);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
                     battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster, gameSettings, this);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         for (BaseUnit unit : units) {

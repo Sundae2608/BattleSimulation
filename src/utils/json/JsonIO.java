@@ -1,10 +1,26 @@
 package utils.json;
 import java.io.IOException;
 
-public interface JsonIO<T> {
+public abstract class JsonIO<T> {
 
-    T read(String filePath) throws IOException;
+    public T read(String filePath) throws IOException {
+        return null;
+    }
 
-    void save(T data, String filePath) throws IOException;
+    protected Double getDouble(Object obj) {
+        if (obj instanceof Long) {
+            return ((Long) obj).doubleValue();
+        } else {
+            return (Double) obj;
+        }
+    }
+
+    protected Integer getInt(Object obj) {
+        if (obj instanceof Long) {
+            return ((Long) obj).intValue();
+        } else {
+            return (Integer) obj;
+        }
+    }
 }
 

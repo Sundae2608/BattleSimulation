@@ -1030,7 +1030,6 @@ public class PCGSimulation extends PApplet {
         }
 
         // Draw houses
-        noStroke();
         if (drawingSettings.isDrawHouses()) {
             color = DrawingConstants.MOUSE_OVER_POLYGON_COLOR;
             for (Polygon polygon : polygonHouses) {
@@ -1039,8 +1038,12 @@ public class PCGSimulation extends PApplet {
                     // Determine the color of the polygon
                     double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
                     if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
+                        strokeWeight(1);
+                        stroke(color[0],color[1],color[2], 60);
                         fill(color[0],color[1],color[2],60);
                     } else {
+                        strokeWeight(1);
+                        stroke(color[0],color[1],color[2], 36);
                         fill(color[0],color[1],color[2],35);
                     }
                     beginShape();
@@ -1056,6 +1059,7 @@ public class PCGSimulation extends PApplet {
         }
 
         // Draw trees
+        noStroke();
         if (drawingSettings.isDrawTrees()) {
             color = DrawingConstants.TREE_LEAF_COLOR;
             for (Tree tree : trees) {

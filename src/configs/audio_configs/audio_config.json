@@ -1,5 +1,5 @@
 {
-  "audioConfig":[
+  "audio_config":[
     {
       "audio_type": "LEFT_CLICK",
       "file": "audios/click/click2.mp3",
