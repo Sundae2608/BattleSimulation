@@ -166,12 +166,6 @@
       "type": "graph"
     }
   ],
-  "video_element_config": [
-    {
-      "type": "EXPLOSION",
-      "video_path": "videos/explosion/"
-    }
-  ],
   "terrain_config": {
     "top_x": 0.0,
     "top_y": 0.0,
@@ -212,74 +206,6 @@
       "distance_wiggling": 60,
       "average_tree_height": 100,
       "height_wiggling": 20
-    }
-  ],
-  "audio_config": [
-    {
-      "audio_type": "LEFT_CLICK",
-      "file": "audios/click/click2.mp3",
-      "broadcast_type": "OVERLAY",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "RIGHT_CLICK",
-      "file": "audios/click/click1.mp3",
-      "broadcast_type": "OVERLAY",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "SOLDIER_FIGHTING",
-      "file": "audios/unit_sound/medieval_combat.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "SOLDIER_MARCHING",
-      "file": "audios/unit_sound/footrunning.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.35"
-    },
-    {
-      "audio_type": "CAVALRY_RUNNING",
-      "file": "audios/unit_sound/cavalrymarch.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "CAVALRY_CHARGE",
-      "file": "audios/unit_sound/cavalrycharge.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "1.0"
-    },
-    {
-      "audio_type": "SOLDIER_CHARGE",
-      "file": "audios/unit_sound/cavalrycharge.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.5"
-    },
-    {
-      "audio_type": "EXPLOSION",
-      "file": "audios/explosions/explosion.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.3"
-    },
-    {
-      "audio_type": "BALLISTA_HIT_GROUND",
-      "file": "audios/explosions/ballista_hit.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.1"
-    },
-    {
-      "audio_type": "BALLISTA_HIT_FLESH",
-      "file": "audios/explosions/ballista_hit_flesh.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.1"
-    },
-    {
-      "audio_type": "ARROW_CROWD_HIT",
-      "file": "audios/arrow/crowded_arrow_hit_light.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.3"
     }
   ],
   "constructs_and_graph_config": {
@@ -589,73 +515,5 @@
     "perlin_scale": 0.2,
     "perlin_detail_scale": 0.4,
     "perlin_detail_height_ratio": 0.05
-  },
-  "audio_config":[
-    {
-      "audio_type": "LEFT_CLICK",
-      "file": "audios/click/click2.mp3",
-      "broadcast_type": "OVERLAY",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "RIGHT_CLICK",
-      "file": "audios/click/click1.mp3",
-      "broadcast_type": "OVERLAY",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "SOLDIER_FIGHTING",
-      "file": "audios/unit_sound/medieval_combat.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "SOLDIER_MARCHING",
-      "file": "audios/unit_sound/footrunning.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.35"
-    },
-    {
-      "audio_type": "CAVALRY_RUNNING",
-      "file": "audios/unit_sound/cavalrymarch.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.7"
-    },
-    {
-      "audio_type": "CAVALRY_CHARGE",
-      "file": "audios/unit_sound/cavalrycharge.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "1.0"
-    },
-    {
-      "audio_type": "SOLDIER_CHARGE",
-      "file": "audios/unit_sound/cavalrycharge.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.5"
-    },
-    {
-      "audio_type": "EXPLOSION",
-      "file": "audios/explosions/explosion.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.3"
-    },
-    {
-      "audio_type": "BALLISTA_HIT_GROUND",
-      "file": "audios/explosions/ballista_hit.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.1"
-    },
-    {
-      "audio_type": "BALLISTA_HIT_FLESH",
-      "file": "audios/explosions/ballista_hit_flesh.mp3",
-      "broadcast_type": "BURST",
-      "base_volume": "0.1"
-    },
-    {
-      "audio_type": "ARROW_CROWD_HIT",
-      "file": "audios/arrow/crowded_arrow_hit_light.mp3",
-      "broadcast_type": "AMBIENT",
-      "base_volume": "0.3"
-    }
-  ]
+  }
 }

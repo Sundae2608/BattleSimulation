@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 public class ConstructsAndGraphIO extends JsonIO<Pair<Graph, ArrayList<Construct>>> {
     @Override
-    public Pair<Graph, ArrayList<Construct>> read(String filePath) throws IOException {
+    public Pair<Graph, ArrayList<Construct>> read(String filePath) {
         // Initialize the JSON object
         JSONObject jsonObject = null;
         try {

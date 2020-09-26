@@ -42,7 +42,6 @@ public class BattleUnitsIO extends JsonIO<ArrayList<BaseUnit>> {
 
     @Override
     public ArrayList<BaseUnit> read(String filePath) {
-
         // Initialize the JSON object
         JSONObject jsonObject = null;
         try {

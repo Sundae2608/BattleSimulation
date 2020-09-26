@@ -59,8 +59,7 @@ public class GameEnvironment {
     /**
      * @param battleConfig Path to the txt file that contains all the game information
      */
-    public GameEnvironment(String gameConfig, String terrainConfig, String constructsConfig, String surfaceConfig,
-                           String battleConfig, GameSettings inputGameSettings) {
+    public GameEnvironment(String gameConfig, String battleConfig, GameSettings inputGameSettings) {
         broadcaster = new EventBroadcaster();
         monitor = new Monitor(UniversalConstants.FRAME_STORAGE);
         gameSettings = inputGameSettings;
@@ -78,14 +77,14 @@ public class GameEnvironment {
 
         // Read terrain configuration.
         try {
-            terrain = ConfigUtils.createTerrainFromConfig(terrainConfig);
+            terrain = ConfigUtils.createTerrainFromConfig(battleConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Read construct configuration.
         try {
-            Pair<Graph, ArrayList<Construct>> pair = ConfigUtils.createConstructsAndGraphsFromConfig(constructsConfig);
+            Pair<Graph, ArrayList<Construct>> pair = ConfigUtils.createConstructsAndGraphsFromConfig(battleConfig);
             graph = pair.getKey();
             constructs = pair.getValue();
         } catch (IOException e) {
@@ -94,7 +93,7 @@ public class GameEnvironment {
 
         // Read surface configuration.
         try {
-            surfaces = ConfigUtils.createSurfacesFromConfig(surfaceConfig);
+            surfaces = ConfigUtils.createSurfacesFromConfig(battleConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }

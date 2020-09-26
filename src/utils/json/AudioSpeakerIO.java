@@ -34,6 +34,7 @@ public class AudioSpeakerIO extends JsonIO<AudioSpeaker> {
 
     @Override
     public AudioSpeaker read(String filePath) {
+        // Initialize the JSON object
         AudioSpeaker speaker = new AudioSpeaker(camera, applet, eventBroadcaster);
         JSONObject jsonObject = null;
         try {
@@ -41,9 +42,9 @@ public class AudioSpeakerIO extends JsonIO<AudioSpeaker> {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
-
         JSONArray jsonArray = (JSONArray) jsonObject.get("audio_config");
 
+        // Read each audio and add to the collection
         for(Object obj : jsonArray){
             JSONObject audioTypeJsonObject;
             if (obj instanceof JSONObject) {
@@ -51,7 +52,7 @@ public class AudioSpeakerIO extends JsonIO<AudioSpeaker> {
                 String audioPath = (String) audioTypeJsonObject.get("file");
                 AudioType audioType = AudioType.valueOf((String) audioTypeJsonObject.get("audio_type"));
                 SpeakingType speakingType = SpeakingType.valueOf((String) audioTypeJsonObject.get("broadcast_type"));
-                float baseVolume = Float.parseFloat((String) audioTypeJsonObject.get("base_volume"));
+                float baseVolume = getFloat(audioTypeJsonObject.get("base_volume"));
 
                 Audio audio = new Audio(
                         audioPath, audioType, speakingType, baseVolume, applet

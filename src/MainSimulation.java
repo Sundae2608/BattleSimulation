@@ -172,16 +172,18 @@ public class MainSimulation extends PApplet {
     public void setup() {
 
         /** Load graphic resources */
+        // TODO: Not quite sure whether to put this alongside battle config or visual config. It makes more sense for
+        //  this config to be with the map, but putting it with visual config also make sense visually if we assume
+        //  that map texture.
         mapTexture = loadImage("imgs/FullMap/DemoMap2.png");
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/whole_configs/ai_config.json";
-        String mapConfig = "src/configs/whole_configs/ai_config.json";
-        String constructsConfig = "src/configs/whole_configs/ai_config.json";
-        String surfaceConfig = "src/configs/whole_configs/ai_config.json";
         String gameConfig = "src/configs/game_configs/game_config.json";
-        env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
+        String battleConfig = "src/configs/whole_configs/ai_config.json";
+        String visualConfig = "src/configs/visual_configs/visual_config.json";
+        String audioConfig = "src/configs/audio_configs/audio_config.json";
+        env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
 
         // Check to make sure that the game environment is valid
         try {
@@ -250,8 +252,7 @@ public class MainSimulation extends PApplet {
         /** Setup video element player */
         try {
             videoElementPlayer = ConfigUtils.readVideoElementConfig(
-                    "src/configs/whole_configs/ai_config.json",
-                    camera, this, env.getBroadcaster()
+                    visualConfig, camera, this, env.getBroadcaster()
             );
         } catch (IOException e) {
             e.printStackTrace();
@@ -260,18 +261,14 @@ public class MainSimulation extends PApplet {
         /** Load sound files */
         // Set up audio speaker
         try {
-            audioSpeaker = ConfigUtils.readAudioConfig(
-                    "src/configs/audio_configs/audio_config.json",
-                    camera, this, env.getBroadcaster()
-            );
+            audioSpeaker = ConfigUtils.readAudioConfig(audioConfig, camera, this, env.getBroadcaster());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Load background music
         if (audioSettings.isBackgroundMusic()) {
-            backgroundMusic = new SoundFile(this, "audios/bg_music/bg1.mp3");
-            backgroundMusic.amp(0.15f);
+            backgroundMusic = ConfigUtils.createBackgroundMusicFromConfig(audioConfig, this);
             backgroundMusic.loop();
         }
 
@@ -315,7 +312,6 @@ public class MainSimulation extends PApplet {
          * - Unit size optimization.
          * - Update nearest unit to mouse cursor.
          */
-
         // Pre-process all drawer. This pre-process is vital to short-cut calculation and optimization.
         uiDrawer.preprocess();
         shapeDrawer.preprocess();

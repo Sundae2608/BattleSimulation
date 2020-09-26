@@ -20,6 +20,7 @@ import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
 import processing.core.PApplet;
 import processing.core.PImage;
+import processing.sound.SoundFile;
 import utils.json.*;
 import view.audio.*;
 import view.camera.BaseCamera;
@@ -58,7 +59,6 @@ public final class ConfigUtils {
 
     /**
      * Read video element config, which contains image footage that creates high quality in-game video elements.
-     * @throws IOException
      */
     public static VideoElementPlayer readVideoElementConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         JsonIO jsonIO = new VideoElementPlayerIO(camera, applet, eventBroadcaster);
@@ -83,7 +83,6 @@ public final class ConfigUtils {
 
     /**
      * Read audio configs
-     * @return An audio broadcaster with the configs.
      */
     public static AudioSpeaker readAudioConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         JsonIO jsonIO = new AudioSpeakerIO(camera, applet, eventBroadcaster);
@@ -92,12 +91,17 @@ public final class ConfigUtils {
 
     /**
      * Create a terrain based on configs input from a file.
-     * @param filePath path that contains the input configs.
-     * @return a terrain generated from the config.
-     * @throws IOException if the file is unavailable.
      */
     public static Terrain createTerrainFromConfig(String filePath) throws IOException {
         JsonIO jsonIO = new TerrainIO();
         return (Terrain) jsonIO.read(filePath);
+    }
+
+    /**
+     * Read background music config
+     */
+    public static SoundFile createBackgroundMusicFromConfig(String filePath, PApplet applet) {
+        JsonIO jsonIO = new BackgroundMusicIO(applet);
+        return (SoundFile) jsonIO.read(filePath);
     }
 }
