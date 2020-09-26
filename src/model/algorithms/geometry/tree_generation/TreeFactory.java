@@ -53,7 +53,11 @@ public class TreeFactory {
             Tree newTree = new Tree(treeX, treeY,
                     treeGenerationSettings.getSize() + MathUtils.randDouble(
                             -treeGenerationSettings.getSizeWiggle(),
-                            treeGenerationSettings.getSizeWiggle()));
+                            treeGenerationSettings.getSizeWiggle()),
+                    treeGenerationSettings.getSize() + MathUtils.randDouble(
+                            -treeGenerationSettings.getSizeWiggle(),
+                            treeGenerationSettings.getSizeWiggle()
+                    ));
 
             // Check the newly generated house with the hasher and make sure that it does not collide with existing
             // house
@@ -103,7 +107,11 @@ public class TreeFactory {
             Tree newTree = new Tree(treeX, treeY,
                     treeGenerationSettings.getSize() + MathUtils.randDouble(
                             -treeGenerationSettings.getSizeWiggle(),
-                            treeGenerationSettings.getSizeWiggle()));
+                            treeGenerationSettings.getSizeWiggle()),
+                    treeGenerationSettings.getHeight() + MathUtils.randDouble(
+                            -treeGenerationSettings.getHeightWiggle(),
+                            treeGenerationSettings.getHeightWiggle()
+                    ));
 
             // Check the newly generated house with the hasher and make sure that it does not collide with existing
             // house

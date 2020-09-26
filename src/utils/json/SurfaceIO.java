@@ -33,6 +33,8 @@ public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
                 double sizeWiggling = 0.0;
                 double averageDistance = 0.0;
                 double distanceWiggling = 0.0;
+                double averageTreeHeight = 0.0;
+                double heightWiggling = 0.0;
 
                 // Extract surface type
                 SurfaceType type = SurfaceType.valueOf((String) surfaceObject.get("type"));
@@ -48,9 +50,11 @@ public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
                 }
                 if (type == SurfaceType.FOREST) {
                     averageTreeRadius = getDouble(surfaceObject.get("average_tree_radius"));
-                    sizeWiggling = getDouble(surfaceObject.get("average_tree_radius"));
-                    averageDistance = getDouble(surfaceObject.get("average_tree_radius"));
-                    distanceWiggling = getDouble(surfaceObject.get("average_tree_radius"));
+                    sizeWiggling = getDouble(surfaceObject.get("size_wiggling"));
+                    averageDistance = getDouble(surfaceObject.get("average_distance"));
+                    distanceWiggling = getDouble(surfaceObject.get("distance_wiggling"));
+                    averageTreeHeight = getDouble(surfaceObject.get("average_tree_height"));
+                    heightWiggling = getDouble(surfaceObject.get("height_wiggling"));
                 }
 
                 // Based on the surface type, create the surface and add to the surface array.
@@ -70,7 +74,8 @@ public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
                         break;
                     case FOREST:
                         surface = new ForestSurface(
-                                type, pts, averageTreeRadius, sizeWiggling, averageDistance, distanceWiggling);
+                                type, pts, averageTreeRadius, sizeWiggling, averageDistance, distanceWiggling,
+                                averageTreeHeight, heightWiggling);
                         break;
                     case RIVERSIDE:
                         surface = new RiversideSurface(type, pts);

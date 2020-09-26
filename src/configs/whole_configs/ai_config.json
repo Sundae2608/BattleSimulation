@@ -209,7 +209,9 @@
       "average_tree_radius": 45,
       "size_wiggling": 10,
       "average_distance": 250,
-      "distance_wiggling": 60
+      "distance_wiggling": 60,
+      "average_tree_height": 100,
+      "height_wiggling": 20
     }
   ],
   "audio_config": [
