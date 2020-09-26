@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class GameStatsIO extends JsonIO<GameStats> {
     @Override
-    public GameStats read(String filePath) throws IOException {
+    public GameStats read(String filePath) {
         // Initialize the JSON object
         JSONObject jsonObject = null;
         try {

@@ -1,0 +1,92 @@
+{
+  "battle_config": [
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 500,
+      "y": 500,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 600,
+      "y": 500,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    }
+  ],
+  "construct_config": [
+    {
+      "type": "graph"
+    }
+  ],
+  "terrain_config": {
+    "top_x": 0.0,
+    "top_y": 0.0,
+    "div": 30.0,
+    "num_x": 60,
+    "num_y": 60,
+    "taper": 10,
+    "min_height": -40.0,
+    "max_height": 40.0,
+    "perlin_scale": 0.2,
+    "perlin_detail_scale": 0.4,
+    "perlin_detail_height_ratio": 0.05
+  },
+  "surface_config": [
+    {
+      "type": "FOREST",
+      "boundary_points": [
+        {
+          "x": -1400,
+          "y": 700
+        },
+        {
+          "x": -1400,
+          "y": 2550
+        },
+        {
+          "x": 1050,
+          "y": 2550
+        },
+        {
+          "x": 1050,
+          "y": 700
+        }
+      ],
+      "average_tree_radius": 45,
+      "size_wiggling": 10,
+      "average_distance": 250,
+      "distance_wiggling": 60,
+      "average_tree_height": 100,
+      "height_wiggling": 20,
+      "tree_hash_div": 50
+    }
+  ],
+  "constructs_and_graph_config": {
+    "constructs": [],
+    "graph": {
+      "nodes": [],
+      "edges": []
+    }
+  },
+  "terrain_config": {
+    "top_x": 0.0,
+    "top_y": 0.0,
+    "div": 300.0,
+    "num_x": 60,
+    "num_y": 60,
+    "taper": 10,
+    "min_height": -40.0,
+    "max_height": 40.0,
+    "perlin_scale": 0.2,
+    "perlin_detail_scale": 0.4,
+    "perlin_detail_height_ratio": 0.05
+  }
+}
