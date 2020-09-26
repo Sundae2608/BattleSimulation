@@ -14,7 +14,7 @@ Battle Simulation is a Java project providing a platform to set up and simulate 
 * [ai.djl:api:0.6.0](https://github.com/awslabs/djl) Deep Java Library for training and using ML models
 
 For a detailed installation guide to get the software up and running in IntelliJ development environment, please visit
-the [Installation Guide page](docs/InstallationGuide.md).
+the [Installation Guide page](docs/installation_guide.md).
 
 ## Roadmap
 

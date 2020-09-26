@@ -1,9 +1,7 @@
 This package contains whole configs, meaning that each folder in here contains all different config
 to make a game session. This include:
-* Audio config
 * Battle config
 * Construct config
-* Graphic config
 * Map config
 * Surface config
 
