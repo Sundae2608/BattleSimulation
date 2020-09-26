@@ -3,10 +3,12 @@ package model.utils;
 import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import model.construct.Construct;
+import model.enums.SurfaceType;
 import model.singles.BaseSingle;
 import model.sound.SoundSink;
 import model.sound.SoundSource;
 import model.surface.BaseSurface;
+import model.surface.ForestSurface;
 import model.surface.Tree;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
@@ -305,6 +307,7 @@ public final class PhysicUtils {
         return allVisibleSingles;
     }
 
+    // TODO (Son): These must be in MathUtiles
     /**
      * Check whether point (px, py) lies within the polygon constructed by vertices.
      */
@@ -643,7 +646,7 @@ public final class PhysicUtils {
     }
 
     public static Pair<Double, Double> getPerceivedNoise(SoundSource soundSource, Terrain terrain,
-                                                         ArrayList<BaseSurface> surfaces, BaseUnit thisUnit) {
+                                                         ArrayList<BaseSurface> surfaces, ArrayList<Construct> constructs, BaseUnit thisUnit) {
         // Calculating the directional vector of the unit
         double anchorAngle = thisUnit.getAnchorAngle();
         double xComponent = MathUtils.quickSin((float) anchorAngle);
@@ -684,14 +687,14 @@ public final class PhysicUtils {
 
             // Calculating perceived noise level
             // TODO: Make an if statement, that we calculate only the direct noise level for ambient sound
-            double  perceivedNoiseLevel = calculateBouncedNoiseLevel(soundSource, terrain, surfaces, thisUnit.getSoundSink());
+            double  perceivedNoiseLevel = calculateBouncedNoiseLevel(soundSource, terrain, surfaces, constructs, thisUnit.getSoundSink());
             Pair<Double, Double> perceivedNoise = new Pair(perceivedNoiseLevel, relativePerceivedAngle);
             return perceivedNoise;
         }
 
     }
 
-    public static double calculateDirectNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, SoundSink soundSink) {
+    public static double calculateDirectNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, ArrayList<Construct> constructs, SoundSink soundSink) {
         // Noise level and coordinate at the sound source
         double startingNoiseLevel = soundSource.getNoise();
         double sourceX = soundSource.getX();
@@ -708,21 +711,18 @@ public final class PhysicUtils {
         }
 
         // Calculating and converting travelLength from pixel to meter
-        double travelLengthPixel = MathUtils.squareDistance(sourceX, sourceY, sinkX, sinkY);
+        double travelLengthPixel = MathUtils.quickDistance3D(sourceX, sourceY, sourceZ, sinkX, sinkY, sinkZ);
         double travelLengthMeter = travelLengthPixel / UniversalConstants.DIST_UNIT_PER_M;
 
         // Calculate noise level at sink without passing through environment
         // Calculation link: http://hyperphysics.phy-astr.gsu.edu/hbase/Acoustic/isprob2.html
         // Assuming noise level is generated at d1 = 0.1m
-        // TODO(tbt004): Put 0.1 into a constant.
-        double endingNoiseLevel = MathUtils.square(0.1 / travelLengthMeter) * startingNoiseLevel;
+        double endingNoiseLevel = MathUtils.square(GameplayConstants.DEFAULT_SOUND_RADIUS / travelLengthMeter) * startingNoiseLevel;
 
         // Creating a parameter p in [0, 1) to get the line segment from the sink to source
         // https://math.stackexchange.com/questions/2876828/the-equation-of-the-line-pass-through-2-points-in-3d-space
-        // TODO(tbt004): Travel length should account for the difference in height.
-        //  This can be achieved by multiple div by cos of the angle to the ground of the source to sink vector.
         double div = terrain.getDiv();
-        double granularity = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(MathUtils.quickRoot2((float) travelLengthPixel) / div);
+        double granularity = GameplayConstants.TERRAIN_COLLISION_CHECK_PER_DIV * Math.ceil(travelLengthPixel/div);
 
         // Counting the number of passes through the terrain and modify the sound for each pass
         // Parameter p is used for the parametric equation of the line segment from sink to source
@@ -746,9 +746,9 @@ public final class PhysicUtils {
             arrayX[j] = (sourceX - sinkX) * p[j] + sinkX;
             arrayY[j] = (sourceY - sinkY) * p[j] + sinkY;
             arrayZ[j] = (sourceZ - sinkZ) * p[j] + sinkZ;
-            terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
+            terrainArrayZ[j] = getAbsoluteBarrierHeight(arrayX[j], arrayY[j], terrain, surfaces, constructs);
 
-            if (arrayZ[j] > terrainArrayZ[j]){
+            if (arrayZ[j] < terrainArrayZ[j]){
                 soundModifyingCounter = soundModifyingCounter +1;
             }
         }
@@ -766,7 +766,7 @@ public final class PhysicUtils {
      * @param soundSink
      * @return
      */
-    public static double calculateBouncedNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, SoundSink soundSink) {
+    public static double calculateBouncedNoiseLevel(SoundSource soundSource, Terrain terrain, ArrayList<BaseSurface> surfaces, ArrayList<Construct> constructs, SoundSink soundSink) {
         // Getting the coordinate of the unit and the soundSource
         double sinkX = soundSink.getX();
         double sinkY = soundSink.getY();
@@ -829,19 +829,20 @@ public final class PhysicUtils {
             dummySoundSink.setX(bouncePoints[i][0]);
             dummySoundSink.setY(bouncePoints[i][1]);
             dummySoundSink.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
-            double tempNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, dummySoundSink);
+            double tempNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, constructs,  dummySoundSink);
 
             SoundSource dummySoundSource = new SoundSource();
             dummySoundSource.setNoise(tempNoiseLevel);
             dummySoundSource.setX(bouncePoints[i][0]);
             dummySoundSource.setY(bouncePoints[i][1]);
             dummySoundSource.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
-            tempNoiseLevel = calculateDirectNoiseLevel(dummySoundSource, terrain, surfaces, soundSink);
+            tempNoiseLevel = calculateDirectNoiseLevel(dummySoundSource, terrain, surfaces, constructs, soundSink);
 
-            // TODO(tbt004): Change back to linear scale before adding new noise.
-            //  Current noise level is at log scale, which does add up linearly like the equation below.
-            endingNoiseLevel = endingNoiseLevel + tempNoiseLevel;
+            // Since tempNoise level is calculated in dB, we have to convert it to the normal scale.
+            endingNoiseLevel = endingNoiseLevel + Math.pow(10, tempNoiseLevel);
         }
+        // Converting endingNoiseLevel back to dB (log scale)
+        endingNoiseLevel = Math.log10(endingNoiseLevel);
         return endingNoiseLevel;
     }
 
@@ -887,6 +888,47 @@ public final class PhysicUtils {
         }
 
         return perceivedNoiseLabel;
+    }
+
+    /**
+     * This functions get the absol
+     * @param x
+     * @param y
+     * @param terrain
+     * @param surfaces
+     * @param constructs
+     * @return
+     */
+    public static double getAbsoluteBarrierHeight(double x, double y, Terrain terrain, ArrayList<BaseSurface> surfaces, ArrayList<Construct> constructs) {
+        double barrierHeight = terrain.getHeightFromPos(x, y);
+
+        // Adding barrierHeight from surfaces
+        // Looping through surfaces
+        for (BaseSurface surface : surfaces){
+            // Check if our point is in the surface, then we start checking if our point is in that surface
+            if (checkPolygonPointCollision(surface.getSurfaceBoundary(), x, y)) {
+
+                // If surfaces is type FOREST, check each tree to see if our point is within the radius
+                if (surface.getType() == SurfaceType.FOREST) {
+                        Tree tree = ((ForestSurface) surface).getTreeHasher().getSingleTreeByCoordinate(x,y);
+                        if (tree != null){
+                            barrierHeight = barrierHeight + tree.getHeight();
+                        }
+                }
+
+                // [TODO] - (Trung): If surface in of type (city, wall etc.)
+            }
+        }
+
+        // Looping through constructs
+        for (Construct construct : constructs){
+            // If our point is in the FOREST surface, then we loop through and check each tree to see if our point is within the radius
+            if (checkPolygonPointCollision(construct.getBoundaryPoints(), x, y)) {
+                barrierHeight = barrierHeight + construct.getHeight();
+            }
+        }
+
+        return barrierHeight;
     }
 }
 
