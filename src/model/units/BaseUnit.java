@@ -884,7 +884,7 @@ public class BaseUnit {
 
         // Update troop intentions
         for (BaseSingle single : aliveTroopsMap.keySet()) {
-            single.updateIntention(terrain);
+            single.updateIntention();
         }
     }
 

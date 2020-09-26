@@ -80,7 +80,7 @@ public class BaseSingle {
      * Update intention of the troop. The intention represents the potential move of the soldier, if unopposed, through
      * xVel and yVel;
      */
-    public void updateIntention(Terrain terrain) {
+    public void updateIntention() {
 
         // Can't have intention if already dead
         if (state == SingleState.DEAD) return;
@@ -192,6 +192,7 @@ public class BaseSingle {
      * Update the state of the troop
      */
     public void updateState() {
+        // Update position and height
         if (state != SingleState.DEAD) {
             x += xVel;
             y += yVel;
@@ -207,11 +208,14 @@ public class BaseSingle {
                 }
             }
         }
+        height = terrain.getHeightFromPos(x, y);
+        facingAngle = MovementUtils.rotate(facingAngle, facingAngleGoal, singleStats.rotationSpeed);
+
+        // Update combat statistics
         damageSustain -= DrawingConstants.SUSTAIN_COOLDOWN;
         if (damageSustain < 0) damageSustain = 0;
         justHit -= 1;
         if (justHit < 0) justHit = 0;
-        facingAngle = MovementUtils.rotate(facingAngle, facingAngleGoal, singleStats.rotationSpeed);
 
         // Update in position
         inPosition = Math.abs(xGoal - x) < singleStats.standingDist &&
@@ -238,7 +242,11 @@ public class BaseSingle {
         double angleDiff;
 
         // Bonus damage if attacking the single from above.
-
+        double heightDiff = this.height - other.height;
+        double damageScaleByHeightDiff = heightDiff / GameplayConstants.HEIGHT_DIFF_BASE;
+        damage *= (1 + MathUtils.capMinMax(damageScaleByHeightDiff,
+                -GameplayConstants.HEIGHT_DIFF_MAX_PENALTY_SCALE,
+                GameplayConstants.HEIGHT_DIFF_MAX_BONUS_SCALE));
 
         // Bonus damage if attacking the single from the flank or from behind.
         double angleFromSingle = MathUtils.atan2(y - other.y, x - other.x);

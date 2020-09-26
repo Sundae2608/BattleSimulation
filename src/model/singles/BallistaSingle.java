@@ -64,7 +64,7 @@ public class BallistaSingle extends BaseSingle {
     }
 
     @Override
-    public void updateIntention(Terrain terrain) {
+    public void updateIntention() {
 
         // Can't have intention if already dead
         if (state == SingleState.DEAD) return;
