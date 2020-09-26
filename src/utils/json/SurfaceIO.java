@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
     @Override
-    public ArrayList<BaseSurface> read(String filePath) throws IOException {
+    public ArrayList<BaseSurface> read(String filePath) {
         // Initialize the JSON object
         JSONObject jsonObject = null;
         try {
@@ -35,6 +35,7 @@ public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
                 double distanceWiggling = 0.0;
                 double averageTreeHeight = 0.0;
                 double heightWiggling = 0.0;
+                int treeHashDiv = 0;
 
                 // Extract surface type
                 SurfaceType type = SurfaceType.valueOf((String) surfaceObject.get("type"));
@@ -55,6 +56,7 @@ public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
                     distanceWiggling = getDouble(surfaceObject.get("distance_wiggling"));
                     averageTreeHeight = getDouble(surfaceObject.get("average_tree_height"));
                     heightWiggling = getDouble(surfaceObject.get("height_wiggling"));
+                    treeHashDiv = getInt(surfaceObject.get("tree_hash_div"));
                 }
 
                 // Based on the surface type, create the surface and add to the surface array.
@@ -75,7 +77,7 @@ public class SurfaceIO extends JsonIO<ArrayList<BaseSurface>> {
                     case FOREST:
                         surface = new ForestSurface(
                                 type, pts, averageTreeRadius, sizeWiggling, averageDistance, distanceWiggling,
-                                averageTreeHeight, heightWiggling);
+                                averageTreeHeight, heightWiggling, treeHashDiv);
                         break;
                     case RIVERSIDE:
                         surface = new RiversideSurface(type, pts);

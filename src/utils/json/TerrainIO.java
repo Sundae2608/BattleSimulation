@@ -14,7 +14,7 @@ public class TerrainIO extends JsonIO<Terrain> {
         // Initialize the JSON object
         JSONObject obj = null;
         try {
-            obj = (JSONObject)new JSONParser().parse(new FileReader(filePath));
+            obj = (JSONObject) new JSONParser().parse(new FileReader(filePath));
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }

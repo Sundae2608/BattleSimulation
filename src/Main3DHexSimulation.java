@@ -177,7 +177,7 @@ public class Main3DHexSimulation extends PApplet {
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
         String gameConfig = "src/configs/game_configs/game_config.json";
-        String battleConfig = "src/configs/whole_configs/ai_config.json";
+        String battleConfig = "src/configs/battle_configs/ai_config_1v1.json";
         String visualConfig = "src/configs/visual_configs/visual_config.json";
         String audioConfig = "src/configs/audio_configs/audio_config.json";
         env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
@@ -289,8 +289,12 @@ public class Main3DHexSimulation extends PApplet {
 
         // Load background music
         if (audioSettings.isBackgroundMusic()) {
-            backgroundMusic = ConfigUtils.createBackgroundMusicFromConfig(audioConfig, this);
-            backgroundMusic.loop();
+            try {
+                backgroundMusic = ConfigUtils.createBackgroundMusicFromConfig(audioConfig, this);
+                backgroundMusic.loop();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         // Playing state of the music

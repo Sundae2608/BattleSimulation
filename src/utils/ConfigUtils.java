@@ -100,7 +100,7 @@ public final class ConfigUtils {
     /**
      * Read background music config
      */
-    public static SoundFile createBackgroundMusicFromConfig(String filePath, PApplet applet) {
+    public static SoundFile createBackgroundMusicFromConfig(String filePath, PApplet applet) throws IOException {
         JsonIO jsonIO = new BackgroundMusicIO(applet);
         return (SoundFile) jsonIO.read(filePath);
     }

@@ -7,6 +7,7 @@ import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class ForestSurface extends BaseSurface {
 
@@ -22,7 +23,8 @@ public class ForestSurface extends BaseSurface {
                          double averageDistance,
                          double distanceWiggling,
                          double averageTreeHeight,
-                         double heightWiggling) {
+                         double heightWiggling,
+                         int treeHashDiv) {
         super(type, points);
 
         this.averageTreeRadius = averageTreeRadius;
@@ -54,6 +56,7 @@ public class ForestSurface extends BaseSurface {
         double currX = startX;
         double currY = startY;
         trees = new ArrayList<>();
+        treeHasher = new TreeHasher(treeHashDiv, treeHashDiv);
         while (true) {
             if (PhysicUtils.checkPolygonPointCollision(surfaceBoundary, currX, currY)) {
                 Tree tree = new Tree(
