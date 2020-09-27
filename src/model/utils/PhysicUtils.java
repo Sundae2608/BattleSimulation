@@ -632,6 +632,7 @@ public final class PhysicUtils {
         single.setxVel(minVel[0]);
         single.setyVel(minVel[1]);
     }
+
     /**
      * Using the tree to push the single outside of its boundary.
      */
@@ -643,6 +644,23 @@ public final class PhysicUtils {
         // Apply a small speed reduction
         single.setxVel(single.getxVel() * GameplayConstants.TREE_COLLISION_SLOWDOWN);
         single.setyVel(single.getyVel() * GameplayConstants.TREE_COLLISION_SLOWDOWN);
+    }
+
+    /**
+     * Get intersection of two lines, in which:
+     * + Line 1 is defined by two points (x1, y1) and (x2, y2).
+     * + Line 2 is defined by two points (x3, y3) and (x4, y4).
+     * TODO: Be very careful when (x1, x1) == (x2, y2) or when (x3, y3) == (x4, y4) because the denom would equal 0.
+     */
+    public static double[] getLineLineIntersection(
+            double x1, double y1, double x2, double y2,
+            double x3, double y3, double x4, double y4) {
+        double denom = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        double x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denom;
+        double y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 *  y4 - y3 * x4)) / denom;
+        return new double[] {
+            x, y
+        };
     }
 
     public static Pair<Double, Double> getPerceivedNoise(SoundSource soundSource, Terrain terrain,
@@ -847,7 +865,6 @@ public final class PhysicUtils {
     }
 
     /**
-     *
      * @param soundSource
      * @param terrain
      * @param surfaces

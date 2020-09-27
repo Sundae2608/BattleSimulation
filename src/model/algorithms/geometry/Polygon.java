@@ -1,12 +1,15 @@
 package model.algorithms.geometry;
 
 import model.utils.MathUtils;
+import model.utils.PhysicUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
 public class Polygon {
+
+    private static final int PERCEPTUAL_ANGLE_SEARCH_GRANULARITY = 720;
 
     private HashSet<Vertex> vertices;
     private HashSet<Edge> edges;
@@ -99,6 +102,139 @@ public class Polygon {
             Collections.reverse(orderedList);
         }
         return orderedList;
+    }
+
+    /**
+     * Get perceptual angle of the polygon. Perceptual angle is the angle that a normal person would see the polygon if
+     * the polygon is roughly seen as a rectangle. This angle is extremely useful when dividing polygons
+     */
+    public double getPerceptualAngle() {
+        // Get the list of vertices in array list form
+        ArrayList<Vertex> verticesList = new ArrayList<>(vertices);
+
+        // Go through the angles from 0 to Math.PI. The angle that returns the smallest area will be the "perceptual
+        // angle" of the polygon.
+        double minArea = Double.MAX_VALUE;
+        double angleOfMin = 0;
+        double widthOfMin = 0;
+        double lengthOfMin = 0;
+        for (int i = 0; i < PERCEPTUAL_ANGLE_SEARCH_GRANULARITY; i++) {
+            double angle = MathUtils.PIO2 * i / PERCEPTUAL_ANGLE_SEARCH_GRANULARITY;
+            double minX = Double.MAX_VALUE;
+            double maxX = Double.MIN_VALUE;
+            double minY = Double.MAX_VALUE;
+            double maxY = Double.MIN_VALUE;
+            for (Vertex vertex : verticesList) {
+                double x = vertex.getX() * MathUtils.quickCos((float) angle) - vertex.getY() * MathUtils.quickSin((float) angle);
+                double y = vertex.getX() * MathUtils.quickCos((float) (angle + MathUtils.PIO2)) -
+                        vertex.getY() * MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+            double area = (maxY - minY) * (maxX - minX);
+            if (area < minArea) {
+                minArea = area;
+                angleOfMin = angle;
+                widthOfMin = maxX - minX;
+                lengthOfMin = maxY - maxX;
+            }
+        }
+        if (widthOfMin < lengthOfMin) angleOfMin += MathUtils.PIO2;
+        return angleOfMin;
+    }
+
+    /**
+     * Cut the current polygon into 2 by a line defined by (x1, y1) and (x2, y2).
+     * The polygon will not be cut if and the list contain one same polygon will return if
+     * + The line does not cut through the polygon
+     * + The line cut through the polygon in more than 2 points.
+     */
+    public ArrayList<Polygon> cutPolygonToTwoByLine(double x1, double y1, double x2, double y2) {
+
+        // Add the indices of the lines in which the line (x1, y1) - (x2, y2) cuts.
+        ArrayList<Vertex> vertices = getOrderedVertices();
+        int numPts = vertices.size();
+        ArrayList<Integer> indicesOfCutLines = new ArrayList<Integer>();
+        for (int i = 0; i < numPts; i++) {
+            Vertex v1 = vertices.get(i);
+            Vertex v2 = vertices.get((i + 1) % numPts);
+            if (PhysicUtils.checkLineLineCollision(x1, y1, x2, y2, v1.x, v1.y, v2.x, v2.y)) {
+                indicesOfCutLines.add(i);
+            }
+        }
+
+        // If there are more or less than exactly two lines cut, return the original polygon
+        ArrayList<Polygon> returnPolygons = new ArrayList<>();
+        if (indicesOfCutLines.size() <= 1 || indicesOfCutLines.size() >= 3) {
+            returnPolygons.add(this);
+            return returnPolygons;
+        }
+
+        // If there are exactly two lines cut, we will first add the cut points, and then construct new polygons
+        // using said points.
+        int cutIndex1 = indicesOfCutLines.get(0);
+        int cutIndex2 = indicesOfCutLines.get(1);
+        double[] cutPt1 = PhysicUtils.getLineLineIntersection(
+                x1, y1,
+                x2, y2,
+                vertices.get(cutIndex1).x, vertices.get(cutIndex1).y,
+                vertices.get((cutIndex1 + 1) % numPts).x, vertices.get((cutIndex1 + 1) % numPts).x);
+        Vertex sharedV1 = new Vertex(cutPt1[0], cutPt1[1]);
+        double[] cutPt2 = PhysicUtils.getLineLineIntersection(
+                x1, y1,
+                x2, y2,
+                vertices.get(cutIndex2).x, vertices.get(cutIndex2).y,
+                vertices.get((cutIndex2 + 1) % numPts).x, vertices.get((cutIndex2 + 1) % numPts).x);
+        Vertex sharedV2 = new Vertex(cutPt2[0], cutPt2[1]);
+
+        // Create two new polygons based on new edges.
+        int curr = cutIndex1 + 1;
+        ArrayList<Vertex> p1Vertices = new ArrayList<>();
+        while (curr != cutIndex2) {
+            p1Vertices.add(vertices.get(curr));
+            curr = (curr + 1) % numPts;
+        }
+        p1Vertices.add(sharedV2);
+        p1Vertices.add(sharedV1);
+
+        ArrayList<Vertex> p2Vertices = new ArrayList<>();
+        while (curr != cutIndex1) {
+            p2Vertices.add(vertices.get(curr));
+            curr = (curr + 1) % numPts;
+        }
+        p2Vertices.add(sharedV1);
+        p2Vertices.add(sharedV2);
+
+        // Construct the two polygons and return the two polygons.
+        Edge sharedEdge = new Edge(sharedV1, sharedV2);
+        HashSet<Edge> edges1 = new HashSet<>();
+        for (int i = 0; i < p1Vertices.size(); i++) {
+            Vertex v1 = p1Vertices.get(i);
+            Vertex v2 = p1Vertices.get((i + 1) % p1Vertices.size());
+            if (v1 != sharedV2) {
+                edges1.add(new Edge(v1, v2));
+            } else {
+                edges1.add(sharedEdge);
+            }
+        }
+        returnPolygons.add(new Polygon(edges1));
+
+        HashSet<Edge> edges2 = new HashSet<>();
+        for (int i = 0; i < p2Vertices.size(); i++) {
+            Vertex v1 = p2Vertices.get(i);
+            Vertex v2 = p2Vertices.get((i + 1) % p2Vertices.size());
+            if (v1 != sharedV1) {
+                edges2.add(new Edge(v1, v2));
+            } else {
+                edges2.add(sharedEdge);
+            }
+        }
+        returnPolygons.add(new Polygon(edges2));
+
+        // Return the polygons
+        return returnPolygons;
     }
 
     /**

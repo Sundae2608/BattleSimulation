@@ -74,7 +74,42 @@ public class PolygonFactory {
     }
 
     /**
-     *
+     * Generate a polygon given a set of ratio pts.
+     * The new polygon will have the top left of house at (topLeftX, topLeftY), facing angle and has the size of
+     * (width, length)
+     */
+    private Polygon createPolygonBasedOnRatioPts(double topLeftX, double topLeftY, double angle,
+                                                 double width, double length,
+                                                 double[][] ratioPts) {
+        // Calculate unit vectors
+        double sideUnitX = MathUtils.quickCos((float) angle);
+        double sideUnitY = MathUtils.quickSin((float) angle);
+        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+
+        // Create vertices based on given pts.
+        ArrayList<Vertex> verticesArr = new ArrayList<>();
+        for (int i = 0; i < ratioPts.length; i++) {
+            verticesArr.add(new Vertex(
+                    topLeftX + ratioPts[i][0] * sideUnitX * width + ratioPts[i][1] * downUnitX * length,
+                    topLeftY + ratioPts[i][0] * sideUnitY * width + ratioPts[i][1] * downUnitY * length
+            ));
+        }
+        HashSet<Vertex> vertices = new HashSet<>(verticesArr);
+
+        // Create edges based on given vertices.
+        HashSet<Edge> edges = new HashSet<>();
+        for (int i = 0; i < verticesArr.size(); i++) {
+            Vertex v1 = verticesArr.get(i);
+            Vertex v2 = verticesArr.get((i + 1) % verticesArr.size());
+            edges.add(new Edge(v1, v2));
+        }
+
+        // Create polygon based on given edges and vertices
+        return new Polygon(vertices, edges);
+    }
+
+    /**
      * @param topLeftX x-position of the top-left corner of the build
      * @param topLeftY y-position of the top-left corner of the build
      * @param angle the angle that the front of the house will be facing
@@ -103,6 +138,18 @@ public class PolygonFactory {
                 break;
             case O:
                 p = generateOHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+            case U:
+                p = generateUHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+            case H:
+                p = generateHHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+            case T:
+                p = generateTHouse(topLeftX, topLeftY, angle, width, length);
+                break;
+            case PLUS:
+                p = generatePlusHouse(topLeftX, topLeftY, angle, width, length);
                 break;
             case REGULAR:
             default:
@@ -295,6 +342,61 @@ public class PolygonFactory {
         return polygons;
     }
 
+    private Polygon generateUHouse(double topLeftX, double topLeftY, double angle, double width, double length) {
+        // Randomize the house to be built in one of 4 possible direction
+        double rand = MathUtils.randDouble(0, 1);
+        HouseDirection houseDir;
+        if (rand <= 0.25) {
+            houseDir = HouseDirection.UP;
+        } else if (rand <= 0.5) {
+            houseDir = HouseDirection.RIGHT;
+        } else if (rand <= 0.75) {
+            houseDir = HouseDirection.DOWN;
+        } else {
+            houseDir = HouseDirection.LEFT;
+        }
+
+
+        // Move the top left point and the angle respectively
+        double sideUnitX = MathUtils.quickCos((float) angle);
+        double sideUnitY = MathUtils.quickSin((float) angle);
+        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+        if (houseDir == HouseDirection.RIGHT) {
+            topLeftX += sideUnitX * width * 1.0;
+            topLeftY += sideUnitY * width * 1.0;
+            angle += MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        } else if (houseDir == HouseDirection.DOWN) {
+            topLeftX += sideUnitX * width * 1.0 + downUnitX * length * 1.0;
+            topLeftY += sideUnitY * width * 1.0 + downUnitY * length * 1.0;
+            angle += Math.PI;
+        } else if (houseDir == HouseDirection.LEFT) {
+            topLeftX += downUnitX * length * 1.0;
+            topLeftY += downUnitY * length * 1.0;
+            angle -= MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        }
+
+        // Create the house
+        return createPolygonBasedOnRatioPts(
+                topLeftX, topLeftY, angle, width, length,
+                new double[][] {
+                        {0.0, 0.0},
+                        {0.25, 0.0},
+                        {0.25, 0.75},
+                        {0.75, 0.75},
+                        {0.75, 0.0},
+                        {1.0, 0.0},
+                        {1.0, 1.0},
+                        {0.0, 1.0},
+                });
+    }
+
     /**
      * Generate an l-shape polygon that makes up a rectangle based on:
      * + point (x, y) as the top left corner of the polygon.
@@ -324,77 +426,52 @@ public class PolygonFactory {
         double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
         double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
         if (houseDir == HouseDirection.RIGHT) {
-            topLeftX += sideUnitX * width;
-            topLeftY += sideUnitY * width;
+            topLeftX += sideUnitX * width * 1.0;
+            topLeftY += sideUnitY * width * 1.0;
             angle += MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
         } else if (houseDir == HouseDirection.DOWN) {
-            topLeftX += sideUnitX * width + downUnitX * length;
-            topLeftY += sideUnitY * width + downUnitY * length;
+            topLeftX += sideUnitX * width * 1.0 + downUnitX * length * 1.0;
+            topLeftY += sideUnitY * width * 1.0 + downUnitY * length * 1.0;
             angle += Math.PI;
         } else if (houseDir == HouseDirection.LEFT) {
-            topLeftX += downUnitX * length;
-            topLeftY += downUnitY * length;
-            angle += (MathUtils.PIO2 * 3);
+            topLeftX += downUnitX * length * 1.0;
+            topLeftY += downUnitY * length * 1.0;
+            angle -= MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
         }
-        sideUnitX = MathUtils.quickCos((float) angle);
-        sideUnitY = MathUtils.quickSin((float) angle);
-        downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
-        downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
 
         // Randomly select whether the house will be a regular L or a flipped L.
-        Vertex v1, v2, v3, v4, v5, v6;
         rand = MathUtils.randDouble(0, 1);
         if (rand < 0.5) {
             // Regular L shape
-            v1 = new Vertex(topLeftX, topLeftY);
-            v2 = new Vertex(
-                    topLeftX + width * 0.5 * sideUnitX,
-                    topLeftY + width * 0.5 * sideUnitY);
-            v3 = new Vertex(
-                    topLeftX + width * 0.5 * sideUnitX + length * 0.5 * downUnitX,
-                    topLeftY + width * 0.5 * sideUnitY + length * 0.5 * downUnitY);
-            v4 = new Vertex(
-                    topLeftX + width * sideUnitX + length * 0.5 * downUnitX,
-                    topLeftY + width * sideUnitY + length * 0.5 * downUnitY);
-            v5 = new Vertex(
-                    topLeftX + width * sideUnitX + length * downUnitX,
-                    topLeftY + width * sideUnitY + length * downUnitY);
-            v6 = new Vertex(
-                    topLeftX + length * downUnitX,
-                    topLeftY + length * downUnitY);
+            return createPolygonBasedOnRatioPts(
+                    topLeftX, topLeftY, angle, width, length,
+                    new double[][] {
+                            {0.0, 0.0},
+                            {0.5, 0.0},
+                            {0.5, 0.5},
+                            {1.0, 0.5},
+                            {1.0, 1.0},
+                            {0.0, 1.0},
+                    });
         } else {
             // Flipped L shape
-            v1 = new Vertex(
-                    topLeftX + width * 0.5 * sideUnitX,
-                    topLeftY + width * 0.5 * sideUnitY);
-            v2 = new Vertex(
-                    topLeftX + width * sideUnitX,
-                    topLeftY + width * sideUnitY);
-            v3 = new Vertex(
-                    topLeftX + width * sideUnitX + length * downUnitX,
-                    topLeftY + width * sideUnitY + length * downUnitY);
-            v4 = new Vertex(
-                    topLeftX + length * downUnitX,
-                    topLeftY + length * downUnitY);
-            v5 = new Vertex(
-                    topLeftX + length * 0.5 * downUnitX,
-                    topLeftY + length * 0.5 * downUnitY);
-            v6 = new Vertex(
-                    topLeftX + width * 0.5 * sideUnitX + length * 0.5 * downUnitX,
-                    topLeftY + width * 0.5 * sideUnitY + length * 0.5 * downUnitY);
+            return createPolygonBasedOnRatioPts(
+                    topLeftX, topLeftY, angle, width, length,
+                    new double[][] {
+                            {0.5, 0.0},
+                            {1.0, 0.0},
+                            {1.0, 1.0},
+                            {0.0, 1.0},
+                            {0.0, 0.5},
+                            {0.5, 0.5},
+                    });
         }
-        Edge e1 = new Edge(v1, v2);
-        Edge e2 = new Edge(v2, v3);
-        Edge e3 = new Edge(v3, v4);
-        Edge e4 = new Edge(v4, v5);
-        Edge e5 = new Edge(v5, v6);
-        Edge e6 = new Edge(v6, v1);
-        HashSet<Vertex> vertexSet = new HashSet<>();
-        HashSet<Edge> edgeSet = new HashSet<>();
-        vertexSet.add(v1); vertexSet.add(v2); vertexSet.add(v3); vertexSet.add(v4); vertexSet.add(v5); vertexSet.add(v6);
-        edgeSet.add(e1); edgeSet.add(e2); edgeSet.add(e3); edgeSet.add(e4); edgeSet.add(e5); edgeSet.add(e6);
-        Polygon p = new Polygon(vertexSet, edgeSet);
-        return p;
     }
 
     /**
@@ -405,31 +482,15 @@ public class PolygonFactory {
      */
     private Polygon generateRectangleHouse(
             double topLeftX, double topLeftY, double angle, double width, double length) {
-        double sideUnitX = MathUtils.quickCos((float) angle);
-        double sideUnitY = MathUtils.quickSin((float) angle);
-        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
-        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
-        Vertex v1 = new Vertex(
-                topLeftX, topLeftY);
-        Vertex v2 = new Vertex(
-                topLeftX + width * sideUnitX,
-                topLeftY + width * sideUnitY);
-        Vertex v3 = new Vertex(
-                topLeftX + width * sideUnitX + length * downUnitX,
-                topLeftY + width * sideUnitY + length * downUnitY);
-        Vertex v4 = new Vertex(
-                topLeftX + length * downUnitX,
-                topLeftY + length * downUnitY);
-        Edge e1 = new Edge(v1, v2);
-        Edge e2 = new Edge(v2, v3);
-        Edge e3 = new Edge(v3, v4);
-        Edge e4 = new Edge(v4, v1);
-        HashSet<Vertex> vertexSet = new HashSet<>();
-        HashSet<Edge> edgeSet = new HashSet<>();
-        vertexSet.add(v1); vertexSet.add(v2); vertexSet.add(v3); vertexSet.add(v4);
-        edgeSet.add(e1); edgeSet.add(e2); edgeSet.add(e3); edgeSet.add(e4);
-        Polygon p = new Polygon(vertexSet, edgeSet);
-        return p;
+        // Create the house
+        return createPolygonBasedOnRatioPts(
+                topLeftX, topLeftY, angle, width, length,
+                new double[][] {
+                        {0.0, 0.0},
+                        {1.0, 0.0},
+                        {1.0, 1.0},
+                        {0.0, 1.0},
+                });
     }
 
     /**
@@ -455,56 +516,39 @@ public class PolygonFactory {
             houseDir = HouseDirection.LEFT;
         }
 
-        // Create 3 vertices based on house direction
+        // Move the top left point and the house angle based on generated direction
         double sideUnitX = MathUtils.quickCos((float) angle);
         double sideUnitY = MathUtils.quickSin((float) angle);
         double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
         double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
-        Vertex v1, v2, v3;
-        if (houseDir == HouseDirection.UP) {
-            v1 = new Vertex(topLeftX, topLeftY);
-            v2 = new Vertex(
-                    topLeftX + width * sideUnitX + length * downUnitX,
-                    topLeftY + width * sideUnitY + length * downUnitY);
-            v3 = new Vertex(
-                    topLeftX + length * downUnitX,
-                    topLeftY + length * downUnitY);
-        } else if (houseDir == HouseDirection.RIGHT) {
-            v1 = new Vertex(topLeftX, topLeftY);
-            v2 = new Vertex(
-                    topLeftX + width * sideUnitX,
-                    topLeftY + width * sideUnitY);
-            v3 = new Vertex(
-                    topLeftX + length * downUnitX,
-                    topLeftY + length * downUnitY);
+        if (houseDir == HouseDirection.RIGHT) {
+            topLeftX += sideUnitX * width * 1.0;
+            topLeftY += sideUnitY * width * 1.0;
+            angle += MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
         } else if (houseDir == HouseDirection.DOWN) {
-            v1 = new Vertex(topLeftX, topLeftY);
-            v2 = new Vertex(
-                    topLeftX + width * sideUnitX,
-                    topLeftY + width * sideUnitY);
-            v3 = new Vertex(
-                    topLeftX + width * sideUnitX + length * downUnitX,
-                    topLeftY + width * sideUnitY + length * downUnitY);
-        } else {
-            v1 = new Vertex(
-                    topLeftX + width * sideUnitX,
-                    topLeftY + width * sideUnitY);
-            v2 = new Vertex(
-                    topLeftX + width * sideUnitX + length * downUnitX,
-                    topLeftY + width * sideUnitY + length * downUnitY);
-            v3 = new Vertex(
-                    topLeftX + length * downUnitX,
-                    topLeftY + length * downUnitY);
+            topLeftX += sideUnitX * width * 1.0 + downUnitX * length * 1.0;
+            topLeftY += sideUnitY * width * 1.0 + downUnitY * length * 1.0;
+            angle += Math.PI;
+        } else if (houseDir == HouseDirection.LEFT) {
+            topLeftX += downUnitX * length * 1.0;
+            topLeftY += downUnitY * length * 1.0;
+            angle -= MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
         }
-        Edge e1 = new Edge(v1, v2);
-        Edge e2 = new Edge(v2, v3);
-        Edge e3 = new Edge(v3, v1);
-        HashSet<Vertex> vertexSet = new HashSet<>();
-        HashSet<Edge> edgeSet = new HashSet<>();
-        vertexSet.add(v1); vertexSet.add(v2); vertexSet.add(v3);
-        edgeSet.add(e1); edgeSet.add(e2); edgeSet.add(e3);
-        Polygon p = new Polygon(vertexSet, edgeSet);
-        return p;
+
+        // Create the house
+        return createPolygonBasedOnRatioPts(
+                topLeftX, topLeftY, angle, width, length,
+                new double[][] {
+                        {0, 0},
+                        {1.0, 0},
+                        {1.0, 1.0}
+                });
     }
 
     /**
@@ -530,7 +574,7 @@ public class PolygonFactory {
             houseDir = HouseDirection.LEFT;
         }
 
-        // Create 3 vertices based on house direction
+        // Move the top left point and the house angle based on generated direction
         double sideUnitX = MathUtils.quickCos((float) angle);
         double sideUnitY = MathUtils.quickSin((float) angle);
         double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
@@ -554,84 +598,182 @@ public class PolygonFactory {
             length = width;
             width = temp;
         }
-        sideUnitX = MathUtils.quickCos((float) angle);
-        sideUnitY = MathUtils.quickSin((float) angle);
-        downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
-        downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
-        Vertex v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12;
-        v1 = new Vertex(topLeftX, topLeftY);
-        v2 = new Vertex(
-                topLeftX + sideUnitX * width * 0.45,
-                topLeftY + sideUnitY * width * 0.45);
-        v3 = new Vertex(
-                topLeftX + sideUnitX * width * 0.45 + downUnitX * length * 0.2,
-                topLeftY + sideUnitY * width * 0.45 + downUnitY * length * 0.2);
-        v4 = new Vertex(
-                topLeftX + sideUnitX * width * 0.2 + downUnitX * length * 0.2,
-                topLeftY + sideUnitY * width * 0.2 + downUnitY * length * 0.2);
-        v5 = new Vertex(
-                topLeftX + sideUnitX * width * 0.2 + downUnitX * length * 0.8,
-                topLeftY + sideUnitY * width * 0.2 + downUnitY * length * 0.8);
-        v6 = new Vertex(
-                topLeftX + sideUnitX * width * 0.8 + downUnitX * length * 0.8,
-                topLeftY + sideUnitY * width * 0.8 + downUnitY * length * 0.8);
-        v7 = new Vertex(
-                topLeftX + sideUnitX * width * 0.8 + downUnitX * length * 0.2,
-                topLeftY + sideUnitY * width * 0.8 + downUnitY * length * 0.2);
-        v8 = new Vertex(
-                topLeftX + sideUnitX * width * 0.55 + downUnitX * length * 0.2,
-                topLeftY + sideUnitY * width * 0.55 + downUnitY * length * 0.2);
-        v9 = new Vertex(
-                topLeftX + sideUnitX * width * 0.55 + downUnitX * length * 0.0,
-                topLeftY + sideUnitY * width * 0.55 + downUnitY * length * 0.0);
-        v10 = new Vertex(
-                topLeftX + sideUnitX * width * 1.0 + downUnitX * length * 0.0,
-                topLeftY + sideUnitY * width * 1.0 + downUnitY * length * 0.0);
-        v11 = new Vertex(
-                topLeftX + sideUnitX * width * 1.0 + downUnitX * length * 1.0,
-                topLeftY + sideUnitY * width * 1.0 + downUnitY * length * 1.0);
-        v12 = new Vertex(
-                topLeftX + downUnitX * length * 1.0,
-                topLeftY + downUnitY * length * 1.0);
-        Edge e1 = new Edge(v1, v2);
-        Edge e2 = new Edge(v2, v3);
-        Edge e3 = new Edge(v3, v4);
-        Edge e4 = new Edge(v4, v5);
-        Edge e5 = new Edge(v5, v6);
-        Edge e6 = new Edge(v6, v7);
-        Edge e7 = new Edge(v7, v8);
-        Edge e8 = new Edge(v8, v9);
-        Edge e9 = new Edge(v9, v10);
-        Edge e10 = new Edge(v10, v11);
-        Edge e11 = new Edge(v11, v12);
-        Edge e12 = new Edge(v12, v1);
-        HashSet<Vertex> vertexSet = new HashSet<>();
-        HashSet<Edge> edgeSet = new HashSet<>();
-        vertexSet.add(v1);
-        vertexSet.add(v2);
-        vertexSet.add(v3);
-        vertexSet.add(v4);
-        vertexSet.add(v5);
-        vertexSet.add(v6);
-        vertexSet.add(v7);
-        vertexSet.add(v8);
-        vertexSet.add(v9);
-        vertexSet.add(v10);
-        vertexSet.add(v11);
-        vertexSet.add(v12);
-        edgeSet.add(e1);
-        edgeSet.add(e2);
-        edgeSet.add(e3);
-        edgeSet.add(e4);
-        edgeSet.add(e5);
-        edgeSet.add(e6);
-        edgeSet.add(e7);
-        edgeSet.add(e8);
-        edgeSet.add(e9);
-        edgeSet.add(e10);
-        edgeSet.add(e11);
-        edgeSet.add(e12);
-        Polygon p = new Polygon(vertexSet, edgeSet);
-        return p;
+
+        // Create the house
+        return createPolygonBasedOnRatioPts(
+                topLeftX, topLeftY, angle, width, length,
+                new double[][] {
+                        {0, 0},
+                        {0.45, 0},
+                        {0.45, 0.2},
+                        {0.2, 0.2},
+                        {0.2, 0.8},
+                        {0.8, 0.8},
+                        {0.8, 0.2},
+                        {0.55, 0.2},
+                        {0.55, 0.0},
+                        {1.0, 0},
+                        {1.0, 1.0},
+                        {0, 1.0},
+                });
     }
+
+    /**
+     * Generate an T-Shaped polygon that fills a rectangle based on:
+     * + point (x, y) as the top left corner of the polygon.
+     * + angle as the angle of the rectangle facing downward.
+     * + (width, length) as the dimension of that polygon
+     * The house will fill the rectangle, but their gate will face one of 4 directions
+     * (UP, DOWN, LEFT, RIGHT).
+     */
+    private Polygon generateTHouse(
+            double topLeftX, double topLeftY, double angle, double width, double length) {
+        // Randomize the house to be built in one of 4 possible direction
+        double rand = MathUtils.randDouble(0, 1);
+        HouseDirection houseDir;
+        if (rand <= 0.25) {
+            houseDir = HouseDirection.UP;
+        } else if (rand <= 0.5) {
+            houseDir = HouseDirection.RIGHT;
+        } else if (rand <= 0.75) {
+            houseDir = HouseDirection.DOWN;
+        } else {
+            houseDir = HouseDirection.LEFT;
+        }
+
+        // Move the top left point and the house angle based on generated direction
+        double sideUnitX = MathUtils.quickCos((float) angle);
+        double sideUnitY = MathUtils.quickSin((float) angle);
+        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+        if (houseDir == HouseDirection.RIGHT) {
+            topLeftX += sideUnitX * width * 1.0;
+            topLeftY += sideUnitY * width * 1.0;
+            angle += MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        } else if (houseDir == HouseDirection.DOWN) {
+            topLeftX += sideUnitX * width * 1.0 + downUnitX * length * 1.0;
+            topLeftY += sideUnitY * width * 1.0 + downUnitY * length * 1.0;
+            angle += Math.PI;
+        } else if (houseDir == HouseDirection.LEFT) {
+            topLeftX += downUnitX * length * 1.0;
+            topLeftY += downUnitY * length * 1.0;
+            angle -= MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        }
+
+        // Create the house
+        return createPolygonBasedOnRatioPts(
+                topLeftX, topLeftY, angle, width, length,
+                new double[][] {
+                        {0, 0},
+                        {1.0, 0},
+                        {1.0, 0.33},
+                        {0.67, 0.33},
+                        {0.67, 1.0},
+                        {0.33, 1.0},
+                        {0.33, 0.33},
+                        {0.0, 0.33}
+                });
+    }
+
+    /**
+     * Generate an H-Shaped polygon that fills a rectangle based on:
+     * + point (x, y) as the top left corner of the polygon.
+     * + angle as the angle of the rectangle facing downward.
+     * + (width, length) as the dimension of that polygon
+     * The house will fill the rectangle, but their gate will face one of 4 directions
+     * (UP, DOWN, LEFT, RIGHT).
+     * TODO: It is not necessary to have all 4 directions here, but it is indeed very nice to have this code replicable
+     *  so that it can be easily copied and refactored. Refactor the direction selection code when you have sometime.
+     */
+    private Polygon generateHHouse(
+            double topLeftX, double topLeftY, double angle, double width, double length) {
+        // Randomize the house to be built in one of 4 possible direction
+        double rand = MathUtils.randDouble(0, 1);
+        HouseDirection houseDir;
+        if (rand <= 0.25) {
+            houseDir = HouseDirection.UP;
+        } else if (rand <= 0.5) {
+            houseDir = HouseDirection.RIGHT;
+        } else if (rand <= 0.75) {
+            houseDir = HouseDirection.DOWN;
+        } else {
+            houseDir = HouseDirection.LEFT;
+        }
+
+        // Move the top left point and the house angle based on generated direction
+        double sideUnitX = MathUtils.quickCos((float) angle);
+        double sideUnitY = MathUtils.quickSin((float) angle);
+        double downUnitX = MathUtils.quickCos((float) (angle + MathUtils.PIO2));
+        double downUnitY = MathUtils.quickSin((float) (angle + MathUtils.PIO2));
+        if (houseDir == HouseDirection.RIGHT) {
+            topLeftX += sideUnitX * width * 1.0;
+            topLeftY += sideUnitY * width * 1.0;
+            angle += MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        } else if (houseDir == HouseDirection.DOWN) {
+            topLeftX += sideUnitX * width * 1.0 + downUnitX * length * 1.0;
+            topLeftY += sideUnitY * width * 1.0 + downUnitY * length * 1.0;
+            angle += Math.PI;
+        } else if (houseDir == HouseDirection.LEFT) {
+            topLeftX += downUnitX * length * 1.0;
+            topLeftY += downUnitY * length * 1.0;
+            angle -= MathUtils.PIO2;
+            double temp = length;
+            length = width;
+            width = temp;
+        }
+
+        // Create the house
+        return createPolygonBasedOnRatioPts(
+                topLeftX, topLeftY, angle, width, length,
+                new double[][] {
+                        {0, 0},
+                        {1.0, 0},
+                        {1.0, 0.33},
+                        {0.67, 0.33},
+                        {0.67, 0.67},
+                        {1.0, 0.67},
+                        {1.0, 1.0},
+                        {0.0, 1.0},
+                        {0.0, 0.67},
+                        {0.33, 0.67},
+                        {0.33, 0.33},
+                        {0.0, 0.33},
+                });
+    }
+
+    /**
+     * Generate a Plus-Shaped polygon that fills a rectangle based on:
+     * + point (x, y) as the top left corner of the polygon.
+     * + angle as the angle of the rectangle facing downward.
+     * + (width, length) as the dimension of that polygon.
+     */
+    private Polygon generatePlusHouse(
+            double topLeftX, double topLeftY, double angle, double width, double length) {
+        return createPolygonBasedOnRatioPts(
+                topLeftX, topLeftY, angle, width, length,
+                new double[][] {
+                        {0, 0.33},
+                        {0.33, 0.33},
+                        {0.33, 0.0},
+                        {0.67, 0.0},
+                        {0.67, 0.33},
+                        {1.0, 0.33},
+                        {1.0, 0.67},
+                        {0.67, 0.67},
+                        {0.67, 1.0},
+                        {0.33, 1.0},
+                        {0.33, 0.67},
+                        {0.0, 0.67},
+                });
+    }
+
 }

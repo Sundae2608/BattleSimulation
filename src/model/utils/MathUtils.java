@@ -313,6 +313,8 @@ public final class MathUtils {
         return new double[] {vx * scale, vy * scale};
     }
 
+    /*
+
     /**
      * Sort singles by angle
      */
