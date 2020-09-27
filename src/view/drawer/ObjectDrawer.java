@@ -2,10 +2,10 @@ package view.drawer;
 
 import javafx.util.Pair;
 import model.constants.UniversalConstants;
-import model.objects.Arrow;
-import model.objects.Ballista;
-import model.objects.BaseObject;
-import model.objects.Stone;
+import model.projectile_objects.Arrow;
+import model.projectile_objects.Ballista;
+import model.projectile_objects.BaseObject;
+import model.projectile_objects.Stone;
 import model.singles.BaseSingle;
 import model.terrain.Terrain;
 import model.utils.MathUtils;

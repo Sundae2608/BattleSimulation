@@ -4,7 +4,7 @@ import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
-import model.objects.BaseObject;
+import model.projectile_objects.BaseObject;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.enums.PoliticalFaction;

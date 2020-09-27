@@ -1,6 +1,6 @@
 package model.algorithms.geometry.map_generator;
 
-import model.algorithms.geometry.map_entity.House;
+import model.map_objects.House;
 
 public class ProgressionModel {
 

@@ -1,7 +1,7 @@
 package model.algorithms;
 
 import javafx.util.Pair;
-import model.surface.Tree;
+import model.map_objects.Tree;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +12,7 @@ public class TreeHasher {
     // Height and width of each space (called xDiv and yDiv)
     private int xDiv;
     private int yDiv;
-    private ArrayList<model.surface.Tree> objects;
+    private ArrayList<Tree> objects;
 
     // Hash map containing
     private HashMap<Long, ArrayList<Tree>> hashMap;

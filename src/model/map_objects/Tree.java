@@ -1,4 +1,4 @@
-package model.surface;
+package model.map_objects;
 
 public class Tree {
 

@@ -1,4 +1,4 @@
-package model.objects;
+package model.projectile_objects;
 
 public abstract class BaseObject {
 

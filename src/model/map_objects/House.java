@@ -1,4 +1,4 @@
-package model.algorithms.geometry.map_entity;
+package model.map_objects;
 
 import model.construct.Construct;
 

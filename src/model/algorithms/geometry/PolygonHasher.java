@@ -1,8 +1,5 @@
 package model.algorithms.geometry;
 
-import it.unimi.dsi.fastutil.bytes.ByteHash;
-import model.objects.BaseObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
