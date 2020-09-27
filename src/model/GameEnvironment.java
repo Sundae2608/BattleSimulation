@@ -57,11 +57,9 @@ public class GameEnvironment {
     ArrayList<SoundSource> soundSources;
 
     /**
-     *
      * @param battleConfig Path to the txt file that contains all the game information
      */
-    public GameEnvironment(String gameConfig, String terrainConfig, String constructsConfig, String surfaceConfig,
-                           String battleConfig, GameSettings inputGameSettings) {
+    public GameEnvironment(String gameConfig, String battleConfig, GameSettings inputGameSettings) {
         broadcaster = new EventBroadcaster();
         monitor = new Monitor(UniversalConstants.FRAME_STORAGE);
         gameSettings = inputGameSettings;
@@ -70,16 +68,23 @@ public class GameEnvironment {
         aliveUnits = new HashSet<>();
         soundSources = new ArrayList<>();
 
+        // Read game stats.
+        try {
+            gameStats = ConfigUtils.readGameStats(gameConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // Read terrain configuration.
         try {
-            terrain = ConfigUtils.createTerrainFromConfig(terrainConfig);
+            terrain = ConfigUtils.createTerrainFromConfig(battleConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Read construct configuration.
         try {
-            Pair<Graph, ArrayList<Construct>> pair = ConfigUtils.createConstructsAndGraphsFromConfig(constructsConfig);
+            Pair<Graph, ArrayList<Construct>> pair = ConfigUtils.createConstructsAndGraphsFromConfig(battleConfig);
             graph = pair.getKey();
             constructs = pair.getValue();
         } catch (IOException e) {
@@ -88,25 +93,18 @@ public class GameEnvironment {
 
         // Read surface configuration.
         try {
-            surfaces = ConfigUtils.createSurfacesFromConfig(surfaceConfig);
+            surfaces = ConfigUtils.createSurfacesFromConfig(battleConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
         unitModifier = new UnitModifier(
                 deadContainer, terrain, constructs, surfaces, gameSettings, broadcaster, monitor);
 
-        // Read game stats.
-        try {
-            gameStats = ConfigUtils.readGameStats(gameConfig);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
                     battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster, gameSettings, this);
-        } catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
         for (BaseUnit unit : units) {
@@ -149,6 +147,7 @@ public class GameEnvironment {
             for (BaseUnit unit : units) {
                 unit.updateSoundSource();
             }
+        }
 
         // Update sound sinks for all units
         for (BaseUnit unit : units) {

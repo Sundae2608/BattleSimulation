@@ -222,7 +222,7 @@ public class SingleDrawer extends BaseDrawer {
         // Recalculate position and shape based on the view.camera position
         double singleX = single.getX();
         double singleY = single.getY();
-        double singleZ = terrain.getHeightFromPos(single.getX(), single.getY());
+        double singleZ = single.getHeight();
         double[] position = camera.getDrawingPosition(singleX, singleY, singleZ);
         double drawX = position[0];
         double drawY = position[1];

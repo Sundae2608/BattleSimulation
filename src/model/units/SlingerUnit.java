@@ -53,7 +53,7 @@ public class SlingerUnit extends BaseUnit{
                     + (i / width) * unitStats.spacing * downUnitX;
             double singleY = topY + (i % width) * unitStats.spacing * sideUnitY
                     + (i / width) * unitStats.spacing * downUnitY;
-            BaseSingle single = new SlingerSingle(singleX, singleY, politicalFaction, this, singleStats, i);
+            BaseSingle single = new SlingerSingle(singleX, singleY, politicalFaction, this, singleStats);
             troops.add(single);
             aliveTroopsFormation[row][col] = single;
             aliveTroopsMap.put(single, i);

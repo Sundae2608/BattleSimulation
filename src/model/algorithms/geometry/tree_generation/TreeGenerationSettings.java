@@ -9,6 +9,8 @@ public class TreeGenerationSettings {
 
     private double size;
     private double sizeWiggle;
+    private double height;
+    private double heightWiggle;
 
     public double getDistanceFromEdge() {
         return distanceFromEdge;
@@ -64,5 +66,21 @@ public class TreeGenerationSettings {
 
     public void setSizeWiggle(double sizeWiggle) {
         this.sizeWiggle = sizeWiggle;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public double getHeightWiggle() {
+        return heightWiggle;
+    }
+
+    public void setHeightWiggle(double heightWiggle) {
+        this.heightWiggle = heightWiggle;
     }
 }

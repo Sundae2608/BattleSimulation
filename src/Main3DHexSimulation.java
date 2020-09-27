@@ -176,12 +176,11 @@ public class Main3DHexSimulation extends PApplet {
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "misc/VideoConfigs/Scene2.txt";
-        String mapConfig = "src/configs/map_configs/Terrain3DConfigs.json";
-        String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
-        String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
-        String gameConfig = "src/configs/game_configs/GameConfig.txt";
-        env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
+        String gameConfig = "src/configs/game_configs/game_config.json";
+        String battleConfig = "src/configs/battle_configs/ai_config_1v1.json";
+        String visualConfig = "src/configs/visual_configs/visual_config.json";
+        String audioConfig = "src/configs/audio_configs/audio_config.json";
+        env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
 
         // Check to make sure that the game environment is valid
         try {
@@ -274,8 +273,7 @@ public class Main3DHexSimulation extends PApplet {
         /** Setup video element player */
         try {
             videoElementPlayer = ConfigUtils.readVideoElementConfig(
-                    "src/configs/graphic_configs/GraphicConfig.txt",
-                    camera, this, env.getBroadcaster()
+                    visualConfig, camera, this, env.getBroadcaster()
             );
         } catch (IOException e) {
             e.printStackTrace();
@@ -284,19 +282,19 @@ public class Main3DHexSimulation extends PApplet {
         /** Load sound files */
         // Set up audio speaker
         try {
-            audioSpeaker = ConfigUtils.readAudioConfigs(
-                    "src/configs/audio_configs/AudioConfigJson.json",
-                    camera, this, env.getBroadcaster()
-            );
+            audioSpeaker = ConfigUtils.readAudioConfig(audioConfig, camera, this, env.getBroadcaster());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Load background music
         if (audioSettings.isBackgroundMusic()) {
-            backgroundMusic = new SoundFile(this, "audios/bg_music/bg1.mp3");
-            backgroundMusic.amp(0.15f);
-            backgroundMusic.loop();
+            try {
+                backgroundMusic = ConfigUtils.createBackgroundMusicFromConfig(audioConfig, this);
+                backgroundMusic.loop();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         // Playing state of the music
@@ -503,8 +501,6 @@ public class Main3DHexSimulation extends PApplet {
                     if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
-                    // TODO: Switch the draw using the current path instead of just the average position and goal
-                    //  position.
                     battleSignalDrawer.drawArrowPlan(
                             unit.getAverageX(), unit.getAverageY(),
                             unit.getGoalX(), unit.getGoalY(), env.getTerrain());

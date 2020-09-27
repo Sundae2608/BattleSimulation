@@ -1,0 +1,8 @@
+{
+  "video_element_config": [
+    {
+      "type": "EXPLOSION",
+      "video_path": "videos/explosion/"
+    }
+  ]
+}

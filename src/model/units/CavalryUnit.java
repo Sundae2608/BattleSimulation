@@ -52,7 +52,7 @@ public class CavalryUnit extends BaseUnit {
             int col = i % width;
             double singleX = topX + (i % width) * unitStats.spacing * sideUnitX + (i / width) * unitStats.spacing * downUnitX;
             double singleY = topY + (i % width) * unitStats.spacing * sideUnitY + (i / width) * unitStats.spacing * downUnitY;
-            BaseSingle single = new CavalrySingle(singleX, singleY, politicalFaction, this, singleStats, i);
+            BaseSingle single = new CavalrySingle(singleX, singleY, politicalFaction, this, singleStats);
             troops.add(single);
             aliveTroopsFormation[row][col] = single;
             aliveTroopsMap.put(single, i);

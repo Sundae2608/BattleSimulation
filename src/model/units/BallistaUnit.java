@@ -61,7 +61,7 @@ public class BallistaUnit extends BaseUnit {
                     + (row * unitStats.spacing) * downUnitX;
             double singleY = topY + col * unitStats.spacing * sideUnitY
                     + (row * unitStats.spacing) * downUnitY;
-            BaseSingle single = new BallistaSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher);
+            BaseSingle single = new BallistaSingle(singleX, singleY, politicalFaction, this, singleStats, hasher);
             troops.add(single);
             aliveTroopsFormation[row][col] = single;
             aliveTroopsMap.put(single, i);

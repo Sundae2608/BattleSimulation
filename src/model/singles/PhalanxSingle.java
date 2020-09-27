@@ -9,11 +9,10 @@ public class PhalanxSingle extends BaseSingle {
                          double yInit,
                          PoliticalFaction faction,
                          BaseUnit inputUnit,
-                         SingleStats inputSingleStats,
-                         int index) {
+                         SingleStats inputSingleStats) {
 
         // Parent constructor
-        super(inputSingleStats);
+        super(inputSingleStats, inputUnit);
 
         // Positional attribute
         x = xInit;
@@ -23,7 +22,6 @@ public class PhalanxSingle extends BaseSingle {
 
         // Set up political faction
         politicalFaction = faction;
-        unit = inputUnit;
 
         // Set default stat up stats
         singleStats = inputSingleStats;

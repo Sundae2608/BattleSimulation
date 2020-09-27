@@ -68,7 +68,7 @@ public class ArcherUnit extends BaseUnit {
                     + (row * unitStats.spacing + depthVariation[i]) * downUnitX;
             double singleY = topY + col * unitStats.spacing * sideUnitY + widthVariation[i] * sideUnitY
                     + (row * unitStats.spacing + depthVariation[i]) * downUnitY;
-            BaseSingle single = new ArcherSingle(singleX, singleY, politicalFaction, this, singleStats, i, hasher);
+            BaseSingle single = new ArcherSingle(singleX, singleY, politicalFaction, this, singleStats, hasher);
             troops.add(single);
             aliveTroopsFormation[row][col] = single;
             aliveTroopsMap.put(single, i);

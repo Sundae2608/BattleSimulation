@@ -21,7 +21,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
+public class AudioSpeakerIO extends JsonIO<AudioSpeaker> {
     private BaseCamera camera;
     private PApplet applet;
     private EventBroadcaster eventBroadcaster;
@@ -34,6 +34,7 @@ public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
 
     @Override
     public AudioSpeaker read(String filePath) {
+        // Initialize the JSON object
         AudioSpeaker speaker = new AudioSpeaker(camera, applet, eventBroadcaster);
         JSONObject jsonObject = null;
         try {
@@ -41,17 +42,17 @@ public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+        JSONArray jsonArray = (JSONArray) jsonObject.get("audio_config");
 
-        JSONArray jsonArray = (JSONArray) jsonObject.get("audioConfig");
-
-        for(Object obj: jsonArray){
+        // Read each audio and add to the collection
+        for(Object obj : jsonArray){
             JSONObject audioTypeJsonObject;
             if (obj instanceof JSONObject) {
                 audioTypeJsonObject = (JSONObject)obj;
                 String audioPath = (String) audioTypeJsonObject.get("file");
                 AudioType audioType = AudioType.valueOf((String) audioTypeJsonObject.get("audio_type"));
                 SpeakingType speakingType = SpeakingType.valueOf((String) audioTypeJsonObject.get("broadcast_type"));
-                float baseVolume = Float.parseFloat((String) audioTypeJsonObject.get("base_volume"));
+                float baseVolume = getFloat(audioTypeJsonObject.get("base_volume"));
 
                 Audio audio = new Audio(
                         audioPath, audioType, speakingType, baseVolume, applet
@@ -60,10 +61,5 @@ public class AudioSpeakerIO implements JsonIO<AudioSpeaker> {
             }
         }
         return speaker;
-    }
-
-    @Override
-    public void save(AudioSpeaker audioSpeaker, String filePath) {
-
     }
 }

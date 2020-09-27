@@ -884,7 +884,7 @@ public class BaseUnit {
 
         // Update troop intentions
         for (BaseSingle single : aliveTroopsMap.keySet()) {
-            single.updateIntention(terrain);
+            single.updateIntention();
         }
     }
 
@@ -1267,5 +1267,13 @@ public class BaseUnit {
 
     public SoundSink getSoundSink() {
         return soundSink;
+    }
+
+    public Terrain getTerrain() {
+        return terrain;
+    }
+
+    public void setTerrain(Terrain terrain) {
+        this.terrain = terrain;
     }
 }

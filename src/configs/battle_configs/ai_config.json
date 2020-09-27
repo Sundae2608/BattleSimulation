@@ -1,0 +1,519 @@
+{
+  "battle_config": [
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 5000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 6000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 7000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 8000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 5000,
+      "y": 9000,
+      "angle": 0,
+      "size": 60,
+      "faction": "ROME",
+      "width": 10
+    },
+    {
+      "type": "ARCHER",
+      "org": "unit",
+      "x": 4500,
+      "y": 7000,
+      "angle": 0,
+      "size": 100,
+      "faction": "ROME",
+      "width": 20
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 5000,
+      "y": 10000,
+      "angle": 0,
+      "size": 40,
+      "faction": "ROME",
+      "width": 8
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 5000,
+      "y": 4000,
+      "angle": 0,
+      "size": 40,
+      "faction": "ROME",
+      "width": 8
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 5000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 6000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 7000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 8000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "SWORDMAN",
+      "org": "unit",
+      "x": 6000,
+      "y": 9000,
+      "angle": 180,
+      "size": 60,
+      "faction": "GAUL",
+      "width": 10
+    },
+    {
+      "type": "ARCHER",
+      "org": "unit",
+      "x": 6500,
+      "y": 7000,
+      "angle": 180,
+      "size": 100,
+      "faction": "GAUL",
+      "width": 20
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 6000,
+      "y": 10000,
+      "angle": 180,
+      "size": 40,
+      "faction": "GAUL",
+      "width": 8
+    },
+    {
+      "type": "CAVALRY",
+      "org": "unit",
+      "x": 6000,
+      "y": 4000,
+      "angle": 180,
+      "size": 40,
+      "faction": "GAUL",
+      "width": 8
+    }
+  ],
+  "construct_config": [
+    {
+      "type": "graph"
+    }
+  ],
+  "terrain_config": {
+    "top_x": 0.0,
+    "top_y": 0.0,
+    "div": 300.0,
+    "num_x": 60,
+    "num_y": 60,
+    "taper": 10,
+    "min_height": -40.0,
+    "max_height": 40.0,
+    "perlin_scale": 0.2,
+    "perlin_detail_scale": 0.4,
+    "perlin_detail_height_ratio": 0.05
+  },
+  "surface_config": [
+    {
+      "type": "FOREST",
+      "boundary_points": [
+        {
+          "x": -1400,
+          "y": 700
+        },
+        {
+          "x": -1400,
+          "y": 2550
+        },
+        {
+          "x": 1050,
+          "y": 2550
+        },
+        {
+          "x": 1050,
+          "y": 700
+        }
+      ],
+      "average_tree_radius": 45,
+      "size_wiggling": 10,
+      "average_distance": 250,
+      "distance_wiggling": 60,
+      "average_tree_height": 100,
+      "height_wiggling": 20
+    }
+  ],
+  "constructs_and_graph_config": {
+    "constructs": [
+    ],
+    "graph": {
+      "nodes": [
+        {
+          "index": 1,
+          "x": 5390.000000,
+          "y": 14040.000000
+        },
+        {
+          "index": 2,
+          "x": 11380.000000,
+          "y": 10140.000000
+        },
+        {
+          "index": 3,
+          "x": 18040.000000,
+          "y": 12040.000000
+        },
+        {
+          "index": 4,
+          "x": 21950.000000,
+          "y": 13210.000000
+        },
+        {
+          "index": 5,
+          "x": 26740.000000,
+          "y": 13030.000000
+        },
+        {
+          "index": 6,
+          "x": 30140.000000,
+          "y": 14790.000000
+        },
+        {
+          "index": 7,
+          "x": 4900.000000,
+          "y": 19800.000000
+        },
+        {
+          "index": 8,
+          "x": 8810.000000,
+          "y": 17980.000000
+        },
+        {
+          "index": 9,
+          "x": 15250.000000,
+          "y": 14200.000000
+        },
+        {
+          "index": 10,
+          "x": 22440.000000,
+          "y": 17820.000000
+        },
+        {
+          "index": 11,
+          "x": 26600.000000,
+          "y": 18970.000000
+        },
+        {
+          "index": 12,
+          "x": 29860.000000,
+          "y": 17980.000000
+        },
+        {
+          "index": 13,
+          "x": 11210.000000,
+          "y": 22400.000000
+        },
+        {
+          "index": 14,
+          "x": 16620.000000,
+          "y": 19910.000000
+        },
+        {
+          "index": 15,
+          "x": 19610.000000,
+          "y": 20520.000000
+        },
+        {
+          "index": 16,
+          "x": 3910.000000,
+          "y": 26690.000000
+        },
+        {
+          "index": 17,
+          "x": 15900.000000,
+          "y": 26100.000000
+        },
+        {
+          "index": 18,
+          "x": 18730.000000,
+          "y": 23610.000000
+        },
+        {
+          "index": 19,
+          "x": 22590.000000,
+          "y": 24610.000000
+        },
+        {
+          "index": 20,
+          "x": 26740.000000,
+          "y": 24610.000000
+        },
+        {
+          "index": 21,
+          "x": 32140.000000,
+          "y": 24110.000000
+        },
+        {
+          "index": 22,
+          "x": 7510.000000,
+          "y": 30140.000000
+        },
+        {
+          "index": 23,
+          "x": 13620.000000,
+          "y": 31790.000000
+        },
+        {
+          "index": 24,
+          "x": 21600.000000,
+          "y": 32900.000000
+        },
+        {
+          "index": 25,
+          "x": 28060.000000,
+          "y": 31050.000000
+        },
+        {
+          "index": 26,
+          "x": 33550.000000,
+          "y": 29300.000000
+        },
+        {
+          "index": 27,
+          "x": 23250.000000,
+          "y": 36350.000000
+        },
+        {
+          "index": 28,
+          "x": 28960.000000,
+          "y": 36850.000000
+        },
+        {
+          "index": 29,
+          "x": 31540.000000,
+          "y": 33130.000000
+        }
+      ],
+      "edges": [
+        {
+          "node1": 1,
+          "node2": 2
+        },
+        {
+          "node1": 2,
+          "node2": 3
+        },
+        {
+          "node1": 3,
+          "node2": 4
+        },
+        {
+          "node1": 4,
+          "node2": 5
+        },
+        {
+          "node1": 5,
+          "node2": 6
+        },
+        {
+          "node1": 6,
+          "node2": 12
+        },
+        {
+          "node1": 12,
+          "node2": 21
+        },
+        {
+          "node1": 21,
+          "node2": 26
+        },
+        {
+          "node1": 26,
+          "node2": 29
+        },
+        {
+          "node1": 29,
+          "node2": 28
+        },
+        {
+          "node1": 28,
+          "node2": 27
+        },
+        {
+          "node1": 27,
+          "node2": 24
+        },
+        {
+          "node1": 24,
+          "node2": 23
+        },
+        {
+          "node1": 23,
+          "node2": 22
+        },
+        {
+          "node1": 22,
+          "node2": 16
+        },
+        {
+          "node1": 16,
+          "node2": 7
+        },
+        {
+          "node1": 7,
+          "node2": 1
+        },
+        {
+          "node1": 7,
+          "node2": 8
+        },
+        {
+          "node1": 8,
+          "node2": 9
+        },
+        {
+          "node1": 9,
+          "node2": 3
+        },
+        {
+          "node1": 23,
+          "node2": 17
+        },
+        {
+          "node1": 17,
+          "node2": 18
+        },
+        {
+          "node1": 18,
+          "node2": 15
+        },
+        {
+          "node1": 15,
+          "node2": 10
+        },
+        {
+          "node1": 10,
+          "node2": 4
+        },
+        {
+          "node1": 8,
+          "node2": 13
+        },
+        {
+          "node1": 13,
+          "node2": 17
+        },
+        {
+          "node1": 9,
+          "node2": 14
+        },
+        {
+          "node1": 14,
+          "node2": 15
+        },
+        {
+          "node1": 10,
+          "node2": 11
+        },
+        {
+          "node1": 11,
+          "node2": 12
+        },
+        {
+          "node1": 18,
+          "node2": 19
+        },
+        {
+          "node1": 19,
+          "node2": 20
+        },
+        {
+          "node1": 11,
+          "node2": 20
+        },
+        {
+          "node1": 20,
+          "node2": 25
+        }
+      ]
+    }
+  },
+  "terrain_config": {
+    "top_x": 0.0,
+    "top_y": 0.0,
+    "div": 300.0,
+    "num_x": 60,
+    "num_y": 60,
+    "taper": 10,
+    "min_height": -40.0,
+    "max_height": 40.0,
+    "perlin_scale": 0.2,
+    "perlin_detail_scale": 0.4,
+    "perlin_detail_height_ratio": 0.05
+  }
+}

@@ -172,16 +172,18 @@ public class MainSimulation extends PApplet {
     public void setup() {
 
         /** Load graphic resources */
+        // TODO: Not quite sure whether to put this alongside battle config or visual config. It makes more sense for
+        //  this config to be with the map, but putting it with visual config also make sense visually if we assume
+        //  that map texture.
         mapTexture = loadImage("imgs/FullMap/DemoMap2.png");
 
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
-        String battleConfig = "src/configs/battle_configs/BattleConfigLowComputerSetting.txt";
-        String mapConfig = "src/configs/map_configs/TerrainConfigs.json";
-        String constructsConfig = "misc/VideoConfigs/Scene2Construct.txt";
-        String surfaceConfig = "src/configs/surface_configs/NoSurfaceConfig.txt";
-        String gameConfig = "src/configs/game_configs/GameConfig.txt";
-        env = new GameEnvironment(gameConfig, mapConfig, constructsConfig, surfaceConfig, battleConfig, gameSettings);
+        String gameConfig = "src/configs/game_configs/game_config.json";
+        String battleConfig = "src/configs/battle_configs/ai_config_1v1.json";
+        String visualConfig = "src/configs/visual_configs/visual_config.json";
+        String audioConfig = "src/configs/audio_configs/audio_config.json";
+        env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
 
         // Check to make sure that the game environment is valid
         try {
@@ -195,9 +197,9 @@ public class MainSimulation extends PApplet {
 
         /** Camera setup */
 
-        // Add unit to view.camera
-        camera = new TopDownCamera(5000, 5000, INPUT_WIDTH, INPUT_HEIGHT,
-                env.getBroadcaster());
+        // Calculate average position of units, and create a camera.
+        double[] cameraPos = calculateAveragePositions(env.getUnits());
+        camera = new TopDownCamera(cameraPos[0], cameraPos[1], INPUT_WIDTH, INPUT_HEIGHT, env.getBroadcaster());
         cameraRotationSpeed = 0;
         cameraDx = 0;
         cameraDy = 0;
@@ -250,8 +252,7 @@ public class MainSimulation extends PApplet {
         /** Setup video element player */
         try {
             videoElementPlayer = ConfigUtils.readVideoElementConfig(
-                    "src/configs/graphic_configs/GraphicConfig.txt",
-                    camera, this, env.getBroadcaster()
+                    visualConfig, camera, this, env.getBroadcaster()
             );
         } catch (IOException e) {
             e.printStackTrace();
@@ -260,19 +261,19 @@ public class MainSimulation extends PApplet {
         /** Load sound files */
         // Set up audio speaker
         try {
-            audioSpeaker = ConfigUtils.readAudioConfigs(
-                    "src/configs/audio_configs/AudioConfigJson.json",
-                    camera, this, env.getBroadcaster()
-            );
+            audioSpeaker = ConfigUtils.readAudioConfig(audioConfig, camera, this, env.getBroadcaster());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Load background music
         if (audioSettings.isBackgroundMusic()) {
-            backgroundMusic = new SoundFile(this, "audios/bg_music/bg1.mp3");
-            backgroundMusic.amp(0.15f);
-            backgroundMusic.loop();
+            try {
+                backgroundMusic = ConfigUtils.createBackgroundMusicFromConfig(audioConfig, this);
+                backgroundMusic.loop();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         // Playing state of the music
@@ -315,7 +316,6 @@ public class MainSimulation extends PApplet {
          * - Unit size optimization.
          * - Update nearest unit to mouse cursor.
          */
-
         // Pre-process all drawer. This pre-process is vital to short-cut calculation and optimization.
         uiDrawer.preprocess();
         shapeDrawer.preprocess();
@@ -956,7 +956,21 @@ public class MainSimulation extends PApplet {
     void portrayDeadSingle(BaseSingle single, Terrain terrain) {
         singleDrawer.drawDeadSingle(single, terrain);
     }
-      
+
+    private double[] calculateAveragePositions(ArrayList<BaseUnit> units) {
+        double sumX = 0;
+        double sumY = 0;
+        int count = 0;
+        for (BaseUnit unit : units) {
+            sumX += unit.getAnchorX() * unit.getNumAlives();
+            sumY += unit.getAnchorY() * unit.getNumAlives();
+            count += unit.getNumAlives();
+        }
+        return new double[] {
+                sumX / count, sumY / count
+        };
+    }
+
     public static void main(String[] args){
         PApplet.main("MainSimulation");
     }
