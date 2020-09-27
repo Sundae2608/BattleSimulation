@@ -39,8 +39,8 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
-    private static int NUM_HEX_RADIUS = 11;
-    private static double HEX_RADIUS = 550;
+    private static int NUM_HEX_RADIUS = 9;
+    private static double HEX_RADIUS = 1000;
     private static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
     private final static double HEX_CENTER_Y = INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2;
@@ -53,7 +53,7 @@ public class PCGSimulation extends PApplet {
     private final static double BASE_SCALE_DIST = 7000;
 
     // Config for the number of nodes
-    private static int NUM_VERTICES_INNER_WALL = 10;
+    private static int NUM_VERTICES_INNER_WALL = 16;
     private static int NUM_BLOCKS_OUTER_WALL = 50;
 
     // Settings
@@ -119,6 +119,7 @@ public class PCGSimulation extends PApplet {
         // Map generation settings
         mapGenerationSettings = new MapGenerationSettings();
         mapGenerationSettings.setPointExtension(true);
+        mapGenerationSettings.setDividePolygonProb(1.0);
 
         // House generation settings
         houseGenerationSettings = new HouseGenerationSettings();
@@ -543,6 +544,21 @@ public class PCGSimulation extends PApplet {
         }
         polygonHasher.addObject(riverPolygon);
 
+        // Randomly divide some of the in the inner city
+        remainingPolygons = new ArrayList<>(outerWallSystem.getPolygons());
+        for (Polygon p : remainingPolygons) {
+            if (!cityCenterPolygonSet.contains(p)) continue;
+            double rand = MathUtils.randUniform();
+            if (mapGenerationSettings.getDividePolygonProb() > rand) {
+                ArrayList<Polygon> newlyCutPolygons = PolygonUtils.dividePolygonsUsingVerticalStrip(
+                        p, 2, 4);
+                outerWallSystem.removePolygon(p);
+                for (Polygon polygon : newlyCutPolygons) {
+                    outerWallSystem.addPolygon(polygon);
+                }
+            }
+        }
+
         // Create houses
         polygonHouses = new ArrayList<>();
         if (mapGenerationSettings.getHouseGenerationSettings().getMapGenerationMode() ==
@@ -620,7 +636,7 @@ public class PCGSimulation extends PApplet {
                 }));
         scrollbars.add(new AsynchronousScrollbar("Radius of each hex",
                 INPUT_WIDTH - 300, 150, 280, 20,
-                HEX_RADIUS, 100, 1000,
+                HEX_RADIUS, 100, 2000,
                 ScrollbarMode.DOUBLE,this,
                 new CustomAssigner() {
                     @Override
