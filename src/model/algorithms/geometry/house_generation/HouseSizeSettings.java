@@ -6,6 +6,13 @@ public class HouseSizeSettings {
     private double houseArea;
     private double houseAreaWiggle;
 
+    public HouseSizeSettings(double houseWidth, double houseWidthWiggle, double houseArea, double houseAreaWiggle) {
+        this.houseWidth = houseWidth;
+        this.houseWidthWiggle = houseWidthWiggle;
+        this.houseArea = houseArea;
+        this.houseAreaWiggle = houseAreaWiggle;
+    }
+
     public double getHouseWidth() {
         return houseWidth;
     }

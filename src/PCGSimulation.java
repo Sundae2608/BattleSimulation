@@ -131,41 +131,66 @@ public class PCGSimulation extends PApplet {
 
         // House size settings
         HashMap<HouseType, HouseSizeSettings> sizeSettingsMap = new HashMap<>();
-        HouseSizeSettings regularHouseSettings = new HouseSizeSettings();
-        regularHouseSettings.setHouseWidth(160.0);
-        regularHouseSettings.setHouseWidthWiggle(50.0);
-        regularHouseSettings.setHouseArea(25600.0);
-        regularHouseSettings.setHouseAreaWiggle(10000.0);
-        sizeSettingsMap.put(HouseType.REGULAR, regularHouseSettings);
-
-        HouseSizeSettings triangleHouseSizeSettings = new HouseSizeSettings();
-        triangleHouseSizeSettings.setHouseWidth(220.0);
-        triangleHouseSizeSettings.setHouseWidthWiggle(40.0);
-        triangleHouseSizeSettings.setHouseArea(51200.0);
-        triangleHouseSizeSettings.setHouseAreaWiggle(10000.0);
-        sizeSettingsMap.put(HouseType.TRIANGLE, triangleHouseSizeSettings);
-
-        HouseSizeSettings lHouseSizeSettings = new HouseSizeSettings();
-        lHouseSizeSettings.setHouseWidth(320.0);
-        lHouseSizeSettings.setHouseWidthWiggle(20.0);
-        lHouseSizeSettings.setHouseArea(102400);
-        lHouseSizeSettings.setHouseAreaWiggle(10000.0);
-        sizeSettingsMap.put(HouseType.L, lHouseSizeSettings);
-
-        HouseSizeSettings oHouseSizeSettings = new HouseSizeSettings();
-        oHouseSizeSettings.setHouseWidth(640.0);
-        oHouseSizeSettings.setHouseWidthWiggle(100.0);
-        oHouseSizeSettings.setHouseArea(409600.0);
-        oHouseSizeSettings.setHouseAreaWiggle(100000.0);
-        sizeSettingsMap.put(HouseType.O, oHouseSizeSettings);
+        sizeSettingsMap.put(HouseType.TRIANGLE, new HouseSizeSettings(
+                220.0,
+                40.0,
+                51200.0,
+                10000.0
+        ));
+        sizeSettingsMap.put(HouseType.L, new HouseSizeSettings(
+                320.0,
+                20.0,
+                102400.0,
+                10000.0
+        ));
+        sizeSettingsMap.put(HouseType.O, new HouseSizeSettings(
+                640.0,
+                100.0,
+                409600.0,
+                100000.0
+        ));
+        sizeSettingsMap.put(HouseType.U, new HouseSizeSettings(
+                320.0,
+                20.0,
+                102400.0,
+                10000.0
+        ));
+        sizeSettingsMap.put(HouseType.H, new HouseSizeSettings(
+                320.0,
+                20.0,
+                102400.0,
+                10000.0
+        ));
+        sizeSettingsMap.put(HouseType.T, new HouseSizeSettings(
+                225.0,
+                50.0,
+                51200.0,
+                10000.0
+        ));
+        sizeSettingsMap.put(HouseType.PLUS, new HouseSizeSettings(
+                320.0,
+                50.0,
+                102400.0,
+                50000.0
+        ));
+        sizeSettingsMap.put(HouseType.REGULAR, new HouseSizeSettings(
+                160.0,
+                50.0,
+                25600.0,
+                10000.0
+        ));
         houseGenerationSettings.setHouseTypeSizeSettings(sizeSettingsMap);
 
         // House type probabilities
         HashMap<HouseType, Double> houseTypeProbs = new HashMap<>();
+        houseTypeProbs.put(HouseType.TRIANGLE, 0.04);
+        houseTypeProbs.put(HouseType.L, 0.04);
+        houseTypeProbs.put(HouseType.O, 0.015);
+        houseTypeProbs.put(HouseType.U, 0.015);
+        houseTypeProbs.put(HouseType.H, 0.00);
+        houseTypeProbs.put(HouseType.T, 0.04);
+        houseTypeProbs.put(HouseType.PLUS, 0.00);
         houseTypeProbs.put(HouseType.REGULAR, 0.85);
-        houseTypeProbs.put(HouseType.TRIANGLE, 0.05);
-        houseTypeProbs.put(HouseType.L, 0.07);
-        houseTypeProbs.put(HouseType.O, 0.03);
         houseGenerationSettings.setHouseTypeProbs(houseTypeProbs);
         mapGenerationSettings.setHouseGenerationSettings(houseGenerationSettings);
 
@@ -512,7 +537,7 @@ public class PCGSimulation extends PApplet {
         if (edgePolygons.size() >= 2) {
             riverBegin = edgePolygons.get(0);
             riverEnd = edgePolygons.get(1);
-            List<Polygon> riverComponents = polygonSystem.findRiverPathBFS(riverBegin, riverEnd);
+            List<Polygon> riverComponents = PolygonUtils.findRiverPathBFS(polygonSystem, riverBegin, riverEnd);
             riverPolygon = polygonFactory.createPolygonFromSmallerPolygons(riverComponents, EntityType.RIVER);
             mergedPolygonSet.add(riverPolygon);
         }
