@@ -14,6 +14,7 @@ import model.surface.Tree;
 import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import utils.ConfigUtils;
+import view.ai.AIAgent;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.BaseCamera;
@@ -113,6 +114,9 @@ public class MainSimulation extends PApplet {
     double unitEndAngle;
     BaseUnit closestUnit;
 
+    /** AI agents */
+    ArrayList<AIAgent> AIAgents;
+    
     public void settings() {
 
         // First log to initialize the logging tool
@@ -185,6 +189,7 @@ public class MainSimulation extends PApplet {
         String audioConfig = "src/configs/audio_configs/audio_config.json";
         env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
 
+        
         // Check to make sure that the game environment is valid
         try {
             EnvironmentChecker.checkEnvironmentValid(env);
@@ -195,6 +200,15 @@ public class MainSimulation extends PApplet {
         /** Keyboard setup */
         keyPressedSet = new HashSet<>();
 
+        // TODO: read from config to determine AI's faction
+        // This should be optional 
+        AIAgents = new ArrayList<>();
+        for(BaseUnit unit: env.getAliveUnits()){
+            // Hardcode for now
+            if(unit.getPoliticalFaction() == PoliticalFaction.ROME){    
+                AIAgents.add(new AIAgent(unit, env));
+            }
+        }        
         /** Camera setup */
 
         // Calculate average position of units, and create a camera.
@@ -485,6 +499,13 @@ public class MainSimulation extends PApplet {
                 }
             }
             planCounter -= 1;
+        }
+
+        for(AIAgent agent : AIAgents){
+            UnitState state= agent.getUnit().getState();
+            if(state == UnitState.STANDING){
+                agent.move();
+            }
         }
 
         // Always draw arrow of selected unit
