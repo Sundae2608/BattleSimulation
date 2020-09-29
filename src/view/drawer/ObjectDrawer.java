@@ -80,7 +80,7 @@ public class ObjectDrawer extends BaseDrawer {
 
         // Recalculate object actual position
         Pair<Double, Double> rotatedVector = MathUtils.rotate(object.getX(), object.getY(), single.getAngle());
-        double z = terrain.getHeightFromPos(single.getX(), single.getY());
+        double z = single.getHeight();
 
         // Recalculate position and shape based on the view.camera position
         double[] position = camera.getDrawingPosition(

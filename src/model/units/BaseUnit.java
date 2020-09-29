@@ -967,7 +967,7 @@ public class BaseUnit {
             single.updateState();
             sumX += single.getX();
             sumY += single.getY();
-            sumZ += terrain.getHeightFromPos(single.getX(), single.getY());
+            sumZ += single.getHeight();
             count += 1;
         }
         averageX = sumX / count;
