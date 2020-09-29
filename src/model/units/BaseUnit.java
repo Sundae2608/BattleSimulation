@@ -17,7 +17,6 @@ import model.singles.BaseSingle;
 import model.enums.SingleState;
 import model.sound.SoundSink;
 import model.sound.SoundSource;
-import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.*;
@@ -967,7 +966,7 @@ public class BaseUnit {
             single.updateState();
             sumX += single.getX();
             sumY += single.getY();
-            sumZ += single.getHeight();
+            sumZ += single.getZ();
             count += 1;
         }
         averageX = sumX / count;

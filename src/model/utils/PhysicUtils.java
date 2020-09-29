@@ -219,7 +219,7 @@ public final class PhysicUtils {
                 arrayX[j] = (queryAverageX - averageX) * p[j] + averageX;
                 arrayY[j] = (queryAverageY - averageY) * p[j] + averageY;
                 arrayZ[j] = (queryAverageZ - averageZ) * p[j] + averageZ;
-                terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
+                terrainArrayZ[j] = terrain.getZFromPos(arrayX[j], arrayY[j]);
                 visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
             }
             // Finding whether the queryUnit is visible
@@ -248,7 +248,7 @@ public final class PhysicUtils {
         // Getting the coordinate of the current unit
         double singleX = single.getX();
         double singleY = single.getY();
-        double singleZ = terrain.getHeightFromPos(singleX, singleY);
+        double singleZ = terrain.getZFromPos(singleX, singleY);
 
         // Looping through the list of units
         for (BaseSingle querySingle : allSingles) {
@@ -260,7 +260,7 @@ public final class PhysicUtils {
             // Getting the coordinate of the queryUnit
             double querySingleX = querySingle.getX();
             double querySingleY = querySingle.getY();
-            double querySingleZ = terrain.getHeightFromPos(querySingleX, querySingleY);
+            double querySingleZ = terrain.getZFromPos(querySingleX, querySingleY);
             double div = terrain.getDiv();
 
             // Creating a parameter t in [0, 1] to get the line segment from the current unit to the queryUnit
@@ -292,7 +292,7 @@ public final class PhysicUtils {
                 arrayX[j] = (querySingleX - singleX) * t[j] + singleX;
                 arrayY[j] = (querySingleY - singleY) * t[j] + singleY;
                 arrayZ[j] = (querySingleZ - singleZ) * t[j] + singleZ;
-                terrainArrayZ[j] = terrain.getHeightFromPos(arrayX[j], arrayY[j]);
+                terrainArrayZ[j] = terrain.getZFromPos(arrayX[j], arrayY[j]);
                 visibilityArray[j] = arrayZ[j] > terrainArrayZ[j];
             }
             // Finding whether the queryUnit is visible
@@ -846,14 +846,14 @@ public final class PhysicUtils {
             SoundSink dummySoundSink = new SoundSink();
             dummySoundSink.setX(bouncePoints[i][0]);
             dummySoundSink.setY(bouncePoints[i][1]);
-            dummySoundSink.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
+            dummySoundSink.setZ(terrain.getZFromPos(bouncePoints[i][0], bouncePoints[i][1]));
             double tempNoiseLevel = calculateDirectNoiseLevel(soundSource, terrain, surfaces, constructs,  dummySoundSink);
 
             SoundSource dummySoundSource = new SoundSource();
             dummySoundSource.setNoise(tempNoiseLevel);
             dummySoundSource.setX(bouncePoints[i][0]);
             dummySoundSource.setY(bouncePoints[i][1]);
-            dummySoundSource.setZ(terrain.getHeightFromPos(bouncePoints[i][0], bouncePoints[i][1]));
+            dummySoundSource.setZ(terrain.getZFromPos(bouncePoints[i][0], bouncePoints[i][1]));
             tempNoiseLevel = calculateDirectNoiseLevel(dummySoundSource, terrain, surfaces, constructs, soundSink);
 
             // Since tempNoise level is calculated in dB, we have to convert it to the normal scale.
@@ -917,7 +917,7 @@ public final class PhysicUtils {
      * @return
      */
     public static double getAbsoluteBarrierHeight(double x, double y, Terrain terrain, ArrayList<BaseSurface> surfaces, ArrayList<Construct> constructs) {
-        double barrierHeight = terrain.getHeightFromPos(x, y);
+        double barrierHeight = terrain.getZFromPos(x, y);
 
         // Adding barrierHeight from surfaces
         // Looping through surfaces

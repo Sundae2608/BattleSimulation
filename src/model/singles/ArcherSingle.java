@@ -6,7 +6,6 @@ import model.enums.SingleState;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.objects.Arrow;
-import model.terrain.Terrain;
 import model.units.ArcherUnit;
 import model.units.BaseUnit;
 import model.utils.MathUtils;
@@ -54,7 +53,7 @@ public class ArcherSingle extends BaseSingle {
         // Default constants
         speedGoal = 0;
         speed = 0;
-        height = 0;
+        z = 0;
         state = SingleState.IN_POSITION;
 
         // Reload delay and bored delay
