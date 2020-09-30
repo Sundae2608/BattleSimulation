@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javafx.util.Pair;
 import model.GameEnvironment;
 import model.terrain.Terrain;
 import model.units.BaseUnit;

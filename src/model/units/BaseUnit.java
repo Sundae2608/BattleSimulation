@@ -184,6 +184,11 @@ public class BaseUnit {
                 anchorX,  anchorY, xGoal, yGoal, env.getConstructs());
         path = shortestPath;
         path.getNodes().pollFirst();
+
+        //TODO: fix the case when the path is empty
+        if(path.getNodes().isEmpty()){
+            return;
+        }
         node = path.getNodes().get(0);
 
         // Set the goals
