@@ -439,7 +439,7 @@ public class MainSimulation extends PApplet {
                     // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
                     //  though it is a very static value.
                     double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                            env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                            env.getTerrain().getZFromPos(pts[i][0], pts[i][1]));
                     vertex((float) drawingPts[0], (float) drawingPts[1]);
                 }
                 endShape(CLOSE);
@@ -447,7 +447,7 @@ public class MainSimulation extends PApplet {
                 if (surface.getType() == SurfaceType.FOREST) {
                     for (Tree tree : ((ForestSurface) surface).getTrees()) {
                         int[] treeColor = DrawingConstants.TREE_COLOR;
-                        double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
+                        double height = env.getTerrain().getZFromPos(tree.getX(), tree.getY());
                         fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
                         double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
                                 height);
@@ -555,7 +555,7 @@ public class MainSimulation extends PApplet {
                 Node prev = null;
                 for (Node node : unitSelected.getPath().getNodes()) {
                     shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
-                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                            env.getTerrain().getZFromPos(node.getX(), node.getY())));
                     if (prev != null) {
                         battleSignalDrawer.drawArrowPlan(
                                 prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
@@ -577,7 +577,7 @@ public class MainSimulation extends PApplet {
                 Node prev = null;
                 for (Node node : shortestPath.getNodes()) {
                     shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
-                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                            env.getTerrain().getZFromPos(node.getX(), node.getY())));
                     if (prev != null) {
                         battleSignalDrawer.drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
                     }
@@ -612,7 +612,7 @@ public class MainSimulation extends PApplet {
                     unit.getAnchorX(), unit.getAnchorY(),
                     unit.getAnchorX() + unitX * DrawingConstants.ANCHOR_ARROW_SIZE,
                     unit.getAnchorY() + unitY * DrawingConstants.ANCHOR_ARROW_SIZE,
-                    env.getTerrain().getHeightFromPos(unit.getAnchorX(), unit.getAnchorY()));
+                    env.getTerrain().getZFromPos(unit.getAnchorX(), unit.getAnchorY()));
         }
 
         // Draw the objects
@@ -631,7 +631,7 @@ public class MainSimulation extends PApplet {
             for (int i = 0; i < pts.length; i++) {
                 // TODO: This is an efficient part, the height of the object is recalculated all the time.
                 double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                        env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                        env.getTerrain().getZFromPos(pts[i][0], pts[i][1]));
                 vertex((float) drawingPts[0], (float) drawingPts[1]);
             }
             endShape(CLOSE);
@@ -641,7 +641,7 @@ public class MainSimulation extends PApplet {
         if (drawingSettings.isDrawPathfindingNodes()) {
             for (Node node : env.getGraph().getNodes()) {
                 fill(245, 121, 74);
-                double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
+                double height = env.getTerrain().getZFromPos(node.getX(), node.getY());
                 double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
                 circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
             }

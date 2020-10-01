@@ -59,7 +59,7 @@ public class BattleSignalDrawer extends BaseDrawer {
         applet.beginShape();
         for (int i = 0; i < arrow.length; i++) {
             double[] drawingPosition = camera.getDrawingPosition(
-                    arrow[i][0], arrow[i][1], terrain.getHeightFromPos(arrow[i][0], arrow[i][1]));
+                    arrow[i][0], arrow[i][1], terrain.getZFromPos(arrow[i][0], arrow[i][1]));
             applet.vertex((float) drawingPosition[0], (float) drawingPosition[1]);
         }
         applet.endShape(PApplet.CLOSE);
@@ -105,17 +105,17 @@ public class BattleSignalDrawer extends BaseDrawer {
 
         // Convert to drawer points
         double[] p1 = camera.getDrawingPosition(boundingBox[0][0], boundingBox[0][1],
-                terrain.getHeightFromPos(boundingBox[0][0], boundingBox[0][1]));
+                terrain.getZFromPos(boundingBox[0][0], boundingBox[0][1]));
         double[] p2 = camera.getDrawingPosition(boundingBox[1][0], boundingBox[1][1],
-                terrain.getHeightFromPos(boundingBox[1][0], boundingBox[1][1]));
+                terrain.getZFromPos(boundingBox[1][0], boundingBox[1][1]));
         double[] p3 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1],
-                terrain.getHeightFromPos(boundingBox[2][0], boundingBox[2][1]));
+                terrain.getZFromPos(boundingBox[2][0], boundingBox[2][1]));
         double[] p4 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1],
-                terrain.getHeightFromPos(boundingBox[3][0], boundingBox[3][1]));
+                terrain.getZFromPos(boundingBox[3][0], boundingBox[3][1]));
         double[] p5 = camera.getDrawingPosition(boundingBox[4][0], boundingBox[4][1],
-                terrain.getHeightFromPos(boundingBox[4][0], boundingBox[4][1]));
+                terrain.getZFromPos(boundingBox[4][0], boundingBox[4][1]));
         double[] p6 = camera.getDrawingPosition(boundingBox[5][0], boundingBox[5][1],
-                terrain.getHeightFromPos(boundingBox[5][0], boundingBox[5][1]));
+                terrain.getZFromPos(boundingBox[5][0], boundingBox[5][1]));
 
         // First, draw the box indicating the unit at full strength
         applet.fill(DrawingConstants.UNIT_SIZE_COLOR[0],

@@ -27,12 +27,12 @@ public class BaseSingle {
     // Positional attributes
     double x;
     double y;
+    double z;
     double xVel;
     double yVel;
     double speed;
     double angle;
     double facingAngle;
-    double height;  // z
     Terrain terrain;
 
     // Position goal
@@ -208,7 +208,7 @@ public class BaseSingle {
                 }
             }
         }
-        height = terrain.getHeightFromPos(x, y);
+        z = terrain.getZFromPos(x, y);
         facingAngle = MovementUtils.rotate(facingAngle, facingAngleGoal, singleStats.rotationSpeed);
 
         // Update combat statistics
@@ -242,7 +242,7 @@ public class BaseSingle {
         double angleDiff;
 
         // Bonus damage if attacking the single from above.
-        double heightDiff = this.height - other.height;
+        double heightDiff = this.z - other.z;
         double damageScaleByHeightDiff = heightDiff / GameplayConstants.HEIGHT_DIFF_BASE;
         damage *= (1 + MathUtils.capMinMax(damageScaleByHeightDiff,
                 -GameplayConstants.HEIGHT_DIFF_MAX_PENALTY_SCALE,
@@ -366,11 +366,11 @@ public class BaseSingle {
         this.y = y;
     }
 
-    public double getHeight() {
-        return height;
+    public double getZ() {
+        return z;
     }
-    public void setHeight(double height) {
-        this.height = height;
+    public void setZ(double z) {
+        this.z = z;
     }
 
     public double getxGoal() {

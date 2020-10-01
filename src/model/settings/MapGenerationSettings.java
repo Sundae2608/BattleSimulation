@@ -7,6 +7,11 @@ public class MapGenerationSettings {
 
     boolean pointExtension;
     boolean straightenCurve;
+
+    // An experimental feature to randomly divide polygons into two. We do this to test the polygon splitting
+    // functionality.
+    double dividePolygonProb;
+
     HouseGenerationSettings houseGenerationSettings;
     TreeGenerationSettings treeGenerationSettings;
 
@@ -40,5 +45,13 @@ public class MapGenerationSettings {
 
     public void setTreeGenerationSettings(TreeGenerationSettings treeGenerationSettings) {
         this.treeGenerationSettings = treeGenerationSettings;
+    }
+
+    public double getDividePolygonProb() {
+        return dividePolygonProb;
+    }
+
+    public void setDividePolygonProb(double dividePolygonProb) {
+        this.dividePolygonProb = dividePolygonProb;
     }
 }

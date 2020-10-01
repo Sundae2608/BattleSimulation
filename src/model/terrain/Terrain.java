@@ -138,7 +138,7 @@ public class Terrain {
     /**
      * Get height from position x, y.
      */
-    public double getHeightFromPos(double x, double y) {
+    public double getZFromPos(double x, double y) {
         int i = (int) ((x - topX) / div);
         int j = (int) ((y - topY) / div);
         double offsetPortionX = ((x - topX) - i * div) / div;

@@ -30,7 +30,7 @@ public class CavalrySingle extends BaseSingle {
         // Default model.constants;
         speedGoal = 0;
         speed = 0;
-        height = 0;
+        z = 0;
         state = SingleState.IN_POSITION;
     }
 }

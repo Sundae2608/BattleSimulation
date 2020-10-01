@@ -220,7 +220,7 @@ public class UnitModifier {
                 if (balistaHit) {
                     broadcaster.broadcastEvent(new Event(
                             EventType.BALLISTA_HIT_FLESH, obj.getX(), obj.getY(),
-                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+                            terrain.getZFromPos(obj.getX(), obj.getY())));
 
                     // Inflict explosion damage damage
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
@@ -271,14 +271,14 @@ public class UnitModifier {
                 } else if (((Ballista) obj).isTouchGround()) {
                     broadcaster.broadcastEvent(new Event(
                             EventType.BALLISTA_HIT_GROUND, obj.getX(), obj.getY(),
-                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+                            terrain.getZFromPos(obj.getX(), obj.getY())));
                 }
             } else if (obj instanceof Stone) {
                 if (((Stone) obj).isTouchGround()) {
                     // Inflict explosion damage damage
                     broadcaster.broadcastEvent(new Event(
                             EventType.EXPLOSION, obj.getX(), obj.getY(),
-                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+                            terrain.getZFromPos(obj.getX(), obj.getY())));
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
                             obj.getX(), obj.getY(),
                             ((Stone) obj).getExplosionRange());
