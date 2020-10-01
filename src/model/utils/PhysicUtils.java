@@ -46,6 +46,8 @@ public final class PhysicUtils {
     }
     /**
      * Check if two rotated bounding boxes collide
+     * // TODO: This function is obsolete, change it to a more universalized function of checking it using line
+     * // collision.
      * @param box1 four corners of box 1
      * @param box2 four corners of box 2
      * @return true if they are collided

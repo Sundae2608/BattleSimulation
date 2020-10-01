@@ -26,6 +26,9 @@ public class GameplayConstants {
     public final static double ALLY_COLLISION_RATIO_MOVING = 0.7;
     public final static double ALLY_COLLISION_RATIO_FIGHTING = 0.8;
 
+    // When the unit is turning, their speed will be slowly decrease.
+    public final static double TURNING_UNIT_SPEED_DECELERATION_RATIO = 0.05;
+
     // How many frame without engaging the enemy before the front-liner turns into a flanker.
     public final static double FLANKER_PATIENT = 100;
 

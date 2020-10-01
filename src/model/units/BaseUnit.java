@@ -95,6 +95,8 @@ public class BaseUnit {
     BaseUnit unitFoughtAgainst;
     boolean inContactWithEnemy;
     boolean isTurning;
+    double turningSpeedRatio;  // If the unit is turning, their speed is slowly decrease. This is to avoid unit running
+
 
     // the "strength" of the unit, indicating how far the unit can go, or if a single in the unit can do an "action"
     // such as moving or firing
@@ -177,6 +179,19 @@ public class BaseUnit {
      * @param angleGoal angle of the unit at the final position
      */
     public void moveFormationKeptTo(double xGoal, double yGoal, double angleGoal) {
+
+        // Do not do anything if the intended goal bounding box overlaps with the current unit position. It does not
+        // make sense.
+        // TODO: Extremely ugly boundingBox code that currently only uses for drawing. This bounding box array should
+        //  currently is used for both drawing and collision checking. Separate these two bounding box for different
+        //  purpose.
+        double[][] aliveBoundingBox = new double[][] {
+                {boundingBox[0][0], boundingBox[0][1]},
+                {boundingBox[1][0], boundingBox[1][1]},
+                {boundingBox[2][0], boundingBox[2][1]},
+                {boundingBox[3][0], boundingBox[3][1]},
+        };
+        if (PhysicUtils.checkPolygonPolygonCollision(boundingBox, getBoundingBoxAtPos(xGoal, yGoal, angleGoal))) return;
 
         // Set the shortest path
         Path shortestPath = env.getGraph().getShortestPath(
@@ -827,7 +842,7 @@ public class BaseUnit {
             case MOVING:
                 // If army is moving, the the army shall move at normal speed.
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
-                moveSpeed = speed;
+                moveSpeed = speed * turningSpeedRatio;
 
                 // Apply speed modifier by terrain
                 moveSpeedX = Math.cos(moveAngle) * moveSpeed;
@@ -841,8 +856,12 @@ public class BaseUnit {
 
                 if (MathUtils.doubleEqual(moveAngle, anchorAngle)) {
                     isTurning = false;
+                    turningSpeedRatio = 1.0;
                 } else {
                     isTurning = true;
+                    turningSpeedRatio = 1.0;
+                    turningSpeedRatio = Math.max(
+                            0.0, turningSpeedRatio - GameplayConstants.TURNING_UNIT_SPEED_DECELERATION_RATIO);
                 }
 
                 // Rotate towards the goal
@@ -1031,9 +1050,9 @@ public class BaseUnit {
     }
 
     /**
-     * Update the bounding box of the unit.
+     * Get the goal bounding box of the unit assuming that they are at certain position.
      */
-    public double[][] getGoalBoundingBox() {
+    public double[][] getBoundingBoxAtPos(double goalX, double goalY, double goalAngle) {
         // TODO(sonpham): Combine with the bounding box code to make it more modular. This is repetitive.
         double[][] boundingBox = new double[4][2];
         double downUnitX = MathUtils.quickCos((float) (goalAngle + Math.PI));
