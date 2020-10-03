@@ -22,6 +22,7 @@ public class UIDrawer extends BaseDrawer {
     // UI Icons
     PImage banner, bannerShadow, bannerSelected, bannerTexture;
     HashMap<UnitType, PImage> iconMap;
+    PImage aiIcon;
 
     PApplet applet;
     BaseCamera camera;
@@ -50,6 +51,9 @@ public class UIDrawer extends BaseDrawer {
         iconMap.put(UnitType.BALLISTA, applet.loadImage("imgs/BannerArt/iconBallista.png"));
         iconMap.put(UnitType.CATAPULT, applet.loadImage("imgs/BannerArt/iconCatapult.png"));
 
+        // AI Icon
+        aiIcon = applet.loadImage("imgs/AIIcon/aiIcon-01.png");
+
         // Load banner images
         banner = applet.loadImage("imgs/BannerArt/SimplifiedBanner-01.png");
         bannerShadow = applet.loadImage("imgs/BannerArt/SimplifiedBanner-02.png");
@@ -67,7 +71,7 @@ public class UIDrawer extends BaseDrawer {
     /**
      * Draw unit banner.
      */
-    public void drawUnitBanner(BaseUnit unit, boolean isSelected) {
+    public void drawUnitBanner(BaseUnit unit, boolean isSelected, boolean isAI) {
         double[] drawingPos = camera.getDrawingPosition(unit.getAverageX(), unit.getAverageY(), unit.getAverageZ());
         int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
         applet.rectMode(PApplet.CORNER);
@@ -94,9 +98,14 @@ public class UIDrawer extends BaseDrawer {
                 (float) (drawingPos[1] - 111), 84, 111);
         applet.blendMode(PApplet.NORMAL);
         applet.image(iconMap.get(unit.getUnitType()),
-                (float) drawingPos[0] - 30,
-                (float) drawingPos[1] - 92, 60, 60);
+                (float) (drawingPos[0] - 30),
+                (float) (drawingPos[1] - 92), 60, 60);
         applet.rectMode(PApplet.CENTER);
+
+        // AI Icon
+        if (isAI) {
+            applet.image(aiIcon, (float) (drawingPos[0] - 49), (float) (drawingPos[1] - 111), 35, 35);
+        }
     }
 
     /**

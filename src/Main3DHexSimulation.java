@@ -1,3 +1,4 @@
+import view.ai.AIAgent;
 import view.components.CustomAssigner;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
@@ -712,7 +713,8 @@ public class Main3DHexSimulation extends PApplet {
             for (BaseUnit unit : unitsSortedByPosition) {
                 if (unit.getNumAlives() == 0) continue;
                 boolean isSelected = unit == unitSelected;
-                uiDrawer.drawUnitBanner(unit, isSelected);
+                // TODO: isAI is default to false here. Turn it on to true and add other AI code in when time permits.
+                uiDrawer.drawUnitBanner(unit, isSelected, false);
             }
         }
 
@@ -832,7 +834,8 @@ public class Main3DHexSimulation extends PApplet {
             //  checking.
             double[] screenPos = camera.getDrawingPosition(
                     closestUnit.getAverageX(), closestUnit.getAverageY(), closestUnit.getAverageZ());
-            if (MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
+            if (MathUtils.squareDistance(
+                    mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
                 unitSelected = closestUnit;
             } else {
                 unitSelected = null;

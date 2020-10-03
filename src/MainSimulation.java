@@ -116,7 +116,6 @@ public class MainSimulation extends PApplet {
 
     /** AI agents */
     ArrayList<AIAgent> aiAgents;
-    ArrayList<BaseUnit> aiUnits;
     PoliticalFaction aiPoliticalFaction;
     
     public void settings() {
@@ -193,7 +192,6 @@ public class MainSimulation extends PApplet {
         String audioConfig = "src/configs/audio_configs/audio_config.json";
         env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
 
-        
         // Check to make sure that the game environment is valid
         try {
             EnvironmentChecker.checkEnvironmentValid(env);
@@ -206,7 +204,6 @@ public class MainSimulation extends PApplet {
 
         /** AI set up*/
         aiAgents = new ArrayList<>();
-        aiUnits = new ArrayList<>();
         if (gameSettings.isCreateAIAgent()) {
             try {
                 aiPoliticalFaction = ConfigUtils.readPoliticalFactionFromConfig(battleConfig);
@@ -216,7 +213,6 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : env.getAliveUnits()) {
                 if (unit.getPoliticalFaction() == aiPoliticalFaction) {
                     aiAgents.add(new AIAgent(unit, env));
-                    aiUnits.add(unit);
                 }
             }
         }
@@ -232,38 +228,6 @@ public class MainSimulation extends PApplet {
 
         /** Scrollbar setup */
         scrollbars = new ArrayList<>();
-        SingleStats romanCavSingleStats = env.getGameStats().getSingleStats(UnitType.CAVALRY, PoliticalFaction.ROME);
-        UnitStats romanCavUnitStats = env.getGameStats().getUnitStats(UnitType.CAVALRY, PoliticalFaction.ROME);
-        scrollbars.add(new Scrollbar("Cavalry size",
-                INPUT_WIDTH - 300, 30, 280, 20,
-                romanCavSingleStats.radius, 10, 120, ScrollbarMode.DOUBLE, this, new CustomAssigner() {
-            @Override
-            public void updateValue(double value) {
-                double currSpacingDiff = romanCavUnitStats.spacing - romanCavSingleStats.radius;
-                romanCavSingleStats.radius = value;
-                romanCavUnitStats.spacing = value + currSpacingDiff;
-                return;
-            }
-        }));
-
-        SingleStats phalanxSingleStats = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.GAUL);
-        scrollbars.add(new Scrollbar("Phalanx mass",
-                INPUT_WIDTH - 300, 90, 280, 20,
-                phalanxSingleStats.mass, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
-            @Override
-            public void updateValue(double value) {
-                phalanxSingleStats.mass = value;
-            }
-        }));
-
-        scrollbars.add(new Scrollbar("Phalanx damage",
-                INPUT_WIDTH - 300, 150, 280, 20,
-                phalanxSingleStats.attack, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
-            @Override
-            public void updateValue(double value) {
-                phalanxSingleStats.attack = value;
-            }
-        }));
 
         /** Drawer setup */
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
@@ -704,7 +668,15 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : unitsSortedByPosition) {
                 if (unit.getNumAlives() == 0) continue;
                 boolean isSelected = unit == unitSelected;
-                uiDrawer.drawUnitBanner(unit, isSelected);
+                boolean isAI = false;
+                for (AIAgent aiAgent : aiAgents) {
+                    if (unit == aiAgent.getUnit()) {
+                        isAI = true;
+                        break;
+                    }
+                }
+                uiDrawer.drawUnitBanner(unit, isSelected, isAI);
+
             }
         }
 
@@ -822,9 +794,17 @@ public class MainSimulation extends PApplet {
             // Check distance, only allow unit assignment if distance to mouse is smaller than certain number.
             // TODO: It would be better to actually check against the Unit Bounding box for a more accurate collision
             //  checking.
+            boolean isAIAgent = false;
+            for (AIAgent aiAgent : aiAgents) {
+                if (closestUnit == aiAgent.getUnit()) {
+                    isAIAgent = true;
+                    break;
+                }
+            }
             double[] screenPos = camera.getDrawingPosition(
                     closestUnit.getAverageX(), closestUnit.getAverageY(), closestUnit.getAverageZ());
-            if (MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
+            if (!isAIAgent && MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1])
+                    < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
                 unitSelected = closestUnit;
             } else {
                 unitSelected = null;

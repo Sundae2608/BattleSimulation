@@ -38,7 +38,7 @@ public class MapDrawer extends BaseDrawer {
         applet.strokeWeight(1);
         int[] color = DrawingConstants.COLOR_TERRAIN_LINE;
         applet.stroke(color[0], color[1], color[2], DrawingConstants.COLOR_TERRAIN_LINE_MIN_ALPHA);
-        for (int i = minX; i <= maxX; i++) {
+        for (int i = minX; i < maxX; i++) {
             applet.beginShape();
             // Begin line
             double[] beginPos = terrain.getPosFromTileIndex(i, minY);
@@ -46,7 +46,7 @@ public class MapDrawer extends BaseDrawer {
             double[] drawBegin = camera.getDrawingPosition(beginPos[0], beginPos[1], beginZ);
             applet.vertex((float) drawBegin[0], (float) drawBegin[1]);
 
-            for (int j = minY; j < maxY; j++) {
+            for (int j = minY; j < maxY - 1; j++) {
 
                 // NextPoint
                 double[] nextPos = terrain.getPosFromTileIndex(i, j + 1);
@@ -67,7 +67,7 @@ public class MapDrawer extends BaseDrawer {
             applet.endShape();
         }
 
-        for (int j = minY; j <= maxY; j++) {
+        for (int j = minY; j < maxY; j++) {
             // Begin line
             applet.beginShape();
             double[] beginPos = terrain.getPosFromTileIndex(minX, j);
@@ -75,7 +75,7 @@ public class MapDrawer extends BaseDrawer {
             double[] drawBegin = camera.getDrawingPosition(beginPos[0], beginPos[1], beginZ);
             applet.vertex((float) drawBegin[0], (float) drawBegin[1]);
 
-            for (int i = minX; i < maxX; i++) {
+            for (int i = minX; i < maxX - 1; i++) {
 
                 // End line
                 double[] nextPos = terrain.getPosFromTileIndex(i + 1, j);
