@@ -1,4 +1,4 @@
-package model.objects;
+package model.projectile_objects;
 
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;

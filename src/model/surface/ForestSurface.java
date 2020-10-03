@@ -2,12 +2,12 @@ package model.surface;
 
 import model.algorithms.TreeHasher;
 import model.enums.SurfaceType;
+import model.map_objects.Tree;
 import model.singles.BaseSingle;
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class ForestSurface extends BaseSurface {
 

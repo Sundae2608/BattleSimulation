@@ -9,7 +9,7 @@ import model.sound.SoundSink;
 import model.sound.SoundSource;
 import model.surface.BaseSurface;
 import model.surface.ForestSurface;
-import model.surface.Tree;
+import model.map_objects.Tree;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import javafx.util.Pair;

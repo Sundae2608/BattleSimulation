@@ -3,10 +3,9 @@ package model.algorithms;
 import model.enums.SurfaceType;
 import model.surface.BaseSurface;
 import model.surface.ForestSurface;
-import model.surface.Tree;
+import model.map_objects.Tree;
 import model.utils.PhysicUtils;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 

@@ -1,6 +1,6 @@
 package model.algorithms;
 
-import model.objects.BaseObject;
+import model.projectile_objects.BaseObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;

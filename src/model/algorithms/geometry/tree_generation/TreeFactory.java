@@ -4,7 +4,7 @@ import model.algorithms.geometry.Edge;
 import model.algorithms.geometry.Polygon;
 import model.algorithms.geometry.PolygonHasher;
 import model.algorithms.geometry.Vertex;
-import model.surface.Tree;
+import model.map_objects.Tree;
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 

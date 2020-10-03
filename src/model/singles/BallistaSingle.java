@@ -6,7 +6,7 @@ import model.constants.UniversalConstants;
 import model.enums.SingleState;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
-import model.objects.Ballista;
+import model.projectile_objects.Ballista;
 import model.units.BallistaUnit;
 import model.units.BaseUnit;
 import model.utils.MathUtils;

@@ -6,7 +6,7 @@ import model.algorithms.geometry.house_generation.HouseType;
 import model.algorithms.geometry.tree_generation.TreeFactory;
 import model.algorithms.geometry.tree_generation.TreeGenerationSettings;
 import model.settings.MapGenerationMode;
-import model.surface.Tree;
+import model.map_objects.Tree;
 import model.utils.PhysicUtils;
 import view.components.*;
 import model.settings.MapGenerationSettings;
