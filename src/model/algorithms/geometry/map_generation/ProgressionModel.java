@@ -1,12 +1,10 @@
 package model.algorithms.geometry.map_generation;
 
+import model.events.EventBroadcaster;
+
 public class ProgressionModel {
 
     private Progression houseProgression;
-
-    public ProgressionModel() {
-        // Empty constructor
-    }
 
     public Progression getHouseProgression() {
         return houseProgression;
@@ -14,5 +12,11 @@ public class ProgressionModel {
 
     public void setHouseProgressionFunction(Progression houseProgression) {
         this.houseProgression = houseProgression;
+    }
+
+    public void copy(ProgressionModel other) {
+        if (other.getHouseProgression() != null) {
+            setHouseProgressionFunction(other.houseProgression);
+        }
     }
 }
