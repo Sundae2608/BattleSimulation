@@ -39,6 +39,9 @@ public class GameSettings {
     // TODO: Add some logging for sound bouncing processing.
     private boolean processSoundBounce;
 
+    // Create AI Agents
+    private boolean createAIAgent;
+
     public GameSettings() {}
 
     public boolean isAllyCollision() {
@@ -125,5 +128,12 @@ public class GameSettings {
     }
     public void setProcessUnitVision(boolean processUnitVision) {
         this.processUnitVision = processUnitVision;
+    }
+
+    public boolean isCreateAIAgent() {
+        return createAIAgent;
+    }
+    public void setCreateAIAgent(boolean createAIAgent) {
+        this.createAIAgent = createAIAgent;
     }
 }

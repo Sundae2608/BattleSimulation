@@ -116,6 +116,7 @@ public class MainSimulation extends PApplet {
 
     /** AI agents */
     ArrayList<AIAgent> aiAgents;
+    ArrayList<BaseUnit> aiUnits;
     PoliticalFaction aiPoliticalFaction;
     
     public void settings() {
@@ -138,6 +139,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setProcessSoundBounce(false);
         gameSettings.setUseRoundedSurfaceCollision(true);
         gameSettings.setProcessUnitVision(false);
+        gameSettings.setCreateAIAgent(true);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
@@ -202,18 +204,20 @@ public class MainSimulation extends PApplet {
         /** Keyboard setup */
         keyPressedSet = new HashSet<>();
 
-        // TODO: read from config to determine AI's faction
-        // This should be optional 
+        /** AI set up*/
         aiAgents = new ArrayList<>();
-        try {
-            aiPoliticalFaction = ConfigUtils.readPoliticalFactionFromConfig(battleConfig);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        for(BaseUnit unit: env.getAliveUnits()){
-            // Hardcode for now
-            if (unit.getPoliticalFaction() == aiPoliticalFaction){
-                aiAgents.add(new AIAgent(unit, env));
+        aiUnits = new ArrayList<>();
+        if (gameSettings.isCreateAIAgent()) {
+            try {
+                aiPoliticalFaction = ConfigUtils.readPoliticalFactionFromConfig(battleConfig);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            for (BaseUnit unit : env.getAliveUnits()) {
+                if (unit.getPoliticalFaction() == aiPoliticalFaction) {
+                    aiAgents.add(new AIAgent(unit, env));
+                    aiUnits.add(unit);
+                }
             }
         }
 
