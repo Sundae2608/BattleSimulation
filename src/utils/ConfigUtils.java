@@ -5,38 +5,21 @@ import model.GameEnvironment;
 import model.GameStats;
 import model.algorithms.ObjectHasher;
 import model.algorithms.pathfinding.Graph;
-import model.constants.UniversalConstants;
 import model.construct.Construct;
 import model.enums.PoliticalFaction;
-import model.enums.SurfaceType;
-import model.enums.UnitType;
 import model.events.EventBroadcaster;
 import model.settings.GameSettings;
-import model.singles.SingleStats;
 import model.surface.*;
 import model.terrain.Terrain;
 import model.units.*;
-import model.units.unit_stats.UnitStats;
-import model.utils.MathUtils;
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.sound.SoundFile;
 import utils.json.*;
 import view.audio.*;
 import view.camera.BaseCamera;
 import view.video.VideoElementPlayer;
-import view.video.VideoElementType;
-import view.video.VideoTemplate;
-
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class ConfigUtils {
     /**
@@ -103,5 +86,13 @@ public final class ConfigUtils {
     public static SoundFile createBackgroundMusicFromConfig(String filePath, PApplet applet) throws IOException {
         JsonIO jsonIO = new BackgroundMusicIO(applet);
         return (SoundFile) jsonIO.read(filePath);
+    }
+
+    /**
+     * Read AI config
+     */
+    public static PoliticalFaction readPoliticalFactionFromConfig(String filePath) throws IOException {
+        JsonIO jsonIO = new AIAgentIO();
+        return (PoliticalFaction) jsonIO.read(filePath);
     }
 }

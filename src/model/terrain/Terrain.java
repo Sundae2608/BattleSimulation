@@ -69,6 +69,7 @@ public class Terrain {
                 ;
             }
         }
+
         for (int i = 0; i < numX - 1; i++) {
             for (int j = 0; j < numY - 1; j++) {
                 dx[i][j] = (heightField[i][j + 1] - heightField[i][j]) / div;
@@ -112,7 +113,7 @@ public class Terrain {
     public double getPerlinDetailHeightRatio() { return perlinDetailHeightRatio; }
 
     public double getHeightFromTileIndex(int i, int j) {
-        if (i >= 0 && i < numX && j > 0 && j <= numY) {
+        if (i >= 0 && i < numX && j >= 0 && j < numY) {
             return heightField[i][j];
         } else {
             return 0;
@@ -138,7 +139,7 @@ public class Terrain {
     /**
      * Get height from position x, y.
      */
-    public double getHeightFromPos(double x, double y) {
+    public double getZFromPos(double x, double y) {
         int i = (int) ((x - topX) / div);
         int j = (int) ((y - topY) / div);
         double offsetPortionX = ((x - topX) - i * div) / div;

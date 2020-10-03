@@ -54,7 +54,7 @@ public class BallistaSingle extends BaseSingle {
         // Default constants
         speedGoal = 0;
         speed = 0;
-        height = 0;
+        z = 0;
         state = SingleState.IN_POSITION;
 
         // Reload delay and bored delay
