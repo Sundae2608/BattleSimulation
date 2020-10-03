@@ -6,7 +6,6 @@ import model.enums.SingleState;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.projectile_objects.Arrow;
-import model.objects.Arrow;
 import model.units.ArcherUnit;
 import model.units.BaseUnit;
 import model.utils.MathUtils;
