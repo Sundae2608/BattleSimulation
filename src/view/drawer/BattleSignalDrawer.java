@@ -101,21 +101,23 @@ public class BattleSignalDrawer extends BaseDrawer {
     public void drawUnitBlock(BaseUnit unit, Terrain terrain) {
 
         // draw the bounding box.
+        double[][] aliveBoundingBox = unit.getAliveBoundingBox();
         double[][] boundingBox = unit.getBoundingBox();
 
         // Convert to drawer points
-        double[] p1 = camera.getDrawingPosition(boundingBox[0][0], boundingBox[0][1],
-                terrain.getZFromPos(boundingBox[0][0], boundingBox[0][1]));
-        double[] p2 = camera.getDrawingPosition(boundingBox[1][0], boundingBox[1][1],
-                terrain.getZFromPos(boundingBox[1][0], boundingBox[1][1]));
-        double[] p3 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1],
+        double[] p1 = camera.getDrawingPosition(aliveBoundingBox[0][0], aliveBoundingBox[0][1],
+                terrain.getZFromPos(aliveBoundingBox[0][0], aliveBoundingBox[0][1]));
+        double[] p2 = camera.getDrawingPosition(aliveBoundingBox[1][0], aliveBoundingBox[1][1],
+                terrain.getZFromPos(aliveBoundingBox[1][0], aliveBoundingBox[1][1]));
+        double[] p3 = camera.getDrawingPosition(aliveBoundingBox[2][0], aliveBoundingBox[2][1],
+                terrain.getZFromPos(aliveBoundingBox[2][0], aliveBoundingBox[2][1]));
+        double[] p4 = camera.getDrawingPosition(aliveBoundingBox[3][0], aliveBoundingBox[3][1],
+                terrain.getZFromPos(aliveBoundingBox[3][0], aliveBoundingBox[3][1]));
+
+        double[] p5 = camera.getDrawingPosition(boundingBox[2][0], boundingBox[2][1],
                 terrain.getZFromPos(boundingBox[2][0], boundingBox[2][1]));
-        double[] p4 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1],
+        double[] p6 = camera.getDrawingPosition(boundingBox[3][0], boundingBox[3][1],
                 terrain.getZFromPos(boundingBox[3][0], boundingBox[3][1]));
-        double[] p5 = camera.getDrawingPosition(boundingBox[4][0], boundingBox[4][1],
-                terrain.getZFromPos(boundingBox[4][0], boundingBox[4][1]));
-        double[] p6 = camera.getDrawingPosition(boundingBox[5][0], boundingBox[5][1],
-                terrain.getZFromPos(boundingBox[5][0], boundingBox[5][1]));
 
         // First, draw the box indicating the unit at full strength
         applet.fill(DrawingConstants.UNIT_SIZE_COLOR[0],

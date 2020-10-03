@@ -472,7 +472,11 @@ public class UnitModifier {
 
         // Check the vision of each unit.
         for (BaseUnit unit : unitList) {
-            unit.setVisibleUnits(PhysicUtils.checkUnitVision(unit, unitList, terrain));
+            if (gameSettings.isProcessUnitVision()) {
+                unit.setVisibleUnits(PhysicUtils.checkUnitVision(unit, unitList, terrain));
+            } else {
+                unit.setVisibleUnits(unitList);
+            }
         }
 
         // Dictionary of each unit and whether they touched the enemy.
@@ -559,8 +563,9 @@ public class UnitModifier {
         Collections.shuffle(singles);
         for (BaseSingle single : singles) {
 
-            // Ignore dead objects. They can't deal damage.
-            if (single.getState() == SingleState.DEAD) continue;
+            // Ignore dead or routing soldiers. They can't deal damage.
+            if (single.getState() == SingleState.DEAD || single.getState() == SingleState.ROUTING) continue;
+
 
             // Single must recharge attack delay
             if (single.getCombatDelay() > 0) {

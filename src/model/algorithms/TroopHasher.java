@@ -222,18 +222,18 @@ public class TroopHasher {
      * https://stackoverflow.com/questions/10962379/how-to-check-intersection-between-2-rotated-rectangles
      */
     private boolean unitRotatedBoundingBoxCollide(BaseUnit unit1, BaseUnit unit2) {
-        double[][] box1 = unit1.getBoundingBox();
-        double[][] box2 = unit2.getBoundingBox();
+        double[][] box1 = unit1.getAliveBoundingBox();
+        double[][] box2 = unit2.getAliveBoundingBox();
 
-        return PhysicUtils.rotatedBoundingBoxCollide(box1, box2);
+        return PhysicUtils.checkPolygonPolygonCollision(box1, box2);
     }
 
     /**
      * Check if the two model.units collide based on axis-aligned bounding box.
      */
     private boolean unitBoundingBoxCollided(BaseUnit unit1, BaseUnit unit2) {
-        double[][] box1 = unit1.getBoundingBox();
-        double[][] box2 = unit2.getBoundingBox();
+        double[][] box1 = unit1.getAliveBoundingBox();
+        double[][] box2 = unit2.getAliveBoundingBox();
 
         return PhysicUtils.axisAlignedBoundingBoxCollide(box1, box2);
     }

@@ -31,6 +31,9 @@ public class GameSettings {
     private int unitIntentionSkipping;
     private int singleIntentionSkipping;
 
+    // Process unit visions.
+    private boolean processUnitVision;
+
     // Sound bouncing processing setting. Currently an experimental feature that is false by default.
     // Very heavy on processing.
     // TODO: Add some logging for sound bouncing processing.
@@ -115,5 +118,12 @@ public class GameSettings {
     }
     public void setUseRoundedSurfaceCollision(boolean useRoundedSurfaceCollision) {
         this.useRoundedSurfaceCollision = useRoundedSurfaceCollision;
+    }
+
+    public boolean isProcessUnitVision() {
+        return processUnitVision;
+    }
+    public void setProcessUnitVision(boolean processUnitVision) {
+        this.processUnitVision = processUnitVision;
     }
 }

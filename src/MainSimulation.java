@@ -136,6 +136,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setCountWrongFormationChanges(true);
         gameSettings.setProcessSoundBounce(false);
         gameSettings.setUseRoundedSurfaceCollision(true);
+        gameSettings.setProcessUnitVision(false);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
