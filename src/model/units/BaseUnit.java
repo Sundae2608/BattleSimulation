@@ -191,7 +191,7 @@ public class BaseUnit {
                 {boundingBox[2][0], boundingBox[2][1]},
                 {boundingBox[3][0], boundingBox[3][1]},
         };
-        if (PhysicUtils.checkPolygonPolygonCollision(boundingBox, getBoundingBoxAtPos(xGoal, yGoal, angleGoal))) return;
+        if (PhysicUtils.checkPolygonPolygonCollision(aliveBoundingBox, getBoundingBoxAtPos(xGoal, yGoal, angleGoal))) return;
 
         // Set the shortest path
         Path shortestPath = env.getGraph().getShortestPath(
