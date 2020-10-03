@@ -104,4 +104,12 @@ public final class ConfigUtils {
         JsonIO jsonIO = new BackgroundMusicIO(applet);
         return (SoundFile) jsonIO.read(filePath);
     }
+
+    /**
+     * Read AI config
+     */
+    public static PoliticalFaction readPoliticalFactionFromConfig(String filePath) throws IOException {
+        JsonIO jsonIO = new AIAgentIO();
+        return (PoliticalFaction) jsonIO.read(filePath);
+    }
 }

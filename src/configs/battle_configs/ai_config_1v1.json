@@ -1,4 +1,7 @@
 {
+  "ai_config": {
+    "ai_faction": "ROME"
+  },
   "battle_config": [
     {
       "type": "SWORDMAN",

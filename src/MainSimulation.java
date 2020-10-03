@@ -116,6 +116,7 @@ public class MainSimulation extends PApplet {
 
     /** AI agents */
     ArrayList<AIAgent> aiAgents;
+    PoliticalFaction aiPoliticalFaction;
     
     public void settings() {
 
@@ -204,14 +205,19 @@ public class MainSimulation extends PApplet {
         // TODO: read from config to determine AI's faction
         // This should be optional 
         aiAgents = new ArrayList<>();
+        try {
+            aiPoliticalFaction = ConfigUtils.readPoliticalFactionFromConfig(battleConfig);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         for(BaseUnit unit: env.getAliveUnits()){
             // Hardcode for now
-            if(unit.getPoliticalFaction() == PoliticalFaction.ROME){    
+            if (unit.getPoliticalFaction() == aiPoliticalFaction){
                 aiAgents.add(new AIAgent(unit, env));
             }
-        }        
-        /** Camera setup */
+        }
 
+        /** Camera setup */
         // Calculate average position of units, and create a camera.
         double[] cameraPos = calculateAveragePositions(env.getUnits());
         camera = new TopDownCamera(cameraPos[0], cameraPos[1], INPUT_WIDTH, INPUT_HEIGHT, env.getBroadcaster());
