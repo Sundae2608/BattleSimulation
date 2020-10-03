@@ -485,7 +485,7 @@ public class Main3DHexSimulation extends PApplet {
         // Dead troops
         noStroke();
         for (BaseSingle single : env.getDeadContainer()) {
-            portrayDeadSingle(single, env.getTerrain());
+            portrayDeadSingle(single);
         }
 
         // If space is pressed, draw the goal position.
@@ -632,7 +632,7 @@ public class Main3DHexSimulation extends PApplet {
                 }
             });
             for (BaseSingle single : arr) {
-                portrayAliveSingle(single, env.getTerrain());
+                portrayAliveSingle(single, env.getTerrain(), unitSelected);
             }
         } else {
             // Draw unit block
@@ -979,7 +979,7 @@ public class Main3DHexSimulation extends PApplet {
     /**
      * Portray alive troop.
      */
-    void portrayAliveSingle(BaseSingle single, Terrain terrain) {
+    void portrayAliveSingle(BaseSingle single, Terrain terrain, BaseUnit unitSelected) {
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
@@ -987,14 +987,14 @@ public class Main3DHexSimulation extends PApplet {
             objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain);
         }
         // Draw the alive single itself
-        singleDrawer.drawAliveSingle(single, terrain);
+        singleDrawer.drawAliveSingle(single, unitSelected == single.getUnit());
     }
 
     /**
      * Portray dead unit
      */
-    void portrayDeadSingle(BaseSingle single, Terrain terrain) {
-        singleDrawer.drawDeadSingle(single, terrain);
+    void portrayDeadSingle(BaseSingle single) {
+        singleDrawer.drawDeadSingle(single);
     }
 
     public static void main(String[] args){

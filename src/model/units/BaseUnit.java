@@ -723,6 +723,7 @@ public class BaseUnit {
                 // TODO(sonpham): Come up with a way to change FIGHTING to IN_POSITION when comebat with a unit is over.
                 if (unitFoughtAgainst.getNumAlives() == 0) {
                     state = UnitState.STANDING;
+                    anchorAngle = goalAngle;
                     unitFoughtAgainst = null;
                     break;
                 }

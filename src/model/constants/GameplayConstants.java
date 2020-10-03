@@ -15,7 +15,7 @@ public class GameplayConstants {
     public final static double ROUTING_ANGLE_VARIATION = 0.1;
 
     // While running for their life, the soldier should be running a bit faster than usual.
-    public final static double ROUTING_SPEED_COEFFICIENT = 1.1;
+    public final static double ROUTING_SPEED_COEFFICIENT = 1.3;
 
     // Charge buffer. This prevents charge event from firing too often.
     public final static int CHARGE_BUFFER = 200;

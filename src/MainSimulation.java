@@ -115,7 +115,7 @@ public class MainSimulation extends PApplet {
     BaseUnit closestUnit;
 
     /** AI agents */
-    ArrayList<AIAgent> AIAgents;
+    ArrayList<AIAgent> aiAgents;
     
     public void settings() {
 
@@ -203,11 +203,11 @@ public class MainSimulation extends PApplet {
 
         // TODO: read from config to determine AI's faction
         // This should be optional 
-        AIAgents = new ArrayList<>();
+        aiAgents = new ArrayList<>();
         for(BaseUnit unit: env.getAliveUnits()){
             // Hardcode for now
             if(unit.getPoliticalFaction() == PoliticalFaction.ROME){    
-                AIAgents.add(new AIAgent(unit, env));
+                aiAgents.add(new AIAgent(unit, env));
             }
         }        
         /** Camera setup */
@@ -476,7 +476,7 @@ public class MainSimulation extends PApplet {
         // Dead troops
         noStroke();
         for (BaseSingle single : env.getDeadContainer()) {
-            portrayDeadSingle(single, env.getTerrain());
+            portrayDeadSingle(single);
         }
 
         // If space is pressed, draw the goal position.
@@ -502,7 +502,7 @@ public class MainSimulation extends PApplet {
             planCounter -= 1;
         }
 
-        for(AIAgent agent : AIAgents){
+        for(AIAgent agent : aiAgents){
             UnitState state= agent.getUnit().getState();
             if(state == UnitState.STANDING){
                 agent.move();
@@ -613,7 +613,7 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : env.getAliveUnits()) {
                 // For troops out of position, draw them individually
                 for (BaseSingle single : unit.getAliveTroopsSet()) {
-                    portrayAliveSingle(single, env.getTerrain());
+                    portrayAliveSingle(single, env.getTerrain(), unitSelected);
                 }
             }
         } else {
@@ -961,22 +961,23 @@ public class MainSimulation extends PApplet {
     /**
      * Portray alive troop.
      */
-    void portrayAliveSingle(BaseSingle single, Terrain terrain) {
+    void portrayAliveSingle(BaseSingle single, Terrain terrain, BaseUnit unitSelected) {
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
         for (BaseObject obj : carriedObjects.keySet()) {
             objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain);
         }
+
         // Draw the alive single itself
-        singleDrawer.drawAliveSingle(single, terrain);
+        singleDrawer.drawAliveSingle(single, unitSelected == single.getUnit());
     }
 
     /**
      * Portray dead unit
      */
-    void portrayDeadSingle(BaseSingle single, Terrain terrain) {
-        singleDrawer.drawDeadSingle(single, terrain);
+    void portrayDeadSingle(BaseSingle single) {
+        singleDrawer.drawDeadSingle(single);
     }
 
     private double[] calculateAveragePositions(ArrayList<BaseUnit> units) {

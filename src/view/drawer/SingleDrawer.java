@@ -145,12 +145,12 @@ public class SingleDrawer extends BaseDrawer {
      * Dead unit drawer
      * A dead unit will most of the time have just a gray body
      */
-    public void drawDeadSingle(BaseSingle single, Terrain terrain) {
+    public void drawDeadSingle(BaseSingle single) {
 
         // Recalculate position and shape based on the view.camera position
         double singleX = single.getX();
         double singleY = single.getY();
-        double singleZ = terrain.getZFromPos(single.getX(), single.getY());
+        double singleZ = single.getZ();
         double[] position = camera.getDrawingPosition(
                 singleX,
                 singleY,
@@ -217,7 +217,7 @@ public class SingleDrawer extends BaseDrawer {
     /**
      * Draw alive unit
      */
-    public void drawAliveSingle(BaseSingle single, Terrain terrain) {
+    public void drawAliveSingle(BaseSingle single, boolean unitSelected) {
 
         // Recalculate position and shape based on the view.camera position
         double singleX = single.getX();
@@ -239,7 +239,12 @@ public class SingleDrawer extends BaseDrawer {
         // Fill the color by political faction
         int[] color = DrawingUtils.getFactionColor(single.getPoliticalFaction());
         int[] modifiedColor = new int[4];
-        int[] shadowColor = DrawingConstants.SHADOW_COLOR;
+        int[] shadowColor;
+        if (unitSelected) {
+            shadowColor = DrawingConstants.SELECTED_SHADOW_COLOR;
+        } else {
+            shadowColor = DrawingConstants.SHADOW_COLOR;
+        }
 
         // Modify the color by the amount of damage sustain
         if (drawingSettings.isDrawDamageSustained()) {

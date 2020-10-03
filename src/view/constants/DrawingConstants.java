@@ -100,6 +100,7 @@ public class DrawingConstants {
     public final static double SHADOW_OFFSET = 3.5;
     public final static double UNIT_SHADOW_OFFSET = 15;
     public final static int[] SHADOW_COLOR = {0, 0, 0, 128};
+    public final static int[] SELECTED_SHADOW_COLOR = {227, 133, 45, 128};
 
     public final static double SIMPLIFIED_SQUARE_SIZE_RATIO = 0.886226925453;
 }
