@@ -39,8 +39,8 @@ public class PCGSimulation extends PApplet {
     private final static int INPUT_NUM_X = 50;
     private final static int INPUT_NUM_Y = 50;
 
-    private static int NUM_HEX_RADIUS = 11;
-    private static double HEX_RADIUS = 550;
+    private static int NUM_HEX_RADIUS = 9;
+    private static double HEX_RADIUS = 1000;
     private static double HEX_JIGGLE = 120;
     private final static double HEX_CENTER_X = INPUT_TOP_X + INPUT_NUM_X * INPUT_DIV / 2;
     private final static double HEX_CENTER_Y = INPUT_TOP_Y + INPUT_NUM_Y * INPUT_DIV / 2;
@@ -53,7 +53,7 @@ public class PCGSimulation extends PApplet {
     private final static double BASE_SCALE_DIST = 7000;
 
     // Config for the number of nodes
-    private static int NUM_VERTICES_INNER_WALL = 10;
+    private static int NUM_VERTICES_INNER_WALL = 16;
     private static int NUM_BLOCKS_OUTER_WALL = 50;
 
     // Settings
@@ -119,6 +119,7 @@ public class PCGSimulation extends PApplet {
         // Map generation settings
         mapGenerationSettings = new MapGenerationSettings();
         mapGenerationSettings.setPointExtension(true);
+        mapGenerationSettings.setDividePolygonProb(1.0);
 
         // House generation settings
         houseGenerationSettings = new HouseGenerationSettings();
@@ -543,6 +544,21 @@ public class PCGSimulation extends PApplet {
         }
         polygonHasher.addObject(riverPolygon);
 
+        // Randomly divide some of the in the inner city
+        remainingPolygons = new ArrayList<>(outerWallSystem.getPolygons());
+        for (Polygon p : remainingPolygons) {
+            if (!cityCenterPolygonSet.contains(p)) continue;
+            double rand = MathUtils.randUniform();
+            if (mapGenerationSettings.getDividePolygonProb() > rand) {
+                ArrayList<Polygon> newlyCutPolygons = PolygonUtils.dividePolygonsUsingVerticalStrip(
+                        p, 2, 4);
+                outerWallSystem.removePolygon(p);
+                for (Polygon polygon : newlyCutPolygons) {
+                    outerWallSystem.addPolygon(polygon);
+                }
+            }
+        }
+
         // Create houses
         polygonHouses = new ArrayList<>();
         if (mapGenerationSettings.getHouseGenerationSettings().getMapGenerationMode() ==
@@ -620,7 +636,7 @@ public class PCGSimulation extends PApplet {
                 }));
         scrollbars.add(new AsynchronousScrollbar("Radius of each hex",
                 INPUT_WIDTH - 300, 150, 280, 20,
-                HEX_RADIUS, 100, 1000,
+                HEX_RADIUS, 100, 2000,
                 ScrollbarMode.DOUBLE,this,
                 new CustomAssigner() {
                     @Override
@@ -892,7 +908,7 @@ public class PCGSimulation extends PApplet {
             for (int i = 0; i < boundaryPts.length; i++) {
                 double x = boundaryPts[i][0];
                 double y = boundaryPts[i][1];
-                double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
+                double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getZFromPos(x, y));
                 vertex((float) drawingPt[0], (float) drawingPt[1]);
             }
             endShape(CLOSE);
@@ -909,8 +925,8 @@ public class PCGSimulation extends PApplet {
                 if (!camera.positionIsVisible(x1, y1) && !camera.positionIsVisible(x2, y2)) continue;
 
                 // Determine the color of the polygon
-                double[] drawingPt1 = camera.getDrawingPosition(x1, y1, terrain.getHeightFromPos(x1, y1));
-                double[] drawingPt2 = camera.getDrawingPosition(x2, y2, terrain.getHeightFromPos(x2, y2));
+                double[] drawingPt1 = camera.getDrawingPosition(x1, y1, terrain.getZFromPos(x1, y1));
+                double[] drawingPt2 = camera.getDrawingPosition(x2, y2, terrain.getZFromPos(x2, y2));
                 vertex((float) drawingPt1[0], (float) drawingPt1[1]);
                 vertex((float) drawingPt2[0], (float) drawingPt2[1]);
             }
@@ -933,9 +949,9 @@ public class PCGSimulation extends PApplet {
                     continue;
                 }
                 double[] drawingPt1 = camera.getDrawingPosition(e.getVertex1().getX(), e.getVertex1().getY(),
-                        terrain.getHeightFromPos(e.getVertex1().getX(), e.getVertex1().getY()));
+                        terrain.getZFromPos(e.getVertex1().getX(), e.getVertex1().getY()));
                 double[] drawingPt2 = camera.getDrawingPosition(e.getVertex2().getX(), e.getVertex2().getY(),
-                        terrain.getHeightFromPos(e.getVertex2().getX(), e.getVertex2().getY()));
+                        terrain.getZFromPos(e.getVertex2().getX(), e.getVertex2().getY()));
                 vertex((float) drawingPt1[0], (float) drawingPt1[1]);
                 vertex((float) drawingPt2[0], (float) drawingPt2[1]);
             }
@@ -962,7 +978,7 @@ public class PCGSimulation extends PApplet {
                 for (int i = 0; i < boundaryPts.length; i++) {
                     double x = boundaryPts[i][0];
                     double y = boundaryPts[i][1];
-                    double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
+                    double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getZFromPos(x, y));
                     if (drawingSettings.isDrawRiverAsCurved()) {
                         curveVertex((float) drawingPt[0], (float) drawingPt[1]);
                     } else {
@@ -1003,9 +1019,9 @@ public class PCGSimulation extends PApplet {
                     continue;
                 }
                 double[] drawingPt1 = camera.getDrawingPosition(e.getVertex1().getX(), e.getVertex1().getY(),
-                        terrain.getHeightFromPos(e.getVertex1().getX(), e.getVertex1().getY()));
+                        terrain.getZFromPos(e.getVertex1().getX(), e.getVertex1().getY()));
                 double[] drawingPt2 = camera.getDrawingPosition(e.getVertex2().getX(), e.getVertex2().getY(),
-                        terrain.getHeightFromPos(e.getVertex2().getX(), e.getVertex2().getY()));
+                        terrain.getZFromPos(e.getVertex2().getX(), e.getVertex2().getY()));
                 vertex((float) drawingPt1[0], (float) drawingPt1[1]);
                 vertex((float) drawingPt2[0], (float) drawingPt2[1]);
             }
@@ -1045,9 +1061,9 @@ public class PCGSimulation extends PApplet {
                     continue;
                 }
                 double[] drawingPt1 = camera.getDrawingPosition(e.getVertex1().getX(), e.getVertex1().getY(),
-                        terrain.getHeightFromPos(e.getVertex1().getX(), e.getVertex1().getY()));
+                        terrain.getZFromPos(e.getVertex1().getX(), e.getVertex1().getY()));
                 double[] drawingPt2 = camera.getDrawingPosition(e.getVertex2().getX(), e.getVertex2().getY(),
-                        terrain.getHeightFromPos(e.getVertex2().getX(), e.getVertex2().getY()));
+                        terrain.getZFromPos(e.getVertex2().getX(), e.getVertex2().getY()));
                 vertex((float) drawingPt1[0], (float) drawingPt1[1]);
                 vertex((float) drawingPt2[0], (float) drawingPt2[1]);
             }
@@ -1075,7 +1091,7 @@ public class PCGSimulation extends PApplet {
                     for (int i = 0; i < boundaryPts.length; i++) {
                         double x = boundaryPts[i][0];
                         double y = boundaryPts[i][1];
-                        double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getHeightFromPos(x, y));
+                        double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getZFromPos(x, y));
                         vertex((float) drawingPt[0], (float) drawingPt[1]);
                     }
                     endShape(CLOSE);
@@ -1092,7 +1108,7 @@ public class PCGSimulation extends PApplet {
                 fill(color[0], color[1], color[2], 200);
                 if (!camera.positionIsVisible(tree.getX(), tree.getY())) continue;
                 double[] drawingPt = camera.getDrawingPosition(
-                        tree.getX(), tree.getY(), terrain.getHeightFromPos(tree.getX(), tree.getY()));
+                        tree.getX(), tree.getY(), terrain.getZFromPos(tree.getX(), tree.getY()));
                 ellipse((float) drawingPt[0], (float) drawingPt[1],
                         (float) (tree.getRadius() * camera.getZoom()),
                         (float) (tree.getRadius() * camera.getZoom() *
@@ -1108,7 +1124,7 @@ public class PCGSimulation extends PApplet {
                 fill(color[0], color[1], color[2], color[3]);
                 if (!camera.positionIsVisible(vertex.getX(), vertex.getY())) continue;
                 double[] drawingPt = camera.getDrawingPosition(
-                        vertex.getX(), vertex.getY(), terrain.getHeightFromPos(vertex.getX(), vertex.getY()));
+                        vertex.getX(), vertex.getY(), terrain.getZFromPos(vertex.getX(), vertex.getY()));
                 circle((float) drawingPt[0], (float) drawingPt[1], (float) (DrawingConstants.NODE_RADIUS * camera.getZoom()));
                 if (drawingSettings.isShowNumAdjacentPolygons()) {
                     fill(0, 0, 0);

@@ -220,7 +220,7 @@ public class UnitModifier {
                 if (balistaHit) {
                     broadcaster.broadcastEvent(new Event(
                             EventType.BALLISTA_HIT_FLESH, obj.getX(), obj.getY(),
-                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+                            terrain.getZFromPos(obj.getX(), obj.getY())));
 
                     // Inflict explosion damage damage
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
@@ -271,14 +271,14 @@ public class UnitModifier {
                 } else if (((Ballista) obj).isTouchGround()) {
                     broadcaster.broadcastEvent(new Event(
                             EventType.BALLISTA_HIT_GROUND, obj.getX(), obj.getY(),
-                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+                            terrain.getZFromPos(obj.getX(), obj.getY())));
                 }
             } else if (obj instanceof Stone) {
                 if (((Stone) obj).isTouchGround()) {
                     // Inflict explosion damage damage
                     broadcaster.broadcastEvent(new Event(
                             EventType.EXPLOSION, obj.getX(), obj.getY(),
-                            terrain.getHeightFromPos(obj.getX(), obj.getY())));
+                            terrain.getZFromPos(obj.getX(), obj.getY())));
                     ArrayList<BaseSingle> explosionCandidates = troopHasher.getCollisionObjects(
                             obj.getX(), obj.getY(),
                             ((Stone) obj).getExplosionRange());
@@ -472,7 +472,11 @@ public class UnitModifier {
 
         // Check the vision of each unit.
         for (BaseUnit unit : unitList) {
-            unit.setVisibleUnits(PhysicUtils.checkUnitVision(unit, unitList, terrain));
+            if (gameSettings.isProcessUnitVision()) {
+                unit.setVisibleUnits(PhysicUtils.checkUnitVision(unit, unitList, terrain));
+            } else {
+                unit.setVisibleUnits(unitList);
+            }
         }
 
         // Dictionary of each unit and whether they touched the enemy.
@@ -559,8 +563,9 @@ public class UnitModifier {
         Collections.shuffle(singles);
         for (BaseSingle single : singles) {
 
-            // Ignore dead objects. They can't deal damage.
-            if (single.getState() == SingleState.DEAD) continue;
+            // Ignore dead or routing soldiers. They can't deal damage.
+            if (single.getState() == SingleState.DEAD || single.getState() == SingleState.ROUTING) continue;
+
 
             // Single must recharge attack delay
             if (single.getCombatDelay() > 0) {

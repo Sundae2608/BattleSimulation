@@ -17,7 +17,6 @@ import model.singles.BaseSingle;
 import model.enums.SingleState;
 import model.sound.SoundSink;
 import model.sound.SoundSource;
-import model.surface.BaseSurface;
 import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import model.utils.*;
@@ -82,6 +81,7 @@ public class BaseUnit {
 
     // Collision attributes
     protected double[][] boundingBox;
+    protected double[][] aliveBoundingBox;
     protected boolean[][] inDanger;
 
     // These are outside dependencies that can control behavior of the unit.
@@ -96,6 +96,8 @@ public class BaseUnit {
     BaseUnit unitFoughtAgainst;
     boolean inContactWithEnemy;
     boolean isTurning;
+    double turningSpeedRatio;  // If the unit is turning, their speed is slowly decrease. This is to avoid unit running
+
 
     // the "strength" of the unit, indicating how far the unit can go, or if a single in the unit can do an "action"
     // such as moving or firing
@@ -108,7 +110,8 @@ public class BaseUnit {
      * Initialize BaseUnit
      */
     public BaseUnit(UnitStats inputUnitStats, GameEnvironment inputEnv) {
-        boundingBox = new double[6][2];
+        boundingBox = new double[4][2];
+        aliveBoundingBox = new double[4][2];
         inContactWithEnemy = false;
         unitStats = inputUnitStats;
         env = inputEnv;
@@ -179,11 +182,29 @@ public class BaseUnit {
      */
     public void moveFormationKeptTo(double xGoal, double yGoal, double angleGoal) {
 
+        // Do not do anything if the intended goal bounding box overlaps with the current unit position. It does not
+        // make sense.
+        // TODO: Extremely ugly boundingBox code that currently only uses for drawing. This bounding box array should
+        //  currently is used for both drawing and collision checking. Separate these two bounding box for different
+        //  purpose.
+        double[][] aliveBoundingBox = new double[][] {
+                {boundingBox[0][0], boundingBox[0][1]},
+                {boundingBox[1][0], boundingBox[1][1]},
+                {boundingBox[2][0], boundingBox[2][1]},
+                {boundingBox[3][0], boundingBox[3][1]},
+        };
+        if (PhysicUtils.checkPolygonPolygonCollision(aliveBoundingBox, getBoundingBoxAtPos(xGoal, yGoal, angleGoal))) return;
+
         // Set the shortest path
         Path shortestPath = env.getGraph().getShortestPath(
                 anchorX,  anchorY, xGoal, yGoal, env.getConstructs());
         path = shortestPath;
         path.getNodes().pollFirst();
+
+        //TODO: fix the case when the path is empty
+        if(path.getNodes().isEmpty()){
+            return;
+        }
         node = path.getNodes().get(0);
 
         // Set the goals
@@ -702,6 +723,7 @@ public class BaseUnit {
                 // TODO(sonpham): Come up with a way to change FIGHTING to IN_POSITION when comebat with a unit is over.
                 if (unitFoughtAgainst.getNumAlives() == 0) {
                     state = UnitState.STANDING;
+                    anchorAngle = goalAngle;
                     unitFoughtAgainst = null;
                     break;
                 }
@@ -816,19 +838,26 @@ public class BaseUnit {
                 // the sum of difference in unit location difference.
                 double dx = 0;
                 double dy = 0;
+                int numVisibleEnemies = 0;
                 for (BaseUnit unit : visibleUnits) {
                     if (unit.getPoliticalFaction() != politicalFaction) {
+                        numVisibleEnemies += 1;
                         dx += unit.getAliveTroopsSet().size() * (averageX - unit.averageX);
                         dy += unit.getAliveTroopsSet().size() * (averageY - unit.averageY);
                     }
                 }
                 // Invert dx and dy. We need to run in the opposite direction.
-                goalAngle = MathUtils.atan2(dy, dx);
+                // Also, only change goalAngle if there are more than 1 visible enemy units. Otherwise, atan2 function
+                // will return PI / 2 and change the unit direction, which is undesirable. It doesn't make sense for
+                // unit to change their direction once they no longer see their enemy.
+                if (numVisibleEnemies > 0) {
+                    goalAngle = MathUtils.atan2(dy, dx);
+                }
                 break;
             case MOVING:
                 // If army is moving, the the army shall move at normal speed.
                 moveAngle = MathUtils.atan2(goalY - anchorY, goalX - anchorX);  // TODO: This is currently repeated too much
-                moveSpeed = speed;
+                moveSpeed = speed * turningSpeedRatio;
 
                 // Apply speed modifier by terrain
                 moveSpeedX = Math.cos(moveAngle) * moveSpeed;
@@ -842,8 +871,12 @@ public class BaseUnit {
 
                 if (MathUtils.doubleEqual(moveAngle, anchorAngle)) {
                     isTurning = false;
+                    turningSpeedRatio = 1.0;
                 } else {
                     isTurning = true;
+                    turningSpeedRatio = 1.0;
+                    turningSpeedRatio = Math.max(
+                            0.0, turningSpeedRatio - GameplayConstants.TURNING_UNIT_SPEED_DECELERATION_RATIO);
                 }
 
                 // Rotate towards the goal
@@ -967,7 +1000,7 @@ public class BaseUnit {
             single.updateState();
             sumX += single.getX();
             sumY += single.getY();
-            sumZ += terrain.getHeightFromPos(single.getX(), single.getY());
+            sumZ += single.getZ();
             count += 1;
         }
         averageX = sumX / count;
@@ -1015,7 +1048,7 @@ public class BaseUnit {
         double healthBotLeftY = averageY + downUnitY * aliveHeight / 2 - sideUnitY * unitStats.spacing * width / 2;
 
         double healthBotRightX = averageX + downUnitX * aliveHeight / 2 + sideUnitX * unitStats.spacing * width / 2;
-        double healthBotRightY = averageY + downUnitY * aliveHeight / 2 + sideUnitY * unitStats.spacing *width / 2;
+        double healthBotRightY = averageY + downUnitY * aliveHeight / 2 + sideUnitY * unitStats.spacing * width / 2;
 
         double botLeftX = (healthBotLeftX - topLeftX) * fullToAliveRatio + topLeftX;
         double botLeftY = (healthBotLeftY - topLeftY) * fullToAliveRatio + topLeftY;
@@ -1023,18 +1056,21 @@ public class BaseUnit {
         double botRightX = (healthBotRightX - topRightX) * fullToAliveRatio + topRightX;
         double botRightY = (healthBotRightY - topRightY) * fullToAliveRatio + topRightY;
 
-        boundingBox[0][0] = topLeftX;        boundingBox[0][1] = topLeftY;
-        boundingBox[1][0] = topRightX;       boundingBox[1][1] = topRightY;
-        boundingBox[2][0] = healthBotRightX; boundingBox[2][1] = healthBotRightY;
-        boundingBox[3][0] = healthBotLeftX;  boundingBox[3][1] = healthBotLeftY;
-        boundingBox[4][0] = botRightX;       boundingBox[4][1] = botRightY;
-        boundingBox[5][0] = botLeftX;        boundingBox[5][1] = botLeftY;
+        aliveBoundingBox[0][0] = topLeftX;        aliveBoundingBox[0][1] = topLeftY;
+        aliveBoundingBox[1][0] = topRightX;       aliveBoundingBox[1][1] = topRightY;
+        aliveBoundingBox[2][0] = healthBotRightX; aliveBoundingBox[2][1] = healthBotRightY;
+        aliveBoundingBox[3][0] = healthBotLeftX;  aliveBoundingBox[3][1] = healthBotLeftY;
+
+        boundingBox[0][0] = topLeftX;  boundingBox[0][1] = topLeftY;
+        boundingBox[1][0] = topRightX; boundingBox[1][1] = topRightY;
+        boundingBox[2][0] = botRightX; boundingBox[2][1] = botRightY;
+        boundingBox[3][0] = botLeftX;  boundingBox[3][1] = botLeftY;
     }
 
     /**
-     * Update the bounding box of the unit.
+     * Get the goal bounding box of the unit assuming that they are at certain position.
      */
-    public double[][] getGoalBoundingBox() {
+    public double[][] getBoundingBoxAtPos(double goalX, double goalY, double goalAngle) {
         // TODO(sonpham): Combine with the bounding box code to make it more modular. This is repetitive.
         double[][] boundingBox = new double[4][2];
         double downUnitX = MathUtils.quickCos((float) (goalAngle + Math.PI));
@@ -1112,7 +1148,9 @@ public class BaseUnit {
     public int getNumMoving() {
         int numMoving = 0;
         for (BaseSingle single : aliveTroopsMap.keySet()) {
-            if (single.getState() == SingleState.MOVING || single.getState() == SingleState.CATCHING_UP) {
+            if (single.getState() == SingleState.MOVING ||
+                    single.getState() == SingleState.CATCHING_UP ||
+                    single.getState() == SingleState.ROUTING) {
                  numMoving += 1;
             }
         }
@@ -1241,6 +1279,10 @@ public class BaseUnit {
 
     public double[][] getBoundingBox() {
         return boundingBox;
+    }
+
+    public double[][] getAliveBoundingBox() {
+        return aliveBoundingBox;
     }
 
     public double getSpeed() {

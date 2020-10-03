@@ -8,14 +8,14 @@ public class GameplayConstants {
     public final static double SHATTERED_MORALE = 0;
 
     // The amount of morale recovery by the unit after each frame.
-    public final static double MORALE_RECOVERY = 0.0001;
+    public final static double MORALE_RECOVERY = 0.001;
 
     // Routing angle variation.
     // When running in a rout, it is not possible to run in a straight line. There should be lots of chaos
     public final static double ROUTING_ANGLE_VARIATION = 0.1;
 
     // While running for their life, the soldier should be running a bit faster than usual.
-    public final static double ROUTING_SPEED_COEFFICIENT = 1.1;
+    public final static double ROUTING_SPEED_COEFFICIENT = 1.3;
 
     // Charge buffer. This prevents charge event from firing too often.
     public final static int CHARGE_BUFFER = 200;
@@ -25,6 +25,9 @@ public class GameplayConstants {
     public final static double ALLY_COLLISION_RATIO_STANDING = 0.7;
     public final static double ALLY_COLLISION_RATIO_MOVING = 0.7;
     public final static double ALLY_COLLISION_RATIO_FIGHTING = 0.8;
+
+    // When the unit is turning, their speed will be slowly decrease.
+    public final static double TURNING_UNIT_SPEED_DECELERATION_RATIO = 0.05;
 
     // How many frame without engaging the enemy before the front-liner turns into a flanker.
     public final static double FLANKER_PATIENT = 100;

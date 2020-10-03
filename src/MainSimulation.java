@@ -14,6 +14,7 @@ import model.map_objects.Tree;
 import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import utils.ConfigUtils;
+import view.ai.AIAgent;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.BaseCamera;
@@ -113,6 +114,10 @@ public class MainSimulation extends PApplet {
     double unitEndAngle;
     BaseUnit closestUnit;
 
+    /** AI agents */
+    ArrayList<AIAgent> aiAgents;
+    PoliticalFaction aiPoliticalFaction;
+    
     public void settings() {
 
         // First log to initialize the logging tool
@@ -132,6 +137,8 @@ public class MainSimulation extends PApplet {
         gameSettings.setCountWrongFormationChanges(true);
         gameSettings.setProcessSoundBounce(false);
         gameSettings.setUseRoundedSurfaceCollision(true);
+        gameSettings.setProcessUnitVision(false);
+        gameSettings.setCreateAIAgent(true);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
@@ -195,8 +202,22 @@ public class MainSimulation extends PApplet {
         /** Keyboard setup */
         keyPressedSet = new HashSet<>();
 
-        /** Camera setup */
+        /** AI set up*/
+        aiAgents = new ArrayList<>();
+        if (gameSettings.isCreateAIAgent()) {
+            try {
+                aiPoliticalFaction = ConfigUtils.readPoliticalFactionFromConfig(battleConfig);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            for (BaseUnit unit : env.getAliveUnits()) {
+                if (unit.getPoliticalFaction() == aiPoliticalFaction) {
+                    aiAgents.add(new AIAgent(unit, env));
+                }
+            }
+        }
 
+        /** Camera setup */
         // Calculate average position of units, and create a camera.
         double[] cameraPos = calculateAveragePositions(env.getUnits());
         camera = new TopDownCamera(cameraPos[0], cameraPos[1], INPUT_WIDTH, INPUT_HEIGHT, env.getBroadcaster());
@@ -207,38 +228,6 @@ public class MainSimulation extends PApplet {
 
         /** Scrollbar setup */
         scrollbars = new ArrayList<>();
-        SingleStats romanCavSingleStats = env.getGameStats().getSingleStats(UnitType.CAVALRY, PoliticalFaction.ROME);
-        UnitStats romanCavUnitStats = env.getGameStats().getUnitStats(UnitType.CAVALRY, PoliticalFaction.ROME);
-        scrollbars.add(new Scrollbar("Cavalry size",
-                INPUT_WIDTH - 300, 30, 280, 20,
-                romanCavSingleStats.radius, 10, 120, ScrollbarMode.DOUBLE, this, new CustomAssigner() {
-            @Override
-            public void updateValue(double value) {
-                double currSpacingDiff = romanCavUnitStats.spacing - romanCavSingleStats.radius;
-                romanCavSingleStats.radius = value;
-                romanCavUnitStats.spacing = value + currSpacingDiff;
-                return;
-            }
-        }));
-
-        SingleStats phalanxSingleStats = env.getGameStats().getSingleStats(UnitType.PHALANX, PoliticalFaction.GAUL);
-        scrollbars.add(new Scrollbar("Phalanx mass",
-                INPUT_WIDTH - 300, 90, 280, 20,
-                phalanxSingleStats.mass, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
-            @Override
-            public void updateValue(double value) {
-                phalanxSingleStats.mass = value;
-            }
-        }));
-
-        scrollbars.add(new Scrollbar("Phalanx damage",
-                INPUT_WIDTH - 300, 150, 280, 20,
-                phalanxSingleStats.attack, 10, 9000, ScrollbarMode.DOUBLE,this, new CustomAssigner() {
-            @Override
-            public void updateValue(double value) {
-                phalanxSingleStats.attack = value;
-            }
-        }));
 
         /** Drawer setup */
         uiDrawer = new UIDrawer(this, camera, drawingSettings);
@@ -439,7 +428,7 @@ public class MainSimulation extends PApplet {
                     // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
                     //  though it is a very static value.
                     double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                            env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                            env.getTerrain().getZFromPos(pts[i][0], pts[i][1]));
                     vertex((float) drawingPts[0], (float) drawingPts[1]);
                 }
                 endShape(CLOSE);
@@ -447,7 +436,7 @@ public class MainSimulation extends PApplet {
                 if (surface.getType() == SurfaceType.FOREST) {
                     for (Tree tree : ((ForestSurface) surface).getTrees()) {
                         int[] treeColor = DrawingConstants.TREE_COLOR;
-                        double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
+                        double height = env.getTerrain().getZFromPos(tree.getX(), tree.getY());
                         fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
                         double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
                                 height);
@@ -461,7 +450,7 @@ public class MainSimulation extends PApplet {
         // Dead troops
         noStroke();
         for (BaseSingle single : env.getDeadContainer()) {
-            portrayDeadSingle(single, env.getTerrain());
+            portrayDeadSingle(single);
         }
 
         // If space is pressed, draw the goal position.
@@ -485,6 +474,13 @@ public class MainSimulation extends PApplet {
                 }
             }
             planCounter -= 1;
+        }
+
+        for(AIAgent agent : aiAgents){
+            UnitState state= agent.getUnit().getState();
+            if(state == UnitState.STANDING){
+                agent.move();
+            }
         }
 
         // Always draw arrow of selected unit
@@ -555,7 +551,7 @@ public class MainSimulation extends PApplet {
                 Node prev = null;
                 for (Node node : unitSelected.getPath().getNodes()) {
                     shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
-                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                            env.getTerrain().getZFromPos(node.getX(), node.getY())));
                     if (prev != null) {
                         battleSignalDrawer.drawArrowPlan(
                                 prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
@@ -577,7 +573,7 @@ public class MainSimulation extends PApplet {
                 Node prev = null;
                 for (Node node : shortestPath.getNodes()) {
                     shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
-                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                            env.getTerrain().getZFromPos(node.getX(), node.getY())));
                     if (prev != null) {
                         battleSignalDrawer.drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
                     }
@@ -591,7 +587,7 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : env.getAliveUnits()) {
                 // For troops out of position, draw them individually
                 for (BaseSingle single : unit.getAliveTroopsSet()) {
-                    portrayAliveSingle(single, env.getTerrain());
+                    portrayAliveSingle(single, env.getTerrain(), unitSelected);
                 }
             }
         } else {
@@ -612,7 +608,7 @@ public class MainSimulation extends PApplet {
                     unit.getAnchorX(), unit.getAnchorY(),
                     unit.getAnchorX() + unitX * DrawingConstants.ANCHOR_ARROW_SIZE,
                     unit.getAnchorY() + unitY * DrawingConstants.ANCHOR_ARROW_SIZE,
-                    env.getTerrain().getHeightFromPos(unit.getAnchorX(), unit.getAnchorY()));
+                    env.getTerrain().getZFromPos(unit.getAnchorX(), unit.getAnchorY()));
         }
 
         // Draw the objects
@@ -631,7 +627,7 @@ public class MainSimulation extends PApplet {
             for (int i = 0; i < pts.length; i++) {
                 // TODO: This is an efficient part, the height of the object is recalculated all the time.
                 double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                        env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                        env.getTerrain().getZFromPos(pts[i][0], pts[i][1]));
                 vertex((float) drawingPts[0], (float) drawingPts[1]);
             }
             endShape(CLOSE);
@@ -641,7 +637,7 @@ public class MainSimulation extends PApplet {
         if (drawingSettings.isDrawPathfindingNodes()) {
             for (Node node : env.getGraph().getNodes()) {
                 fill(245, 121, 74);
-                double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
+                double height = env.getTerrain().getZFromPos(node.getX(), node.getY());
                 double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
                 circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
             }
@@ -672,7 +668,15 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : unitsSortedByPosition) {
                 if (unit.getNumAlives() == 0) continue;
                 boolean isSelected = unit == unitSelected;
-                uiDrawer.drawUnitBanner(unit, isSelected);
+                boolean isAI = false;
+                for (AIAgent aiAgent : aiAgents) {
+                    if (unit == aiAgent.getUnit()) {
+                        isAI = true;
+                        break;
+                    }
+                }
+                uiDrawer.drawUnitBanner(unit, isSelected, isAI);
+
             }
         }
 
@@ -790,9 +794,17 @@ public class MainSimulation extends PApplet {
             // Check distance, only allow unit assignment if distance to mouse is smaller than certain number.
             // TODO: It would be better to actually check against the Unit Bounding box for a more accurate collision
             //  checking.
+            boolean isAIAgent = false;
+            for (AIAgent aiAgent : aiAgents) {
+                if (closestUnit == aiAgent.getUnit()) {
+                    isAIAgent = true;
+                    break;
+                }
+            }
             double[] screenPos = camera.getDrawingPosition(
                     closestUnit.getAverageX(), closestUnit.getAverageY(), closestUnit.getAverageZ());
-            if (MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
+            if (!isAIAgent && MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1])
+                    < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
                 unitSelected = closestUnit;
             } else {
                 unitSelected = null;
@@ -939,22 +951,23 @@ public class MainSimulation extends PApplet {
     /**
      * Portray alive troop.
      */
-    void portrayAliveSingle(BaseSingle single, Terrain terrain) {
+    void portrayAliveSingle(BaseSingle single, Terrain terrain, BaseUnit unitSelected) {
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
         for (BaseObject obj : carriedObjects.keySet()) {
             objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain);
         }
+
         // Draw the alive single itself
-        singleDrawer.drawAliveSingle(single, terrain);
+        singleDrawer.drawAliveSingle(single, unitSelected == single.getUnit());
     }
 
     /**
      * Portray dead unit
      */
-    void portrayDeadSingle(BaseSingle single, Terrain terrain) {
-        singleDrawer.drawDeadSingle(single, terrain);
+    void portrayDeadSingle(BaseSingle single) {
+        singleDrawer.drawDeadSingle(single);
     }
 
     private double[] calculateAveragePositions(ArrayList<BaseUnit> units) {

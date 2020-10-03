@@ -1,3 +1,4 @@
+import view.ai.AIAgent;
 import view.components.CustomAssigner;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
@@ -460,10 +461,10 @@ public class Main3DHexSimulation extends PApplet {
                 for (int i = 0; i < pts.length; i++) {
                     // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
                     //  though it is a very static value.
-                    //  It is probably okay to keep the has map inside a drawer. Call it a TerrainDrawer or something.
+                    //  It is probably okay to keep the hash map inside a drawer. Call it a TerrainDrawer or something.
                     //  This would perfectly fit the philosophy of the drawers.
                     double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                            env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                            env.getTerrain().getZFromPos(pts[i][0], pts[i][1]));
                     vertex((float) drawingPts[0], (float) drawingPts[1]);
                 }
                 endShape(CLOSE);
@@ -471,7 +472,7 @@ public class Main3DHexSimulation extends PApplet {
                 if (surface.getType() == SurfaceType.FOREST) {
                     for (Tree tree : ((ForestSurface) surface).getTrees()) {
                         int[] treeColor = DrawingConstants.TREE_COLOR;
-                        double height = env.getTerrain().getHeightFromPos(tree.getX(), tree.getY());
+                        double height = env.getTerrain().getZFromPos(tree.getX(), tree.getY());
                         fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
                         double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
                                 height);
@@ -485,7 +486,7 @@ public class Main3DHexSimulation extends PApplet {
         // Dead troops
         noStroke();
         for (BaseSingle single : env.getDeadContainer()) {
-            portrayDeadSingle(single, env.getTerrain());
+            portrayDeadSingle(single);
         }
 
         // If space is pressed, draw the goal position.
@@ -577,7 +578,7 @@ public class Main3DHexSimulation extends PApplet {
                 Node prev = null;
                 for (Node node : unitSelected.getPath().getNodes()) {
                     shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
-                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                            env.getTerrain().getZFromPos(node.getX(), node.getY())));
                     if (prev != null) {
                         battleSignalDrawer.drawArrowPlan(
                                 prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
@@ -599,7 +600,7 @@ public class Main3DHexSimulation extends PApplet {
                 Node prev = null;
                 for (Node node : shortestPath.getNodes()) {
                     shapeDrawer.circleShape(node.getX(), node.getY(), 200 * camera.getZoomAtHeight(
-                            env.getTerrain().getHeightFromPos(node.getX(), node.getY())));
+                            env.getTerrain().getZFromPos(node.getX(), node.getY())));
                     if (prev != null) {
                         battleSignalDrawer.drawArrowPlan(prev.getX(), prev.getY(), node.getX(), node.getY(), env.getTerrain());
                     }
@@ -632,7 +633,7 @@ public class Main3DHexSimulation extends PApplet {
                 }
             });
             for (BaseSingle single : arr) {
-                portrayAliveSingle(single, env.getTerrain());
+                portrayAliveSingle(single, env.getTerrain(), unitSelected);
             }
         } else {
             // Draw unit block
@@ -652,7 +653,7 @@ public class Main3DHexSimulation extends PApplet {
                     unit.getAnchorX(), unit.getAnchorY(),
                     unit.getAnchorX() + unitX * DrawingConstants.ANCHOR_ARROW_SIZE,
                     unit.getAnchorY() + unitY * DrawingConstants.ANCHOR_ARROW_SIZE,
-                    env.getTerrain().getHeightFromPos(unit.getAnchorX(), unit.getAnchorY()));
+                    env.getTerrain().getZFromPos(unit.getAnchorX(), unit.getAnchorY()));
         }
 
         // Draw the objects
@@ -671,7 +672,7 @@ public class Main3DHexSimulation extends PApplet {
             for (int i = 0; i < pts.length; i++) {
                 // TODO: This is an efficient part, the height of the object is recalculated all the time.
                 double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                        env.getTerrain().getHeightFromPos(pts[i][0], pts[i][1]));
+                        env.getTerrain().getZFromPos(pts[i][0], pts[i][1]));
                 vertex((float) drawingPts[0], (float) drawingPts[1]);
             }
             endShape(CLOSE);
@@ -681,7 +682,7 @@ public class Main3DHexSimulation extends PApplet {
         if (drawingSettings.isDrawPathfindingNodes()) {
             for (Node node : env.getGraph().getNodes()) {
                 fill(245, 121, 74);
-                double height = env.getTerrain().getHeightFromPos(node.getX(), node.getY());
+                double height = env.getTerrain().getZFromPos(node.getX(), node.getY());
                 double[] drawingPts = camera.getDrawingPosition(node.getX(), node.getY(), height);
                 circle((float) drawingPts[0], (float) drawingPts[1], (float) (200 * camera.getZoomAtHeight(height)));
             }
@@ -712,7 +713,8 @@ public class Main3DHexSimulation extends PApplet {
             for (BaseUnit unit : unitsSortedByPosition) {
                 if (unit.getNumAlives() == 0) continue;
                 boolean isSelected = unit == unitSelected;
-                uiDrawer.drawUnitBanner(unit, isSelected);
+                // TODO: isAI is default to false here. Turn it on to true and add other AI code in when time permits.
+                uiDrawer.drawUnitBanner(unit, isSelected, false);
             }
         }
 
@@ -832,7 +834,8 @@ public class Main3DHexSimulation extends PApplet {
             //  checking.
             double[] screenPos = camera.getDrawingPosition(
                     closestUnit.getAverageX(), closestUnit.getAverageY(), closestUnit.getAverageZ());
-            if (MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
+            if (MathUtils.squareDistance(
+                    mouseX, mouseY, screenPos[0], screenPos[1]) < ControlConstants.UNIT_ASSIGNMENT_MOUSE_SQ_DISTANCE) {
                 unitSelected = closestUnit;
             } else {
                 unitSelected = null;
@@ -979,7 +982,7 @@ public class Main3DHexSimulation extends PApplet {
     /**
      * Portray alive troop.
      */
-    void portrayAliveSingle(BaseSingle single, Terrain terrain) {
+    void portrayAliveSingle(BaseSingle single, Terrain terrain, BaseUnit unitSelected) {
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
@@ -987,14 +990,14 @@ public class Main3DHexSimulation extends PApplet {
             objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain);
         }
         // Draw the alive single itself
-        singleDrawer.drawAliveSingle(single, terrain);
+        singleDrawer.drawAliveSingle(single, unitSelected == single.getUnit());
     }
 
     /**
      * Portray dead unit
      */
-    void portrayDeadSingle(BaseSingle single, Terrain terrain) {
-        singleDrawer.drawDeadSingle(single, terrain);
+    void portrayDeadSingle(BaseSingle single) {
+        singleDrawer.drawDeadSingle(single);
     }
 
     public static void main(String[] args){

@@ -313,7 +313,15 @@ public final class MathUtils {
         return new double[] {vx * scale, vy * scale};
     }
 
-    /*
+    /**
+     * Rotate point (x, y) by angle around the origin.
+     */
+    public static double[] rotatePointByAngle(double x, double y, double angle) {
+        return new double[] {
+                x * MathUtils.quickCos((float) angle) + y * MathUtils.quickSin((float) angle),
+                -x * MathUtils.quickSin((float) angle) + y * MathUtils.quickCos((float) angle)
+        };
+    }
 
     /**
      * Sort singles by angle
@@ -322,6 +330,8 @@ public final class MathUtils {
         Collections.sort(singles, new Comparator<BaseSingle>() {
             @Override
             public int compare(BaseSingle s1, BaseSingle s2) {
+                // Use the inverse transformation to rotate all singles back to angle 0, in which the x-dimension
+                // becomes the best indicator on whether the singles are ahead.
                 double x1 = s1.getX() * MathUtils.quickCos((float) angle) - s1.getY() * MathUtils.quickSin((float) angle);
                 double x2 = s2.getX() * MathUtils.quickCos((float) angle) - s2.getY() * MathUtils.quickSin((float) angle);
                 if (x1 < x2) return -1;
