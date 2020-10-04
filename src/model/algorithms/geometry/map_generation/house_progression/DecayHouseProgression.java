@@ -5,6 +5,6 @@ import model.algorithms.geometry.map_generation.Progression;
 public class DecayHouseProgression implements Progression {
     @Override
     public int progress(int value) {
-        return value - 2;
+        return Math.max(value - 5, 0);
     }
 }

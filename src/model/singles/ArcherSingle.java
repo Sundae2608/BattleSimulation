@@ -6,7 +6,6 @@ import model.enums.SingleState;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
 import model.projectile_objects.Arrow;
-import model.objects.Arrow;
 import model.units.ArcherUnit;
 import model.units.BaseUnit;
 import model.utils.MathUtils;
@@ -85,7 +84,7 @@ public class ArcherSingle extends BaseSingle {
         double speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
         speedModifier = MathUtils.capMinMax(speedModifier,
                 UniversalConstants.MINIMUM_TERRAIN_EFFECT,
-                UniversalConstants.MAXIMUM_TERRAIN_EFFECT);;
+                UniversalConstants.MAXIMUM_TERRAIN_EFFECT);
         speed *= (1 + speedModifier);
 
         // Calculate intended step

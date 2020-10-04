@@ -45,12 +45,13 @@ public class CitySimulation extends PApplet {
                     @Override
                     public void proc() { eventBroadcaster.broadcastEvent(
                             new MapEvent(EventType.DESTROY_CITY,
-                                    0, 0, 0, 3, 500)); }
+                                    0, 0, 0, 200, 500)); }
                 },
                 new CustomProcedure() {
-                    public void proc() { eventBroadcaster.broadcastEvent(
-                            new MapEvent(EventType.RESET_HOUSE_PROGRESSION,
-                                    0, 0, 0, 3, 500)); }
+                    @Override
+                    public void proc() {
+
+                    }
                 }));
     }
 
@@ -66,7 +67,6 @@ public class CitySimulation extends PApplet {
         }
 
         infoDrawer.drawTextBox("City State: " + cityState.getNumHouses(), 20, height-20, 150);
-
         cityState.update();
     }
 

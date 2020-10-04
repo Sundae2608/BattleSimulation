@@ -17,6 +17,10 @@ public class MapEvent extends Event {
         return interval;
     }
 
+    public void setInterval(int interval) {
+        this.interval = interval;
+    }
+
     public double getRadius() {
         return radius;
     }

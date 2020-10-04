@@ -4,12 +4,18 @@ import model.algorithms.geometry.map_generation.house_progression.DecayHouseProg
 import model.algorithms.geometry.map_generation.house_progression.NominalHouseProgression;
 import model.events.*;
 
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class CityState extends EventListener {
 
     int numHouses;
 
     ProgressionModel initialModel;
     ProgressionModel currentModel;
+
+    List<MapEvent> activeEvents;
 
     public CityState(EventBroadcaster inputBroadcaster) {
         super(inputBroadcaster);
@@ -19,7 +25,10 @@ public class CityState extends EventListener {
 
         currentModel = new ProgressionModel();
         currentModel.copy(initialModel);
+
         numHouses = 1000;
+
+        activeEvents = new ArrayList<>();
     }
 
     @Override
@@ -28,15 +37,8 @@ public class CityState extends EventListener {
             return;
         }
 
-        //TODO: count down time steps that this event takes effect
         MapEvent mapEvent = (MapEvent) e;
-
-        if (e.getEventType() == EventType.DESTROY_CITY) {
-            currentModel.setHouseProgressionFunction(new DecayHouseProgression());
-        }
-        if (e.getEventType() == EventType.RESET_HOUSE_PROGRESSION) {
-            currentModel.setHouseProgressionFunction(initialModel.getHouseProgression());
-        }
+        activeEvents.add(mapEvent);
     }
 
     public int getNumHouses() {
@@ -44,6 +46,22 @@ public class CityState extends EventListener {
     }
 
     public void update() {
+
+        // Update model
+        for (MapEvent event : activeEvents){
+            event.setInterval(event.getInterval()-1);
+
+            if (event.getEventType() == EventType.DESTROY_CITY) {
+                if (event.getInterval() == 0) {
+                    currentModel.setHouseProgressionFunction(initialModel.getHouseProgression());
+                }
+                else {
+                    currentModel.setHouseProgressionFunction(new DecayHouseProgression());
+                }
+            }
+        }
+
+        activeEvents.removeIf(x -> x.getInterval() == 0);
         numHouses = currentModel.getHouseProgression().progress(numHouses);
     }
 }
