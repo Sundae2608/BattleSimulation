@@ -84,7 +84,7 @@ public class ArcherSingle extends BaseSingle {
         double speedModifier = MathUtils.ratioProjection(deltaVel[0], deltaVel[1], moveSpeedX, moveSpeedY);
         speedModifier = MathUtils.capMinMax(speedModifier,
                 UniversalConstants.MINIMUM_TERRAIN_EFFECT,
-                UniversalConstants.MAXIMUM_TERRAIN_EFFECT);;
+                UniversalConstants.MAXIMUM_TERRAIN_EFFECT);
         speed *= (1 + speedModifier);
 
         // Calculate intended step

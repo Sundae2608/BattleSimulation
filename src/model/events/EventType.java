@@ -10,4 +10,5 @@ public enum EventType {
     BALLISTA_HIT_GROUND,
     BALLISTA_HIT_FLESH,
     ARROW_CROWD_HIT,
+    DESTROY_CITY
 }
