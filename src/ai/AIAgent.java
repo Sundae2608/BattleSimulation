@@ -3,6 +3,7 @@ package ai;
 import model.GameEnvironment;
 import model.units.BaseUnit;
 import model.utils.GameplayUtils;
+import model.utils.MathUtils;
 
 public class AIAgent {
     private BaseUnit unit;
@@ -60,7 +61,7 @@ public class AIAgent {
         
         double[] goalCoord = state.getCoordinate(bestRow, bestCol);
         
-        //double[] currentCoord = state.getCoordinate(row, col);
+        double[] currentCoord = state.getCoordinate(row, col);
         //System.out.println("Current position " + row + " " + col + " current coordinate " + currentCoord[0] +  ' ' + currentCoord[1]);
         
         if(bestRow == row && bestCol == col){
@@ -70,7 +71,9 @@ public class AIAgent {
         //System.out.println("Goal coordinates "  + goalCoord[0] + " " + goalCoord[1] + " Position " + bestRow + " " + bestCol);
         if (GameplayUtils.checkIfUnitCanMoveTowards(
                 goalCoord[0], goalCoord[1], env.getConstructs())) {
-            unit.moveFormationKeptTo(goalCoord[0], goalCoord[1], 0.0);
+            double angle = MathUtils.atan2(goalCoord[1] - currentCoord[0], goalCoord[0] - currentCoord[1]);
+            
+            unit.moveFormationKeptTo(goalCoord[0], goalCoord[1], angle);
         }
     }
 
