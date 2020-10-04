@@ -1,4 +1,4 @@
-package view.ai;
+package ai;
 
 import model.GameEnvironment;
 import model.units.BaseUnit;
