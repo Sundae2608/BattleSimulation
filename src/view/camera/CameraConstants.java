@@ -32,7 +32,8 @@ public class CameraConstants {
 
     // Distance attack
     // If the mouse click on n enemy unit is smaller than this
-    // TODO(sonpham): Potentially change the icon to indicate an attack
+    // TODO(sonpham): Potentially change the icon to indicate an attack. Also, currently it only works for archery unit.
+    //  but we should extend this to regular units as well.
     public final static double CLICK_ATTACK_DISTANCE = 500;
     public final static double SQUARE_CLICK_ATTACK_DISTANCE = CLICK_ATTACK_DISTANCE * CLICK_ATTACK_DISTANCE;
 
