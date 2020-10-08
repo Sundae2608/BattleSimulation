@@ -14,12 +14,18 @@ import view.camera.BaseCamera;
 import view.constants.DrawingConstants;
 import view.settings.DrawingSettings;
 
+import java.util.HashMap;
+
 public class ObjectDrawer extends BaseDrawer {
 
     PApplet applet;
     BaseCamera camera;
     DrawingSettings drawingSettings;
     ShapeDrawer shapeDrawer;
+
+    // TODO: If the object is an arrow, generate a probability between 0 and 1, and then store it here.
+    HashMap<Arrow, Double> arrowDrawingProbs;
+    HashMap<Arrow, Boolean> arrowDrawn;
 
     public ObjectDrawer(PApplet inputApplet, BaseCamera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
         applet = inputApplet;
