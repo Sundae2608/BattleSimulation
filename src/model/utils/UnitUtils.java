@@ -5,6 +5,8 @@ import model.units.*;
 
 public final class UnitUtils {
 
+    // TODO: Remove this file when there is an opportunity. This file is simply too particular to scale further.
+
     /**
      * Get unit type
      */

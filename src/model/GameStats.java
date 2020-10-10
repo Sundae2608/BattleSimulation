@@ -26,10 +26,16 @@ public final class GameStats {
     }
 
     public SingleStats getSingleStats(UnitType unitType, PoliticalFaction faction) {
+        if (!singleStatsMap.containsKey(faction)) {
+            return singleStatsMap.get(new Pair<>(unitType, PoliticalFaction.DEFAULT));
+        }
         return singleStatsMap.get(new Pair<>(unitType, faction));
     }
 
     public UnitStats getUnitStats(UnitType unitType, PoliticalFaction faction) {
+        if (!unitStatsMap.containsKey(faction)) {
+            return unitStatsMap.get(new Pair<>(unitType, PoliticalFaction.DEFAULT));
+        }
         return unitStatsMap.get(new Pair<>(unitType, faction));
     }
 }
