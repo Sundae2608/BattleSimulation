@@ -5,7 +5,6 @@ import model.events.EventType;
 import model.events.MapEvent;
 import processing.core.PApplet;
 import view.components.Button;
-import view.components.CheckBox;
 import view.components.CustomProcedure;
 import view.drawer.InfoDrawer;
 
@@ -18,7 +17,7 @@ public class CitySimulation extends PApplet {
     int height = 500;
     InfoDrawer infoDrawer;
 
-    List<CheckBox> checkBoxes;
+    List<Button> buttons;
 
     CityState cityState;
     ProgressionModel progressionModel;
@@ -33,28 +32,25 @@ public class CitySimulation extends PApplet {
         eventBroadcaster = new EventBroadcaster();
         cityState = new CityState(eventBroadcaster);
         progressionModel = new ProgressionModel();
-        checkBoxes = new ArrayList<>();
-        checkBoxes.add(new Button("Trigger Decay Event",
+        buttons = new ArrayList<>();
+        buttons.add(new Button("Trigger Decay Event",
                 width-180, height-50, 280, 25, this,
                 new CustomProcedure() {
                     @Override
                     public void proc() { eventBroadcaster.broadcastEvent(
                             new MapEvent(EventType.DESTROY_CITY,
                                     0, 0, 0, 200, 500)); }
-                });
+                }));
     }
 
     public void draw() {
         background(255);
-
-        for (CheckBox checkBox : checkBoxes) {
-            checkBox.update();
+        for (Button b : buttons) {
+            b.update();
         }
-
-        for (CheckBox checkBox : checkBoxes) {
-            checkBox.display();
+        for (Button b : buttons) {
+            b.display();
         }
-
         infoDrawer.drawTextBox("City State: " + cityState.getNumHouses(), 20, height-20, 150);
         cityState.update();
     }
