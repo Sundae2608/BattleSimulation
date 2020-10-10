@@ -1,5 +1,4 @@
 package model.events;
-import model.algorithms.geometry.map_generation.Progression;
 
 public class MapEvent extends Event {
 

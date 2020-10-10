@@ -1,6 +1,4 @@
-package model.algorithms.geometry.map_generation;
-
-import model.events.EventBroadcaster;
+package city_gen_model;
 
 public class ProgressionModel {
 

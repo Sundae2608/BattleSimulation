@@ -1,7 +1,7 @@
-package model.algorithms.geometry.map_generation;
+package city_gen_model;
 
-import model.algorithms.geometry.map_generation.house_progression.DecayHouseProgression;
-import model.algorithms.geometry.map_generation.house_progression.NominalHouseProgression;
+import city_gen_model.house_progression.DecayHouseProgression;
+import city_gen_model.house_progression.NominalHouseProgression;
 import model.events.*;
 
 

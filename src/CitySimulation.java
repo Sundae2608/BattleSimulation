@@ -1,7 +1,5 @@
-import model.algorithms.geometry.map_generation.CityState;
-import model.algorithms.geometry.map_generation.ProgressionModel;
-import model.algorithms.geometry.map_generation.house_progression.DecayHouseProgression;
-import model.algorithms.geometry.map_generation.house_progression.NominalHouseProgression;
+import city_gen_model.CityState;
+import city_gen_model.ProgressionModel;
 import model.events.EventBroadcaster;
 import model.events.EventType;
 import model.events.MapEvent;

@@ -953,7 +953,7 @@ public class MainSimulation extends PApplet {
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
         for (BaseObject obj : carriedObjects.keySet()) {
-            objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single, terrain);
+            objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single);
         }
 
         // Draw the alive single itself

@@ -87,7 +87,9 @@ public class ObjectDrawer extends BaseDrawer {
                                         - DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MIN) +
                                 DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MIN
                         )) / DrawingConstants.ARROW_HEIGHT_VISIBLE_REDUCTION_RANGE, 0, 1);
-                applet.fill(color[0], color[1], color[2], (int) ((1.0 - visibility) * 255));
+                if (visibility > 0) {
+                    applet.fill(color[0], color[1], color[2], (int) ((1.0 - visibility) * 255));
+                }
             }
             shapeDrawer.arrow(
                     (float) drawX, (float) drawY, (float) angle,
@@ -108,7 +110,7 @@ public class ObjectDrawer extends BaseDrawer {
     /**
      * Draw the object carried by the troop
      */
-    public void drawObjectCarriedByTroop(int lifeTime, BaseObject object, BaseSingle single, Terrain terrain) {
+    public void drawObjectCarriedByTroop(int lifeTime, BaseObject object, BaseSingle single) {
 
         // Recalculate object actual position
         Pair<Double, Double> rotatedVector = MathUtils.rotate(object.getX(), object.getY(), single.getAngle());

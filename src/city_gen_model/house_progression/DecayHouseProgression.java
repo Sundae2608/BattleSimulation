@@ -1,6 +1,6 @@
-package model.algorithms.geometry.map_generation.house_progression;
+package city_gen_model.house_progression;
 
-import model.algorithms.geometry.map_generation.Progression;
+import city_gen_model.Progression;
 
 public class DecayHouseProgression implements Progression {
     @Override
