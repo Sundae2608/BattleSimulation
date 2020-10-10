@@ -184,7 +184,7 @@ public class CatapultUnit extends BaseUnit {
 
 
 * Add a new unit type to `src\model\enums\UnitType.Java`. We recommend that each new Unit having a specific enum.
-* Add your unit stats to `src\model\configs\GameConfig.txt`. Each `PoliticalFaction` will require one copy of the unit,
+* Add your unit stats to `src\model\configs\game_configs/game_config.json`. Each `PoliticalFaction` will require one copy of the unit,
 as we expect stats will be different for the same unit type in different factions. The config will look something like
 the following.
 
