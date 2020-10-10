@@ -98,6 +98,14 @@ public class TopDownCamera extends BaseCamera {
     }
 
     /**
+     * Get the height at the current camera zoom level.
+     */
+    public double getHeightAtCurrentZoom() {
+        double cameraHeight = (CameraConstants.MAXIMUM_ZOOM / zoom) * CameraConstants.HEIGHT_AT_MAX_ZOOM;
+        return cameraHeight;
+    }
+
+    /**
      * Get click position
      * Transform from mouse click position to actual backend position
      */

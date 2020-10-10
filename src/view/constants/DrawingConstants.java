@@ -81,9 +81,9 @@ public class DrawingConstants {
     // Because our camera exaggerate the terrain features, arrow trails become hugely unrealistic. This variable softens
     // the height effect of arrows a little bit to make the arrow looks more palatable.
     public final static double AIRBORNE_OBJECT_HEIGHT_SCALE = 2.50;
-    public final static double ARROW_HEIGHT_VISIBLE_BEGIN_MIN = 40;
-    public final static double ARROW_HEIGHT_VISIBLE_BEGIN_MAX = 200;
-    public final static double ARROW_HEIGHT_VISIBLE_REDUCTION_RANGE = 100;
+    public final static double ARROW_HEIGHT_VISIBLE_BEGIN_MIN = 200;
+    public final static double ARROW_HEIGHT_VISIBLE_BEGIN_MAX = 600;
+    public final static double ARROW_HEIGHT_VISIBLE_REDUCTION_RANGE = 400;
 
     // Exaggerate height features for Hex Camera.
     public static double HEX_TERRAIN_HEIGHT_SCALE = 5.0;

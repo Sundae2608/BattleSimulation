@@ -79,10 +79,15 @@ public class ObjectDrawer extends BaseDrawer {
                 if (!arrowDrawingProbs.containsKey(object)) {
                     arrowDrawingProbs.put((Arrow) object, MathUtils.randUniform());
                 }
-                double prob = MathUtils.randUniform();
-                double arrowZ = object.getHeight();
+                double prob = arrowDrawingProbs.get(object);
+                double arrowDist = ((TopDownCamera) camera).getHeightAtCurrentZoom() - z;
                 double visibility =
-                        arrowZ + prob * (DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MAX - DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MIN);
+                        MathUtils.capMinMax((arrowDist - prob * (
+                                (DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MAX
+                                        - DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MIN) +
+                                DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MIN
+                        )) / DrawingConstants.ARROW_HEIGHT_VISIBLE_REDUCTION_RANGE, 0, 1);
+                applet.fill(color[0], color[1], color[2], (int) ((1.0 - visibility) * 255));
             }
             shapeDrawer.arrow(
                     (float) drawX, (float) drawY, (float) angle,

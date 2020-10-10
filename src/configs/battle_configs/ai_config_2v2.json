@@ -42,6 +42,16 @@
       "size": 60,
       "faction": "GAUL",
       "width": 10
+    },
+    {
+      "type": "ARCHER",
+      "org": "unit",
+      "x": 2500,
+      "y": 1700,
+      "angle": 0,
+      "size": 100,
+      "faction": "GAUL",
+      "width": 20
     }
   ],
   "construct_config": [
