@@ -4,6 +4,7 @@ import model.events.EventBroadcaster;
 import model.events.EventType;
 import model.events.MapEvent;
 import processing.core.PApplet;
+import view.components.Button;
 import view.components.CheckBox;
 import view.components.CustomProcedure;
 import view.drawer.InfoDrawer;
@@ -29,28 +30,18 @@ public class CitySimulation extends PApplet {
 
     public void setup() {
         infoDrawer = new InfoDrawer(this);
-
         eventBroadcaster = new EventBroadcaster();
-
         cityState = new CityState(eventBroadcaster);
         progressionModel = new ProgressionModel();
-
         checkBoxes = new ArrayList<>();
-        checkBoxes.add(new CheckBox("Trigger Decay Event",
-                false,
+        checkBoxes.add(new Button("Trigger Decay Event",
                 width-180, height-50, 280, 25, this,
                 new CustomProcedure() {
                     @Override
                     public void proc() { eventBroadcaster.broadcastEvent(
                             new MapEvent(EventType.DESTROY_CITY,
                                     0, 0, 0, 200, 500)); }
-                },
-                new CustomProcedure() {
-                    @Override
-                    public void proc() {
-
-                    }
-                }));
+                });
     }
 
     public void draw() {
