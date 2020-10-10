@@ -11,10 +11,12 @@ import model.terrain.Terrain;
 import model.utils.MathUtils;
 import processing.core.PApplet;
 import view.camera.BaseCamera;
+import view.camera.TopDownCamera;
 import view.constants.DrawingConstants;
 import view.settings.DrawingSettings;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ObjectDrawer extends BaseDrawer {
 
@@ -25,18 +27,27 @@ public class ObjectDrawer extends BaseDrawer {
 
     // TODO: If the object is an arrow, generate a probability between 0 and 1, and then store it here.
     HashMap<Arrow, Double> arrowDrawingProbs;
-    HashMap<Arrow, Boolean> arrowDrawn;
+    HashSet<Arrow> arrowDrawn;
 
-    public ObjectDrawer(PApplet inputApplet, BaseCamera inputCamera, ShapeDrawer inputShapeDrawer, DrawingSettings inputDrawingSettings) {
+    public ObjectDrawer(PApplet inputApplet,
+                        BaseCamera inputCamera,
+                        ShapeDrawer inputShapeDrawer,
+                        DrawingSettings inputDrawingSettings) {
         applet = inputApplet;
         shapeDrawer = inputShapeDrawer;
         camera = inputCamera;
         drawingSettings = inputDrawingSettings;
+
+        // Initialize arrow optimizer.
+        arrowDrawingProbs = new HashMap<>();
+        arrowDrawn = new HashSet<>();
     }
 
     @Override
     public void preprocess() {
-        // TODO: Add size optimization code for object drawer here.
+        // Remove all probability that does not exist within the arrowing drawing probabilities.
+        arrowDrawingProbs.entrySet().removeIf(x -> !arrowDrawn.contains(x));
+        arrowDrawn.clear();
         return;
     }
 
@@ -63,6 +74,16 @@ public class ObjectDrawer extends BaseDrawer {
         int[] color = DrawingConstants.UNIVERSAL_OBJECT_COLOR;
         applet.fill(color[0], color[1], color[2]);
         if (object instanceof Arrow) {
+            if (camera instanceof TopDownCamera) {
+                // Optimization logic only applies in TopDownCamera. For other camera we draw arrow as usual.
+                if (!arrowDrawingProbs.containsKey(object)) {
+                    arrowDrawingProbs.put((Arrow) object, MathUtils.randUniform());
+                }
+                double prob = MathUtils.randUniform();
+                double arrowZ = object.getHeight();
+                double visibility =
+                        arrowZ + prob * (DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MAX - DrawingConstants.ARROW_HEIGHT_VISIBLE_BEGIN_MIN);
+            }
             shapeDrawer.arrow(
                     (float) drawX, (float) drawY, (float) angle,
                     (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.ARROW_SIZE);
