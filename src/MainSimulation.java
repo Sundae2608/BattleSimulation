@@ -10,7 +10,6 @@ import model.settings.GameSettings;
 import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.map_objects.Tree;
-import model.terrain.Terrain;
 import utils.ConfigUtils;
 import ai.AIAgent;
 import view.audio.AudioSpeaker;
@@ -584,7 +583,7 @@ public class MainSimulation extends PApplet {
             for (BaseUnit unit : env.getAliveUnits()) {
                 // For troops out of position, draw them individually
                 for (BaseSingle single : unit.getAliveTroopsSet()) {
-                    portrayAliveSingle(single, env.getTerrain(), unitSelected);
+                    portrayAliveSingle(single, unitSelected);
                 }
             }
         } else {
@@ -948,7 +947,7 @@ public class MainSimulation extends PApplet {
     /**
      * Portray alive troop.
      */
-    void portrayAliveSingle(BaseSingle single, Terrain terrain, BaseUnit unitSelected) {
+    void portrayAliveSingle(BaseSingle single, BaseUnit unitSelected) {
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();

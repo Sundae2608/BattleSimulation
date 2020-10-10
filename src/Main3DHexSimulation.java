@@ -11,7 +11,6 @@ import model.settings.GameSettings;
 import model.surface.BaseSurface;
 import model.surface.ForestSurface;
 import model.map_objects.Tree;
-import model.terrain.Terrain;
 import model.units.unit_stats.UnitStats;
 import utils.ConfigUtils;
 import view.audio.AudioSpeaker;
@@ -632,7 +631,7 @@ public class Main3DHexSimulation extends PApplet {
                 }
             });
             for (BaseSingle single : arr) {
-                portrayAliveSingle(single, env.getTerrain(), unitSelected);
+                portrayAliveSingle(single, unitSelected);
             }
         } else {
             // Draw unit block
@@ -981,7 +980,7 @@ public class Main3DHexSimulation extends PApplet {
     /**
      * Portray alive troop.
      */
-    void portrayAliveSingle(BaseSingle single, Terrain terrain, BaseUnit unitSelected) {
+    void portrayAliveSingle(BaseSingle single, BaseUnit unitSelected) {
 
         // Draw all the object sticking to the individual
         HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
