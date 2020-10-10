@@ -3,6 +3,7 @@ package ai;
 import model.GameEnvironment;
 import model.units.BaseUnit;
 import model.utils.GameplayUtils;
+import model.utils.MathUtils;
 
 public class AIAgent {
     private BaseUnit unit;
@@ -12,14 +13,27 @@ public class AIAgent {
         this.env = env;
         this.unit = unit;
         // TODO: derive the size of grid from terrain and unit size
-        this.state = new GameState(env, 500, 500); 
+        this.state = new GameState(env, 500, 500);
     }
 
     public void move(){
         state.updateState();
         
         AIUnitView aiUnit = state.getAIUnit(this.unit);
-        
+
+        for(AIUnitView otherUnitAIView: state.getAIUnits()){
+            if(otherUnitAIView.getPoliticalFaction() != aiUnit.getPoliticalFaction()){
+                //System.out.println("current row" + aiUnit.getRow() + " cur col " + aiUnit.getCol() + " other Unit row" + otherUnitAIView.getRow() + " col " + otherUnitAIView.getCol());
+                if(Math.abs(aiUnit.getRow()- otherUnitAIView.getRow()) + Math.abs(aiUnit.getCol() - otherUnitAIView.getCol()) <= 1){
+
+                    double goalX = otherUnitAIView.getBaseUnit().getGoalX();
+                    double goalY = otherUnitAIView.getBaseUnit().getGoalY();
+                    double goalAngle = MathUtils.atan2(goalY - unit.getAverageX(), goalX - unit.getAnchorY());
+                    unit.moveFormationKeptTo(goalX, goalY, goalAngle);
+                    return;
+                }
+            }
+        }
         int row = aiUnit.getRow();
         int col = aiUnit.getCol();
         
@@ -38,7 +52,7 @@ public class AIAgent {
                 }
                 nextRow = row + rowPadding;
                 nextCol = col + colPadding;
-                
+
                 if(!state.isWithinBoundary(nextRow, nextCol)){
                     continue;
                 }
@@ -57,20 +71,24 @@ public class AIAgent {
 
             }
         }
+
+
         
         double[] goalCoord = state.getCoordinate(bestRow, bestCol);
-        
-        //double[] currentCoord = state.getCoordinate(row, col);
-        //System.out.println("Current position " + row + " " + col + " current coordinate " + currentCoord[0] +  ' ' + currentCoord[1]);
+
+        double currentX = unit.getAverageX();
+        double currentY = unit.getAverageY();
+        //System.out.println("Current position " + row + " " + col + " best position row " + bestRow + " col " + bestCol);
         
         if(bestRow == row && bestCol == col){
             return;
         }
         
-        //System.out.println("Goal coordinates "  + goalCoord[0] + " " + goalCoord[1] + " Position " + bestRow + " " + bestCol);
         if (GameplayUtils.checkIfUnitCanMoveTowards(
                 goalCoord[0], goalCoord[1], env.getConstructs())) {
-            unit.moveFormationKeptTo(goalCoord[0], goalCoord[1], 0.0);
+            double angle = MathUtils.atan2(goalCoord[1] - currentY, goalCoord[0] - currentX);
+            //System.out.println("Goal coordinates "  + goalCoord[0] + " " + goalCoord[1] + " " + angle + " Position " + bestRow + " " + bestCol);
+            unit.moveFormationKeptTo(goalCoord[0], goalCoord[1], angle);
         }
     }
 

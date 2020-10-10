@@ -33,31 +33,31 @@ public class StateApproximator {
     private double evaluateUnitsDistance(AIUnitView currentUnit, AIUnitView enemyUnit){
         
         
-        double distance = Math.sqrt(Math.pow(currentUnit.getRow() - enemyUnit.getRow(), 2) + Math.pow(currentUnit.getCol() - enemyUnit.getCol(), 2));
+        double distance = currentUnit.getDistance(enemyUnit);
 
         UnitType allyType = currentUnit.getBaseUnit().getUnitType();
         double score = distance;
-        int unitCoefficient = isMeleeType(allyType)? -1 : 1;
-        
-        return score*unitCoefficient;
+
+        if(isMeleeType(allyType)) {
+            return 1/score;
+        }
+
+        return score;
 
     }
     public double evaluate(GameState state, AIUnitView currentUnit){
 
         ArrayList<AIUnitView> enemyUnits = new ArrayList<AIUnitView>();
-        ArrayList<AIUnitView> allyUnits = new ArrayList<AIUnitView>();
+        //ArrayList<AIUnitView> allyUnits = new ArrayList<AIUnitView>();
         PoliticalFaction allyFaction = currentUnit.getPoliticalFaction();
         for(AIUnitView unit : state.getAIUnits()){
-            if(unit != currentUnit && unit.getPoliticalFaction() == allyFaction){
-                allyUnits.add(unit);
-            }
-            else{
+            if(unit != currentUnit && unit.getPoliticalFaction() != allyFaction) {
                 enemyUnits.add(unit);
             }
         }
         double score = 0;
         for(AIUnitView enemyUnit: enemyUnits){
-            score += evaluateUnitsDistance(currentUnit, enemyUnit);
+            score = Math.max(score, evaluateUnitsDistance(currentUnit, enemyUnit));
         }
         
         return score;

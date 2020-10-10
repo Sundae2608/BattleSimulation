@@ -17,7 +17,6 @@ public class AIUnitView {
     }
     
     public void updateState(){
-        
         int[] position = gameState.getPosition(unit.getAverageX(), unit.getAverageY());
         this.row = position[0];
         this.col = position[1];
@@ -39,6 +38,10 @@ public class AIUnitView {
 
     public int getCol(){
         return col;
+    }
+
+    public double getDistance(AIUnitView other){
+        return Math.sqrt(Math.pow(other.getRow() - this.getRow(), 2) + Math.pow(other.getCol() - this.getCol(), 2));
     }
 
     public PoliticalFaction getPoliticalFaction(){
