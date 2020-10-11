@@ -20,7 +20,7 @@ import view.constants.ControlConstants;
 import view.drawer.*;
 import model.GameEnvironment;
 import view.camera.TopDownCamera;
-import model.projectile_objects.BaseObject;
+import model.projectile_objects.BaseProjectile;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.event.MouseEvent;
@@ -608,8 +608,8 @@ public class MainSimulation extends PApplet {
         }
 
         // Draw the objects
-        ArrayList<BaseObject> objects = env.getUnitModifier().getObjectHasher().getObjects();
-        for (BaseObject obj : objects) {
+        ArrayList<BaseProjectile> objects = env.getUnitModifier().getProjectileHasher().getObjects();
+        for (BaseProjectile obj : objects) {
             // TODO: Add probabilistic drawing here to reduce the number of arrow drawn when zooming out.
             if (obj.isAlive()) objectDrawer.drawObject(obj, env.getTerrain());
         }
@@ -950,8 +950,8 @@ public class MainSimulation extends PApplet {
     void portrayAliveSingle(BaseSingle single, BaseUnit unitSelected) {
 
         // Draw all the object sticking to the individual
-        HashMap<BaseObject, Integer> carriedObjects = single.getCarriedObjects();
-        for (BaseObject obj : carriedObjects.keySet()) {
+        HashMap<BaseProjectile, Integer> carriedObjects = single.getCarriedObjects();
+        for (BaseProjectile obj : carriedObjects.keySet()) {
             objectDrawer.drawObjectCarriedByTroop(carriedObjects.get(obj), obj, single);
         }
 

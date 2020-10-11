@@ -61,4 +61,8 @@ public class SingleStats {
     public double catapultExplosionDamage;
     public double catapultExplosionRange;
     public double catapultExplosionPush;
+
+    // GunInfantry stats
+    public double bulletMinRange;
+    public double bulletMaxRange;
 }

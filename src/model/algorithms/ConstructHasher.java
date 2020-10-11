@@ -1,7 +1,7 @@
 package model.algorithms;
 
 import model.construct.Construct;
-import model.projectile_objects.BaseObject;
+import model.projectile_objects.BaseProjectile;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ public class ConstructHasher {
     private ArrayList<Construct> constructs;
 
     // Hash view.map containing
-    private HashMap<Long, ArrayList<BaseObject>> hashMap;
+    private HashMap<Long, ArrayList<BaseProjectile>> hashMap;
 
     public ConstructHasher(int xDivision, int yDivision, ArrayList<Construct> inputConstructs) {
         xDiv = xDivision;

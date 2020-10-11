@@ -1,5 +1,5 @@
 package model.projectile_objects;
 
-public abstract class Projectile extends BaseObject {
+public abstract class Projectile extends BaseProjectile {
 
 }

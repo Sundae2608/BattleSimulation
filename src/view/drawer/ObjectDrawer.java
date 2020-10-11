@@ -4,7 +4,7 @@ import javafx.util.Pair;
 import model.constants.UniversalConstants;
 import model.projectile_objects.Arrow;
 import model.projectile_objects.Ballista;
-import model.projectile_objects.BaseObject;
+import model.projectile_objects.BaseProjectile;
 import model.projectile_objects.Stone;
 import model.singles.BaseSingle;
 import model.terrain.Terrain;
@@ -54,7 +54,7 @@ public class ObjectDrawer extends BaseDrawer {
     /**
      * Draw the object
      */
-    public void drawObject(BaseObject object, Terrain terrain) {
+    public void drawObject(BaseProjectile object, Terrain terrain) {
 
         // Recalculate position and shape based on the view.camera position
         double z = terrain.getZFromPos(object.getX(), object.getY());
@@ -110,7 +110,7 @@ public class ObjectDrawer extends BaseDrawer {
     /**
      * Draw the object carried by the troop
      */
-    public void drawObjectCarriedByTroop(int lifeTime, BaseObject object, BaseSingle single) {
+    public void drawObjectCarriedByTroop(int lifeTime, BaseProjectile object, BaseSingle single) {
 
         // Recalculate object actual position
         Pair<Double, Double> rotatedVector = MathUtils.rotate(object.getX(), object.getY(), single.getAngle());

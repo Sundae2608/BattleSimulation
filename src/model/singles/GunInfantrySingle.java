@@ -1,48 +1,44 @@
 package model.singles;
 
-import model.algorithms.ProjectileHasher;
+import model.algorithms.HitscanHasher;
 import model.constants.UniversalConstants;
 import model.enums.SingleState;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
-import model.projectile_objects.Arrow;
-import model.units.ArcherUnit;
+import model.projectile_objects.HitscanObject;
 import model.units.BaseUnit;
+import model.units.GunInfantryUnit;
 import model.utils.MathUtils;
 import model.utils.MovementUtils;
 
-public class ArcherSingle extends BaseSingle {
+public class GunInfantrySingle extends BaseSingle {
 
-    // These two delays are unique to archer.
-    // - Reload delay: time waited before archer can fire
-    // - Bored delay: time waited before archer switch from standing to FIRE_AT_WILL state, because things are too
-    // boring.
+    // These two delays are unique to gun infantry.
+    // - Reload delay: time waited before the gun infantry can fire
+    // - Bored delay: time waited before the gun infantry switch from standing to FIRE_AT_WILL state, because things are
+    // too boring.
     protected int reloadDelay;
     protected int boredDelay;
 
-    // Object hasher. Since archer produced arrows, arrows have to be fed in somehow.
-    protected ProjectileHasher hasher;
-
     // Shooting target
+    HitscanHasher hitscanHasher;
     BaseSingle shootingTarget;
 
-    public ArcherSingle(double xInit,
-                        double yInit,
-                        PoliticalFaction faction,
-                        BaseUnit inputUnit,
-                        SingleStats inputSingleStats,
-                        ProjectileHasher inputHasher) {
+    public GunInfantrySingle(double xInit,
+                             double yInit,
+                             PoliticalFaction faction,
+                             BaseUnit inputUnit,
+                             SingleStats inputSingleStats,
+                             HitscanHasher inputHitscanHasher) {
         // Parent constructor
         super(inputSingleStats, inputUnit);
-
-        // Assign hasher
-        hasher = inputHasher;
 
         // Positional attributes
         x = xInit;
         y = yInit;
         xGoal = xInit;
         yGoal = yInit;
+        hitscanHasher = inputHitscanHasher;
 
         // Set up political faction
         politicalFaction = faction;
@@ -130,25 +126,32 @@ public class ArcherSingle extends BaseSingle {
                     speedGoal = singleStats.speed;
                 }
                 // Constantly reload and fire if there is a target in sight.
-                BaseUnit unitFiredAt = ((ArcherUnit)unit).getUnitFiredAgainst();
+                BaseUnit unitFiredAt = ((GunInfantryUnit) unit).getUnitFiredAgainst();
                 if (unitFiredAt != null) {
                     reloadDelay -= 1;
                     if (reloadDelay == 0) {
                         // Pick a random target
-                        shootingTarget = ((ArcherUnit) unit).pickNextTarget();
+                        shootingTarget = ((GunInfantryUnit) unit).pickNextTarget();
 
                         // Don't fire target if there is nothing to fire at.
                         if (shootingTarget == null) break;
 
-                        // Shoot an arrow into the world
-                        hasher.addObject(new Arrow(x, y, shootingTarget.getX(), shootingTarget.getY(),
-                                singleStats.arrowSpeed,
-                                singleStats.arrowDamage,
-                                singleStats.arrowPushDist,
-                                singleStats.angleVariation,
-                                singleStats.impactLifetime));
+                        // TODO: Perform the shooting by adding a bullet object here.
+                        //  A great way to do bullet is to do:
+                        //  - Starting point (x, y, z) of the bullet.
+                        //  - Angle theta and phi of the bullet
+                        //  - Range of the bullet.
+                        double theta = MathUtils.atan2(shootingTarget.y - y, shootingTarget.x - x);
+                        double phi = MathUtils.atan2(
+                                MathUtils.quickDistance(x, y, shootingTarget.x, shootingTarget.y),
+                                shootingTarget.z - z
+                        );
+                        HitscanObject bullet = new HitscanObject(
+                                x, y, z, theta, phi, singleStats.bulletMinRange, singleStats.bulletMaxRange
+                        );
+                        hitscanHasher.addObject(bullet);
 
-                        // Reload arrow
+                        // Reload the fire
                         reloadDelay = singleStats.reloadDelay;
                     }
                 }
@@ -171,3 +174,4 @@ public class ArcherSingle extends BaseSingle {
         }
     }
 }
+

@@ -1,6 +1,6 @@
 package model.projectile_objects;
 
-public abstract class BaseObject {
+public abstract class BaseProjectile {
 
     // Positional attributes
     protected double x;
@@ -12,9 +12,6 @@ public abstract class BaseObject {
 
     public boolean isImpactful() {
         return impactful;
-    }
-    public void setImpactful(boolean impactful) {
-        this.impactful = impactful;
     }
 
     public double getX() {

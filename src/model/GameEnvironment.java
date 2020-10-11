@@ -103,7 +103,7 @@ public class GameEnvironment {
         // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
-                    battleConfig, gameStats, unitModifier.getObjectHasher(), terrain, broadcaster, gameSettings, this);
+                    battleConfig, gameStats, unitModifier.getProjectileHasher(), terrain, broadcaster, gameSettings, this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -127,7 +127,6 @@ public class GameEnvironment {
         monitor.clockTheData();
 
         // Update intentions of all units
-        unitModifier.getObjectHasher().updateObjects();
         for (BaseUnit unit : units) {
             unit.updateIntention();
         }

@@ -12,7 +12,7 @@ import model.monitor.Monitor;
 import model.monitor.MonitorEnum;
 import model.projectile_objects.Arrow;
 import model.projectile_objects.Ballista;
-import model.projectile_objects.BaseObject;
+import model.projectile_objects.BaseProjectile;
 import model.projectile_objects.Stone;
 import model.settings.GameSettings;
 import model.singles.*;
@@ -30,7 +30,8 @@ import java.util.*;
 
 public class UnitModifier {
 
-    private ObjectHasher objectHasher;
+    private ProjectileHasher projectileHasher;
+    private HitscanHasher hitscanHasher;
     private TroopHasher troopHasher;
     private ConstructHasher constructHasher;
     private SurfaceHasher surfaceHasher;
@@ -46,15 +47,13 @@ public class UnitModifier {
     private ArrayList<BaseSurface> surfaces;
     private HashMap<BaseUnit, Integer> recentlyChargedUnit;
 
-    // Memoization of distance between model.units.
-    private double[][] distanceMemo;
-
     public UnitModifier(ArrayList<BaseSingle> inputDeadContainer, Terrain inputTerrain,
                         ArrayList<Construct> inputConstructs, ArrayList<BaseSurface> inputSurfaces,
                         GameSettings inputSettings, EventBroadcaster inputBroadcaster, Monitor inputMonitor) {
         broadcaster = inputBroadcaster;
         monitor = inputMonitor;
-        objectHasher = new ObjectHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV);
+        projectileHasher = new ProjectileHasher();
+        hitscanHasher = new HitscanHasher();
         troopHasher = new TroopHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, inputSettings);
         deadContainer = inputDeadContainer;
         unitToBeRemoved = new HashSet<>();
@@ -65,9 +64,6 @@ public class UnitModifier {
         surfaces = inputSurfaces;
         constructHasher = new ConstructHasher(UniversalConstants.X_HASH_DIV, UniversalConstants.Y_HASH_DIV, constructs);
         surfaceHasher = new SurfaceHasher(UniversalConstants.X_HASH_DIV_SURFACE_TREES, UniversalConstants.Y_HASH_DIV_SURFACE_TREES, surfaces);
-
-        // Initialize distance memo
-        distanceMemo = new double[8][8];
 
         // Initialize charged unit map.
         recentlyChargedUnit = new HashMap<>();
@@ -91,10 +87,11 @@ public class UnitModifier {
     public void modifyObjects() {
         // First, update the hash based on current positions
         troopHasher.hashObjects();
-        objectHasher.hashObjects();
+        projectileHasher.updateObjects();
+        hitscanHasher.updateObjects();
 
         // Then apply modifiers
-        modifyObjectsCollision();
+        modifyProjectilesCollision();
         modifyTroopsCollisionWithSurfaces();
         modifyTroopsCollision();
         modifyCombat();
@@ -156,11 +153,11 @@ public class UnitModifier {
     /**
      * Modify collisions between objects and troops (arrow, spear tip)
      */
-    private void modifyObjectsCollision() {
+    private void modifyProjectilesCollision() {
 
         // Check collision of every object in the collision modifier and then modify information about such object
-        ArrayList<BaseObject> objects = objectHasher.getObjects();
-        for (BaseObject obj : objects) {
+        ArrayList<BaseProjectile> objects = projectileHasher.getObjects();
+        for (BaseProjectile obj : objects) {
 
             // Check if the object makes any potential impact.
             if (!obj.isImpactful()) continue;
@@ -612,7 +609,11 @@ public class UnitModifier {
         return troopHasher;
     }
 
-    public ObjectHasher getObjectHasher() {
-        return objectHasher;
+    public ProjectileHasher getProjectileHasher() {
+        return projectileHasher;
+    }
+
+    public HitscanHasher getHitscanHasher() {
+        return hitscanHasher;
     }
 }

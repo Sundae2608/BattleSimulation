@@ -4,7 +4,7 @@ import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import javafx.util.Pair;
 import model.enums.SingleState;
-import model.projectile_objects.BaseObject;
+import model.projectile_objects.BaseProjectile;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 import model.enums.PoliticalFaction;
@@ -55,7 +55,7 @@ public class BaseSingle {
     double damageSustain;
     boolean inPosition;
     boolean inDanger;  // The troop is in contact with enemy or is crushed by too many collisions
-    HashMap<BaseObject, Integer> carriedObjects;  // Stuff carried with the single (arrows)
+    HashMap<BaseProjectile, Integer> carriedObjects;  // Stuff carried with the single (arrows)
 
     /**
      * Initialize a troop. Since this is the base objects. Attributed assign will be among the most basic shared stats
@@ -225,7 +225,7 @@ public class BaseSingle {
         Object[] objects = carriedObjects.keySet().toArray();
         for (Object obj : objects) {
             int lifeTime = carriedObjects.get(obj) - 1;
-            if (lifeTime > 0) carriedObjects.put((BaseObject) obj, lifeTime);
+            if (lifeTime > 0) carriedObjects.put((BaseProjectile) obj, lifeTime);
             else carriedObjects.remove(obj);
         }
 
@@ -300,7 +300,7 @@ public class BaseSingle {
     /**
      * Absorb an object (such as an arrow)
      */
-    public void absorbObject(BaseObject object) {
+    public void absorbObject(BaseProjectile object) {
         // Recalculate position to be relative to the troop, standing at 0, 0 and angle 0
         double dx = object.getX() - x;
         double dy = object.getY() - y;
@@ -497,7 +497,7 @@ public class BaseSingle {
         this.inDanger = inDanger;
     }
 
-    public HashMap<BaseObject, Integer> getCarriedObjects() {
+    public HashMap<BaseProjectile, Integer> getCarriedObjects() {
         return carriedObjects;
     }
 

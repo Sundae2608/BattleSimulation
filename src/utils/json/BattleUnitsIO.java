@@ -2,7 +2,8 @@ package utils.json;
 
 import model.GameEnvironment;
 import model.GameStats;
-import model.algorithms.ObjectHasher;
+import model.algorithms.HitscanHasher;
+import model.algorithms.ProjectileHasher;
 import model.enums.PoliticalFaction;
 import model.enums.UnitType;
 import model.events.EventBroadcaster;
@@ -24,16 +25,18 @@ import java.util.ArrayList;
 public class BattleUnitsIO extends JsonIO<ArrayList<BaseUnit>> {
 
     private GameStats gameStats;
-    private ObjectHasher hasher;
+    private ProjectileHasher projectileHasher;
+    private HitscanHasher hitscanHasher;
     private Terrain terrain;
     private EventBroadcaster broadcaster;
     private GameSettings gameSettings;
     private GameEnvironment environment;
 
-    public BattleUnitsIO(GameStats gameStats, ObjectHasher hasher, Terrain terrain, EventBroadcaster broadcaster,
+    public BattleUnitsIO(GameStats gameStats, ProjectileHasher projectileHasher, HitscanHasher hitscanHasher, Terrain terrain, EventBroadcaster broadcaster,
                          GameSettings gameSettings, GameEnvironment environment) {
         this.gameStats = gameStats;
-        this.hasher = hasher;
+        this.projectileHasher = projectileHasher;
+        this.hitscanHasher = hitscanHasher;
         this.terrain = terrain;
         this.broadcaster = broadcaster;
         this.gameSettings = gameSettings;
@@ -70,6 +73,9 @@ public class BattleUnitsIO extends JsonIO<ArrayList<BaseUnit>> {
 
                 BaseUnit unit = null;
                 switch (unitType) {
+                    case GUN_INFANTRY:
+                        unit = new GunInfantryUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hitscanHasher, environment);
+                        break;
                     case PHALANX:
                         unit = new PhalanxUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, environment);
                         break;
@@ -77,13 +83,13 @@ public class BattleUnitsIO extends JsonIO<ArrayList<BaseUnit>> {
                         unit = new SkirmisherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, environment);
                         break;
                     case ARCHER:
-                        unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, environment);
+                        unit = new ArcherUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, projectileHasher, environment);
                         break;
                     case BALLISTA:
-                        unit = new BallistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, environment);
+                        unit = new BallistaUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, projectileHasher, environment);
                         break;
                     case CATAPULT:
-                        unit = new CatapultUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, hasher, environment);
+                        unit = new CatapultUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, projectileHasher, environment);
                         break;
                     case SLINGER:
                         unit = new SlingerUnit(x, y, angle, unitSize, faction, unitStats, singleStats, unitWidth, environment);

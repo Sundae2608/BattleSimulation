@@ -1,7 +1,7 @@
 package model.units;
 
 import model.GameEnvironment;
-import model.algorithms.ObjectHasher;
+import model.algorithms.ProjectileHasher;
 import model.enums.PoliticalFaction;
 import model.singles.BaseSingle;
 import model.singles.CatapultSingle;
@@ -21,7 +21,7 @@ public class CatapultUnit extends BaseUnit {
     private int iteratorIndex;
 
     public CatapultUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
-                        SingleStats singleStats, int unitWidth, ObjectHasher hasher, GameEnvironment inputEnv) {
+                        SingleStats singleStats, int unitWidth, ProjectileHasher hasher, GameEnvironment inputEnv) {
         super(unitStats, inputEnv);
 
         // Assign default attributes

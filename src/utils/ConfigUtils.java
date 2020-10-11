@@ -3,7 +3,8 @@ package utils;
 import javafx.util.Pair;
 import model.GameEnvironment;
 import model.GameStats;
-import model.algorithms.ObjectHasher;
+import model.algorithms.HitscanHasher;
+import model.algorithms.ProjectileHasher;
 import model.algorithms.pathfinding.Graph;
 import model.construct.Construct;
 import model.enums.PoliticalFaction;
@@ -26,9 +27,9 @@ public final class ConfigUtils {
      * Read the battle config, which defines the position and size of each unit that participate in the games.
      */
     public static ArrayList<BaseUnit> readBattleConfigs(
-            String filePath, GameStats gameStats, ObjectHasher hasher, Terrain terrain, EventBroadcaster broadcaster,
-            GameSettings gameSettings, GameEnvironment env) throws IOException {
-        JsonIO jsonIO = new BattleUnitsIO(gameStats, hasher, terrain, broadcaster, gameSettings, env);
+            String filePath, GameStats gameStats, ProjectileHasher projectileHasher, HitscanHasher hitscanHasher,
+            Terrain terrain, EventBroadcaster broadcaster, GameSettings gameSettings, GameEnvironment env) throws IOException {
+        JsonIO jsonIO = new BattleUnitsIO(gameStats, projectileHasher, terrain, broadcaster, gameSettings, env);
         return (ArrayList<BaseUnit>) jsonIO.read(filePath);
     }
 

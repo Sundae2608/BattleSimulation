@@ -1,6 +1,6 @@
 package model.singles;
 
-import model.algorithms.ObjectHasher;
+import model.algorithms.ProjectileHasher;
 import model.constants.GameplayConstants;
 import model.constants.UniversalConstants;
 import model.enums.SingleState;
@@ -22,7 +22,7 @@ public class CatapultSingle extends BaseSingle {
     protected int boredDelay;
 
     // Object hasher. Since archer produced arrows, arrows have to be fed in somehow.
-    protected ObjectHasher hasher;
+    protected ProjectileHasher hasher;
 
     // Shooting target
     BaseSingle shootingTarget;
@@ -32,7 +32,7 @@ public class CatapultSingle extends BaseSingle {
                          PoliticalFaction faction,
                          BaseUnit inputUnit,
                          SingleStats inputSingleStats,
-                         ObjectHasher inputHasher) {
+                         ProjectileHasher inputHasher) {
         // Parent constructor
         super(inputSingleStats, inputUnit);
 

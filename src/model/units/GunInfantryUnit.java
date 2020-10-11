@@ -1,10 +1,10 @@
 package model.units;
 
 import model.GameEnvironment;
-import model.algorithms.ProjectileHasher;
+import model.algorithms.HitscanHasher;
 import model.enums.PoliticalFaction;
-import model.singles.BallistaSingle;
 import model.singles.BaseSingle;
+import model.singles.GunInfantrySingle;
 import model.singles.SingleStats;
 import model.units.unit_stats.UnitStats;
 import model.utils.MathUtils;
@@ -12,7 +12,7 @@ import model.utils.MathUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class BallistaUnit extends BaseUnit {
+public class GunInfantryUnit extends BaseUnit {
 
     // Unit fired against (unique to archers)
     // Indicate the model.units the archer is currently aimed at .
@@ -20,8 +20,8 @@ public class BallistaUnit extends BaseUnit {
     private ArrayList<BaseSingle> targetIterator;
     private int iteratorIndex;
 
-    public BallistaUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
-                        SingleStats singleStats, int unitWidth, ProjectileHasher hasher, GameEnvironment inputEnv) {
+    public GunInfantryUnit(double x, double y, double angle, int unitSize, PoliticalFaction faction, UnitStats unitStats,
+                           SingleStats singleStats, int unitWidth, HitscanHasher hitscanHasher, GameEnvironment inputEnv) {
         super(unitStats, inputEnv);
 
         // Assign default attributes
@@ -57,11 +57,10 @@ public class BallistaUnit extends BaseUnit {
         for (int i = 0; i < unitSize; i++) {
             int row = i / width;
             int col = i % width;
-            double singleX = topX + col * unitStats.spacing * sideUnitX
-                    + (row * unitStats.spacing) * downUnitX;
-            double singleY = topY + col * unitStats.spacing * sideUnitY
-                    + (row * unitStats.spacing) * downUnitY;
-            BaseSingle single = new BallistaSingle(singleX, singleY, politicalFaction, this, singleStats, hasher);
+            double singleX = topX + col * unitStats.spacing * sideUnitX + row * unitStats.spacing * downUnitX;
+            double singleY = topY + col * unitStats.spacing * sideUnitY + row * unitStats.spacing * downUnitY;
+            BaseSingle single = new GunInfantrySingle(
+                    singleX, singleY, politicalFaction, this, singleStats, hitscanHasher);
             troops.add(single);
             aliveTroopsFormation[row][col] = single;
             aliveTroopsMap.put(single, i);
@@ -71,47 +70,20 @@ public class BallistaUnit extends BaseUnit {
         postInitialization();
     }
 
-    @Override
-    public void updateGoalPositions() {
-
-        // Convert angle to unit vector
-        double downUnitX = MathUtils.quickCos((float) (anchorAngle + Math.PI));
-        double downUnitY = MathUtils.quickSin((float) (anchorAngle + Math.PI));
-        double sideUnitX = MathUtils.quickCos((float) (anchorAngle + Math.PI / 2));
-        double sideUnitY = MathUtils.quickSin((float) (anchorAngle + Math.PI / 2));
-
-        // Create troops and set starting positions for each troop
-        double topX = anchorX - (width - 1) * unitStats.spacing * sideUnitX / 2;
-        double topY = anchorY - (width - 1) * unitStats.spacing * sideUnitY / 2;
-
-        // Update troops goal positions
-        for (int i = 0; i < troops.size(); i++) {
-
-            int row = i / width;
-            int col = i % width;
-            double xGoalSingle = topX + col * unitStats.spacing * sideUnitX
-                    + (row * unitStats.spacing) * downUnitX;
-            double yGoalSingle = topY + col * unitStats.spacing * sideUnitY
-                    + (row * unitStats.spacing) * downUnitY;
-
-            // Set the goal and change the state
-            BaseSingle troop = troops.get(i);
-            troop.setxGoal(xGoalSingle);
-            troop.setyGoal(yGoalSingle);
-            troop.setAngleGoal(anchorAngle);
-        }
-    }
-
     /**
      * Set unit to be fired at by the archers.
      */
     public void setUnitFiredAt(BaseUnit unitFiredAgainst) {
         this.unitFiredAgainst = unitFiredAgainst;
-        targetIterator = new ArrayList(unitFiredAgainst.getAliveTroopsSet());
+        if (unitFiredAgainst == null) {
+            targetIterator = new ArrayList<>();
+        } else {
+            targetIterator = new ArrayList(unitFiredAgainst.getAliveTroopsSet());
+        }
     }
 
     /**
-     * Pick a target for the archer. it will take advantage of the prebuilt iterator for randomness and efficiency
+     * Pick a target for the gun unit. it will take advantage of the prebuilt iterator for randomness and efficiency
      */
     public BaseSingle pickNextTarget() {
         if (unitFiredAgainst.getAliveTroopsSet().size() == 0) {

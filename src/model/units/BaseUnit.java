@@ -235,8 +235,12 @@ public class BaseUnit {
             anchorAngle += Math.PI;
         }
 
+        // TODO: This is not well-designed code, since everytime we add a new unit with positional variation, we will
+        //  have to change this part of the code.
         if (this instanceof ArcherUnit) {
             ((ArcherUnit) this).generatePositionalVariation(troops.size());
+        } else if (this instanceof SkirmisherUnit) {
+            ((SkirmisherUnit) this).generatePositionalVariation(troops.size());
         }
 
         // Reset anchor angles
