@@ -89,6 +89,7 @@ public class UnitModifier {
 
         // Then apply modifiers
         modifyProjectilesCollision();
+        modifyHitscanCollision();
         modifyTroopsCollisionWithSurfaces();
         modifyTroopsCollision();
         modifyCombat();
