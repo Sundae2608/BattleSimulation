@@ -1,5 +1,6 @@
 package model.algorithms;
 
+import javafx.util.Pair;
 import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.singles.CavalrySingle;
@@ -26,7 +27,7 @@ public class TroopHasher {
     private ArrayList<BaseUnit> units;
     private HashSet<BaseUnit> activeUnits;
 
-    // Hash view.map containing
+    // Hash map containing hashed singles.
     private HashMap<Long, ArrayList<BaseSingle>> hashMap;
 
     // Experiment model.settings
@@ -113,6 +114,51 @@ public class TroopHasher {
             }
         }
         return collideList;
+    }
+
+    /**
+     * Return the list of potential collision based on the line created by (x1, y1) and (x2, y2). We will use the
+     * Bresenham's line algorithm for this job.
+     */
+    public ArrayList<BaseSingle> getCollisionObjectsFromLine(double x1, double y1, double x2, double y2) {
+
+        // Calculate the space hashes that contain collision objects.
+        int xHash1 = (int) x1 / xDiv;
+        int yHash1 = (int) y1 / yDiv;
+        int xHash2 = (int) x2 / xDiv;
+        int yHash2 = (int) y2 / yDiv;
+        int deltaX = xHash2 - xHash1;
+        int deltaY = yHash2 - yHash1;
+        int deltaYSign = deltaY > 0 ? 1 : -1;
+        ArrayList<int[]> hashesList = new ArrayList<>();
+        if (deltaX == 0) {
+            // If delta X == 0, this mean that the list of hash squares are perfectly in vertical order.
+            for (int j = yHash1; j <= yHash2; j++) {
+                hashesList.add(new int[]{xHash1, j});
+            }
+        } else {
+            double deltaError = 1.0 * deltaY / deltaX;
+            double error = 0.0;
+            int j = yHash1;
+            for (int i = xHash1; i <= xHash2; i++) {
+                hashesList.add(new int[]{i, j});
+                error += deltaError;
+                if (error >= 0.5) {
+                    j += deltaYSign;
+                }
+            }
+        }
+
+        // Get the list of objects that are in the hash cells potentially collide able with the line.
+        ArrayList<BaseSingle> singles = new ArrayList<>();
+        for (int i = 0; i < hashesList.size(); i++) {
+            int[] hashCode = hashesList.get(i);
+            long key = pairHash(hashCode[0], hashCode[1]);
+            for (BaseSingle single : hashMap.get(key)) {
+                singles.add(single);
+            }
+        }
+        return singles;
     }
 
     /**

@@ -147,7 +147,8 @@ public class GunInfantrySingle extends BaseSingle {
                                 shootingTarget.z - z
                         );
                         HitscanObject bullet = new HitscanObject(
-                                x, y, z, theta, phi, singleStats.bulletMinRange, singleStats.bulletMaxRange
+                                x, y, z, theta, phi,
+                                singleStats.bulletMinRange, singleStats.bulletMaxRange, singleStats.bulletDamage
                         );
                         hitscanHasher.addObject(bullet);
 

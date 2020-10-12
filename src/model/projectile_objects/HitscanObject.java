@@ -21,7 +21,11 @@ public class HitscanObject {
     double minRange;
     double maxRange;
 
-    public HitscanObject(double x, double y, double z, double theta, double phi, double minRange, double maxRange) {
+    // Damage of the hitscan
+    double damage;
+
+    public HitscanObject(
+            double x, double y, double z, double theta, double phi, double minRange, double maxRange, double damage) {
         this.startX = x;
         this.startY = y;
         this.startZ = z;
@@ -29,5 +33,38 @@ public class HitscanObject {
         this.phi = phi;
         this.minRange = minRange;
         this.maxRange = maxRange;
+        this.damage = damage;
+    }
+
+    public double getStartX() {
+        return startX;
+    }
+
+    public double getStartY() {
+        return startY;
+    }
+
+    public double getStartZ() {
+        return startZ;
+    }
+
+    public double getTheta() {
+        return theta;
+    }
+
+    public double getPhi() {
+        return phi;
+    }
+
+    public double getMinRange() {
+        return minRange;
+    }
+
+    public double getMaxRange() {
+        return maxRange;
+    }
+
+    public double getDamage() {
+        return damage;
     }
 }

@@ -65,4 +65,5 @@ public class SingleStats {
     // GunInfantry stats
     public double bulletMinRange;
     public double bulletMaxRange;
+    public double bulletDamage;
 }

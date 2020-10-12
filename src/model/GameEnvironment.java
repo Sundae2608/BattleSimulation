@@ -103,7 +103,8 @@ public class GameEnvironment {
         // Read battle configuration.
         try {
             units = ConfigUtils.readBattleConfigs(
-                    battleConfig, gameStats, unitModifier.getProjectileHasher(), terrain, broadcaster, gameSettings, this);
+                    battleConfig, gameStats, unitModifier.getProjectileHasher(), unitModifier.getHitscanHasher(),
+                    this);
         } catch (IOException e) {
             e.printStackTrace();
         }

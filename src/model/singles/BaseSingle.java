@@ -235,6 +235,8 @@ public class BaseSingle {
 
     /**
      * Attack other single.
+     * TODO: Move the modifier to receiveDamage function, it makes more sense that way since it will also naturally work
+     *  for projectile attack and bullet attack.
      */
     public void attack(BaseSingle other) {
         // Deal at least base damage
@@ -273,7 +275,9 @@ public class BaseSingle {
 
     /**
      * Let the troop receive damage. Troop with health lower than 0 should die.
-     * TODO: Add defense mechanism, and customize them according to the angle the attack is received from.
+     * TODO: Also, currently there are no differentiate between damage. But it could be nice to have receiveMeleeDamage
+     *  and receiveProjectile damage, with defense mechanism separate. A unit can be great at melee defense but weak
+     *  against projectile defense and vice versa.
      */
     public void receiveDamage(double damage) {
         damage = Math.max(GameplayConstants.MINIMUM_DAMAGE_RECEIVED, damage - singleStats.defense);
@@ -407,7 +411,7 @@ public class BaseSingle {
         return state;
     }
 
-    public double getSize() {
+    public double getRadius() {
         return singleStats.radius;
     }
 

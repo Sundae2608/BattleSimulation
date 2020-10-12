@@ -10,10 +10,7 @@ import model.events.EventBroadcaster;
 import model.events.EventType;
 import model.monitor.Monitor;
 import model.monitor.MonitorEnum;
-import model.projectile_objects.Arrow;
-import model.projectile_objects.Ballista;
-import model.projectile_objects.BaseProjectile;
-import model.projectile_objects.Stone;
+import model.projectile_objects.*;
 import model.settings.GameSettings;
 import model.singles.*;
 import model.surface.BaseSurface;
@@ -151,6 +148,29 @@ public class UnitModifier {
     }
 
     /**
+     * Modify collisions
+     */
+    private void modifyHitscanCollision() {
+        // Go through each hitscan objects, and perform a hitscan collision, which is basically a line circle collision.
+        ArrayList<HitscanObject> objects = hitscanHasher.getObjects();
+        for (HitscanObject o : objects) {
+            double unitX = MathUtils.quickCos((float) o.getTheta());
+            double unitY = MathUtils.quickSin((float) o.getTheta());
+            double x1 = o.getStartX() + unitX * o.getMinRange();
+            double y1 = o.getStartY() + unitY * o.getMinRange();
+            double x2 = o.getStartX() + unitX * o.getMaxRange();
+            double y2 = o.getStartY() + unitY * o.getMaxRange();
+            for (BaseSingle single : troopHasher.getCollisionObjectsFromLine(x1, y1, x2, y2)) {
+                if (PhysicUtils.checkLineCircleCollision(x1, y1, x2, y2, single.getX(), single.getY(), single.getRadius())) {
+                    single.receiveDamage(o.getDamage());
+                    break;  // Break the loop because once the bullet hits, it is no long effective.
+                    // TODO: Consider adding a Hitscan that allow "shoot through mechanics".
+                }
+            }
+        }
+    }
+
+    /**
      * Modify collisions between objects and troops (arrow, spear tip)
      */
     private void modifyProjectilesCollision() {
@@ -185,7 +205,7 @@ public class UnitModifier {
             // Process based on the type of objects
             if (obj instanceof Arrow) {
                 if (closestCandidate == null) continue;
-                if (closestDistance < MathUtils.square(closestCandidate.getSize()) / 4) {
+                if (closestDistance < MathUtils.square(closestCandidate.getRadius()) / 4) {
                     // If distance to object is smaller than the diameter, count as an arrow hit
                     // Inflict some damage to the candidate
                     closestCandidate.receiveDamage(((Arrow) obj).getDamage());
@@ -212,7 +232,7 @@ public class UnitModifier {
                 }
             } else if (obj instanceof Ballista) {
                 if (closestCandidate == null) continue;
-                boolean balistaHit = closestDistance < MathUtils.square(closestCandidate.getSize()) / 4;
+                boolean balistaHit = closestDistance < MathUtils.square(closestCandidate.getRadius()) / 4;
 
                 if (balistaHit) {
                     broadcaster.broadcastEvent(new Event(
@@ -490,7 +510,7 @@ public class UnitModifier {
                 if (unitTouchEnemy.containsKey(candidate.getUnit()) && unitTouchEnemy.containsKey(obj.getUnit())) continue;
                 // Check if opposing troop in attack range.
                 double squareDist = SingleUtils.squareDistBetweenSingles(obj, candidate);
-                double squareCombatRange = MathUtils.square(obj.getSize() / 2 + obj.getCombatRangeStat());
+                double squareCombatRange = MathUtils.square(obj.getRadius() / 2 + obj.getCombatRangeStat());
                 if (squareDist < squareCombatRange) {
                     // In combat range, decrease patience from both sides
                     unitTouchEnemy.put(obj.getUnit(), candidate.getUnit());
@@ -578,7 +598,7 @@ public class UnitModifier {
                 if (candidate.getPoliticalFaction() == single.getPoliticalFaction()) continue;
                 if (candidate.getState() == SingleState.DEAD) continue;
                 double squareDist = SingleUtils.squareDistBetweenSingles(single, candidate);
-                double squareCombatRange = MathUtils.square(single.getSize() / 2 + single.getCombatRangeStat());
+                double squareCombatRange = MathUtils.square(single.getRadius() / 2 + single.getCombatRangeStat());
                 if (squareDist < minSquareDist) {
                     minSquareDist = squareDist;
                     if (minSquareDist < squareCombatRange) {

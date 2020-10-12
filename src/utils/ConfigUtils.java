@@ -28,8 +28,8 @@ public final class ConfigUtils {
      */
     public static ArrayList<BaseUnit> readBattleConfigs(
             String filePath, GameStats gameStats, ProjectileHasher projectileHasher, HitscanHasher hitscanHasher,
-            Terrain terrain, EventBroadcaster broadcaster, GameSettings gameSettings, GameEnvironment env) throws IOException {
-        JsonIO jsonIO = new BattleUnitsIO(gameStats, projectileHasher, terrain, broadcaster, gameSettings, env);
+            GameEnvironment env) throws IOException {
+        JsonIO jsonIO = new BattleUnitsIO(gameStats, projectileHasher, hitscanHasher, env);
         return (ArrayList<BaseUnit>) jsonIO.read(filePath);
     }
 
