@@ -123,6 +123,9 @@ public class TroopHasher {
     public ArrayList<BaseSingle> getCollisionObjectsFromLine(double x1, double y1, double x2, double y2) {
 
         // Calculate the space hashes that contain collision objects.
+        // TODO: Check this algorithm. It is possible there might be something wrong with the way we round down the
+        //  x1, y1, x2, y2 position in the entire cells. The best way to check is to do a visualization of what cell
+        //  has been effected and by whom.
         int xHash1 = (int) x1 / xDiv;
         int yHash1 = (int) y1 / yDiv;
         int xHash2 = (int) x2 / xDiv;
