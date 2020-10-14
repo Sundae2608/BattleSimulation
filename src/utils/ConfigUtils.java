@@ -1,5 +1,6 @@
 package utils;
 
+import city_gen_model.CityStateParameters;
 import javafx.util.Pair;
 import model.GameEnvironment;
 import model.GameStats;
@@ -95,5 +96,13 @@ public final class ConfigUtils {
     public static PoliticalFaction readPoliticalFactionFromConfig(String filePath) throws IOException {
         JsonIO jsonIO = new AIAgentIO();
         return (PoliticalFaction) jsonIO.read(filePath);
+    }
+
+    /**
+     * Read city state parameter
+     */
+    public static CityStateParameters readCityStateParameters(String filePath) throws IOException {
+        JsonIO jsonIO = new CityStateParamsIO();
+        return (CityStateParameters) jsonIO.read(filePath);
     }
 }

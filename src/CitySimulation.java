@@ -4,10 +4,12 @@ import model.events.EventBroadcaster;
 import model.events.EventType;
 import model.events.MapEvent;
 import processing.core.PApplet;
+import utils.ConfigUtils;
 import view.components.Button;
 import view.components.CustomProcedure;
 import view.drawer.InfoDrawer;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,16 +32,23 @@ public class CitySimulation extends PApplet {
     public void setup() {
         infoDrawer = new InfoDrawer(this);
         eventBroadcaster = new EventBroadcaster();
-        cityState = new CityState(eventBroadcaster);
+
+        String cityStateParamsConfig = "src/configs/city_configs/city_state.json";
+        try {
+            cityState = new CityState(eventBroadcaster, ConfigUtils.readCityStateParameters(cityStateParamsConfig));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         progressionModel = new ProgressionModel();
         buttons = new ArrayList<>();
         buttons.add(new Button("Trigger Decay Event",
-                width-180, height-50, 280, 25, this,
+                width-180, height-50, 170, 25, this,
                 new CustomProcedure() {
                     @Override
                     public void proc() { eventBroadcaster.broadcastEvent(
                             new MapEvent(EventType.DESTROY_CITY,
-                                    0, 0, 0, 200, 500)); }
+                                    0, 0, 0, 50, 500)); }
                 }));
     }
 
@@ -51,7 +60,7 @@ public class CitySimulation extends PApplet {
         for (Button b : buttons) {
             b.display();
         }
-        infoDrawer.drawTextBox("City State: " + cityState.getNumHouses(), 20, height-20, 150);
+        infoDrawer.drawTextBox("Number of Houses: " + cityState.getCityStateParameters().getNumHouses(), 20, height-20, 150);
         cityState.update();
     }
 
