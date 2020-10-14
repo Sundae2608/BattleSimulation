@@ -165,7 +165,8 @@ public class UnitModifier {
                 if (PhysicUtils.checkLineCircleCollision(x1, y1, x2, y2, single.getX(), single.getY(), single.getRadius())) {
                     single.receiveDamage(o.getDamage());
                     break;  // Break the loop because once the bullet hits, it is no long effective.
-                    // TODO: Consider adding a Hitscan that allow "shoot through mechanics".
+                    // TODO: Consider adding a Hitscan that allow "shoot through mechanics". Even better if we specify
+                    //  how many objects the bullet can shoot through.
                 }
             }
         }
