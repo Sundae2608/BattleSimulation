@@ -1,34 +1,27 @@
 package city_gen_model;
 
 import city_gen_model.house_progression.DecayHouseProgression;
-import city_gen_model.house_progression.NominalHouseProgression;
 import model.events.*;
 
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CityState extends EventListener {
 
-    int numHouses;
+    CityStateParameters cityStateParameters;
+    ProgressionModel model;
 
-    ProgressionModel initialModel;
-    ProgressionModel currentModel;
-
-    List<MapEvent> activeEvents;
-
-    public CityState(EventBroadcaster inputBroadcaster) {
+    public CityState(EventBroadcaster inputBroadcaster, CityStateParameters cityStateParameters) {
         super(inputBroadcaster);
 
-        initialModel = new ProgressionModel();
-        initialModel.setHouseProgressionFunction(new NominalHouseProgression());
+        this.model = new ProgressionModel();
+        this.cityStateParameters = cityStateParameters;
+    }
 
-        currentModel = new ProgressionModel();
-        currentModel.copy(initialModel);
-
-        numHouses = 1000;
-
-        activeEvents = new ArrayList<>();
+    public CityStateParameters getCityStateParameters() {
+        return cityStateParameters;
     }
 
     @Override
@@ -36,32 +29,11 @@ public class CityState extends EventListener {
         if (!e.getClass().equals(MapEvent.class)) {
             return;
         }
-
-        MapEvent mapEvent = (MapEvent) e;
-        activeEvents.add(mapEvent);
+        model.registerEvent((MapEvent) e);
     }
 
-    public int getNumHouses() {
-        return numHouses;
-    }
 
     public void update() {
-
-        // Update model
-        for (MapEvent event : activeEvents){
-            event.setInterval(event.getInterval()-1);
-
-            if (event.getEventType() == EventType.DESTROY_CITY) {
-                if (event.getInterval() == 0) {
-                    currentModel.setHouseProgressionFunction(initialModel.getHouseProgression());
-                }
-                else {
-                    currentModel.setHouseProgressionFunction(new DecayHouseProgression());
-                }
-            }
-        }
-
-        activeEvents.removeIf(x -> x.getInterval() == 0);
-        numHouses = currentModel.getHouseProgression().progress(numHouses);
+        model.update(cityStateParameters);
     }
 }
