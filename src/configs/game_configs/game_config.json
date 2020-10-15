@@ -278,7 +278,7 @@
       "sustain_recovery": 0.5,
 
       "unit_spacing": 44,
-      "unit_speed": 2,
+      "unit_speed": 5,
       "unit_rotation_speed": 0.02,
       "unit_patience": 50,
 

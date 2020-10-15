@@ -99,7 +99,9 @@ public class UIDrawer extends BaseDrawer {
                 (float) (drawingPos[0] - 42),
                 (float) (drawingPos[1] - 111), 84, 111);
         applet.blendMode(PApplet.NORMAL);
-        applet.image(iconMap.get(unit.getUnitType()),
+        PImage image = iconMap.containsKey(unit.getUnitType()) ?
+                iconMap.get(unit.getUnitType()) : iconMap.get(UnitType.DEFAULT);
+        applet.image(image,
                 (float) (drawingPos[0] - 30),
                 (float) (drawingPos[1] - 92), 60, 60);
         applet.rectMode(PApplet.CENTER);
