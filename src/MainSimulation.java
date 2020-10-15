@@ -183,7 +183,7 @@ public class MainSimulation extends PApplet {
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
         String gameConfig = "src/configs/game_configs/game_config.json";
-        String battleConfig = "src/configs/battle_configs/ai_config_2v2.json";
+        String battleConfig = "src/configs/battle_configs/ai_config_1v1_gun.json";
         String visualConfig = "src/configs/visual_configs/visual_config.json";
         String audioConfig = "src/configs/audio_configs/audio_config.json";
         env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
@@ -879,6 +879,27 @@ public class MainSimulation extends PApplet {
                             unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
                         }
                         ((CatapultUnit) unitSelected).setUnitFiredAt(null);
+                    }
+                } else if (unitSelected instanceof GunInfantryUnit) {
+                    // Convert closest unit to click
+                    double[] screenPos = camera.getDrawingPosition(
+                            closestUnit.getAverageX(),
+                            closestUnit.getAverageY());
+
+                    // If it's an archer unit, check the faction and distance from the closest unit from view.camera
+                    if (closestUnit.getPoliticalFaction() != unitSelected.getPoliticalFaction() &&
+                            MathUtils.squareDistance(mouseX, mouseY, screenPos[0], screenPos[1]) <
+                                    CameraConstants.SQUARE_CLICK_ATTACK_DISTANCE) {
+                        ((GunInfantryUnit) unitSelected).setUnitFiredAt(closestUnit);
+                        if (unitSelected.getState() == UnitState.MOVING) {
+                            unitSelected.moveFormationKeptTo(unitSelected.getAnchorX(), unitSelected.getAnchorY(), unitSelected.getAnchorAngle());
+                        }
+                    } else {
+                        if (GameplayUtils.checkIfUnitCanMoveTowards(
+                                unitEndPointX, unitEndPointY, env.getConstructs())) {
+                            unitSelected.moveFormationKeptTo(unitEndPointX, unitEndPointY, unitEndAngle);
+                        }
+                        ((GunInfantryUnit) unitSelected).setUnitFiredAt(null);
                     }
                 } else {
                     if (GameplayUtils.checkIfUnitCanMoveTowards(

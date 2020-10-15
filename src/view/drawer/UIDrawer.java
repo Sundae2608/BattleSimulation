@@ -50,6 +50,8 @@ public class UIDrawer extends BaseDrawer {
         iconMap.put(UnitType.SKIRMISHER, applet.loadImage("imgs/BannerArt/iconSkirmisher.png"));
         iconMap.put(UnitType.BALLISTA, applet.loadImage("imgs/BannerArt/iconBallista.png"));
         iconMap.put(UnitType.CATAPULT, applet.loadImage("imgs/BannerArt/iconCatapult.png"));
+        iconMap.put(UnitType.GUN_INFANTRY, applet.loadImage("imgs/BannerArt/iconGunInfantry.png"));
+        iconMap.put(UnitType.DEFAULT, applet.loadImage("imgs/BannerArt/iconDefault.png"));
 
         // AI Icon
         aiIcon = applet.loadImage("imgs/AIIcon/aiIcon-01.png");
