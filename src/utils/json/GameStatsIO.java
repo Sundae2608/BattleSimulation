@@ -95,6 +95,12 @@ public class GameStatsIO extends JsonIO<GameStats> {
                         singleStats.catapultExplosionRange = getDouble(statsObject.get("catapult_explosion_range"));
                         break;
                     case GUN_INFANTRY:
+                        singleStats.reloadDelay = getInt(statsObject.get("reload_delay"));
+                        singleStats.boredDelay = getInt(statsObject.get("bored_delay"));
+                        singleStats.angleVariation = getDouble(statsObject.get("angle_variation"));
+                        singleStats.firingRange = getDouble(statsObject.get("firing_range"));
+                        singleStats.squaredFiringRange = singleStats.firingRange * singleStats.firingRange;
+                        singleStats.impactLifetime = getInt(statsObject.get("impact_lifetime"));
                         singleStats.bulletMinRange = getDouble(statsObject.get("bullet_min_range"));
                         singleStats.bulletMaxRange = getDouble(statsObject.get("bullet_max_range"));
                         singleStats.bulletDamage = getDouble(statsObject.get("bullet_damage"));

@@ -66,6 +66,9 @@ public class GameplayConstants {
     // TERRAIN_COLLISION_CHECK_PER_DIV x the number of div number that can fit on the line of sight
     public final static double TERRAIN_COLLISION_CHECK_PER_DIV = 10;
 
+    //
+    public final static int BULLET_LIFETIME = 3;
+
     // These are the sound constants
     public final static double CONE_ANGLE = 30; // degrees
     public final static double DEFAULT_SOUND_RADIUS = 0.1; // degrees

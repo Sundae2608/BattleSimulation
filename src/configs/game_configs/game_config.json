@@ -282,8 +282,13 @@
       "unit_rotation_speed": 0.02,
       "unit_patience": 50,
 
+      "reload_delay": 40,
+      "firing_range": 1800,
+      "bored_delay": 50,
+      "angle_variation": 0.03,
+      "impact_lifetime": 14,
       "bullet_min_range": 50,
-      "bullet_max_range": 500,
+      "bullet_max_range": 1500,
       "bullet_damage": 40
     }
   ]

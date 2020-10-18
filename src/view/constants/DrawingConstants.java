@@ -44,6 +44,10 @@ public class DrawingConstants {
     public final static int[] SURFACE_COLOR_SNOW = {225, 240, 240, 128};
     public final static int[] TREE_COLOR = {125, 95, 76, 255};
 
+    // Object colors
+    public final static int[] BULLET_COLOR = {255, 0, 0, 255};
+
+
     // Node points
     public final static int[] NODE_COLOR = {255, 87, 33, 128};
     public final static int[] EDGE_COLOR = {255, 87, 33, 128};

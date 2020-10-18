@@ -28,7 +28,11 @@ public class HitscanHasher {
      * a certain key based on its position.
      */
     public void updateObjects() {
-        objects.clear();
+        for (HitscanObject object : objects) {
+            object.decrementLifetime();
+        }
+        objects.removeIf(o->o.getLifetime() == 0);
+        return;
     }
 
     /**

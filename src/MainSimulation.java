@@ -6,6 +6,7 @@ import model.construct.Construct;
 import model.enums.*;
 import model.logger.Log;
 import model.monitor.MonitorEnum;
+import model.projectile_objects.HitscanObject;
 import model.settings.GameSettings;
 import model.surface.BaseSurface;
 import model.surface.ForestSurface;
@@ -608,11 +609,29 @@ public class MainSimulation extends PApplet {
         }
 
         // Draw the objects
-        ArrayList<BaseProjectile> objects = env.getUnitModifier().getProjectileHasher().getObjects();
-        for (BaseProjectile obj : objects) {
-            // TODO: Add probabilistic drawing here to reduce the number of arrow drawn when zooming out.
+        for (BaseProjectile obj : env.getUnitModifier().getProjectileHasher().getObjects()) {
             if (obj.isAlive()) objectDrawer.drawObject(obj, env.getTerrain());
         }
+
+        // Draw the bullet.
+        ArrayList<HitscanObject> objects = env.getUnitModifier().getHitscanHasher().getObjects();
+        int[] color = DrawingConstants.BULLET_COLOR;
+        strokeWeight(2);
+        stroke(color[0], color[1], color[2], color[3]);
+        beginShape(LINES);
+        for (HitscanObject o : objects) {
+            double unitX = MathUtils.quickCos((float) o.getTheta());
+            double unitY = MathUtils.quickSin((float) o.getTheta());
+            double x1 = o.getStartX() + unitX * o.getMinRange();
+            double y1 = o.getStartY() + unitY * o.getMinRange();
+            double x2 = o.getStartX() + unitX * o.getMaxRange();
+            double y2 = o.getStartY() + unitY * o.getMaxRange();
+            double[] pt1 = camera.getDrawingPosition(x1, y1, env.getTerrain().getZFromPos(x1, y1));
+            double[] pt2 = camera.getDrawingPosition(x2, y2, env.getTerrain().getZFromPos(x2, y2));
+            vertex((float) pt1[0], (float) pt1[1]);
+            vertex((float) pt2[0], (float) pt2[1]);
+        }
+        endShape();
 
         // Draw the construct.
         for (Construct construct : env.getConstructs()) {

@@ -23,7 +23,6 @@ public class AIAgent {
 
         for(AIUnitView otherUnitAIView: state.getAIUnits()){
             if(otherUnitAIView.getPoliticalFaction() != aiUnit.getPoliticalFaction()){
-                //System.out.println("current row" + aiUnit.getRow() + " cur col " + aiUnit.getCol() + " other Unit row" + otherUnitAIView.getRow() + " col " + otherUnitAIView.getCol());
                 if(Math.abs(aiUnit.getRow()- otherUnitAIView.getRow()) + Math.abs(aiUnit.getCol() - otherUnitAIView.getCol()) <= 1){
 
                     double goalX = otherUnitAIView.getBaseUnit().getGoalX();
@@ -78,7 +77,6 @@ public class AIAgent {
 
         double currentX = unit.getAverageX();
         double currentY = unit.getAverageY();
-        //System.out.println("Current position " + row + " " + col + " best position row " + bestRow + " col " + bestCol);
         
         if(bestRow == row && bestCol == col){
             return;
@@ -87,7 +85,6 @@ public class AIAgent {
         if (GameplayUtils.checkIfUnitCanMoveTowards(
                 goalCoord[0], goalCoord[1], env.getConstructs())) {
             double angle = MathUtils.atan2(goalCoord[1] - currentY, goalCoord[0] - currentX);
-            //System.out.println("Goal coordinates "  + goalCoord[0] + " " + goalCoord[1] + " " + angle + " Position " + bestRow + " " + bestCol);
             unit.moveFormationKeptTo(goalCoord[0], goalCoord[1], angle);
         }
     }

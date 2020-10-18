@@ -5,10 +5,7 @@ import model.settings.GameSettings;
 import model.singles.BaseSingle;
 import model.singles.CavalrySingle;
 import model.enums.SingleState;
-import model.units.ArcherUnit;
-import model.units.BallistaUnit;
-import model.units.BaseUnit;
-import model.units.CatapultUnit;
+import model.units.*;
 import model.utils.PhysicUtils;
 
 import java.util.*;
@@ -78,8 +75,8 @@ public class TroopHasher {
      * Return the list of potential collision candidates based on x, y positions
      */
     public ArrayList<BaseSingle> getCollisionObjects(double x, double y) {
-        int xHash = (int)x / xDiv;
-        int yHash = (int)y / yDiv;
+        int xHash = (int) x / xDiv;
+        int yHash = (int) y / yDiv;
 
         ArrayList<BaseSingle> collideList = new ArrayList<>();
         for (int i = -1; i <= 1; i++) {
@@ -98,8 +95,8 @@ public class TroopHasher {
      * Return the list of potential collision candidates based on x, y positions and impactDistance
      */
     public ArrayList<BaseSingle> getCollisionObjects(double x, double y, double impactDistance) {
-        int xHash = (int)x / xDiv;
-        int yHash = (int)y / yDiv;
+        int xHash = (int) x / xDiv;
+        int yHash = (int) y / yDiv;
         int extensionX = (int) (impactDistance / xDiv) + 1;
         int extensionY = (int) (impactDistance / yDiv) + 1;
 
@@ -117,6 +114,67 @@ public class TroopHasher {
     }
 
     /**
+     * Generate a list of integers that connect cell (x1, y1) to (x2, y2) based on Bresenham's line algorithm
+     */
+    private ArrayList<int[]> bresenhamLineAlgorithm(int x1, int y1, int x2, int y2) {
+        ArrayList<int[]> hashList = new ArrayList<>();
+        int x, y;
+        int dx, dy;
+        int incx, incy;
+        int balance;
+        if (x2 >= x1) {
+            dx = x2 - x1;
+            incx = 1;
+        } else {
+            dx = x1 - x2;
+            incx = -1;
+        }
+
+        if (y2 >= y1) {
+            dy = y2 - y1;
+            incy = 1;
+        } else {
+            dy = y1 - y2;
+            incy = -1;
+        }
+
+        x = x1;
+        y = y1;
+        if (dx >= dy) {
+            dy <<= 1;
+            balance = dy - dx;
+            dx <<= 1;
+
+            while (x != x2) {
+                hashList.add(new int[] {x, y});
+                if (balance >= 0) {
+                    y += incy;
+                    balance -= dx;
+                }
+                balance += dy;
+                x += incx;
+            }
+            hashList.add(new int[] {x, y});
+        } else {
+            dx <<= 1;
+            balance = dx - dy;
+            dy <<= 1;
+
+            while (y != y2) {
+                hashList.add(new int[] {x, y});
+                if (balance >= 0) {
+                    x += incx;
+                    balance -= dy;
+                }
+                balance += dx;
+                y += incy;
+            }
+            hashList.add(new int[] {x, y});
+        }
+        return hashList;
+    }
+
+    /**
      * Return the list of potential collision based on the line created by (x1, y1) and (x2, y2). We will use the
      * Bresenham's line algorithm for this job.
      */
@@ -130,35 +188,17 @@ public class TroopHasher {
         int yHash1 = (int) y1 / yDiv;
         int xHash2 = (int) x2 / xDiv;
         int yHash2 = (int) y2 / yDiv;
-        int deltaX = xHash2 - xHash1;
-        int deltaY = yHash2 - yHash1;
-        int deltaYSign = deltaY > 0 ? 1 : -1;
-        ArrayList<int[]> hashesList = new ArrayList<>();
-        if (deltaX == 0) {
-            // If delta X == 0, this mean that the list of hash squares are perfectly in vertical order.
-            for (int j = yHash1; j <= yHash2; j++) {
-                hashesList.add(new int[]{xHash1, j});
-            }
-        } else {
-            double deltaError = 1.0 * deltaY / deltaX;
-            double error = 0.0;
-            int j = yHash1;
-            for (int i = xHash1; i <= xHash2; i++) {
-                hashesList.add(new int[]{i, j});
-                error += deltaError;
-                if (error >= 0.5) {
-                    j += deltaYSign;
-                }
-            }
-        }
+        ArrayList<int[]> hashesList = bresenhamLineAlgorithm(xHash1, yHash1, xHash2, yHash2);
 
         // Get the list of objects that are in the hash cells potentially collide able with the line.
         ArrayList<BaseSingle> singles = new ArrayList<>();
         for (int i = 0; i < hashesList.size(); i++) {
             int[] hashCode = hashesList.get(i);
             long key = pairHash(hashCode[0], hashCode[1]);
-            for (BaseSingle single : hashMap.get(key)) {
-                singles.add(single);
+            if (hashMap.containsKey(key)) {
+                for (BaseSingle single : hashMap.get(key)) {
+                    singles.add(single);
+                }
             }
         }
         return singles;
@@ -190,8 +230,8 @@ public class TroopHasher {
                     !(gameSettings.isCavalryCollision() && (troop instanceof CavalrySingle))) continue;
 
             // Assign alive activeTroops to correct position
-            int xHash = (int)troop.getX() / xDiv;
-            int yHash = (int)troop.getY() / yDiv;
+            int xHash = (int) troop.getX() / xDiv;
+            int yHash = (int) troop.getY() / yDiv;
             long key = pairHash(xHash, yHash);
             if (!hashMap.containsKey(key)) {
                 hashMap.put(key, new ArrayList<>());
@@ -225,6 +265,10 @@ public class TroopHasher {
                 // Being under fire
                 if (unit instanceof ArcherUnit && ((ArcherUnit) unit).getUnitFiredAgainst() != null) {
                     activeUnits.add(((ArcherUnit) unit).getUnitFiredAgainst());
+                }
+
+                if (unit instanceof GunInfantryUnit && ((GunInfantryUnit) unit).getUnitFiredAgainst() != null) {
+                    activeUnits.add(((GunInfantryUnit) unit).getUnitFiredAgainst());
                 }
 
                 if (unit instanceof BallistaUnit && ((BallistaUnit) unit).getUnitFiredAgainst() != null) {

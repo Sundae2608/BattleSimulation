@@ -123,7 +123,8 @@ public class UnitModifier {
                     surfaceHasher.getCandidateTrees(single.getX(), single.getY());
             if (trees == null) continue;
             for (Tree tree : trees) {
-                if (PhysicUtils.checkPointCircleCollision(single.getX(), single.getY(), tree.getX(), tree.getY(), tree.getRadius())) {
+                if (PhysicUtils.checkPointCircleCollision(
+                        single.getX(), single.getY(), tree.getX(), tree.getY(), tree.getRadius())) {
                     PhysicUtils.treePushSingle(tree, single);
                 }
                 monitor.count(MonitorEnum.COLLISION_TROOP_AND_TREE);
@@ -155,15 +156,18 @@ public class UnitModifier {
         // Go through each hitscan objects, and perform a hitscan collision, which is basically a line circle collision.
         ArrayList<HitscanObject> objects = hitscanHasher.getObjects();
         for (HitscanObject o : objects) {
+            if (!o.isImpactful()) continue;
             double unitX = MathUtils.quickCos((float) o.getTheta());
             double unitY = MathUtils.quickSin((float) o.getTheta());
             double x1 = o.getStartX() + unitX * o.getMinRange();
             double y1 = o.getStartY() + unitY * o.getMinRange();
             double x2 = o.getStartX() + unitX * o.getMaxRange();
             double y2 = o.getStartY() + unitY * o.getMaxRange();
-            for (BaseSingle single : troopHasher.getCollisionObjectsFromLine(x1, y1, x2, y2)) {
+            ArrayList<BaseSingle> singles = troopHasher.getCollisionObjectsFromLine(x1, y1, x2, y2);
+            for (BaseSingle single : singles) {
                 if (PhysicUtils.checkLineCircleCollision(x1, y1, x2, y2, single.getX(), single.getY(), single.getRadius())) {
                     single.receiveDamage(o.getDamage());
+                    o.setImpactful(false);
                     break;  // Break the loop because once the bullet hits, it is no long effective.
                     // TODO: Consider adding a Hitscan that allow "shoot through mechanics". Even better if we specify
                     //  how many objects the bullet can shoot through.

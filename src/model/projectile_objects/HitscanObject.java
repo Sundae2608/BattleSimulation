@@ -1,5 +1,7 @@
 package model.projectile_objects;
 
+import model.constants.GameplayConstants;
+
 /**
  * A class of objects that represent projectile that flies so fast that it is more effective to just treatment as a line
  * and perform ray-casting collision. Example of these are all kinds of bullets.
@@ -24,6 +26,10 @@ public class HitscanObject {
     // Damage of the hitscan
     double damage;
 
+    // Life time
+    int lifetime;
+    boolean impactful;
+
     public HitscanObject(
             double x, double y, double z, double theta, double phi, double minRange, double maxRange, double damage) {
         this.startX = x;
@@ -34,6 +40,8 @@ public class HitscanObject {
         this.minRange = minRange;
         this.maxRange = maxRange;
         this.damage = damage;
+        this.lifetime = GameplayConstants.BULLET_LIFETIME;
+        this.impactful = true;
     }
 
     public double getStartX() {
@@ -66,5 +74,23 @@ public class HitscanObject {
 
     public double getDamage() {
         return damage;
+    }
+
+    public void decrementLifetime() {
+        if (lifetime > 0) {
+            lifetime--;
+        }
+    }
+
+    public int getLifetime() {
+        return lifetime;
+    }
+
+    public boolean isImpactful() {
+        return impactful;
+    }
+
+    public void setImpactful(boolean impactful) {
+        this.impactful = impactful;
     }
 }
