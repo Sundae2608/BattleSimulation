@@ -5,6 +5,8 @@ import model.constants.UniversalConstants;
 import model.enums.SingleState;
 import model.enums.PoliticalFaction;
 import model.enums.UnitState;
+import model.events.Event;
+import model.events.EventType;
 import model.projectile_objects.HitscanObject;
 import model.units.BaseUnit;
 import model.units.GunInfantryUnit;
@@ -136,11 +138,9 @@ public class GunInfantrySingle extends BaseSingle {
                         // Don't fire target if there is nothing to fire at.
                         if (shootingTarget == null) break;
 
-                        // TODO: Perform the shooting by adding a bullet object here.
-                        //  A great way to do bullet is to do:
-                        //  - Starting point (x, y, z) of the bullet.
-                        //  - Angle theta and phi of the bullet
-                        //  - Range of the bullet.
+                        // Shoot a bullet at the target direction
+                        // TODO: Potentially add some randomization of the angle to simulate the fact that the shooter
+                        //  can misaim a bit.
                         double theta = MathUtils.atan2(shootingTarget.y - y, shootingTarget.x - x);
                         double phi = MathUtils.atan2(
                                 MathUtils.quickDistance(x, y, shootingTarget.x, shootingTarget.y),
@@ -148,9 +148,12 @@ public class GunInfantrySingle extends BaseSingle {
                         );
                         HitscanObject bullet = new HitscanObject(
                                 x, y, z, theta, phi,
-                                singleStats.bulletMinRange, singleStats.bulletMaxRange, singleStats.bulletDamage
+                                singleStats.bulletMinRange, singleStats.bulletMaxRange, singleStats.bulletDamage,
+                                singleStats.bulletPush
                         );
                         hitscanHasher.addObject(bullet);
+                        // TODO: Put the broadcaster into each single. Each single should be able to broadcast as well.
+                        unit.getBroadcaster().broadcastEvent(new Event(EventType.MATCHLOCK_FIRE, x, y, z, theta));
 
                         // Reload the fire
                         reloadDelay = singleStats.reloadDelay;

@@ -33,9 +33,15 @@ public class VideoElementPlayer extends EventListener {
         switch (e.getEventType()) {
             case EXPLOSION:
                 elementType = VideoElementType.EXPLOSION;
+                break;
+            case MATCHLOCK_FIRE:
+                elementType = VideoElementType.MATCHLOCK_GUNFIRE;
+                break;
         }
         if (elementType != null && templateMap.containsKey(elementType)) {
-            elementArrayList.add(new VideoElement(e.getX(), e.getY(), e.getZ(), templateMap.get(elementType)));
+            elementArrayList.add(
+                    new VideoElement(e.getX(), e.getY(), e.getZ(), e.getAngle(),
+                    templateMap.get(elementType)));
         }
     }
 
@@ -50,11 +56,13 @@ public class VideoElementPlayer extends EventListener {
                 double[] drawingPos = camera.getDrawingPosition(element.x, element.y, element.z);
                 double zoom = camera.getZoomAtHeight(element.z);
                 PImage image = element.template.getSequence().get(element.frame);
-                applet.image(image,
-                        (float) (drawingPos[0] - image.width * zoom / 2),
-                        (float) (drawingPos[1] - image.height * zoom / 2),
+                applet.pushMatrix();
+                applet.translate((float) drawingPos[0], (float) drawingPos[1]);
+                applet.rotate((float) camera.getCameraAngleFromActualAngle(element.angle));
+                applet.image(image, 0, (float) (- image.height * zoom / 2),
                         (float) (image.width * zoom),
                         (float) (image.height * zoom));
+                applet.popMatrix();
                 element.step();
 
                 // And accept this element in the new array, as the element has not ended yet

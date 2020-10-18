@@ -104,6 +104,7 @@ public class GameStatsIO extends JsonIO<GameStats> {
                         singleStats.bulletMinRange = getDouble(statsObject.get("bullet_min_range"));
                         singleStats.bulletMaxRange = getDouble(statsObject.get("bullet_max_range"));
                         singleStats.bulletDamage = getDouble(statsObject.get("bullet_damage"));
+                        singleStats.bulletPush = getDouble(statsObject.get("bullet_push"));
                         break;
                     case CAVALRY:
                     case HORSE_ARCHER:

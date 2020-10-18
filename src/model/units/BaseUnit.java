@@ -1322,4 +1322,8 @@ public class BaseUnit {
     public void setTerrain(Terrain terrain) {
         this.terrain = terrain;
     }
+
+    public EventBroadcaster getBroadcaster() {
+        return broadcaster;
+    }
 }

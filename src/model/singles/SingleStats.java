@@ -66,4 +66,5 @@ public class SingleStats {
     public double bulletMinRange;
     public double bulletMaxRange;
     public double bulletDamage;
+    public double bulletPush;
 }

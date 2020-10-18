@@ -69,6 +69,18 @@
       "file": "audios/arrow/crowded_arrow_hit_light.mp3",
       "broadcast_type": "AMBIENT",
       "base_volume": 0.3
+    },
+    {
+      "audio_type": "MATCHLOCK_VOLLEY",
+      "file": "audios/gunfires/matchlock_double.mp3",
+      "broadcast_type": "AMBIENT",
+      "base_volume": 0.5
+    },
+    {
+      "audio_type": "MATCHLOCK_FIRE",
+      "file": "audios/gunfires/matchlock_single.mp3",
+      "broadcast_type": "BURST",
+      "base_volume": 0.4
     }
   ]
 }

@@ -24,6 +24,7 @@ public class DrawingSettings {
     private boolean drawPathfindingNodes;
     private boolean drawControlArrow;
     private boolean drawGameInfo;
+    private boolean drawHitscanLine;
 
     // Drawing settings for Procedural Content Generation Simulation.
     private boolean showNumAdjacentPolygons;
@@ -270,5 +271,13 @@ public class DrawingSettings {
     }
     public void setDrawRoads(boolean drawRoads) {
         this.drawRoads = drawRoads;
+    }
+
+    public boolean isDrawHitscanLine() {
+        return drawHitscanLine;
+    }
+
+    public void setDrawHitscanLine(boolean drawHitscanLine) {
+        this.drawHitscanLine = drawHitscanLine;
     }
 }

@@ -166,6 +166,11 @@ public class UnitModifier {
             ArrayList<BaseSingle> singles = troopHasher.getCollisionObjectsFromLine(x1, y1, x2, y2);
             for (BaseSingle single : singles) {
                 if (PhysicUtils.checkLineCircleCollision(x1, y1, x2, y2, single.getX(), single.getY(), single.getRadius())) {
+                    single.setxVel(single.getxVel() +
+                            MathUtils.quickCos((float) o.getTheta()) * o.getPush());
+                    single.setyVel(single.getyVel() +
+                            MathUtils.quickSin((float) o.getTheta()) * o.getPush());
+                    single.switchState(SingleState.SLIDING);
                     single.receiveDamage(o.getDamage());
                     o.setImpactful(false);
                     break;  // Break the loop because once the bullet hits, it is no long effective.

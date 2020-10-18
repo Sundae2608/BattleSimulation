@@ -68,6 +68,8 @@ public abstract class BaseCamera extends EventListener {
             case EXPLOSION:
                 cameraShakeLevel += CameraConstants.SHAKE_LEVEL_EXPLOSION;
                 break;
+            case MATCHLOCK_FIRE:
+                cameraShakeLevel += CameraConstants.SHAKE_LEVEL_MATCHLOCK_FIRE;
         }
         if (cameraShakeLevel > CameraConstants.SHAKE_LEVEL_MAX) {
             cameraShakeLevel = CameraConstants.SHAKE_LEVEL_MAX;

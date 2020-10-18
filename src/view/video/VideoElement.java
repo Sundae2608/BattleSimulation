@@ -8,10 +8,11 @@ public class VideoElement {
     VideoTemplate template;
     int frame;
 
-    public VideoElement(double inputX, double inputY, double inputZ, VideoTemplate inputTemplate) {
+    public VideoElement(double inputX, double inputY, double inputZ, double inputAngle, VideoTemplate inputTemplate) {
         x = inputX;
         y = inputY;
         z = inputZ;
+        angle = inputAngle;
         template = inputTemplate;
         frame = 0;
     }

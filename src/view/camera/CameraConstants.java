@@ -39,6 +39,7 @@ public class CameraConstants {
 
     // Shake level
     public final static double SHAKE_LEVEL_EXPLOSION = 20;
+    public final static double SHAKE_LEVEL_MATCHLOCK_FIRE = 5;
     public final static double SHAKE_LEVEL_SOLDIER_CHARGE = 100;
     public final static double SHAKE_LEVEL_CAVALRY_CHARGE = 450;
     public final static double SHAKE_LEVEL_AT_BASE = 300;

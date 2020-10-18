@@ -7,12 +7,21 @@ public class Event {
     double x;
     double y;
     double z;
+    double angle;
 
     public Event(EventType inputType, double inputX, double inputY, double inputZ) {
         eventType = inputType;
         x = inputX;
         y = inputY;
         z = inputZ;
+    }
+
+    public Event(EventType inputType, double inputX, double inputY, double inputZ, double inputAngle) {
+        eventType = inputType;
+        x = inputX;
+        y = inputY;
+        z = inputZ;
+        angle = inputAngle;
     }
 
     public EventType getEventType() {
@@ -29,5 +38,9 @@ public class Event {
 
     public double getZ() {
         return z;
+    }
+
+    public double getAngle() {
+        return angle;
     }
 }

@@ -3,6 +3,10 @@
     {
       "type": "EXPLOSION",
       "video_path": "videos/explosion/"
+    },
+    {
+      "type": "MATCHLOCK_GUNFIRE",
+      "video_path": "videos/matchlock_blast/"
     }
   ]
 }

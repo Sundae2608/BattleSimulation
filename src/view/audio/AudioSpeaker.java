@@ -92,6 +92,13 @@ public class AudioSpeaker extends EventListener {
                     audio = audioMap.get(AudioType.SOLDIER_CHARGE);
                     audio.playSound();
                     break;
+                case MATCHLOCK_VOLLEY:
+                    audio = audioMap.get(AudioType.MATCHLOCK_VOLLEY);
+                    break;
+                case MATCHLOCK_FIRE:
+                    audio = audioMap.get(AudioType.MATCHLOCK_FIRE);
+                    audio.playSound();
+                    break;
                 case EXPLOSION:
                     audio = audioMap.get(AudioType.EXPLOSION);
                     audio.playSound();

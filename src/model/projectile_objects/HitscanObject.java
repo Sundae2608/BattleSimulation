@@ -25,13 +25,14 @@ public class HitscanObject {
 
     // Damage of the hitscan
     double damage;
+    double push;
 
     // Life time
     int lifetime;
     boolean impactful;
 
     public HitscanObject(
-            double x, double y, double z, double theta, double phi, double minRange, double maxRange, double damage) {
+            double x, double y, double z, double theta, double phi, double minRange, double maxRange, double damage, double push) {
         this.startX = x;
         this.startY = y;
         this.startZ = z;
@@ -40,6 +41,7 @@ public class HitscanObject {
         this.minRange = minRange;
         this.maxRange = maxRange;
         this.damage = damage;
+        this.push = push;
         this.lifetime = GameplayConstants.BULLET_LIFETIME;
         this.impactful = true;
     }
@@ -74,6 +76,10 @@ public class HitscanObject {
 
     public double getDamage() {
         return damage;
+    }
+
+    public double getPush() {
+        return push;
     }
 
     public void decrementLifetime() {

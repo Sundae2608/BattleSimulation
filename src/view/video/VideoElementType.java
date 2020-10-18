@@ -1,5 +1,5 @@
 package view.video;
 
 public enum VideoElementType {
-    EXPLOSION,
+    EXPLOSION, MATCHLOCK_GUNFIRE
 }

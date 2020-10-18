@@ -135,7 +135,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setProcessSoundBounce(false);
         gameSettings.setUseRoundedSurfaceCollision(true);
         gameSettings.setProcessUnitVision(false);
-        gameSettings.setCreateAIAgent(true);
+        gameSettings.setCreateAIAgent(false);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
@@ -160,6 +160,7 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawPathfindingNodes(false);
         drawingSettings.setDrawControlArrow(false);
         drawingSettings.setDrawGameInfo(true);
+        drawingSettings.setDrawHitscanLine(false);
 
         // Audio settings
         audioSettings = new AudioSettings();
@@ -614,24 +615,27 @@ public class MainSimulation extends PApplet {
         }
 
         // Draw the bullet.
-        ArrayList<HitscanObject> objects = env.getUnitModifier().getHitscanHasher().getObjects();
-        int[] color = DrawingConstants.BULLET_COLOR;
-        strokeWeight(2);
-        stroke(color[0], color[1], color[2], color[3]);
-        beginShape(LINES);
-        for (HitscanObject o : objects) {
-            double unitX = MathUtils.quickCos((float) o.getTheta());
-            double unitY = MathUtils.quickSin((float) o.getTheta());
-            double x1 = o.getStartX() + unitX * o.getMinRange();
-            double y1 = o.getStartY() + unitY * o.getMinRange();
-            double x2 = o.getStartX() + unitX * o.getMaxRange();
-            double y2 = o.getStartY() + unitY * o.getMaxRange();
-            double[] pt1 = camera.getDrawingPosition(x1, y1, env.getTerrain().getZFromPos(x1, y1));
-            double[] pt2 = camera.getDrawingPosition(x2, y2, env.getTerrain().getZFromPos(x2, y2));
-            vertex((float) pt1[0], (float) pt1[1]);
-            vertex((float) pt2[0], (float) pt2[1]);
+        if (drawingSettings.isDrawHitscanLine()) {
+            ArrayList<HitscanObject> objects = env.getUnitModifier().getHitscanHasher().getObjects();
+            int[] color = DrawingConstants.BULLET_COLOR;
+            strokeWeight(2);
+            stroke(color[0], color[1], color[2], color[3]);
+            beginShape(LINES);
+            for (HitscanObject o : objects) {
+                double unitX = MathUtils.quickCos((float) o.getTheta());
+                double unitY = MathUtils.quickSin((float) o.getTheta());
+                double x1 = o.getStartX() + unitX * o.getMinRange();
+                double y1 = o.getStartY() + unitY * o.getMinRange();
+                double x2 = o.getStartX() + unitX * o.getMaxRange();
+                double y2 = o.getStartY() + unitY * o.getMaxRange();
+                double[] pt1 = camera.getDrawingPosition(x1, y1, env.getTerrain().getZFromPos(x1, y1));
+                double[] pt2 = camera.getDrawingPosition(x2, y2, env.getTerrain().getZFromPos(x2, y2));
+                vertex((float) pt1[0], (float) pt1[1]);
+                vertex((float) pt2[0], (float) pt2[1]);
+            }
+            endShape();
+            strokeWeight(0);
         }
-        endShape();
 
         // Draw the construct.
         for (Construct construct : env.getConstructs()) {
