@@ -2,7 +2,7 @@ package city_gen_model;
 
 import city_gen_model.house_progression.DecayHouseProgression;
 import city_gen_model.house_progression.NominalHouseProgression;
-import model.events.MapEvent;
+import city_gen_model.city_events.MapEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,7 @@ public class ProgressionModel {
 
     public void registerEvent(MapEvent mapEvent) {
         List<Progression> progressionList = new ArrayList<>();
-        switch (mapEvent.getEventType()) {
+        switch (mapEvent.getMapEventType()) {
             case DESTROY_CITY:
                 progressionList.add(new DecayHouseProgression());
                 break;

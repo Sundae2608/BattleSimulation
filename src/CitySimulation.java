@@ -1,8 +1,10 @@
 import city_gen_model.CityState;
 import city_gen_model.ProgressionModel;
+import city_gen_model.city_events.MapEventBroadcaster;
+import city_gen_model.city_events.MapEventType;
 import model.events.EventBroadcaster;
 import model.events.EventType;
-import model.events.MapEvent;
+import city_gen_model.city_events.MapEvent;
 import processing.core.PApplet;
 import utils.ConfigUtils;
 import view.components.Button;
@@ -23,7 +25,7 @@ public class CitySimulation extends PApplet {
 
     CityState cityState;
     ProgressionModel progressionModel;
-    EventBroadcaster eventBroadcaster;
+    MapEventBroadcaster eventBroadcaster;
 
     public void settings() {
         size(width, height);
@@ -31,7 +33,7 @@ public class CitySimulation extends PApplet {
 
     public void setup() {
         infoDrawer = new InfoDrawer(this);
-        eventBroadcaster = new EventBroadcaster();
+        eventBroadcaster = new MapEventBroadcaster();
 
         String cityStateParamsConfig = "src/configs/city_configs/city_state.json";
         try {
@@ -47,7 +49,7 @@ public class CitySimulation extends PApplet {
                 new CustomProcedure() {
                     @Override
                     public void proc() { eventBroadcaster.broadcastEvent(
-                            new MapEvent(EventType.DESTROY_CITY,
+                            new MapEvent(MapEventType.DESTROY_CITY,
                                     0, 0, 0, 50, 500)); }
                 }));
     }
