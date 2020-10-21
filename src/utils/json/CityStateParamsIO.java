@@ -1,5 +1,6 @@
 package utils.json;
 
+import city_gen_model.CityParamType;
 import city_gen_model.CityStateParameters;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,8 +24,8 @@ public class CityStateParamsIO extends JsonIO<CityStateParameters> {
         JSONObject config = (JSONObject) jsonObject.get("city_config");
 
         CityStateParameters cityParams = new CityStateParameters();
-        cityParams.setPopulation(getInt(config.get("population")));
-        cityParams.setNumHouses(getInt(config.get("num_houses")));
+        cityParams.setQuantity(CityParamType.PERSON, getInt(config.get("population")));
+        cityParams.setQuantity(CityParamType.HOUSE, getInt(config.get("num_houses")));
 
         return cityParams;
     }

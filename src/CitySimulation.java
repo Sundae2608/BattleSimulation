@@ -1,3 +1,4 @@
+import city_gen_model.CityParamType;
 import city_gen_model.CityState;
 import city_gen_model.ProgressionModel;
 import city_gen_model.city_events.MapEventBroadcaster;
@@ -62,7 +63,8 @@ public class CitySimulation extends PApplet {
         for (Button b : buttons) {
             b.display();
         }
-        infoDrawer.drawTextBox("Number of Houses: " + cityState.getCityStateParameters().getNumHouses(), 20, height-20, 150);
+        infoDrawer.drawTextBox("Number of Houses: " + cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE), 20, height-20, 150);
+        infoDrawer.drawTextBox("Number of Persons: " + cityState.getCityStateParameters().getQuantity(CityParamType.PERSON), 20, height-50, 150);
         cityState.update();
     }
 
