@@ -1,11 +1,8 @@
 package city_gen_model;
 
-import city_gen_model.house_progression.DecayHouseProgression;
-import city_gen_model.house_progression.NominalHouseProgression;
+import city_gen_model.progression.LinearFunction;
 import city_gen_model.city_events.MapEvent;
-import city_gen_model.house_progression.NominalPopulationProgression;
-import city_gen_model.house_progression.PopulationDecrease;
-import model.map_objects.House;
+import city_gen_model.progression.Progression;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,8 +21,8 @@ public class ProgressionModel {
             progressionFunctions.put(cityParamType, new ArrayList<>());
         }
 
-        progressionFunctions.get(CityParamType.HOUSE).add(new NominalHouseProgression());
-        progressionFunctions.get(CityParamType.PERSON).add(new NominalPopulationProgression());
+        progressionFunctions.get(CityParamType.HOUSE).add(new LinearFunction(2));
+        progressionFunctions.get(CityParamType.PERSON).add(new LinearFunction(1));
 
         eventProgressionMap = new HashMap<>();
     }
@@ -34,12 +31,6 @@ public class ProgressionModel {
         List<Progression> progressionList = new ArrayList<>();
         switch (mapEvent.getMapEventType()) {
             case DESTROY_CITY:
-                Progression houseDecrease = new DecayHouseProgression();
-                Progression populationDecrease = new PopulationDecrease();
-                progressionList.add(houseDecrease);
-                progressionList.add(populationDecrease);
-                progressionFunctions.get(CityParamType.HOUSE).add(houseDecrease);
-                progressionFunctions.get(CityParamType.PERSON).add(populationDecrease);
                 break;
             case FLOOD:
                 break;
@@ -62,10 +53,9 @@ public class ProgressionModel {
 
         eventProgressionMap.entrySet().removeIf(x -> x.getKey().getInterval() == 0);
 
-        for (List<Progression> progressionList : progressionFunctions.values()) {
-            for (Progression func : progressionList) {
-                cityParams.setQuantity(CityParamType.HOUSE, func.progress(cityParams.getQuantity(CityParamType.HOUSE)));
-                cityParams.setQuantity(CityParamType.PERSON, func.progress(cityParams.getQuantity(CityParamType.PERSON)));
+        for (CityParamType paramType : progressionFunctions.keySet()) {
+            for (Progression func : progressionFunctions.get(paramType)) {
+                cityParams.setQuantity(paramType, (int) func.getNextValue(cityParams.getQuantity(paramType)));
             }
         }
     }

@@ -9,12 +9,14 @@ public class CityState extends MapEventListener {
 
     CityStateParameters cityStateParameters;
     ProgressionModel model;
+    private int currentTimeStep;
 
     public CityState(MapEventBroadcaster inputBroadcaster, CityStateParameters cityStateParameters) {
         super(inputBroadcaster);
 
         this.model = new ProgressionModel();
         this.cityStateParameters = cityStateParameters;
+        this.currentTimeStep = 0;
     }
 
     public CityStateParameters getCityStateParameters() {
@@ -27,6 +29,7 @@ public class CityState extends MapEventListener {
     }
 
     public void update() {
-        model.update(cityStateParameters);
+        currentTimeStep++;
+        model.update(cityStateParameters, currentTimeStep);
     }
 }

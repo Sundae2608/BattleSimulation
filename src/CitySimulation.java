@@ -4,7 +4,7 @@ import city_gen_model.ProgressionModel;
 import city_gen_model.city_events.MapEventBroadcaster;
 import city_gen_model.city_events.MapEventType;
 import model.events.EventBroadcaster;
-import model.events.EventType;
+
 import city_gen_model.city_events.MapEvent;
 import processing.core.PApplet;
 import utils.ConfigUtils;
@@ -53,6 +53,15 @@ public class CitySimulation extends PApplet {
                             new MapEvent(MapEventType.DESTROY_CITY,
                                     0, 0, 0, 50, 500)); }
                 }));
+
+        buttons.add(new Button("Next",
+                width-180, height-80, 170, 25, this,
+                new CustomProcedure() {
+                    @Override
+                    public void proc() {
+                        cityState.update();
+                    }
+                }));
     }
 
     public void draw() {
@@ -65,7 +74,7 @@ public class CitySimulation extends PApplet {
         }
         infoDrawer.drawTextBox("Number of Houses: " + cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE), 20, height-20, 150);
         infoDrawer.drawTextBox("Number of Persons: " + cityState.getCityStateParameters().getQuantity(CityParamType.PERSON), 20, height-50, 150);
-        cityState.update();
+        //cityState.update();
     }
 
     public static void main(String... args){
