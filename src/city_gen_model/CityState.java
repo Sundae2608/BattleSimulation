@@ -30,6 +30,6 @@ public class CityState extends MapEventListener {
 
     public void update() {
         currentTimeStep++;
-        model.update(cityStateParameters, currentTimeStep);
+        model.update(cityStateParameters);
     }
 }
