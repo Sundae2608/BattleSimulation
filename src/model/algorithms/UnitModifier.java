@@ -171,7 +171,7 @@ public class UnitModifier {
                     single.setyVel(single.getyVel() +
                             MathUtils.quickSin((float) o.getTheta()) * o.getPush());
                     single.switchState(SingleState.SLIDING);
-                    single.receiveDamage(o.getDamage());
+                    single.receiveDamage(o.getDamage(), o.getTheta());
                     o.setImpactful(false);
                     break;  // Break the loop because once the bullet hits, it is no long effective.
                     // TODO: Consider adding a Hitscan that allow "shoot through mechanics". Even better if we specify
@@ -219,7 +219,7 @@ public class UnitModifier {
                 if (closestDistance < MathUtils.square(closestCandidate.getRadius()) / 4) {
                     // If distance to object is smaller than the diameter, count as an arrow hit
                     // Inflict some damage to the candidate
-                    closestCandidate.receiveDamage(((Arrow) obj).getDamage());
+                    closestCandidate.receiveDamage(((Arrow) obj).getDamage(), obj.getAngle());
                     // Once hit, the arrow becomes dead
                     obj.setAlive(false);
                     if (closestCandidate.getState() != SingleState.DEAD) {
@@ -269,7 +269,7 @@ public class UnitModifier {
                                     MathUtils.quickSin((float) angle) * ((Ballista) obj).getExplosionPush());
                             candidate.switchState(SingleState.SLIDING);
 
-                            candidate.receiveDamage(((Ballista) obj).getExplosionDamage());
+                            candidate.receiveDamage(((Ballista) obj).getExplosionDamage(), angle);
                             if (candidate.getState() == SingleState.DEAD) {
                                 deadContainer.add(candidate);
                             }
@@ -278,7 +278,7 @@ public class UnitModifier {
 
                     // If distance to object is smaller than the diameter, count as an arrow hit
                     // Inflict some damage to the candidate
-                    closestCandidate.receiveDamage(((Ballista) obj).getDamage());
+                    closestCandidate.receiveDamage(((Ballista) obj).getDamage(), obj.getAngle());
 
                     // Once hit, the arrow becomes dead
                     obj.setAlive(false);
@@ -324,8 +324,7 @@ public class UnitModifier {
                             candidate.setyVel(candidate.getyVel() +
                                     MathUtils.quickSin((float) angle) * ((Stone) obj).getExplosionPush());
                             candidate.switchState(SingleState.SLIDING);
-
-                            candidate.receiveDamage(((Stone) obj).getExplosionDamage());
+                            candidate.receiveDamage(((Stone) obj).getExplosionDamage(), angle);
                             if (candidate.getState() == SingleState.DEAD) {
                                 // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
                                 deadContainer.add(candidate);
