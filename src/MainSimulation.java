@@ -443,8 +443,6 @@ public class MainSimulation extends PApplet {
                     if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
-                    // TODO: Switch the draw using the current path instead of just the average position and goal
-                    //  position.
                     battleSignalDrawer.drawArrowPlan(
                             unit.getAverageX(), unit.getAverageY(),
                             unit.getGoalX(), unit.getGoalY(), env.getTerrain());
