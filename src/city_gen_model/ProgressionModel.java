@@ -1,5 +1,6 @@
 package city_gen_model;
 
+import city_gen_model.progression.ExponentialFunction;
 import city_gen_model.progression.LinearFunction;
 import city_gen_model.city_events.MapEvent;
 import city_gen_model.progression.Progression;
@@ -21,7 +22,7 @@ public class ProgressionModel {
             progressionFunctions.put(cityParamType, new ArrayList<>());
         }
 
-        progressionFunctions.get(CityParamType.HOUSE).add(new LinearFunction(2));
+        progressionFunctions.get(CityParamType.HOUSE).add(new ExponentialFunction(1.01));
         progressionFunctions.get(CityParamType.PERSON).add(new LinearFunction(1));
 
         eventProgressionMap = new HashMap<>();
@@ -46,8 +47,9 @@ public class ProgressionModel {
         for (MapEvent event : eventProgressionMap.keySet()){
             event.setInterval(event.getInterval()-1);
             if (event.getInterval() == 0) {
-                progressionFunctions.get(CityParamType.HOUSE).removeAll(eventProgressionMap.get(event));
-                progressionFunctions.get(CityParamType.PERSON).removeAll(eventProgressionMap.get(event));
+                for (CityParamType paramType : progressionFunctions.keySet()) {
+                    progressionFunctions.get(paramType).removeAll(eventProgressionMap.get(event));
+                }
             }
         }
 
