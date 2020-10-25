@@ -1,10 +1,10 @@
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
-import model.algorithms.geometry.*;
-import model.algorithms.geometry.house_generation.HouseGenerationSettings;
-import model.algorithms.geometry.house_generation.HouseSizeSettings;
-import model.algorithms.geometry.house_generation.HouseType;
-import model.algorithms.geometry.tree_generation.TreeFactory;
-import model.algorithms.geometry.tree_generation.TreeGenerationSettings;
+import city_gen_model.algorithms.geometry.*;
+import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettings;
+import city_gen_model.algorithms.geometry.house_generation.HouseSizeSettings;
+import city_gen_model.algorithms.geometry.house_generation.HouseType;
+import city_gen_model.algorithms.geometry.tree_generation.TreeFactory;
+import city_gen_model.algorithms.geometry.tree_generation.TreeGenerationSettings;
 import model.settings.MapGenerationMode;
 import model.map_objects.Tree;
 import model.utils.PhysicUtils;
@@ -25,8 +25,6 @@ import view.drawer.UIDrawer;
 import view.settings.DrawingSettings;
 
 import java.util.*;
-
-import static view.constants.DrawingConstants.ROAD_COLOR;
 
 public class PCGSimulation extends PApplet {
 
@@ -935,7 +933,7 @@ public class PCGSimulation extends PApplet {
 
         // Draw roads
         if (drawingSettings.isDrawRoads()) {
-            color = ROAD_COLOR;
+            color = DrawingConstants.ROAD_COLOR;
             stroke(color[0], color[1], color[2], 100);
             strokeWeight(3);
             beginShape(LINES);

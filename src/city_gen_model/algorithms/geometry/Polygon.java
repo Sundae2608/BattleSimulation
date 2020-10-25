@@ -1,7 +1,6 @@
-package model.algorithms.geometry;
+package city_gen_model.algorithms.geometry;
 
 import model.utils.MathUtils;
-import model.utils.PhysicUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;

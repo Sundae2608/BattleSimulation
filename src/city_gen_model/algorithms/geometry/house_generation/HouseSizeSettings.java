@@ -1,4 +1,4 @@
-package model.algorithms.geometry.house_generation;
+package city_gen_model.algorithms.geometry.house_generation;
 
 public class HouseSizeSettings {
     private double houseWidth;

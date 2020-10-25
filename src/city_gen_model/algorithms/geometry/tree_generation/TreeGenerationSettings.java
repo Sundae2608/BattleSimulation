@@ -1,4 +1,4 @@
-package model.algorithms.geometry.tree_generation;
+package city_gen_model.algorithms.geometry.tree_generation;
 
 public class TreeGenerationSettings {
     private double distanceFromEdge;

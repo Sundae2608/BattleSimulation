@@ -1,8 +1,4 @@
-package model.algorithms.geometry;
-
-import model.utils.MathUtils;
-
-import java.util.HashMap;
+package city_gen_model.algorithms.geometry;
 
 public class Vertex {
     double x;

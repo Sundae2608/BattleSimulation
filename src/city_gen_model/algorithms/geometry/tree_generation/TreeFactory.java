@@ -1,9 +1,9 @@
-package model.algorithms.geometry.tree_generation;
+package city_gen_model.algorithms.geometry.tree_generation;
 
-import model.algorithms.geometry.Edge;
-import model.algorithms.geometry.Polygon;
-import model.algorithms.geometry.PolygonHasher;
-import model.algorithms.geometry.Vertex;
+import city_gen_model.algorithms.geometry.Edge;
+import city_gen_model.algorithms.geometry.Polygon;
+import city_gen_model.algorithms.geometry.PolygonHasher;
+import city_gen_model.algorithms.geometry.Vertex;
 import model.map_objects.Tree;
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;

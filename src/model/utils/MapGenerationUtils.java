@@ -1,8 +1,8 @@
 package model.utils;
 
-import model.algorithms.geometry.Edge;
-import model.algorithms.geometry.Vertex;
-import model.algorithms.geometry.Polygon;
+import city_gen_model.algorithms.geometry.Edge;
+import city_gen_model.algorithms.geometry.Vertex;
+import city_gen_model.algorithms.geometry.Polygon;
 
 import java.util.ArrayList;
 import java.util.HashSet;

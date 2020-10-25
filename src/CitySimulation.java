@@ -1,5 +1,6 @@
 import city_gen_model.CityState;
 import city_gen_model.ProgressionModel;
+import city_gen_model.settings.CitySimulationSettings;
 import model.events.EventBroadcaster;
 import model.events.EventType;
 import model.events.MapEvent;
@@ -25,8 +26,13 @@ public class CitySimulation extends PApplet {
     ProgressionModel progressionModel;
     EventBroadcaster eventBroadcaster;
 
+    CitySimulationSettings citySimulationSettings;
+
     public void settings() {
         size(width, height);
+
+        citySimulationSettings = new CitySimulationSettings();
+        citySimulationSettings.setTimeDelaySec(0.25);
     }
 
     public void setup() {
@@ -53,15 +59,19 @@ public class CitySimulation extends PApplet {
     }
 
     public void draw() {
-        background(255);
+
+        // Update all backend
         for (Button b : buttons) {
             b.update();
         }
         for (Button b : buttons) {
             b.display();
         }
-        infoDrawer.drawTextBox("Number of Houses: " + cityState.getCityStateParameters().getNumHouses(), 20, height-20, 150);
         cityState.update();
+
+        // Start drawing the front end.
+        background(255);
+        infoDrawer.drawTextBox("Number of Houses: " + cityState.getCityStateParameters().getNumHouses(), 20, height-20, 150);
     }
 
     public static void main(String... args){
