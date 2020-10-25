@@ -3,7 +3,8 @@ package view.settings;
 public class DrawingSettings {
 
     // TODO(sonpham): Move this somewhere else. This drawer settings are now doing more than just drawing.
-    // TODO(sonpham): Probabaly convert all of this too boolean
+    // TODO(sonpham): Probabaly convert all of this too boolean because there is really only 2 rendering mode for these
+    //  settings.
     private RenderMode renderMode;
     private DrawingMode drawWeapon;
     private DrawingMode drawEye;
