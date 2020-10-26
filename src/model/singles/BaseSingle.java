@@ -251,11 +251,7 @@ public class BaseSingle {
                 GameplayConstants.HEIGHT_DIFF_MAX_BONUS_SCALE));
 
         // Bonus damage if attacking the single from the flank or from behind.
-        double angleFromSingle = MathUtils.atan2(y - other.y, x - other.x);
-        angleDiff = MathUtils.signedAngleDifference(angleFromSingle, other.angle);
-        if (angleDiff < GameplayConstants.FLANKING_ANGLE_SINGLE_THRESHOLD) {
-            damage *= GameplayConstants.FLANKING_BONUS_SINGLE_SCALE;
-        }
+        double damageAngle = MathUtils.atan2(y - other.y, x - other.x);
 
         // Bonus damage if attacking the unit from the flank or from behind, and that the attack single is hitting
         // from the outside.
@@ -270,16 +266,21 @@ public class BaseSingle {
         }
 
         // Other will receive the total damage
-        other.receiveDamage(damage);
+        other.receiveDamage(damage, damageAngle);
     }
 
     /**
      * Let the troop receive damage. Troop with health lower than 0 should die.
-     * TODO: Also, currently there are no differentiate between damage. But it could be nice to have receiveMeleeDamage
-     *  and receiveProjectile damage, with defense mechanism separate. A unit can be great at melee defense but weak
-     *  against projectile defense and vice versa.
      */
-    public void receiveDamage(double damage) {
+    public void receiveDamage(double damage, double damageAngle) {
+
+        // Check if the single should receive more damage due to the direction it receives the attack from.
+        double angleDiff = MathUtils.signedAngleDifference(damageAngle, angle);
+        if (angleDiff < GameplayConstants.FLANKING_ANGLE_SINGLE_THRESHOLD) {
+            damage *= GameplayConstants.FLANKING_BONUS_SINGLE_SCALE;
+        }
+
+        // Modify the damage by the single defense.
         damage = Math.max(GameplayConstants.MINIMUM_DAMAGE_RECEIVED, damage - singleStats.defense);
         hp -= damage;
         damageSustain += damage;

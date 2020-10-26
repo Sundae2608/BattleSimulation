@@ -7,8 +7,6 @@ import java.util.HashMap;
 
 /**
  * This class will hash all related projectiles
- * TODO: At the moment, Projectile Hashing is not really doing anything related to its Hash mechanism. Consider
- *  dropping all the hash mechanism and simply creates a container.
  */
 public class ProjectileHasher {
     private ArrayList<BaseProjectile> objects;

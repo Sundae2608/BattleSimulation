@@ -657,7 +657,6 @@ public class Main3DHexSimulation extends PApplet {
         // Draw the objects
         ArrayList<BaseProjectile> objects = env.getUnitModifier().getProjectileHasher().getObjects();
         for (BaseProjectile obj : objects) {
-            // TODO: Add probabilistic drawing here to reduce the number of arrow drawn when zooming out.
             if (obj.isAlive()) objectDrawer.drawObject(obj, env.getTerrain());
         }
 

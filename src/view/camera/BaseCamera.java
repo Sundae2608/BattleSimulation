@@ -46,7 +46,7 @@ public abstract class BaseCamera extends EventListener {
      */
     public void update() {
         if (cameraShakeLevel > 0) {
-            cameraShakeLevel -= CameraConstants.SHAKE_LEVEL_DROP;
+            cameraShakeLevel *= CameraConstants.SHAKE_LEVEL_DROP_RATIO;
         }
         xVariation = 1.0 * cameraShakeLevel /
                 CameraConstants.SHAKE_LEVEL_AT_BASE * CameraConstants.CAMERA_SHAKE_BASE;

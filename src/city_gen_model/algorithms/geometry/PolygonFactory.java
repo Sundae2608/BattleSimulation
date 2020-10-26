@@ -1,9 +1,9 @@
-package model.algorithms.geometry;
+package city_gen_model.algorithms.geometry;
 
-import model.algorithms.geometry.house_generation.HouseDirection;
-import model.algorithms.geometry.house_generation.HouseGenerationSettings;
-import model.algorithms.geometry.house_generation.HouseSizeSettings;
-import model.algorithms.geometry.house_generation.HouseType;
+import city_gen_model.algorithms.geometry.house_generation.HouseDirection;
+import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettings;
+import city_gen_model.algorithms.geometry.house_generation.HouseSizeSettings;
+import city_gen_model.algorithms.geometry.house_generation.HouseType;
 import model.utils.MathUtils;
 import model.utils.PhysicUtils;
 

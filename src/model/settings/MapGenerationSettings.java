@@ -1,7 +1,7 @@
 package model.settings;
 
-import model.algorithms.geometry.house_generation.HouseGenerationSettings;
-import model.algorithms.geometry.tree_generation.TreeGenerationSettings;
+import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettings;
+import city_gen_model.algorithms.geometry.tree_generation.TreeGenerationSettings;
 
 public class MapGenerationSettings {
 

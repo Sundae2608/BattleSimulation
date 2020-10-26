@@ -57,6 +57,7 @@ public class MainSimulation extends PApplet {
     BattleSignalDrawer battleSignalDrawer;
     ObjectDrawer objectDrawer;
     SingleDrawer singleDrawer;
+    SurfaceDrawer surfaceDrawer;
 
     /** Sound files */
     AudioSpeaker audioSpeaker;
@@ -235,6 +236,7 @@ public class MainSimulation extends PApplet {
         battleSignalDrawer = new BattleSignalDrawer(this, camera, drawingSettings);
         objectDrawer = new ObjectDrawer(this, camera, shapeDrawer, drawingSettings);
         singleDrawer = new SingleDrawer(this, env, camera, shapeDrawer, drawingSettings);
+        surfaceDrawer = new SurfaceDrawer(this, env, camera);
 
         /** Setup video element player */
         try {
@@ -418,30 +420,7 @@ public class MainSimulation extends PApplet {
         // Draw the surface.
         if (drawingSettings.isDrawSurface()) {
             for (BaseSurface surface : env.getSurfaces()) {
-                int[] surfaceColor = DrawingUtils.getSurfaceColor(surface);
-                fill(surfaceColor[0], surfaceColor[1], surfaceColor[2], surfaceColor[3]);
-                double[][] pts = surface.getSurfaceBoundary();
-                beginShape();
-                for (int i = 0; i < pts.length; i++) {
-                    // TODO: This is an inefficient part, the height of the object is recalculated all the time, even
-                    //  though it is a very static value.
-                    double[] drawingPts = camera.getDrawingPosition(pts[i][0], pts[i][1],
-                            env.getTerrain().getZFromPos(pts[i][0], pts[i][1]));
-                    vertex((float) drawingPts[0], (float) drawingPts[1]);
-                }
-                endShape(CLOSE);
-
-                if (surface.getType() == SurfaceType.FOREST) {
-                    for (Tree tree : ((ForestSurface) surface).getTrees()) {
-                        int[] treeColor = DrawingConstants.TREE_COLOR;
-                        double height = env.getTerrain().getZFromPos(tree.getX(), tree.getY());
-                        fill(treeColor[0], treeColor[1], treeColor[2], treeColor[3]);
-                        double[] drawingPosition = camera.getDrawingPosition(tree.getX(), tree.getY(),
-                                height);
-                        circle((float) drawingPosition[0], (float) drawingPosition[1],
-                                (float) (tree.getRadius() * 2 * camera.getZoomAtHeight(height)));
-                    }
-                }
+                surfaceDrawer.drawSurface(surface);
             }
         }
 
@@ -464,8 +443,6 @@ public class MainSimulation extends PApplet {
                     if (unit == unitSelected) continue;
                     int[] color = DrawingUtils.getFactionColor(unit.getPoliticalFaction());
                     fill(color[0], color[1], color[2], (int) (Math.min(1.0 * planCounter / 30, 0.90) * 255));
-                    // TODO: Switch the draw using the current path instead of just the average position and goal
-                    //  position.
                     battleSignalDrawer.drawArrowPlan(
                             unit.getAverageX(), unit.getAverageY(),
                             unit.getGoalX(), unit.getGoalY(), env.getTerrain());

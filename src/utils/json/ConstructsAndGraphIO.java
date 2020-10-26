@@ -3,6 +3,7 @@ package utils.json;
 import javafx.util.Pair;
 import model.algorithms.pathfinding.Graph;
 import model.construct.Construct;
+import model.construct.ConstructType;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,7 +31,7 @@ public class ConstructsAndGraphIO extends JsonIO<Pair<Graph, ArrayList<Construct
         JSONArray constructsArray = (JSONArray) jsonObject.get("constructs");
         for(Object obj : constructsArray) {
             JSONObject constructObj = (JSONObject) obj;
-            String name = (String) constructObj.get("name");
+            ConstructType type = ConstructType.valueOf((String) constructObj.get("type"));
             JSONArray ptsArray = (JSONArray) constructObj.get("boundary_points");
             int numPts = ptsArray.size();
             ArrayList<double[]> pts = new ArrayList<>();
@@ -41,7 +42,7 @@ public class ConstructsAndGraphIO extends JsonIO<Pair<Graph, ArrayList<Construct
                 };
                 pts.add(newPt);
             }
-            constructs.add(new Construct(name, pts));
+            constructs.add(new Construct(type, pts));
         }
 
         // Read all the graph information.

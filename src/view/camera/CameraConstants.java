@@ -45,5 +45,5 @@ public class CameraConstants {
     public final static double SHAKE_LEVEL_AT_BASE = 300;
     public final static double SHAKE_LEVEL_MAX = 300;
     public final static double CAMERA_SHAKE_BASE = 20;
-    public final static double SHAKE_LEVEL_DROP = 1.5;
+    public final static double SHAKE_LEVEL_DROP_RATIO = 0.95;
 }

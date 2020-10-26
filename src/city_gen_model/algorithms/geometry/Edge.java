@@ -1,4 +1,4 @@
-package model.algorithms.geometry;
+package city_gen_model.algorithms.geometry;
 
 import model.utils.MathUtils;
 

@@ -1,10 +1,10 @@
 package model.map_objects;
 
 import model.construct.Construct;
+import model.construct.ConstructType;
 
 public class House extends Construct {
-
-    public House(String inputName, double[][] points) {
-        super(inputName, points);
+    public House(double[][] points) {
+        super(ConstructType.HOUSE, points);
     }
 }
