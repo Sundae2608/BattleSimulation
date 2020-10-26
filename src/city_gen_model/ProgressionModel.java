@@ -48,8 +48,11 @@ public class ProgressionModel {
                 case FACTORY:
                     defaultProgressionFunctions.put(cityParamType, new LinearFunction(7));
                     break;
-                default:
+                case COST_OF_LIVING:
                     defaultProgressionFunctions.put(cityParamType, new LinearFunction(8));
+                    break;
+                default:
+                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(20));
             }
         }
 
@@ -76,6 +79,19 @@ public class ProgressionModel {
             case LOWER_TAX:
                 eventProgressionFunctions.get(CityParamType.PERSON).add(new ExponentialFunction(1.08));
                 eventProgressionFunctions.get(CityParamType.MARKET).add(new LinearFunction(20));
+                break;
+            case AGRICULTURE_CULTIVATION:
+                eventProgressionFunctions.get(CityParamType.FARM).add(new LinearFunction(10));
+                break;
+            case PUBLIC_WELFARE:
+                eventProgressionFunctions.get(CityParamType.COST_OF_LIVING).add(new LinearFunction(-10));
+                eventProgressionFunctions.get(CityParamType.SCHOOL).add(new LinearFunction(20));
+                break;
+            case FREE_EXCHANGE_OF_IDEAS:
+                eventProgressionFunctions.get(CityParamType.FACTORY).add(new LinearFunction(20));
+                break;
+            case ANTI_HERESY:
+                eventProgressionFunctions.get(CityParamType.RELIGIOUS_BUILDING).add(new LinearFunction(-20));
                 break;
             default:
                 break;

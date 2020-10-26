@@ -8,5 +8,6 @@ public enum CityParamType {
     SCHOOL,
     RELIGIOUS_BUILDING,
     GOVERNMENT_BUILDING,
-    FACTORY
+    FACTORY,
+    COST_OF_LIVING
 }
