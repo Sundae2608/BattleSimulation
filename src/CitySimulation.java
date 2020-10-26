@@ -1,5 +1,6 @@
 import city_gen_model.CityParamType;
 import city_gen_model.CityState;
+import city_gen_model.CityStateParameters;
 import city_gen_model.ProgressionModel;
 import city_gen_model.city_events.MapEventBroadcaster;
 import city_gen_model.city_events.MapEventType;
@@ -25,7 +26,6 @@ public class CitySimulation extends PApplet {
     List<Button> buttons;
 
     CityState cityState;
-    ProgressionModel progressionModel;
     MapEventBroadcaster eventBroadcaster;
 
     public void settings() {
@@ -43,16 +43,20 @@ public class CitySimulation extends PApplet {
             e.printStackTrace();
         }
 
-        progressionModel = new ProgressionModel();
         buttons = new ArrayList<>();
-        buttons.add(new Button("Trigger Decay Event",
-                width-180, height-50, 170, 25, this,
-                new CustomProcedure() {
-                    @Override
-                    public void proc() { eventBroadcaster.broadcastEvent(
-                            new MapEvent(MapEventType.DESTROY_CITY,
-                                    0, 0, 0, 50, 500)); }
-                }));
+
+        int i = 0;
+        for (MapEventType mapEventType : MapEventType.values()) {
+            buttons.add(new Button(mapEventType.toString(),
+                    width-180, 20+i*30, 170, 25, this,
+                    new CustomProcedure() {
+                        @Override
+                        public void proc() { eventBroadcaster.broadcastEvent(
+                                new MapEvent(mapEventType,
+                                        0, 0, 0, 50, 500)); }
+                    }));
+            i++;
+        }
 
         buttons.add(new Button("Next",
                 width-180, height-80, 170, 25, this,
@@ -72,9 +76,12 @@ public class CitySimulation extends PApplet {
         for (Button b : buttons) {
             b.display();
         }
-        infoDrawer.drawTextBox("Number of Houses: " + cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE), 20, height-20, 150);
-        infoDrawer.drawTextBox("Number of Persons: " + cityState.getCityStateParameters().getQuantity(CityParamType.PERSON), 20, height-50, 150);
-        //cityState.update();
+
+        int i = 0;
+        for (CityParamType cityParamType : CityParamType.values()) {
+            infoDrawer.drawTextBox(cityParamType + ": " + cityState.getCityStateParameters().getQuantity(cityParamType), 20, 20 * i +20, 150);
+            i++;
+        }
     }
 
     public static void main(String... args){

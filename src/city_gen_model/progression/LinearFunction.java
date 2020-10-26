@@ -1,13 +1,20 @@
 package city_gen_model.progression;
 
 public class LinearFunction implements Progression {
-    private double delta;
-    public LinearFunction(double delta) {
-        this.delta = delta;
+
+    private double rateOfChange;
+
+    public LinearFunction(double rate) {
+        this.rateOfChange = rate;
     }
 
     @Override
     public double getNextValue(int currentValue) {
-        return currentValue + delta;
+        return currentValue + rateOfChange;
+    }
+
+    @Override
+    public double getRateOfChange() {
+        return rateOfChange;
     }
 }

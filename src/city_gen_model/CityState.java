@@ -13,7 +13,7 @@ public class CityState extends MapEventListener {
     public CityState(MapEventBroadcaster inputBroadcaster, CityStateParameters cityStateParameters) {
         super(inputBroadcaster);
 
-        this.model = new ProgressionModel();
+        this.model = new ProgressionModel(cityStateParameters);
         this.cityStateParameters = cityStateParameters;
     }
 
@@ -27,6 +27,6 @@ public class CityState extends MapEventListener {
     }
 
     public void update() {
-        model.update(cityStateParameters);
+        model.update();
     }
 }
