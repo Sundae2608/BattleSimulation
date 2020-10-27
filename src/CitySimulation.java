@@ -75,6 +75,7 @@ public class CitySimulation extends PApplet {
         // Drawing settings
         drawingSettings = new DrawingSettings();
         drawingSettings.setDrawHouses(true);
+        drawingSettings.setDrawRiver(true);
 
         // City simulation settings
         citySimulationSettings = new CitySimulationSettings();
@@ -303,6 +304,36 @@ public class CitySimulation extends PApplet {
 
         // Draw terrain
         mapDrawer.drawTerrainLine(terrain);
+
+        // Draw river
+        if (drawingSettings.isDrawRiver()) {
+            int[] color = DrawingConstants.POLYGON_RIVER_COLOR;
+            double[][] boundaryPts = cityEnvironment.getRiverPolygon().getBoundaryPoints();
+            if (camera.boundaryPointsAreVisible(boundaryPts)) {
+                // Determine the color of the polygon
+                double[] mousePosition = camera.getActualPositionFromScreenPosition(mouseX, mouseY);
+                if (PhysicUtils.checkPolygonPointCollision(boundaryPts, mousePosition[0], mousePosition[1])) {
+                    stroke(color[0],color[1],color[2],150);
+                    strokeWeight(4);
+                } else {
+                    stroke(color[0],color[1],color[2],100);
+                    strokeWeight(4);
+                }
+                fill(color[0],color[1],color[2],128);
+                beginShape();
+                for (int i = 0; i < boundaryPts.length; i++) {
+                    double x = boundaryPts[i][0];
+                    double y = boundaryPts[i][1];
+                    double[] drawingPt = camera.getDrawingPosition(x, y, terrain.getZFromPos(x, y));
+                    if (drawingSettings.isDrawRiverAsCurved()) {
+                        curveVertex((float) drawingPt[0], (float) drawingPt[1]);
+                    } else {
+                        vertex((float) drawingPt[0], (float) drawingPt[1]);
+                    }
+                }
+                endShape(CLOSE);
+            }
+        }
 
         // Draw houses
         if (drawingSettings.isDrawHouses()) {

@@ -54,6 +54,9 @@ public class CityEnvironment {
     CityState cityState;
     EventBroadcaster broadcaster;
 
+    // Certain polygons
+    Polygon riverPolygon;
+
     // Random number that generates the city
     int cityGenerationSeed;
 
@@ -108,7 +111,6 @@ public class CityEnvironment {
         PolygonHasher polygonHasher;
         PolygonSystem polygonSystem;
         PolygonSystem outerWallSystem;
-        Polygon riverPolygon;
         Polygon cityCenterPolygon;
         Polygon cityOuterWallPolygon;
         ArrayList<Polygon> housePolygons;
@@ -516,5 +518,9 @@ public class CityEnvironment {
 
     public HashSet<House> getHouses() {
         return houses;
+    }
+
+    public Polygon getRiverPolygon() {
+        return riverPolygon;
     }
 }
