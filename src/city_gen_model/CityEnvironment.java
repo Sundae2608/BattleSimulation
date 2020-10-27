@@ -2,8 +2,8 @@ package city_gen_model;
 
 import city_gen_model.algorithms.geometry.*;
 import city_gen_model.algorithms.geometry.tree_generation.TreeFactory;
+import city_gen_model.city_events.MapEventBroadcaster;
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
-import model.events.EventBroadcaster;
 import model.map_objects.House;
 import model.map_objects.Tree;
 import model.settings.MapGenerationMode;
@@ -52,14 +52,14 @@ public class CityEnvironment {
     HashSet<Tree> trees;
     HashSet<House> houses;
     CityState cityState;
-    EventBroadcaster broadcaster;
+    MapEventBroadcaster broadcaster;
 
     // Random number that generates the city
     int cityGenerationSeed;
 
     public CityEnvironment(CityState cityState,
                            Terrain terrain,
-                           EventBroadcaster eventBroadcaster,
+                           MapEventBroadcaster eventBroadcaster,
                            MapGenerationSettings mapGenerationSettings) {
         this.cityState = cityState;
         this.terrain = terrain;
@@ -74,9 +74,9 @@ public class CityEnvironment {
     public void step() {
         // TODO: Put a city parameters called "deltaParams" in the city state. This is a fairly ugly way to calculate
         //  difference in the number of houses.
-        int oldNumHouses = cityState.cityStateParameters.getNumHouses();
+        int oldNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE);
         cityState.update();
-        int deltaNumHouses = cityState.cityStateParameters.getNumHouses() - oldNumHouses;
+        int deltaNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE) - oldNumHouses;
         // TODO: Divide by 4 is somewhat ad hoc. Remove this.
         int newHouses = deltaNumHouses;
         if (newHouses > 0) {
@@ -88,7 +88,8 @@ public class CityEnvironment {
             // If the number of new houses are negative, we need to randomly remove houses.
             int removeHouses = -newHouses;
             ArrayList<House> currentHouses = new ArrayList<>(houses);
-            for (int i = 0; i < removeHouses; i++) {
+            int numHouses = currentHouses.size();
+            for (int i = 0; i < numHouses && i < removeHouses; i++) {
                 houses.remove(currentHouses.get(i));
                 housePriorityQueue.add(currentHouses.get(i));
             }
