@@ -25,7 +25,6 @@ public class ProgressionModel {
             eventProgressionFunctions.put(cityParamType, new ArrayList<>());
 
             switch (cityParamType) {
-
                 case PERSON:
                     defaultProgressionFunctions.put(cityParamType, new ExponentialFunction(1.02));
                     break;
@@ -60,7 +59,6 @@ public class ProgressionModel {
     }
 
     public void registerEvent(MapEvent mapEvent) {
-        List<Progression> progressionList = new ArrayList<>();
         switch (mapEvent.getMapEventType()) {
             case DESTROY_CITY:
                 addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-4));
