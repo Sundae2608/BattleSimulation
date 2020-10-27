@@ -18,6 +18,8 @@ public class ProgressionModel {
     public ProgressionModel(CityStateParameters cityParams) {
         defaultProgressionFunctions = new HashMap<>();
         eventProgressionFunctions = new HashMap<>();
+        eventProgressionMap = new HashMap<>();
+        cityStateParameters = cityParams;
 
         for (CityParamType cityParamType : CityParamType.values()) {
             eventProgressionFunctions.put(cityParamType, new ArrayList<>());
@@ -55,10 +57,6 @@ public class ProgressionModel {
                     defaultProgressionFunctions.put(cityParamType, new LinearFunction(20));
             }
         }
-
-        eventProgressionMap = new HashMap<>();
-
-        cityStateParameters = cityParams;
     }
 
     public void registerEvent(MapEvent mapEvent) {
@@ -124,7 +122,6 @@ public class ProgressionModel {
                             .getQuantity(paramType)));
                 }
             }
-
         }
     }
 }
