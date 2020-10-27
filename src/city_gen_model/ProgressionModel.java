@@ -65,38 +65,41 @@ public class ProgressionModel {
         List<Progression> progressionList = new ArrayList<>();
         switch (mapEvent.getMapEventType()) {
             case DESTROY_CITY:
-                eventProgressionFunctions.get(CityParamType.PERSON).add(new LinearFunction(-4));
+                addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-4));
                 break;
             case FLOOD:
                 cityStateParameters.setQuantity(CityParamType.HOUSE,
                         cityStateParameters.getQuantity(CityParamType.HOUSE)/2);
-
-                eventProgressionFunctions.get(CityParamType.HOUSE)
-                        .add(new LinearFunction(defaultProgressionFunctions
-                                .get(CityParamType.HOUSE)
-                                .getRateOfChange()/2));
+                addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-1));
                 break;
             case LOWER_TAX:
-                eventProgressionFunctions.get(CityParamType.PERSON).add(new ExponentialFunction(1.08));
-                eventProgressionFunctions.get(CityParamType.MARKET).add(new LinearFunction(20));
+                addFunction(mapEvent, CityParamType.PERSON, new ExponentialFunction(1.08));
+                addFunction(mapEvent, CityParamType.MARKET, new LinearFunction(20));
                 break;
             case AGRICULTURE_CULTIVATION:
-                eventProgressionFunctions.get(CityParamType.FARM).add(new LinearFunction(10));
+                addFunction(mapEvent, CityParamType.FARM, new LinearFunction(20));
                 break;
             case PUBLIC_WELFARE:
-                eventProgressionFunctions.get(CityParamType.COST_OF_LIVING).add(new LinearFunction(-10));
-                eventProgressionFunctions.get(CityParamType.SCHOOL).add(new LinearFunction(20));
+                addFunction(mapEvent, CityParamType.COST_OF_LIVING, new LinearFunction(-10));
+                addFunction(mapEvent, CityParamType.SCHOOL, new LinearFunction(20));
                 break;
             case FREE_EXCHANGE_OF_IDEAS:
-                eventProgressionFunctions.get(CityParamType.FACTORY).add(new LinearFunction(20));
+                addFunction(mapEvent, CityParamType.FACTORY, new LinearFunction(20));
                 break;
             case ANTI_HERESY:
-                eventProgressionFunctions.get(CityParamType.RELIGIOUS_BUILDING).add(new LinearFunction(-20));
+                addFunction(mapEvent, CityParamType.RELIGIOUS_BUILDING, new LinearFunction(-20));
                 break;
             default:
                 break;
         }
-        eventProgressionMap.put(mapEvent, progressionList);
+    }
+
+    private void addFunction(MapEvent mapEvent, CityParamType cityParamType, Progression function) {
+        eventProgressionFunctions.get(cityParamType).add(function);
+        if (!eventProgressionMap.containsKey(mapEvent)) {
+            eventProgressionMap.put(mapEvent, new ArrayList<>());
+        }
+        eventProgressionMap.get(mapEvent).add(function);
     }
 
     public void update() {

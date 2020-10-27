@@ -1,7 +1,6 @@
 import city_gen_model.CityParamType;
 import city_gen_model.CityEnvironment;
 import city_gen_model.CityState;
-import city_gen_model.CityStateParameters;
 import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettings;
 import city_gen_model.algorithms.geometry.house_generation.HouseSizeSettings;
 import city_gen_model.algorithms.geometry.house_generation.HouseType;
@@ -9,11 +8,8 @@ import city_gen_model.algorithms.geometry.tree_generation.TreeGenerationSettings
 import city_gen_model.settings.CitySimulationSettings;
 import city_gen_model.city_events.MapEventBroadcaster;
 import city_gen_model.city_events.MapEventType;
-import model.events.EventBroadcaster;
 
 import city_gen_model.city_events.MapEvent;
-import model.events.EventType;
-import model.events.MapEvent;
 import model.map_objects.House;
 import model.settings.MapGenerationMode;
 import model.settings.MapGenerationSettings;
@@ -66,7 +62,6 @@ public class CitySimulation extends PApplet {
     CityState cityState;
     MapEventBroadcaster eventBroadcaster;
     CityEnvironment cityEnvironment;
-    EventBroadcaster eventBroadcaster;
 
     // Camera
     BaseCamera camera;
@@ -185,7 +180,6 @@ public class CitySimulation extends PApplet {
 
 
         // Initialize city environment
-        eventBroadcaster = new EventBroadcaster();
         String cityStateParamsConfig = "src/configs/city_configs/city_state.json";
         try {
             cityState = new CityState(eventBroadcaster, ConfigUtils.readCityStateParameters(cityStateParamsConfig));
@@ -205,31 +199,15 @@ public class CitySimulation extends PApplet {
         int i = 0;
         for (MapEventType mapEventType : MapEventType.values()) {
             buttons.add(new Button(mapEventType.toString(),
-                    width-180, 20+i*30, 170, 25, this,
+                    width-220, 20+i*30, 200, 25, this,
                     new CustomProcedure() {
                         @Override
                         public void proc() { eventBroadcaster.broadcastEvent(
                                 new MapEvent(mapEventType,
-                                        0, 0, 0, 50, 500)); }
+                                        0, 0, 0, 10, 500)); }
                     }));
             i++;
         }
-
-        buttons.add(new Button("Next",
-                width-180, height-80, 170, 25, this,
-                new CustomProcedure() {
-                    @Override
-                    public void proc() {
-                        cityState.update();
-                    }
-        buttons.add(new Button("Trigger Decay Event",
-                INPUT_WIDTH -180, INPUT_HEIGHT -50, 170, 25, this,
-                new CustomProcedure() {
-                    @Override
-                    public void proc() { eventBroadcaster.broadcastEvent(
-                            new MapEvent(EventType.DESTROY_CITY,
-                                    0, 0, 0, 50, 500)); }
-                }));
 
         // Set up camera.
         camera = new HexCamera(
@@ -365,7 +343,7 @@ public class CitySimulation extends PApplet {
         }
 
         infoDrawer.drawTextBox("Number of Houses: " +
-                cityState.getCityStateParameters().getNumHouses(), 20, INPUT_HEIGHT -20, 200);
+                cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE), 20, INPUT_HEIGHT -20, 200);
         for (Button b : buttons) {
             b.display();
         }
