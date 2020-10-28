@@ -220,12 +220,6 @@ public class CitySimulation extends PApplet {
         cameraDx = 0;
         cameraDy = 0;
         zoomGoal = camera.getZoom();  // To ensure consistency
-        // Update the camera zoom.
-        if (zoomCounter >= 0) {
-            zoomCounter -= 1;
-            double zoom = zoomGoal + (camera.getZoom() - zoomGoal) * zoomCounter / CameraConstants.ZOOM_SMOOTHEN_STEPS;
-            camera.setZoom(zoom);
-        }
 
         // Setup key pressed set.
         keyPressedSet = new HashSet<>();
