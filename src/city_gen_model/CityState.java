@@ -1,22 +1,19 @@
 package city_gen_model;
 
-import city_gen_model.house_progression.DecayHouseProgression;
+import city_gen_model.city_events.MapEvent;
+import city_gen_model.city_events.MapEventBroadcaster;
+import city_gen_model.city_events.MapEventListener;
 import model.events.*;
 
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-public class CityState extends EventListener {
+public class CityState extends MapEventListener {
 
     CityStateParameters cityStateParameters;
     ProgressionModel model;
 
-    public CityState(EventBroadcaster inputBroadcaster, CityStateParameters cityStateParameters) {
+    public CityState(MapEventBroadcaster inputBroadcaster, CityStateParameters cityStateParameters) {
         super(inputBroadcaster);
 
-        this.model = new ProgressionModel();
+        this.model = new ProgressionModel(cityStateParameters);
         this.cityStateParameters = cityStateParameters;
     }
 
@@ -25,15 +22,11 @@ public class CityState extends EventListener {
     }
 
     @Override
-    protected void listenEvent(Event e) {
-        if (!e.getClass().equals(MapEvent.class)) {
-            return;
-        }
-        model.registerEvent((MapEvent) e);
+    protected void listenEvent(MapEvent event) {
+        model.registerEvent(event);
     }
 
-
     public void update() {
-        model.update(cityStateParameters);
+        model.update();
     }
 }

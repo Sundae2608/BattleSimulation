@@ -1,15 +1,19 @@
-package model.events;
+package city_gen_model.city_events;
 
-public class MapEvent extends Event {
+import model.events.Event;
+import model.events.EventType;
+
+public class MapEvent {
 
     int interval; // number of time step that the event takes effect
     double radius;
+    MapEventType mapEventType;
 
-    public MapEvent(EventType inputType, double inputX, double inputY, double inputZ,
+    public MapEvent(MapEventType inputType, double inputX, double inputY, double inputZ,
                     int interval, double radius) {
-        super(inputType, inputX, inputY, inputZ);
         this.interval = interval;
         this.radius = radius;
+        this.mapEventType = inputType;
     }
 
     public int getInterval() {
@@ -23,4 +27,6 @@ public class MapEvent extends Event {
     public double getRadius() {
         return radius;
     }
+
+    public MapEventType getMapEventType() { return mapEventType; }
 }
