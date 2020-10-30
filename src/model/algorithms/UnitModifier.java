@@ -174,6 +174,9 @@ public class UnitModifier {
                     single.receiveDamage(o.getDamage(), o.getTheta());
                     broadcaster.broadcastEvent(new Event(EventType.BLOOD_STAIN, single.getX(), single.getY(), single.getZ(), o.getTheta()));
                     o.setImpactful(false);
+                    if (single.getState() == SingleState.DEAD) {
+                        deadContainer.add(single);
+                    }
                     break;  // Break the loop because once the bullet hits, it is no long effective.
                     // TODO: Consider adding a Hitscan that allow "shoot through mechanics". Even better if we specify
                     //  how many objects the bullet can shoot through.
