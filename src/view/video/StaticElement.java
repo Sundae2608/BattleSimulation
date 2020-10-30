@@ -28,6 +28,6 @@ public class StaticElement {
      * True if the video element sequence has ran its course.
      */
     public boolean hasFaded() {
-        return frame >= template.getFadeEnd();
+        return frame >= template.fadeEnd;
     }
 }

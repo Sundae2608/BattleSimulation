@@ -48,12 +48,15 @@ public class StaticElementPlayerIO extends JsonIO<StaticElementPlayer> {
                 PImage image = applet.loadImage(getString(staticElementType.get("image_path")));
                 int fadeStart = getInt(staticElementType.get("fade_start"));
                 int fadeEnd = getInt(staticElementType.get("fade_end"));
+                double minSize = getDouble(staticElementType.get("min_size"));
+                double maxSize = getDouble(staticElementType.get("max_size"));
 
                 // Create the template and add it to the template map
                 if (!templateMap.containsKey(elementType)) {
                     templateMap.put(elementType, new ArrayList<>());
                 }
-                templateMap.get(elementType).add(new StaticTemplate(elementType, image, fadeStart, fadeEnd));
+                templateMap.get(elementType).add(new StaticTemplate(
+                        elementType, image, fadeStart, fadeEnd, minSize, maxSize));
             }
         }
 

@@ -16,6 +16,7 @@ public class StaticElementPlayer extends EventListener {
     ArrayList<StaticElement> elementArrayList;
     PApplet applet;
     BaseCamera camera;
+    HashMap<StaticElement, Double> sizeMap;
 
     public StaticElementPlayer(PApplet inputApplet,
                               BaseCamera inputCamera,
@@ -26,6 +27,7 @@ public class StaticElementPlayer extends EventListener {
         camera = inputCamera;
         templateMap = inputTemplateMap;
         elementArrayList = new ArrayList<>();
+        sizeMap = new HashMap<>();
     }
 
     @Override
@@ -58,11 +60,17 @@ public class StaticElementPlayer extends EventListener {
                 applet.pushMatrix();
                 applet.translate((float) drawingPos[0], (float) drawingPos[1]);
                 applet.rotate((float) camera.getCameraAngleFromActualAngle(element.angle));
-                float alpha = element.frame < element.template.fadeStart ? 1 : (float) (1.0 * (element.template.fadeEnd - element.frame) / (element.template.fadeEnd - element.template.fadeStart));
+                float alpha = element.frame < element.template.fadeStart ? 1 :
+                        (float) (1.0 * (element.template.fadeEnd - element.frame) /
+                                (element.template.fadeEnd - element.template.fadeStart));
+                if (!sizeMap.containsKey(element)) {
+                    sizeMap.put(element, MathUtils.randDouble(element.template.minSize, element.template.maxSize));
+                }
+                double size = sizeMap.get(element);
                 applet.tint(255, alpha * 255);
-                applet.image(image, 0, (float) (- image.height * zoom / 2),
-                        (float) (image.width * zoom),
-                        (float) (image.height * zoom));
+                applet.image(image, 0, (float) (- image.height * zoom * size / 2),
+                        (float) (image.width * zoom * size),
+                        (float) (image.height * zoom * size));
                 applet.tint(255, 255);
                 applet.popMatrix();
                 element.step();

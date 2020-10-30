@@ -47,8 +47,8 @@ public class VideoElementPlayerIO extends JsonIO<VideoElementPlayer> {
 
                 // Extract the element type and the folder contains video information
                 videoElementJsonObj = (JSONObject) obj;
-                VideoElementType elementType = VideoElementType.valueOf((String) videoElementJsonObj.get("type"));
-                File folder = new File((String) videoElementJsonObj.get("video_path"));
+                VideoElementType elementType = VideoElementType.valueOf(getString(videoElementJsonObj.get("type")));
+                File folder = new File(getString(videoElementJsonObj.get("video_path")));
 
                 // Build the sequence
                 File[] listOfFiles = folder.listFiles();
