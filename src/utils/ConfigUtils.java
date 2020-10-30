@@ -19,6 +19,7 @@ import processing.sound.SoundFile;
 import utils.json.*;
 import view.audio.*;
 import view.camera.BaseCamera;
+import view.video.StaticElementPlayer;
 import view.video.VideoElementPlayer;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,6 +49,14 @@ public final class ConfigUtils {
     public static VideoElementPlayer readVideoElementConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
         JsonIO jsonIO = new VideoElementPlayerIO(camera, applet, eventBroadcaster);
         return (VideoElementPlayer) jsonIO.read(filePath);
+    }
+
+    /**
+     * Read video element config, which contains image footage that creates high quality in-game video elements.
+     */
+    public static StaticElementPlayer readStaticElementConfig(String filePath, BaseCamera camera, PApplet applet, EventBroadcaster eventBroadcaster) throws IOException {
+        JsonIO jsonIO = new StaticElementPlayerIO(camera, applet, eventBroadcaster);
+        return (StaticElementPlayer) jsonIO.read(filePath);
     }
 
     /**

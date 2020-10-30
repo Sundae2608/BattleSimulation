@@ -151,10 +151,7 @@ public class SingleDrawer extends BaseDrawer {
         double singleX = single.getX();
         double singleY = single.getY();
         double singleZ = single.getZ();
-        double[] position = camera.getDrawingPosition(
-                singleX,
-                singleY,
-                singleZ);
+        double[] position = camera.getDrawingPosition(singleX, singleY, singleZ);
         double drawX = position[0];
         double drawY = position[1];
         double zoomAdjustment = camera.getZoomAtHeight(singleZ) / camera.getZoom();

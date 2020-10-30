@@ -172,6 +172,7 @@ public class UnitModifier {
                             MathUtils.quickSin((float) o.getTheta()) * o.getPush());
                     single.switchState(SingleState.SLIDING);
                     single.receiveDamage(o.getDamage(), o.getTheta());
+                    broadcaster.broadcastEvent(new Event(EventType.BLOOD_STAIN, single.getX(), single.getY(), single.getZ(), o.getTheta()));
                     o.setImpactful(false);
                     break;  // Break the loop because once the bullet hits, it is no long effective.
                     // TODO: Consider adding a Hitscan that allow "shoot through mechanics". Even better if we specify
