@@ -238,7 +238,8 @@ public class UnitModifier {
                         closestCandidate.setxVel(closestCandidate.getxVel() + dx);
                         closestCandidate.setyVel(closestCandidate.getyVel() + dy);
 
-                        // The soldier will absorb the arrow and carry it for a while
+                        // The soldier will absorb the arrow and carry it for a few frames.
+                        // TODO: Add bleeding effect to arrow.
                         closestCandidate.absorbObject(obj);
                     } else {
                         // Cause the unit to perform "deadMorph", which rearrange troops to match the frontline.
