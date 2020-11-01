@@ -290,7 +290,7 @@
       "bullet_min_range": 150,
       "bullet_max_range": 1500,
       "bullet_damage": 200,
-      "bullet_push": 45
+      "bullet_push": 15
     }
   ]
 }

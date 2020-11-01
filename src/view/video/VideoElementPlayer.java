@@ -37,6 +37,9 @@ public class VideoElementPlayer extends EventListener {
             case MATCHLOCK_FIRE:
                 elementType = VideoElementType.MATCHLOCK_GUNFIRE;
                 break;
+            case BLOOD_STAIN:
+                elementType = VideoElementType.BLOOD_STAIN;
+                break;
         }
         if (elementType != null && templateMap.containsKey(elementType)) {
             elementArrayList.add(

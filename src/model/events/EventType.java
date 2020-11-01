@@ -12,5 +12,5 @@ public enum EventType {
     ARROW_CROWD_HIT,
     MATCHLOCK_VOLLEY,
     MATCHLOCK_FIRE,
-    DESTROY_CITY,
+    BLOOD_STAIN,
 }

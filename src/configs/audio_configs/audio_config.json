@@ -80,7 +80,7 @@
       "audio_type": "MATCHLOCK_FIRE",
       "file": "audios/gunfires/matchlock_single.mp3",
       "broadcast_type": "BURST",
-      "base_volume": 0.4
+      "base_volume": 0.15
     }
   ]
 }

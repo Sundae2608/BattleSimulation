@@ -36,6 +36,7 @@ import view.settings.DrawingMode;
 import view.settings.DrawingSettings;
 import view.settings.RenderMode;
 import view.drawer.DrawingUtils;
+import view.video.StaticElementPlayer;
 import view.video.VideoElementPlayer;
 
 import java.io.IOException;
@@ -65,6 +66,7 @@ public class MainSimulation extends PApplet {
 
     /** Video element players */
     VideoElementPlayer videoElementPlayer;
+    StaticElementPlayer staticElementPlayer;
 
     /** Image files */
     PImage mapTexture;
@@ -247,6 +249,15 @@ public class MainSimulation extends PApplet {
             e.printStackTrace();
         }
 
+        /** Setup static element player */
+        try {
+            staticElementPlayer = ConfigUtils.readStaticElementConfig(
+                    visualConfig, camera, this, env.getBroadcaster()
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         /** Load sound files */
         // Set up audio speaker
         try {
@@ -422,6 +433,11 @@ public class MainSimulation extends PApplet {
             for (BaseSurface surface : env.getSurfaces()) {
                 surfaceDrawer.drawSurface(surface);
             }
+        }
+
+        // Draw all static elements before all animate elements, since static elements often stuck on the ground
+        if (drawingSettings.isDrawVideoEffect()) {
+            staticElementPlayer.processElementQueue();
         }
 
         // Dead troops
@@ -639,7 +655,9 @@ public class MainSimulation extends PApplet {
             }
         }
 
-        if (drawingSettings.isDrawVideoEffect()) videoElementPlayer.processElementQueue();
+        if (drawingSettings.isDrawVideoEffect()) {
+            videoElementPlayer.processElementQueue();
+        }
 
         /** Process the sound of the game */
         if (audioSettings.isSoundEffect()) audioSpeaker.processEvents();

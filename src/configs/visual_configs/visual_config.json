@@ -7,6 +7,60 @@
     {
       "type": "MATCHLOCK_GUNFIRE",
       "video_path": "videos/matchlock_blast/"
+    },
+    {
+      "type": "BLOOD_STAIN",
+      "video_path": "videos/blood_stain/"
+    }
+  ],
+  "static_element_config": [
+    {
+      "type": "BLOOD_STAIN",
+      "image_path": "imgs/BloodStain/BloodStain-01.png",
+      "fade_start": 25,
+      "fade_end": 150,
+      "min_size": 1.0,
+      "max_size": 1.25
+    },
+    {
+      "type": "BLOOD_STAIN",
+      "image_path": "imgs/BloodStain/BloodStain-02.png",
+      "fade_start": 25,
+      "fade_end": 150,
+      "min_size": 1.0,
+      "max_size": 1.25
+    },
+    {
+      "type": "BLOOD_STAIN",
+      "image_path": "imgs/BloodStain/BloodStain-03.png",
+      "fade_start": 25,
+      "fade_end": 150,
+      "min_size": 1.0,
+      "max_size": 1.25
+    },
+    {
+      "type": "BLOOD_STAIN",
+      "image_path": "imgs/BloodStain/BloodStain-04.png",
+      "fade_start": 25,
+      "fade_end": 150,
+      "min_size": 1.0,
+      "max_size": 1.25
+    },
+    {
+      "type": "BLOOD_STAIN",
+      "image_path": "imgs/BloodStain/BloodStain-05.png",
+      "fade_start": 25,
+      "fade_end": 150,
+      "min_size": 1.0,
+      "max_size": 1.25
+    },
+    {
+      "type": "BLOOD_STAIN",
+      "image_path": "imgs/BloodStain/BloodStain-06.png",
+      "fade_start": 25,
+      "fade_end": 150,
+      "min_size": 1.0,
+      "max_size": 1.25
     }
   ]
 }
