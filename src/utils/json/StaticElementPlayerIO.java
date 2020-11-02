@@ -1,6 +1,7 @@
 package utils.json;
 
 import model.events.EventBroadcaster;
+import model.utils.MathUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -50,13 +51,15 @@ public class StaticElementPlayerIO extends JsonIO<StaticElementPlayer> {
                 int fadeEnd = getInt(staticElementType.get("fade_end"));
                 double minSize = getDouble(staticElementType.get("min_size"));
                 double maxSize = getDouble(staticElementType.get("max_size"));
+                double angleFluctation = MathUtils.toRadians(
+                        getDouble(staticElementType.get("angle_fluctuation_degree")));
 
                 // Create the template and add it to the template map
                 if (!templateMap.containsKey(elementType)) {
                     templateMap.put(elementType, new ArrayList<>());
                 }
                 templateMap.get(elementType).add(new StaticTemplate(
-                        elementType, image, fadeStart, fadeEnd, minSize, maxSize));
+                        elementType, image, fadeStart, fadeEnd, minSize, maxSize, angleFluctation));
             }
         }
 
