@@ -18,7 +18,7 @@
       "type": "BLOOD_STAIN",
       "image_path": "imgs/BloodStain/BloodStain-01.png",
       "fade_start": 25,
-      "fade_end": 150,
+      "fade_end": 350,
       "min_size": 1.0,
       "max_size": 1.25,
       "angle_fluctuation_degree": 4.0
@@ -27,7 +27,7 @@
       "type": "BLOOD_STAIN",
       "image_path": "imgs/BloodStain/BloodStain-02.png",
       "fade_start": 25,
-      "fade_end": 150,
+      "fade_end": 350,
       "min_size": 1.0,
       "max_size": 1.25,
       "angle_fluctuation_degree": 4.0
@@ -36,7 +36,7 @@
       "type": "BLOOD_STAIN",
       "image_path": "imgs/BloodStain/BloodStain-03.png",
       "fade_start": 25,
-      "fade_end": 150,
+      "fade_end": 350,
       "min_size": 1.0,
       "max_size": 1.25,
       "angle_fluctuation_degree": 4.0
@@ -45,7 +45,7 @@
       "type": "BLOOD_STAIN",
       "image_path": "imgs/BloodStain/BloodStain-04.png",
       "fade_start": 25,
-      "fade_end": 150,
+      "fade_end": 350,
       "min_size": 1.0,
       "max_size": 1.25,
       "angle_fluctuation_degree": 4.0
@@ -54,7 +54,7 @@
       "type": "BLOOD_STAIN",
       "image_path": "imgs/BloodStain/BloodStain-05.png",
       "fade_start": 25,
-      "fade_end": 150,
+      "fade_end": 350,
       "min_size": 1.0,
       "max_size": 1.25,
       "angle_fluctuation_degree": 4.0
@@ -63,7 +63,7 @@
       "type": "BLOOD_STAIN",
       "image_path": "imgs/BloodStain/BloodStain-06.png",
       "fade_start": 25,
-      "fade_end": 150,
+      "fade_end": 350,
       "min_size": 1.0,
       "max_size": 1.25,
       "angle_fluctuation_degree": 4.0
