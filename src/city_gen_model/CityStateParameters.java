@@ -1,63 +1,23 @@
 package city_gen_model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CityStateParameters {
-    private int population;
-    private int numHouses;
-    private int numFarms;
-    private int numMarkets;
-    private int numSchools;
-    private int numReligiousBuildings;
-    private int numGovernmentBuildings;
-    private int numFactories;
+    Map<CityParamType, Integer> quantityMap;
+
+    public CityStateParameters() {
+        quantityMap = new HashMap<>();
+        for (CityParamType cityParamType : CityParamType.values()) {
+            quantityMap.put(cityParamType, 0);
+        }
+    }
 
     public int getQuantity(CityParamType paramType) {
-        switch (paramType) {
-            case PERSON:
-                return population;
-            case HOUSE:
-                return numHouses;
-            case MARKET:
-                return numMarkets;
-            case FARM:
-                return numFarms;
-            case SCHOOL:
-                return numSchools;
-            case RELIGIOUS_BUILDING:
-                return numReligiousBuildings;
-            case GOVERNMENT_BUILDING:
-                return numGovernmentBuildings;
-            case FACTORY:
-                return numFactories;
-        }
-        return 0;
+        return quantityMap.get(paramType);
     }
 
     public void setQuantity(CityParamType paramType, int value) {
-        switch (paramType) {
-            case PERSON:
-                population = value;
-                break;
-            case HOUSE:
-                numHouses = value;
-                break;
-            case MARKET:
-                numMarkets = value;
-                break;
-            case FARM:
-                numFarms = value;
-                break;
-            case SCHOOL:
-                numSchools = value;
-                break;
-            case RELIGIOUS_BUILDING:
-                numReligiousBuildings = value;
-                break;
-            case GOVERNMENT_BUILDING:
-                numGovernmentBuildings = value;
-                break;
-            case FACTORY:
-                numFactories = value;
-                break;
-        }
+        quantityMap.put(paramType, value);
     }
 }
