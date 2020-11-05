@@ -12,9 +12,4 @@ public class ExponentialFunction implements Progression{
     public double getNextValue(double currentValue) {
         return Math.max(currentValue * rateOfChange, 0);
     }
-
-    @Override
-    public double getRateOfChange() {
-        return rateOfChange;
-    }
 }

@@ -13,8 +13,4 @@ public class LinearFunction implements Progression {
         return Math.max(currentValue + rateOfChange, 0);
     }
 
-    @Override
-    public double getRateOfChange() {
-        return rateOfChange;
-    }
 }
