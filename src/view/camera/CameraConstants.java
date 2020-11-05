@@ -34,10 +34,11 @@ public class CameraConstants {
     // If the mouse click on n enemy unit is smaller than this
     // TODO(sonpham): Potentially change the icon to indicate an attack. Also, currently it only works for archery unit.
     //  but we should extend this to regular units as well.
+    //  Attack icon should be something like an animated arrow.
     public final static double CLICK_ATTACK_DISTANCE = 500;
     public final static double SQUARE_CLICK_ATTACK_DISTANCE = CLICK_ATTACK_DISTANCE * CLICK_ATTACK_DISTANCE;
 
-    // Shake level
+    // Shake level for each effect.
     public final static double SHAKE_LEVEL_EXPLOSION = 20;
     public final static double SHAKE_LEVEL_MATCHLOCK_FIRE = 5;
     public final static double SHAKE_LEVEL_SOLDIER_CHARGE = 100;
