@@ -3,6 +3,7 @@ package city_gen_model;
 import city_gen_model.progression.ExponentialFunction;
 import city_gen_model.progression.LinearFunction;
 import city_gen_model.city_events.MapEvent;
+import city_gen_model.progression.LogisticFunction;
 import city_gen_model.progression.Progression;
 
 import java.util.*;
@@ -29,7 +30,7 @@ public class ProgressionModel {
                     defaultProgressionFunctions.put(cityParamType, new ExponentialFunction(1.02));
                     break;
                 case HOUSE:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(1));
+                    defaultProgressionFunctions.put(cityParamType, new LogisticFunction(0.01, 1500));
                     break;
                 case MARKET:
                     defaultProgressionFunctions.put(cityParamType, new LinearFunction(2));
