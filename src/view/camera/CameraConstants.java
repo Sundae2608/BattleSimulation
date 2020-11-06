@@ -10,7 +10,6 @@ public class CameraConstants {
     public final static double CAMERA_MOVEMENT_DECELERATION_COEFFICIENT = 0.85;
 
     // Camera movement border and speed
-    public final static double CAMERA_BORDER_ZONE = 40;
     public final static double CAMERA_SPEED = 20;
 
     // Zoom constant
@@ -21,7 +20,6 @@ public class CameraConstants {
     public final static int ZOOM_SMOOTHEN_STEPS = 100;
 
     // Zoom rendering level
-    public final static double ZOOM_RENDER_LEVEL_DETAILS = 1.0;
     public final static double ZOOM_RENDER_LEVEL_NORMAL = 1.0;
     public final static double ZOOM_RENDER_LEVEL_ARROW_DETAIL = 0.7;
     public final static double ZOOM_RENDER_LEVEL_SIMPLIFY_TROOP_SHAPE = 0.40;
