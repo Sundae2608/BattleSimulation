@@ -12,7 +12,7 @@ public class CameraConstants {
     // Camera movement border and speed
     public final static double CAMERA_SPEED = 20;
 
-    // Zoom constant
+    // Zoom constants
     public final static double MINIMUM_ZOOM = 0.03;
     public final static double MAXIMUM_ZOOM = 5.0;
     public final static double HEIGHT_AT_MAX_ZOOM = 20;
