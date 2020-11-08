@@ -39,6 +39,9 @@ public class CityEnvironment {
     private static int NUM_VERTICES_INNER_WALL = 16;
     private static int NUM_BLOCKS_OUTER_WALL = 50;
 
+    // Number of time steps that the city advances whenever the simulation advances
+    private final static int TIME_STEPS = 1;
+
     // Settings
     MapGenerationSettings mapGenerationSettings;
 
@@ -78,7 +81,7 @@ public class CityEnvironment {
         // TODO: Put a city parameters called "deltaParams" in the city state. This is a fairly ugly way to calculate
         //  difference in the number of houses.
         int oldNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE);
-        cityState.update();
+        cityState.update(TIME_STEPS);
         int deltaNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE) - oldNumHouses;
         // TODO: Divide by 4 is somewhat ad hoc. Remove this.
         int newHouses = deltaNumHouses;

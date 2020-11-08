@@ -10,7 +10,7 @@ public class LogisticFunction implements Progression {
     }
 
     @Override
-    public double getNextValue(double currentValue) {
-        return currentValue + relativeGrowthCoefficient*currentValue*(1-currentValue/carryingCapacity);
+    public double getNextValue(double currentValue, int timestep) {
+        return carryingCapacity / (1 + ((carryingCapacity-currentValue)/currentValue)*Math.pow(Math.E, -1*relativeGrowthCoefficient*timestep));
     }
 }

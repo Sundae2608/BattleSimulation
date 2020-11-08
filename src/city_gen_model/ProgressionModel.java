@@ -99,7 +99,7 @@ public class ProgressionModel {
         eventProgressionMap.get(mapEvent).add(function);
     }
 
-    public void update() {
+    public void update(int timeSteps) {
         for (MapEvent event : eventProgressionMap.keySet()){
             event.setInterval(event.getInterval()-1);
             if (event.getInterval() == 0) {
@@ -114,11 +114,11 @@ public class ProgressionModel {
         for (CityParamType paramType : eventProgressionFunctions.keySet()) {
             if (eventProgressionFunctions.get(paramType).size() == 0) {
                 cityStateParameters.setQuantity(paramType, (int) defaultProgressionFunctions.get(paramType)
-                        .getNextValue(cityStateParameters.getQuantity(paramType)));
+                        .getNextValue(cityStateParameters.getQuantity(paramType), timeSteps));
             } else {
                 for (Progression func : eventProgressionFunctions.get(paramType)) {
                     cityStateParameters.setQuantity(paramType, (int) func.getNextValue(cityStateParameters
-                            .getQuantity(paramType)));
+                            .getQuantity(paramType), timeSteps));
                 }
             }
         }

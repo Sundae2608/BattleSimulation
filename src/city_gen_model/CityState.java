@@ -26,7 +26,7 @@ public class CityState extends MapEventListener {
         model.registerEvent(event);
     }
 
-    public void update() {
-        model.update();
+    public void update(int timeSteps) {
+        model.update(timeSteps);
     }
 }
