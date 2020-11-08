@@ -10,7 +10,6 @@ public class CameraConstants {
     public final static double CAMERA_MOVEMENT_DECELERATION_COEFFICIENT = 0.85;
 
     // Camera movement border and speed
-    public final static double CAMERA_BORDER_ZONE = 40;
     public final static double CAMERA_SPEED = 20;
 
     // Zoom constant
@@ -21,7 +20,6 @@ public class CameraConstants {
     public final static int ZOOM_SMOOTHEN_STEPS = 100;
 
     // Zoom rendering level
-    public final static double ZOOM_RENDER_LEVEL_DETAILS = 1.0;
     public final static double ZOOM_RENDER_LEVEL_NORMAL = 1.0;
     public final static double ZOOM_RENDER_LEVEL_ARROW_DETAIL = 0.7;
     public final static double ZOOM_RENDER_LEVEL_SIMPLIFY_TROOP_SHAPE = 0.40;
@@ -34,10 +32,11 @@ public class CameraConstants {
     // If the mouse click on n enemy unit is smaller than this
     // TODO(sonpham): Potentially change the icon to indicate an attack. Also, currently it only works for archery unit.
     //  but we should extend this to regular units as well.
+    //  Attack icon should be something like an animated arrow.
     public final static double CLICK_ATTACK_DISTANCE = 500;
     public final static double SQUARE_CLICK_ATTACK_DISTANCE = CLICK_ATTACK_DISTANCE * CLICK_ATTACK_DISTANCE;
 
-    // Shake level
+    // Shake level for each effect.
     public final static double SHAKE_LEVEL_EXPLOSION = 20;
     public final static double SHAKE_LEVEL_MATCHLOCK_FIRE = 5;
     public final static double SHAKE_LEVEL_SOLDIER_CHARGE = 100;

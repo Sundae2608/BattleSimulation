@@ -1,0 +1,53 @@
+{
+  "ai_config": {
+    "ai_faction": "ROME"
+  },
+  "battle_config": [
+    {
+      "type": "GUN_INFANTRY",
+      "org": "unit",
+      "x": 1000,
+      "y": 1500,
+      "angle": 0,
+      "size": 75,
+      "faction": "GAUL",
+      "width": 25
+    },
+    {
+      "type": "GUN_INFANTRY",
+      "org": "unit",
+      "x": 2000,
+      "y": 1500,
+      "angle": 180,
+      "size": 75,
+      "faction": "ROME",
+      "width": 25
+    }
+  ],
+  "construct_config": [
+    {
+      "type": "graph"
+    }
+  ],
+  "terrain_config": {
+    "top_x": 0.0,
+    "top_y": 0.0,
+    "div": 300.0,
+    "num_x": 10,
+    "num_y": 10,
+    "taper": 10,
+    "min_height": -40.0,
+    "max_height": 40.0,
+    "perlin_scale": 0.2,
+    "perlin_detail_scale": 0.4,
+    "perlin_detail_height_ratio": 0.05
+  },
+  "surface_config": [],
+  "constructs_and_graph_config": {
+    "constructs": [],
+    "graph": {
+      "nodes": [],
+      "edges": []
+    }
+  },
+}

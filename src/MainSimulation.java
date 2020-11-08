@@ -188,7 +188,7 @@ public class MainSimulation extends PApplet {
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
         String gameConfig = "src/configs/game_configs/game_config.json";
-        String battleConfig = "src/configs/battle_configs/ai_config_1v1_gun.json";
+        String battleConfig = "src/configs/battle_configs/ai_config_1v1_gun_vs_gun.json";
         String visualConfig = "src/configs/visual_configs/visual_config.json";
         String audioConfig = "src/configs/audio_configs/audio_config.json";
         env = new GameEnvironment(gameConfig, battleConfig, gameSettings);

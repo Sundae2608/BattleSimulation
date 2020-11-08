@@ -17,7 +17,7 @@ public class StaticElementPlayer extends EventListener {
     PApplet applet;
     BaseCamera camera;
     HashMap<StaticElement, Double> sizeMap;
-
+    HashMap<StaticElement, Double> angleMap;
     public StaticElementPlayer(PApplet inputApplet,
                               BaseCamera inputCamera,
                               HashMap<StaticElementType, ArrayList<StaticTemplate>> inputTemplateMap,
@@ -28,6 +28,7 @@ public class StaticElementPlayer extends EventListener {
         templateMap = inputTemplateMap;
         elementArrayList = new ArrayList<>();
         sizeMap = new HashMap<>();
+        angleMap = new HashMap<>();
     }
 
     @Override
@@ -59,7 +60,12 @@ public class StaticElementPlayer extends EventListener {
                 PImage image = element.template.image;
                 applet.pushMatrix();
                 applet.translate((float) drawingPos[0], (float) drawingPos[1]);
-                applet.rotate((float) camera.getCameraAngleFromActualAngle(element.angle));
+                if (!angleMap.containsKey(element)) {
+                    angleMap.put(element, element.angle + MathUtils.randDouble(
+                            -element.template.angleFluctuation, element.template.angleFluctuation));
+                }
+                double angle = angleMap.get(element);
+                applet.rotate((float) camera.getCameraAngleFromActualAngle(angle));
                 float alpha = element.frame < element.template.fadeStart ? 1 :
                         (float) (1.0 * (element.template.fadeEnd - element.frame) /
                                 (element.template.fadeEnd - element.template.fadeStart));

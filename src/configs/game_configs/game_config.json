@@ -263,7 +263,7 @@
       "mass": 50,
       "radius": 23,
       "speed": 5,
-      "hp": 150,
+      "hp": 300,
       "deceleration": 0.1,
       "acceleration": 0.1,
       "rotation_speed": 0.1,
@@ -282,7 +282,7 @@
       "unit_rotation_speed": 0.02,
       "unit_patience": 50,
 
-      "reload_delay": 200,
+      "reload_delay": 400,
       "firing_range": 1800,
       "bored_delay": 50,
       "angle_variation": 0.03,
