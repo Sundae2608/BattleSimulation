@@ -9,7 +9,7 @@ public class ExponentialFunction implements Progression{
     }
 
     @Override
-    public double getNextValue(double currentValue, int timestep) {
-        return Math.max(currentValue * Math.pow(rateOfChange, timestep), 0);
+    public double getNextValue(double currentValue, int timeInterval) {
+        return Math.max(currentValue * Math.pow(rateOfChange, timeInterval), 0);
     }
 }
