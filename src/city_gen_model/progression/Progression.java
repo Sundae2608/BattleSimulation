@@ -11,5 +11,5 @@ public interface Progression {
      * @param timeInterval
      * @return
      */
-    double getNextValue(double currentValue, int timeInterval);
+    double getNextValue(double currentValue, double timeInterval);
 }

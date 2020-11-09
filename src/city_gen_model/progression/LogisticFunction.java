@@ -3,8 +3,8 @@ package city_gen_model.progression;
 public class LogisticFunction implements Progression {
 
     private double relativeGrowthCoefficient;
-    private int carryingCapacity;
-    public LogisticFunction(double relativeGrowthCoefficient, int carryingCapacity) {
+    private double carryingCapacity;
+    public LogisticFunction(double relativeGrowthCoefficient, double carryingCapacity) {
         this.relativeGrowthCoefficient = relativeGrowthCoefficient;
         this.carryingCapacity = carryingCapacity;
     }
@@ -22,7 +22,7 @@ public class LogisticFunction implements Progression {
      * @return
      */
     @Override
-    public double getNextValue(double currentValue, int timeInterval) {
+    public double getNextValue(double currentValue, double timeInterval) {
         return carryingCapacity /
                 (1 + ((carryingCapacity - currentValue) / currentValue) *
                         Math.pow(Math.E, -1 * relativeGrowthCoefficient * timeInterval));

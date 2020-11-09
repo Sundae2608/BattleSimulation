@@ -30,7 +30,7 @@ public class ProgressionModel {
                     defaultProgressionFunctions.put(cityParamType, new ExponentialFunction(1.02));
                     break;
                 case HOUSE:
-                    defaultProgressionFunctions.put(cityParamType, new LogisticFunction(0.01, 1500));
+                    defaultProgressionFunctions.put(cityParamType, new LogisticFunction(0.0008, 1500));
                     break;
                 case MARKET:
                     defaultProgressionFunctions.put(cityParamType, new LinearFunction(2));
@@ -113,11 +113,11 @@ public class ProgressionModel {
 
         for (CityParamType paramType : eventProgressionFunctions.keySet()) {
             if (eventProgressionFunctions.get(paramType).size() == 0) {
-                cityStateParameters.setQuantity(paramType, (int) defaultProgressionFunctions.get(paramType)
+                cityStateParameters.setQuantity(paramType, defaultProgressionFunctions.get(paramType)
                         .getNextValue(cityStateParameters.getQuantity(paramType), timeSteps));
             } else {
                 for (Progression func : eventProgressionFunctions.get(paramType)) {
-                    cityStateParameters.setQuantity(paramType, (int) func.getNextValue(cityStateParameters
+                    cityStateParameters.setQuantity(paramType, func.getNextValue(cityStateParameters
                             .getQuantity(paramType), timeSteps));
                 }
             }

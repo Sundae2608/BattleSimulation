@@ -9,7 +9,7 @@ public class LinearFunction implements Progression {
     }
 
     @Override
-    public double getNextValue(double currentValue, int timeInterval) {
+    public double getNextValue(double currentValue, double timeInterval) {
         return Math.max(currentValue + rateOfChange * timeInterval, 0);
     }
 }

@@ -80,11 +80,11 @@ public class CityEnvironment {
     public void step() {
         // TODO: Put a city parameters called "deltaParams" in the city state. This is a fairly ugly way to calculate
         //  difference in the number of houses.
-        int oldNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE);
+        double oldNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE);
         cityState.update(TIME_STEPS);
-        int deltaNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE) - oldNumHouses;
+        double deltaNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE) - oldNumHouses;
         // TODO: Divide by 4 is somewhat ad hoc. Remove this.
-        int newHouses = deltaNumHouses;
+        int newHouses = (int)deltaNumHouses;
         if (newHouses > 0) {
             // If the number of new houses is positive, we need to build a few new houses.
             for (int i = 0; i < newHouses; i++) {
