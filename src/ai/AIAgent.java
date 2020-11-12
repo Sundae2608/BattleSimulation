@@ -17,6 +17,7 @@ public class AIAgent {
     }
 
     public void move(){
+        // Update the game state so that the AI agent has the most updated view.
         state.updateState();
         
         AIUnitView aiUnit = state.getAIUnit(this.unit);
@@ -24,7 +25,6 @@ public class AIAgent {
         for(AIUnitView otherUnitAIView: state.getAIUnits()){
             if(otherUnitAIView.getPoliticalFaction() != aiUnit.getPoliticalFaction()){
                 if(Math.abs(aiUnit.getRow()- otherUnitAIView.getRow()) + Math.abs(aiUnit.getCol() - otherUnitAIView.getCol()) <= 1){
-
                     double goalX = otherUnitAIView.getBaseUnit().getGoalX();
                     double goalY = otherUnitAIView.getBaseUnit().getGoalY();
                     double goalAngle = MathUtils.atan2(goalY - unit.getAverageX(), goalX - unit.getAnchorY());
@@ -70,10 +70,8 @@ public class AIAgent {
 
             }
         }
-
-
         
-        double[] goalCoord = state.getCoordinate(bestRow, bestCol);
+        double[] goalPos = state.getCoordinate(bestRow, bestCol);
 
         double currentX = unit.getAverageX();
         double currentY = unit.getAverageY();
@@ -83,9 +81,9 @@ public class AIAgent {
         }
         
         if (GameplayUtils.checkIfUnitCanMoveTowards(
-                goalCoord[0], goalCoord[1], env.getConstructs())) {
-            double angle = MathUtils.atan2(goalCoord[1] - currentY, goalCoord[0] - currentX);
-            unit.moveFormationKeptTo(goalCoord[0], goalCoord[1], angle);
+                goalPos[0], goalPos[1], env.getConstructs())) {
+            double angle = MathUtils.atan2(goalPos[1] - currentY, goalPos[0] - currentX);
+            unit.moveFormationKeptTo(goalPos[0], goalPos[1], angle);
         }
     }
 

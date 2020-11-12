@@ -98,7 +98,7 @@ public class ObjectDrawer extends BaseDrawer {
         if (object instanceof Ballista) {
             shapeDrawer.arrow(
                     (float) drawX, (float) drawY, (float) angle,
-                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.BALISTA_SIZE);
+                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.BALLISTA_SIZE);
         }
         if (object instanceof Stone) {
             shapeDrawer.circleShape(
@@ -138,7 +138,7 @@ public class ObjectDrawer extends BaseDrawer {
         } else if (object instanceof Ballista) {
             shapeDrawer.arrow(
                     (float) drawX, (float) drawY, (float) angle,
-                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.BALISTA_SIZE);
+                    (float) (camera.getZoomAtHeight(z)), (float) DrawingConstants.BALLISTA_SIZE);
         }
     }
 }

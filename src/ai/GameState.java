@@ -8,22 +8,25 @@ import model.GameEnvironment;
 import model.terrain.Terrain;
 import model.units.BaseUnit;
 
-
+/**
+ * GameState denotes the state in which the AI Agent perceives the games.
+ */
 public class GameState {
     
     private HashMap<BaseUnit, AIUnitView> unitsMapping;
     private HashSet<AIUnitView> units;
     private GameEnvironment env;
     private Terrain terrain;
-    private int rowNums;
-    private int colNums;
+    private int numRows;
+    private int numCols;
     private double divX;
     private double divY;
+
     public GameState(GameEnvironment env, int divX, int divY) {
         this.env = env;
         this.terrain = env.getTerrain();
-        this.rowNums = (int) Math.ceil((terrain.getBotY() - terrain.getTopY()) / divY);
-        this.colNums = (int) Math.ceil((terrain.getBotX() - terrain.getTopX()) / divX);
+        this.numRows = (int) Math.ceil((terrain.getBotY() - terrain.getTopY()) / divY);
+        this.numCols = (int) Math.ceil((terrain.getBotX() - terrain.getTopX()) / divX);
         this.divX = divX;
         this.divY = divY;
         this.unitsMapping = new HashMap<>();
@@ -57,6 +60,7 @@ public class GameState {
         }
         return unitsMapping.get(unit);
     }
+
     public HashSet<AIUnitView> getAIUnits(){
         return units;
     }
@@ -71,9 +75,9 @@ public class GameState {
 
     public double[] getCoordinate(int row, int col){
         row = Math.max(row, 0);
-        row = Math.min(row, rowNums - 1);
+        row = Math.min(row, numRows - 1);
         col = Math.max(col, 0);
-        col = Math.min(col, colNums - 1);
+        col = Math.min(col, numCols - 1);
         
         double x = Math.min(terrain.getTopX() + divX * col, terrain.getBotX());
         double y = Math.min(terrain.getTopY() + divY * row, terrain.getBotY());
@@ -81,7 +85,7 @@ public class GameState {
     }
 
     public boolean isWithinBoundary(int row, int col){
-        if(row < 0 || col < 0 || row >= rowNums || col >= colNums){
+        if(row < 0 || col < 0 || row >= numRows || col >= numCols){
             return false;
         }
         return true;
