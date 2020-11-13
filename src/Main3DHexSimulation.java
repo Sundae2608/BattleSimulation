@@ -148,7 +148,6 @@ public class Main3DHexSimulation extends PApplet {
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
-        drawingSettings.setDrawSimplifiedTroopShape(true);
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
         drawingSettings.setDrawUnitInfo(true);

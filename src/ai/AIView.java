@@ -11,7 +11,7 @@ import model.units.BaseUnit;
 /**
  * GameState denotes the state in which the AI Agent perceives the games.
  */
-public class GameState {
+public class AIView {
     
     private HashMap<BaseUnit, AIUnitView> unitsMapping;
     private HashSet<AIUnitView> units;
@@ -22,7 +22,7 @@ public class GameState {
     private double divX;
     private double divY;
 
-    public GameState(GameEnvironment env, int divX, int divY) {
+    public AIView(GameEnvironment env, int divX, int divY) {
         this.env = env;
         this.terrain = env.getTerrain();
         this.numRows = (int) Math.ceil((terrain.getBotY() - terrain.getTopY()) / divY);
@@ -39,19 +39,12 @@ public class GameState {
         }
         updateState();
     }
-    
+
+    /**
+     * Update the state of the AI views.
+     */
     public void updateState(){
-        ArrayList<AIUnitView> deadUnits = new ArrayList<AIUnitView>();
-        for(AIUnitView unit: units){
-            if(!unit.isAlive()){
-                deadUnits.add(unit);
-                unitsMapping.remove(unit.getBaseUnit());
-            }
-            unit.updateState();
-        }
-        for(AIUnitView unit: deadUnits){
-            units.remove(unit);
-        }
+        units.removeIf(unit -> !unit.isAlive());
     }
     
     public AIUnitView getAIUnit(BaseUnit unit){

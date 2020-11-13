@@ -4,13 +4,16 @@ package ai;
 import model.enums.PoliticalFaction;
 import model.units.BaseUnit;
 
+/**
+ * What the AI agent will see from each Unit.
+ */
 public class AIUnitView {
     private int row; 
     private int col; 
     private BaseUnit unit;
-    private GameState gameState; 
+    private AIView gameState;
     
-    public AIUnitView(BaseUnit unit, GameState gameState){
+    public AIUnitView(BaseUnit unit, AIView gameState){
         this.gameState = gameState;
         this.unit = unit;
         updateState();

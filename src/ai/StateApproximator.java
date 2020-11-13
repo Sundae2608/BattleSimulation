@@ -45,7 +45,7 @@ public class StateApproximator {
         return score;
 
     }
-    public double evaluate(GameState state, AIUnitView currentUnit){
+    public double evaluate(AIView state, AIUnitView currentUnit){
 
         ArrayList<AIUnitView> enemyUnits = new ArrayList<AIUnitView>();
         //ArrayList<AIUnitView> allyUnits = new ArrayList<AIUnitView>();

@@ -8,12 +8,12 @@ import model.utils.MathUtils;
 public class AIAgent {
     private BaseUnit unit;
     private GameEnvironment env;
-    private GameState state;
+    private AIView state;
     public AIAgent(BaseUnit unit, GameEnvironment env){
         this.env = env;
         this.unit = unit;
         // TODO: derive the size of grid from terrain and unit size
-        this.state = new GameState(env, 500, 500);
+        this.state = new AIView(env, 500, 500);
     }
 
     public void move(){
@@ -70,6 +70,7 @@ public class AIAgent {
 
             }
         }
+
         
         double[] goalPos = state.getCoordinate(bestRow, bestCol);
 

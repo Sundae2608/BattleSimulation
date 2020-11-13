@@ -156,7 +156,6 @@ public class MainSimulation extends PApplet {
         drawingSettings.setDrawSmooth(true);
         drawingSettings.setDrawDamageSustained(true);
         drawingSettings.setDrawTroopShadow(true);
-        drawingSettings.setDrawSimplifiedTroopShape(true);
         drawingSettings.setDrawIcon(true);
         drawingSettings.setDrawVideoEffect(true);
         drawingSettings.setDrawUnitInfo(true);

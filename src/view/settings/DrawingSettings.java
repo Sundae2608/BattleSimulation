@@ -13,7 +13,6 @@ public class DrawingSettings {
     private boolean drawHeightField;
     private boolean drawMapTexture;
     private boolean drawTroopShadow;
-    private boolean drawSimplifiedTroopShape;
     private boolean drawIcon;
     private boolean drawTroopInDanger;
     private boolean drawTroopInPosition;
@@ -141,14 +140,6 @@ public class DrawingSettings {
     }
     public void setDrawIcon(boolean drawIcon) {
         this.drawIcon = drawIcon;
-    }
-
-    public boolean isDrawSimplifiedTroopShape() {
-        return drawSimplifiedTroopShape;
-    }
-
-    public void setDrawSimplifiedTroopShape(boolean drawSimplifiedTroopShape) {
-        this.drawSimplifiedTroopShape = drawSimplifiedTroopShape;
     }
 
     public int getSmoothPlanShowingSteps() {
