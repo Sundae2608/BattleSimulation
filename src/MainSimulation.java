@@ -1,3 +1,4 @@
+import ai.agents.AIGeneral;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
@@ -113,7 +114,7 @@ public class MainSimulation extends PApplet {
     BaseUnit closestUnit;
 
     /** AI agents */
-    ArrayList<AIAgent> aiAgents;
+    AIGeneral aiGeneral;
     PoliticalFaction aiPoliticalFaction;
     
     public void settings() {
@@ -127,7 +128,7 @@ public class MainSimulation extends PApplet {
         // Game settings
         gameSettings = new GameSettings();
         gameSettings.setApplyTerrainModifier(true);
-        gameSettings.setBorderInwardCollision(false);  // TODO: Bugged
+        gameSettings.setBorderInwardCollision(false);  // TODO: Bugged. Keep it false at all times.
         gameSettings.setAllyCollision(true);
         gameSettings.setCollisionCheckingOnlyInCombat(false);
         gameSettings.setCavalryCollision(true);
@@ -201,7 +202,7 @@ public class MainSimulation extends PApplet {
         keyPressedSet = new HashSet<>();
 
         /** AI set up*/
-        aiAgents = new ArrayList<>();
+        ArrayList<AIAgent> aiAgents = new ArrayList<>();
         if (gameSettings.isCreateAIAgent()) {
             try {
                 aiPoliticalFaction = ConfigUtils.readPoliticalFactionFromConfig(battleConfig);
@@ -214,6 +215,7 @@ public class MainSimulation extends PApplet {
                 }
             }
         }
+        aiGeneral = new AIGeneral(aiAgents);
 
         /** Camera setup */
         // Calculate average position of units, and create a camera.
@@ -283,8 +285,12 @@ public class MainSimulation extends PApplet {
     public void draw() {
 
         /** Update the backend */
+
         // Record time
         lastTime = System.nanoTime();
+
+        // The AI makes a decision
+        aiGeneral.commandAgents();
 
         if (!currentlyPaused) {
             // The environment makes one step forward in processing.
@@ -462,13 +468,6 @@ public class MainSimulation extends PApplet {
                 }
             }
             planCounter -= 1;
-        }
-
-        for(AIAgent agent : aiAgents){
-            UnitState state= agent.getUnit().getState();
-            if (state == UnitState.STANDING) {
-                agent.move();
-            }
         }
 
         // Always draw arrow of selected unit
@@ -680,7 +679,7 @@ public class MainSimulation extends PApplet {
                 if (unit.getNumAlives() == 0) continue;
                 boolean isSelected = unit == unitSelected;
                 boolean isAI = false;
-                for (AIAgent aiAgent : aiAgents) {
+                for (AIAgent aiAgent : aiGeneral.getAgents()) {
                     if (unit == aiAgent.getUnit()) {
                         isAI = true;
                         break;
@@ -806,7 +805,7 @@ public class MainSimulation extends PApplet {
             // TODO: It would be better to actually check against the Unit Bounding box for a more accurate collision
             //  checking.
             boolean isAIAgent = false;
-            for (AIAgent aiAgent : aiAgents) {
+            for (AIAgent aiAgent : aiGeneral.getAgents()) {
                 if (closestUnit == aiAgent.getUnit()) {
                     isAIAgent = true;
                     break;

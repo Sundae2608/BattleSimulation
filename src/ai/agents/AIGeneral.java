@@ -1,5 +1,7 @@
 package ai.agents;
 
+import model.enums.UnitState;
+
 import java.util.ArrayList;
 
 /**
@@ -14,5 +16,21 @@ public class AIGeneral {
 
     public AIGeneral(ArrayList<AIAgent> agents) {
         this.agents = agents;
+    }
+
+    public ArrayList<AIAgent> getAgents() {
+        return agents;
+    }
+
+    /**
+     * Command each agents to achieve certain goals.
+     */
+    public void commandAgents() {
+        for (AIAgent agent : agents) {
+            UnitState state = agent.getUnit().getState();
+            if (state == UnitState.STANDING) {
+                agent.move();
+            }
+        }
     }
 }
