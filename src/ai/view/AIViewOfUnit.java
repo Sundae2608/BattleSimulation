@@ -1,4 +1,4 @@
-package ai;
+package ai.view;
 
 
 import model.enums.PoliticalFaction;
@@ -7,13 +7,13 @@ import model.units.BaseUnit;
 /**
  * What the AI agent will see from each Unit.
  */
-public class AIUnitView {
+public class AIViewOfUnit {
     private int row; 
     private int col; 
     private BaseUnit unit;
     private AIView gameState;
     
-    public AIUnitView(BaseUnit unit, AIView gameState){
+    public AIViewOfUnit(BaseUnit unit, AIView gameState){
         this.gameState = gameState;
         this.unit = unit;
         updateState();
@@ -43,7 +43,7 @@ public class AIUnitView {
         return col;
     }
 
-    public double getDistance(AIUnitView other){
+    public double getDistance(AIViewOfUnit other){
         return Math.sqrt(Math.pow(other.getRow() - this.getRow(), 2) + Math.pow(other.getCol() - this.getCol(), 2));
     }
 

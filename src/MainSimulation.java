@@ -9,10 +9,8 @@ import model.monitor.MonitorEnum;
 import model.projectile_objects.HitscanObject;
 import model.settings.GameSettings;
 import model.surface.BaseSurface;
-import model.surface.ForestSurface;
-import model.map_objects.Tree;
 import utils.ConfigUtils;
-import ai.AIAgent;
+import ai.agents.AIAgent;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.BaseCamera;
@@ -468,7 +466,7 @@ public class MainSimulation extends PApplet {
 
         for(AIAgent agent : aiAgents){
             UnitState state= agent.getUnit().getState();
-            if(state == UnitState.STANDING){
+            if (state == UnitState.STANDING) {
                 agent.move();
             }
         }

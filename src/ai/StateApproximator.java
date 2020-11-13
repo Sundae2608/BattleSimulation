@@ -2,6 +2,8 @@ package ai;
 
 import java.util.ArrayList;
 
+import ai.view.AIView;
+import ai.view.AIViewOfUnit;
 import model.enums.PoliticalFaction;
 import model.enums.UnitType;
 
@@ -30,7 +32,7 @@ public class StateApproximator {
         }
     }
 
-    private double evaluateUnitsDistance(AIUnitView currentUnit, AIUnitView enemyUnit){
+    private double evaluateUnitsDistance(AIViewOfUnit currentUnit, AIViewOfUnit enemyUnit){
         
         
         double distance = currentUnit.getDistance(enemyUnit);
@@ -38,25 +40,25 @@ public class StateApproximator {
         UnitType allyType = currentUnit.getBaseUnit().getUnitType();
         double score = distance;
 
-        if(isMeleeType(allyType)) {
-            return 1/score;
+        if (isMeleeType(allyType)) {
+            return 1.0 / score;
         }
 
         return score;
 
     }
-    public double evaluate(AIView state, AIUnitView currentUnit){
+    public double evaluate(AIView state, AIViewOfUnit currentUnit){
 
-        ArrayList<AIUnitView> enemyUnits = new ArrayList<AIUnitView>();
+        ArrayList<AIViewOfUnit> enemyUnits = new ArrayList<AIViewOfUnit>();
         //ArrayList<AIUnitView> allyUnits = new ArrayList<AIUnitView>();
         PoliticalFaction allyFaction = currentUnit.getPoliticalFaction();
-        for(AIUnitView unit : state.getAIUnits()){
+        for(AIViewOfUnit unit : state.getAIUnits()){
             if(unit != currentUnit && unit.getPoliticalFaction() != allyFaction) {
                 enemyUnits.add(unit);
             }
         }
         double score = 0;
-        for(AIUnitView enemyUnit: enemyUnits){
+        for(AIViewOfUnit enemyUnit: enemyUnits){
             score = Math.max(score, evaluateUnitsDistance(currentUnit, enemyUnit));
         }
         

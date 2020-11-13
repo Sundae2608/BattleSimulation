@@ -1,6 +1,5 @@
-package ai;
+package ai.view;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -13,8 +12,8 @@ import model.units.BaseUnit;
  */
 public class AIView {
     
-    private HashMap<BaseUnit, AIUnitView> unitsMapping;
-    private HashSet<AIUnitView> units;
+    private HashMap<BaseUnit, AIViewOfUnit> unitsMapping;
+    private HashSet<AIViewOfUnit> units;
     private GameEnvironment env;
     private Terrain terrain;
     private int numRows;
@@ -23,6 +22,8 @@ public class AIView {
     private double divY;
 
     public AIView(GameEnvironment env, int divX, int divY) {
+
+        // Assign variables internally
         this.env = env;
         this.terrain = env.getTerrain();
         this.numRows = (int) Math.ceil((terrain.getBotY() - terrain.getTopY()) / divY);
@@ -32,29 +33,31 @@ public class AIView {
         this.unitsMapping = new HashMap<>();
         this.units = new HashSet<>();
 
+        // For each unit in the environment, create an AI view of that unit.
         for(BaseUnit unit : env.getAliveUnits()){
-            AIUnitView aiUnit = new AIUnitView(unit, this);
+            AIViewOfUnit aiUnit = new AIViewOfUnit(unit, this);
             unitsMapping.put(unit, aiUnit);
             units.add(aiUnit);
         }
-        updateState();
+        this.updateState();
     }
 
     /**
-     * Update the state of the AI views.
+     * Update the state of the AI view. This will be called at every step.
      */
-    public void updateState(){
+    public void updateState() {
         units.removeIf(unit -> !unit.isAlive());
     }
-    
-    public AIUnitView getAIUnit(BaseUnit unit){
-        if(!unitsMapping.containsKey(unit)){
+
+
+    public AIViewOfUnit getAIViewOfUnit(BaseUnit unit) {
+        if (!unitsMapping.containsKey(unit)) {
             return null;
         }
         return unitsMapping.get(unit);
     }
 
-    public HashSet<AIUnitView> getAIUnits(){
+    public HashSet<AIViewOfUnit> getAIUnits() {
         return units;
     }
 
@@ -66,7 +69,7 @@ public class AIView {
 		return new int[]{row, col};
     } 
 
-    public double[] getCoordinate(int row, int col){
+    public double[] getCoordinate(int row, int col) {
         row = Math.max(row, 0);
         row = Math.min(row, numRows - 1);
         col = Math.max(col, 0);

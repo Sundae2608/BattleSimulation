@@ -1,5 +1,8 @@
-package ai;
+package ai.agents;
 
+import ai.view.AIView;
+import ai.view.AIViewOfUnit;
+import ai.StateApproximator;
 import model.GameEnvironment;
 import model.units.BaseUnit;
 import model.utils.GameplayUtils;
@@ -16,13 +19,13 @@ public class AIAgent {
         this.state = new AIView(env, 500, 500);
     }
 
-    public void move(){
+    public void move() {
         // Update the game state so that the AI agent has the most updated view.
         state.updateState();
         
-        AIUnitView aiUnit = state.getAIUnit(this.unit);
+        AIViewOfUnit aiUnit = state.getAIViewOfUnit(this.unit);
 
-        for(AIUnitView otherUnitAIView: state.getAIUnits()){
+        for(AIViewOfUnit otherUnitAIView: state.getAIUnits()){
             if(otherUnitAIView.getPoliticalFaction() != aiUnit.getPoliticalFaction()){
                 if(Math.abs(aiUnit.getRow()- otherUnitAIView.getRow()) + Math.abs(aiUnit.getCol() - otherUnitAIView.getCol()) <= 1){
                     double goalX = otherUnitAIView.getBaseUnit().getGoalX();
@@ -44,9 +47,9 @@ public class AIAgent {
         int bestRow = row;
         int bestCol = col;
         
-        for(int rowPadding = -1; rowPadding <= 1; rowPadding++){
-            for(int colPadding = -1; colPadding <= 1; colPadding++){
-                if(rowPadding == 0 && colPadding == 0){
+        for (int rowPadding = -1; rowPadding <= 1; rowPadding++){
+            for (int colPadding = -1; colPadding <= 1; colPadding++){
+                if (rowPadding == 0 && colPadding == 0){
                     continue;
                 }
                 nextRow = row + rowPadding;
@@ -65,7 +68,7 @@ public class AIAgent {
                     bestScore = nextStateScore;
                 }
 
-                //move back to the original position
+                // Move back to the original position
                 aiUnit.move(row, col);
 
             }
