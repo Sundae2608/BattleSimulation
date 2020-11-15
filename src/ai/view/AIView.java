@@ -11,7 +11,7 @@ import model.units.BaseUnit;
  * GameState denotes the state in which the AI Agent perceives the games.
  */
 public class AIView {
-    
+
     private HashMap<BaseUnit, AIViewOfUnit> unitsMapping;
     private HashSet<AIViewOfUnit> units;
     private GameEnvironment env;
