@@ -928,7 +928,7 @@ public class MainSimulation extends PApplet {
                     int frontlineWidth = Math.min((int) (
                                     distance / unitSelected.getUnitStats().spacing),
                             unitSelected.getNumAlives());
-                    unitSelected.changeFrontlineWidth(frontlineWidth);
+                    unitSelected.reorderTroopsWithWidth(frontlineWidth);
                 }
             }
         }
