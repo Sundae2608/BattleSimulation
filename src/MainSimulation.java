@@ -1,4 +1,4 @@
-import ai.agents.AIGeneral;
+import ai.AIGeneral;
 import model.algorithms.pathfinding.Node;
 import model.algorithms.pathfinding.Path;
 import model.checker.EnvironmentChecker;
@@ -11,7 +11,7 @@ import model.projectile_objects.HitscanObject;
 import model.settings.GameSettings;
 import model.surface.BaseSurface;
 import utils.ConfigUtils;
-import ai.agents.AIAgent;
+import ai.AIUnitAgent;
 import view.audio.AudioSpeaker;
 import view.audio.AudioType;
 import view.camera.BaseCamera;
@@ -137,7 +137,7 @@ public class MainSimulation extends PApplet {
         gameSettings.setProcessSoundBounce(false);
         gameSettings.setUseRoundedSurfaceCollision(true);
         gameSettings.setProcessUnitVision(false);
-        gameSettings.setCreateAIAgent(false);
+        gameSettings.setCreateAIAgent(true);
 
         // Graphic settings
         drawingSettings = new DrawingSettings();
@@ -186,7 +186,7 @@ public class MainSimulation extends PApplet {
         /** Pre-processing troops */
         // Create a new game based on the input configurations.
         String gameConfig = "src/configs/game_configs/game_config.json";
-        String battleConfig = "src/configs/battle_configs/ai_config_1v1_gun_vs_gun.json";
+        String battleConfig = "src/configs/battle_configs/ai_config_1v1_gun.json";
         String visualConfig = "src/configs/visual_configs/visual_config.json";
         String audioConfig = "src/configs/audio_configs/audio_config.json";
         env = new GameEnvironment(gameConfig, battleConfig, gameSettings);
@@ -202,7 +202,7 @@ public class MainSimulation extends PApplet {
         keyPressedSet = new HashSet<>();
 
         /** AI set up*/
-        ArrayList<AIAgent> aiAgents = new ArrayList<>();
+        ArrayList<AIUnitAgent> aiAgents = new ArrayList<>();
         if (gameSettings.isCreateAIAgent()) {
             try {
                 aiPoliticalFaction = ConfigUtils.readPoliticalFactionFromConfig(battleConfig);
@@ -211,7 +211,7 @@ public class MainSimulation extends PApplet {
             }
             for (BaseUnit unit : env.getAliveUnits()) {
                 if (unit.getPoliticalFaction() == aiPoliticalFaction) {
-                    aiAgents.add(new AIAgent(unit, env));
+                    aiAgents.add(new AIUnitAgent(unit, env));
                 }
             }
         }
@@ -289,15 +289,15 @@ public class MainSimulation extends PApplet {
         // Record time
         lastTime = System.nanoTime();
 
-        // The AI makes a decision
-        aiGeneral.commandAgents();
-
         if (!currentlyPaused) {
             // The environment makes one step forward in processing.
             for (int i = 0; i < drawingSettings.getFrameSkips() + 1; i++) {
                 env.step();
             }
         }
+
+        // The AI makes a decision
+        aiGeneral.commandAgents();
 
         if (!currentlyPaused) {
             camera.update();
@@ -679,7 +679,7 @@ public class MainSimulation extends PApplet {
                 if (unit.getNumAlives() == 0) continue;
                 boolean isSelected = unit == unitSelected;
                 boolean isAI = false;
-                for (AIAgent aiAgent : aiGeneral.getAgents()) {
+                for (AIUnitAgent aiAgent : aiGeneral.getAgents()) {
                     if (unit == aiAgent.getUnit()) {
                         isAI = true;
                         break;
@@ -805,7 +805,7 @@ public class MainSimulation extends PApplet {
             // TODO: It would be better to actually check against the Unit Bounding box for a more accurate collision
             //  checking.
             boolean isAIAgent = false;
-            for (AIAgent aiAgent : aiGeneral.getAgents()) {
+            for (AIUnitAgent aiAgent : aiGeneral.getAgents()) {
                 if (closestUnit == aiAgent.getUnit()) {
                     isAIAgent = true;
                     break;

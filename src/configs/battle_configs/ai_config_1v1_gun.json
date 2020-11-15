@@ -1,6 +1,6 @@
 {
   "ai_config": {
-    "ai_faction": "ROME"
+    "ai_faction": "GAUL"
   },
   "battle_config": [
     {
@@ -9,9 +9,9 @@
       "x": 1000,
       "y": 1500,
       "angle": 0,
-      "size": 300,
+      "size": 80,
       "faction": "GAUL",
-      "width": 60
+      "width": 10
     },
     {
       "type": "GUN_INFANTRY",
