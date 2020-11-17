@@ -64,7 +64,7 @@ public class AIUnitAgent {
             }
         }
 
-        // Control the unit based on made decisions
+        // Control the unit based on made decisions, if a decision is available.
         if (maxDecision != null) {
             unit.moveFormationKeptTo(maxDecision.x, maxDecision.y, maxDecision.facingAngle);
         }
