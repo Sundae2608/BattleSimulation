@@ -3,6 +3,9 @@ package city_gen_model;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Store quantities, relative growth as well as capacity for each of the CityParameterType
+ */
 public class CityStateParameters {
     Map<CityParamType, Double> quantityMap;
     Map<CityParamType, Double> relativeGrowthCoefficientMap; // Used for logistic function
@@ -12,6 +15,7 @@ public class CityStateParameters {
         quantityMap = new HashMap<>();
         relativeGrowthCoefficientMap = new HashMap<>();
         capacityMap = new HashMap<>();
+
         for (CityParamType cityParamType : CityParamType.values()) {
             quantityMap.put(cityParamType, 0.0);
             relativeGrowthCoefficientMap.put(cityParamType, 0.0);
@@ -43,6 +47,10 @@ public class CityStateParameters {
         capacityMap.put(paramType, value);
     }
 
+    /**
+     * Determine if the city state is valid
+     * @return
+     */
     public boolean valid() {
         if (getQuantity(CityParamType.PERSON) > getQuantity(CityParamType.HOUSE)*2 &&
                 getQuantity(CityParamType.PERSON) < getQuantity(CityParamType.HOUSE)*6) {

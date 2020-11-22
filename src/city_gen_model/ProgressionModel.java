@@ -11,7 +11,6 @@ import java.util.*;
 public class ProgressionModel {
 
     private CityStateParameters cityStateParameters;
-
     private Map<CityParamType, Progression> defaultProgressionFunctions;
     private Map<CityParamType, List<Progression>> eventProgressionFunctions;
     private Map<MapEvent, List<Progression>> eventProgressionMap;
@@ -32,6 +31,12 @@ public class ProgressionModel {
         }
     }
 
+    /**
+     * Add new progression functions to model
+     * In the next t months (determined by the mapEvent parameter), city state will progress according to the newly
+     * added functions, instead of the default ones. After t steps, the default progression function will be used.
+     * @param mapEvent
+     */
     public void registerEvent(MapEvent mapEvent) {
         switch (mapEvent.getMapEventType()) {
             case DESTROY_CITY:
@@ -71,6 +76,7 @@ public class ProgressionModel {
     }
 
     public void update(int numMonths) throws Exception {
+        // Decrease the time interval in each map event, and remove the map event if its time interval reaches 0
         for (MapEvent event : eventProgressionMap.keySet()){
             event.setInterval(event.getInterval()-1);
             if (event.getInterval() == 0) {
@@ -79,9 +85,10 @@ public class ProgressionModel {
                 }
             }
         }
-
         eventProgressionMap.entrySet().removeIf(x -> x.getKey().getInterval() == 0);
 
+        // For each of the city parameter type, use the default functions if there is no active event. Otherwise,
+        // use the functions in eventProgressionFunctions
         for (CityParamType paramType : eventProgressionFunctions.keySet()) {
             if (eventProgressionFunctions.get(paramType).size() == 0) {
                 cityStateParameters.setQuantity(paramType, defaultProgressionFunctions.get(paramType)
