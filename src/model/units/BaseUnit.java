@@ -270,7 +270,7 @@ public class BaseUnit {
         }
     }
 
-    public void changeFrontlineWidth(int newWidth) {
+    public void reorderTroopsWithWidth(int newWidth) {
         if (newWidth <= 0 || newWidth > getNumAlives()) {
             // Frontline can't be changed if the width or is too wide.
             return;
@@ -617,13 +617,18 @@ public class BaseUnit {
             }
         }
 
-        if (gameSettings.isCountWrongFormationChanges() && TestUtils.checkFormation(this)) {
-            env.getMonitor().count(MonitorEnum.WRONG_FORMATION_CHANGES);
-            Log.info("Formation transformation looks wrong");
-            Log.info("Formation before:");
-            Log.info(TestUtils.formationString(formationBefore));
-            Log.info("Formation after:");
-            Log.info(TestUtils.formationString(aliveTroopsFormation));
+
+        // Check formations, and fix the formation if necessary
+        if (TestUtils.checkFormation(this)) {
+            if (gameSettings.isCountWrongFormationChanges()) {
+                env.getMonitor().count(MonitorEnum.WRONG_FORMATION_CHANGES);
+                Log.info("Formation transformation looks wrong");
+                Log.info("Formation before:");
+                Log.info(TestUtils.formationString(formationBefore));
+                Log.info("Formation after:");
+                Log.info(TestUtils.formationString(aliveTroopsFormation));
+            }
+            reorderTroopsWithWidth(width);
         }
     }
 

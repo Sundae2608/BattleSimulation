@@ -17,13 +17,11 @@ public class DrawingConstants {
     public final static int[] COLOR_DEAD = {0, 0, 0, 76};                 // #000000, 76%
     public final static int[] COLOR_IN_DANGER = {226, 73, 255, 255};      // #E249FF
     public final static int[] COLOR_IN_POSITION = {192, 227, 75, 255};    // #C0E34B
-    public final static int[] COLOR_GOAL_POSITION = {255, 226, 18, 255};  // #FFE212
 
     // Icon colors
     public final static int[] COLOR_MORALE = {209, 170, 47, 255};  // #D1AA2F
 
     // Terrain colors
-    public final static int[] COLOR_TERRAIN_DOT = {0, 0, 0, 128};  // #000000, 12%
     public final static int[] COLOR_TERRAIN_LINE = {0, 0, 0};
     public final static int COLOR_TERRAIN_LINE_MAX_ALPHA = 130;
     public final static int COLOR_TERRAIN_LINE_MIN_ALPHA = 30;
@@ -47,15 +45,11 @@ public class DrawingConstants {
     // Object colors
     public final static int[] BULLET_COLOR = {255, 0, 0, 255};
 
-
     // Node points
     public final static int[] NODE_COLOR = {255, 87, 33, 128};
-    public final static int[] EDGE_COLOR = {255, 87, 33, 128};
     public final static int[] MOUSE_OVER_POLYGON_COLOR = {100, 100, 100};
     public final static int[] NORMAL_POLYGON_COLOR = {128, 128, 128};
     public final static int[] POLYGON_RIVER_COLOR = {123, 190, 235};
-    public final static int[] MERGED_POLYGON_COLOR = {242, 114, 70, 128};
-    public final static int[] HOUSE_ROOF_COLOR = {214, 90, 84};
     public final static int[] TREE_LEAF_COLOR = {92, 194, 106};
     public final static int[] ROAD_COLOR = {217, 138, 76};
     public final static double NODE_RADIUS = 40;
@@ -66,19 +60,12 @@ public class DrawingConstants {
     // Anchor arrow size
     public final static int ANCHOR_ARROW_SIZE = 100;
 
-    // Grid scale
-    public final static float GRID_SIZE = 500;
-    public final static float[] GRID_COLOR = {0, 0, 0, 51};
-
     // Drawing boundary
     public final static double DRAWING_OUTER_BOUNDARY = 20;
 
-    // Terrain scale
-    public final static double TERRAIN_HEIGHT_SCALE = 150;
-
     // Plan arrow size
     public final static double ARROW_SIZE = 30;
-    public final static double BALISTA_SIZE = 100;
+    public final static double BALLISTA_SIZE = 100;
     public final static double CATAPULT_SIZE = 20;
 
     // Height scale for airborne objects

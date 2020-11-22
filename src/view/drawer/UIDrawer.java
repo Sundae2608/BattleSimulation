@@ -30,9 +30,6 @@ public class UIDrawer extends BaseDrawer {
 
     Map<String, Scrollbar> scrollbars;
 
-    int xStart = 1000;
-    int yScrollbarStart = 900;
-
     public UIDrawer(PApplet inputApplet, BaseCamera inputCamera, DrawingSettings inputDrawingSettings) {
         // Inject dependencies.
         applet = inputApplet;

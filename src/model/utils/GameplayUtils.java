@@ -19,7 +19,7 @@ public final class GameplayUtils {
     }
 
     /**
-     *
+     * TODO: Write some comments for this function.
      */
     public static boolean checkIfUnitCanMoveTowards(double x, double y, ArrayList<Construct> constructs) {
         for (Construct construct : constructs) {

@@ -2,9 +2,7 @@ package view.settings;
 
 public class DrawingSettings {
 
-    // TODO(sonpham): Move this somewhere else. This drawer settings are now doing more than just drawing.
-    // TODO(sonpham): Probabaly convert all of this too boolean because there is really only 2 rendering mode for these
-    //  settings.
+    // Drawing settings for Main Simulation.
     private RenderMode renderMode;
     private DrawingMode drawWeapon;
     private DrawingMode drawEye;
@@ -15,7 +13,6 @@ public class DrawingSettings {
     private boolean drawHeightField;
     private boolean drawMapTexture;
     private boolean drawTroopShadow;
-    private boolean drawSimplifiedTroopShape;
     private boolean drawIcon;
     private boolean drawTroopInDanger;
     private boolean drawTroopInPosition;
@@ -37,7 +34,6 @@ public class DrawingSettings {
     private boolean drawRiverAsCurved;
     private boolean drawTrees;
     private boolean drawRoads;
-
 
     // Smooth zoom processing
     private boolean smoothCameraMovement;
@@ -144,14 +140,6 @@ public class DrawingSettings {
     }
     public void setDrawIcon(boolean drawIcon) {
         this.drawIcon = drawIcon;
-    }
-
-    public boolean isDrawSimplifiedTroopShape() {
-        return drawSimplifiedTroopShape;
-    }
-
-    public void setDrawSimplifiedTroopShape(boolean drawSimplifiedTroopShape) {
-        this.drawSimplifiedTroopShape = drawSimplifiedTroopShape;
     }
 
     public int getSmoothPlanShowingSteps() {
