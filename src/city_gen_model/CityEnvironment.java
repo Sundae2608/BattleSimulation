@@ -77,7 +77,7 @@ public class CityEnvironment {
     /**
      * Step function. Move one time step and update the city states.
      */
-    public void step() {
+    public void step() throws Exception {
         // TODO: Put a city parameters called "deltaParams" in the city state. This is a fairly ugly way to calculate
         //  difference in the number of houses.
         double oldNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE);

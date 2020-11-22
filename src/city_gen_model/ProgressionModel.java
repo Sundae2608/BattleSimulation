@@ -25,37 +25,10 @@ public class ProgressionModel {
         for (CityParamType cityParamType : CityParamType.values()) {
             eventProgressionFunctions.put(cityParamType, new ArrayList<>());
 
-            switch (cityParamType) {
-                case PERSON:
-                    defaultProgressionFunctions.put(cityParamType, new ExponentialFunction(1.02));
-                    break;
-                case HOUSE:
-                    defaultProgressionFunctions.put(cityParamType, new LogisticFunction(0.0008, 1500));
-                    break;
-                case MARKET:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(2));
-                    break;
-                case FARM:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(3));
-                    break;
-                case SCHOOL:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(4));
-                    break;
-                case RELIGIOUS_BUILDING:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(5));
-                    break;
-                case GOVERNMENT_BUILDING:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(6));
-                    break;
-                case FACTORY:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(7));
-                    break;
-                case COST_OF_LIVING:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(8));
-                    break;
-                default:
-                    defaultProgressionFunctions.put(cityParamType, new LinearFunction(20));
-            }
+            double relativeGrowthCoefficient = cityStateParameters.getRelativeGrowthCoefficient(cityParamType);
+            double capacity = cityStateParameters.getCapacity(cityParamType);
+
+            defaultProgressionFunctions.put(cityParamType, new LogisticFunction(relativeGrowthCoefficient, capacity));
         }
     }
 
@@ -65,9 +38,7 @@ public class ProgressionModel {
                 addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-4));
                 break;
             case FLOOD:
-                cityStateParameters.setQuantity(CityParamType.HOUSE,
-                        cityStateParameters.getQuantity(CityParamType.HOUSE)/2);
-                addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-1));
+                addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-20));
                 break;
             case LOWER_TAX:
                 addFunction(mapEvent, CityParamType.PERSON, new ExponentialFunction(1.08));
@@ -99,7 +70,7 @@ public class ProgressionModel {
         eventProgressionMap.get(mapEvent).add(function);
     }
 
-    public void update(int timeSteps) {
+    public void update(int numMonths) throws Exception {
         for (MapEvent event : eventProgressionMap.keySet()){
             event.setInterval(event.getInterval()-1);
             if (event.getInterval() == 0) {
@@ -114,13 +85,17 @@ public class ProgressionModel {
         for (CityParamType paramType : eventProgressionFunctions.keySet()) {
             if (eventProgressionFunctions.get(paramType).size() == 0) {
                 cityStateParameters.setQuantity(paramType, defaultProgressionFunctions.get(paramType)
-                        .getNextValue(cityStateParameters.getQuantity(paramType), timeSteps));
+                        .getNextValue(cityStateParameters.getQuantity(paramType), numMonths));
             } else {
                 for (Progression func : eventProgressionFunctions.get(paramType)) {
                     cityStateParameters.setQuantity(paramType, func.getNextValue(cityStateParameters
-                            .getQuantity(paramType), timeSteps));
+                            .getQuantity(paramType), numMonths));
                 }
             }
+        }
+
+        if (!cityStateParameters.valid()) {
+            throw new Exception("City State is not valid.");
         }
     }
 }

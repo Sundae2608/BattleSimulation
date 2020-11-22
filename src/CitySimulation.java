@@ -238,7 +238,11 @@ public class CitySimulation extends PApplet {
         for (Button b : buttons) {
             b.update();
         }
-        cityEnvironment.step();
+        try {
+            cityEnvironment.step();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         /**
          * Update camera
