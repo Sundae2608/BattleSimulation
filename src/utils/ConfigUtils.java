@@ -109,8 +109,8 @@ public final class ConfigUtils {
     /**
      * Read city state parameter
      */
-    public static CityObjects readCityStateParameters(String filePath) throws IOException {
-        JsonIO jsonIO = new CityStateParamsIO();
+    public static CityObjects readCityObjects(String filePath) throws IOException {
+        JsonIO jsonIO = new CityObjectsIO();
         return (CityObjects) jsonIO.read(filePath);
     }
 }

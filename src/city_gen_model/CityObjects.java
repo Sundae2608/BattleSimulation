@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Store quantities, relative growth as well as capacity for each of the CityParameterType
+ * Store quantities, relative growth as well as capacity for each of the CityObjectType
  */
 public class CityObjects {
     Map<CityObjectType, Double> quantityMap;

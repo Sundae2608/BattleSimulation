@@ -15,17 +15,17 @@ public class ProgressionModel {
     private Map<CityObjectType, List<Progression>> eventProgressionFunctions;
     private Map<MapEvent, List<Progression>> eventProgressionMap;
 
-    public ProgressionModel(CityObjects cityParams) {
+    public ProgressionModel(CityObjects cityObjects) {
         defaultProgressionFunctions = new HashMap<>();
         eventProgressionFunctions = new HashMap<>();
         eventProgressionMap = new HashMap<>();
-        cityObjects = cityParams;
+        this.cityObjects = cityObjects;
 
         for (CityObjectType cityObjectType : CityObjectType.values()) {
             eventProgressionFunctions.put(cityObjectType, new ArrayList<>());
 
-            double relativeGrowthCoefficient = cityObjects.getRelativeGrowthCoefficient(cityObjectType);
-            double capacity = cityObjects.getCapacity(cityObjectType);
+            double relativeGrowthCoefficient = this.cityObjects.getRelativeGrowthCoefficient(cityObjectType);
+            double capacity = this.cityObjects.getCapacity(cityObjectType);
 
             defaultProgressionFunctions.put(cityObjectType, new LogisticFunction(relativeGrowthCoefficient, capacity));
         }

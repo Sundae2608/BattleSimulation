@@ -181,14 +181,14 @@ public class CitySimulation extends PApplet {
 
 
         // Initialize city environment
-        String cityStateParamsConfig = "src/configs/city_configs/city_state.json";
+        String cityObjectConfig = "src/configs/city_configs/city_state.json";
         try {
-            cityState = new CityState(eventBroadcaster, ConfigUtils.readCityStateParameters(cityStateParamsConfig));
+            cityState = new CityState(eventBroadcaster, ConfigUtils.readCityObjects(cityObjectConfig));
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            terrain = ConfigUtils.createTerrainFromConfig(cityStateParamsConfig);
+            terrain = ConfigUtils.createTerrainFromConfig(cityObjectConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
