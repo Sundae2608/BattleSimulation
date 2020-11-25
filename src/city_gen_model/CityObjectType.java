@@ -1,6 +1,6 @@
 package city_gen_model;
 
-public enum CityParamType {
+public enum CityObjectType {
     PERSON,
     HOUSE,
     MARKET,

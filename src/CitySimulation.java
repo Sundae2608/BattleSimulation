@@ -1,4 +1,4 @@
-import city_gen_model.CityParamType;
+import city_gen_model.CityObjectType;
 import city_gen_model.CityEnvironment;
 import city_gen_model.CityState;
 import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettings;
@@ -372,14 +372,14 @@ public class CitySimulation extends PApplet {
         }
 
         infoDrawer.drawTextBox("Number of Houses: " +
-                cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE), 20, INPUT_HEIGHT -20, 200);
+                cityState.getCityStateParameters().getQuantity(CityObjectType.HOUSE), 20, INPUT_HEIGHT -20, 200);
         for (Button b : buttons) {
             b.display();
         }
 
         int i = 0;
-        for (CityParamType cityParamType : CityParamType.values()) {
-            infoDrawer.drawTextBox(cityParamType + ": " + cityState.getCityStateParameters().getQuantity(cityParamType), 20, 20 * i +20, 150);
+        for (CityObjectType cityObjectType : CityObjectType.values()) {
+            infoDrawer.drawTextBox(cityObjectType + ": " + cityState.getCityStateParameters().getQuantity(cityObjectType), 20, 20 * i +20, 150);
             i++;
         }
     }

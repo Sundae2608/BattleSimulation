@@ -1,6 +1,6 @@
 package utils.json;
 
-import city_gen_model.CityParamType;
+import city_gen_model.CityObjectType;
 import city_gen_model.CityObjects;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,26 +23,29 @@ public class CityStateParamsIO extends JsonIO<CityObjects> {
 
         CityObjects cityParams = new CityObjects();
 
+        if (jsonObject == null) {
+            return null;
+        }
         JSONObject cityConfigObject = (JSONObject) jsonObject.get("city_config");
 
 
         // Get initial quantity
         JSONObject quantityObject = (JSONObject)cityConfigObject.get("initial_quantity");
 
-        cityParams.setQuantity(CityParamType.PERSON, getInt(quantityObject.get("population")));
-        cityParams.setQuantity(CityParamType.HOUSE, getInt(quantityObject.get("house")));
+        cityParams.setQuantity(CityObjectType.PERSON, getInt(quantityObject.get("population")));
+        cityParams.setQuantity(CityObjectType.HOUSE, getInt(quantityObject.get("house")));
 
         // Get growth rate
         JSONObject growRateObject = (JSONObject)cityConfigObject.get("growth_rate");
 
-        cityParams.setRelativeGrowthCoefficient(CityParamType.PERSON, getDouble(growRateObject.get("population")));
-        cityParams.setRelativeGrowthCoefficient(CityParamType.HOUSE, getDouble(growRateObject.get("house")));
+        cityParams.setRelativeGrowthCoefficient(CityObjectType.PERSON, getDouble(growRateObject.get("population")));
+        cityParams.setRelativeGrowthCoefficient(CityObjectType.HOUSE, getDouble(growRateObject.get("house")));
 
         // Get capacity
         JSONObject capacityObject = (JSONObject)cityConfigObject.get("capacity");
 
-        cityParams.setCapacity(CityParamType.PERSON, getDouble(capacityObject.get("population")));
-        cityParams.setCapacity(CityParamType.HOUSE, getDouble(capacityObject.get("house")));
+        cityParams.setCapacity(CityObjectType.PERSON, getDouble(capacityObject.get("population")));
+        cityParams.setCapacity(CityObjectType.HOUSE, getDouble(capacityObject.get("house")));
 
         return cityParams;
     }

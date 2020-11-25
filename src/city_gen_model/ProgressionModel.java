@@ -11,8 +11,8 @@ import java.util.*;
 public class ProgressionModel {
 
     private CityObjects cityObjects;
-    private Map<CityParamType, Progression> defaultProgressionFunctions;
-    private Map<CityParamType, List<Progression>> eventProgressionFunctions;
+    private Map<CityObjectType, Progression> defaultProgressionFunctions;
+    private Map<CityObjectType, List<Progression>> eventProgressionFunctions;
     private Map<MapEvent, List<Progression>> eventProgressionMap;
 
     public ProgressionModel(CityObjects cityParams) {
@@ -21,13 +21,13 @@ public class ProgressionModel {
         eventProgressionMap = new HashMap<>();
         cityObjects = cityParams;
 
-        for (CityParamType cityParamType : CityParamType.values()) {
-            eventProgressionFunctions.put(cityParamType, new ArrayList<>());
+        for (CityObjectType cityObjectType : CityObjectType.values()) {
+            eventProgressionFunctions.put(cityObjectType, new ArrayList<>());
 
-            double relativeGrowthCoefficient = cityObjects.getRelativeGrowthCoefficient(cityParamType);
-            double capacity = cityObjects.getCapacity(cityParamType);
+            double relativeGrowthCoefficient = cityObjects.getRelativeGrowthCoefficient(cityObjectType);
+            double capacity = cityObjects.getCapacity(cityObjectType);
 
-            defaultProgressionFunctions.put(cityParamType, new LogisticFunction(relativeGrowthCoefficient, capacity));
+            defaultProgressionFunctions.put(cityObjectType, new LogisticFunction(relativeGrowthCoefficient, capacity));
         }
     }
 
@@ -40,35 +40,35 @@ public class ProgressionModel {
     public void registerEvent(MapEvent mapEvent) {
         switch (mapEvent.getMapEventType()) {
             case DESTROY_CITY:
-                addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-4));
+                addFunction(mapEvent, CityObjectType.HOUSE, new LinearFunction(-4));
                 break;
             case FLOOD:
-                addFunction(mapEvent, CityParamType.HOUSE, new LinearFunction(-20));
+                addFunction(mapEvent, CityObjectType.HOUSE, new LinearFunction(-20));
                 break;
             case LOWER_TAX:
-                addFunction(mapEvent, CityParamType.PERSON, new ExponentialFunction(1.08));
-                addFunction(mapEvent, CityParamType.MARKET, new LinearFunction(20));
+                addFunction(mapEvent, CityObjectType.PERSON, new ExponentialFunction(1.08));
+                addFunction(mapEvent, CityObjectType.MARKET, new LinearFunction(20));
                 break;
             case AGRICULTURE_CULTIVATION:
-                addFunction(mapEvent, CityParamType.FARM, new LinearFunction(20));
+                addFunction(mapEvent, CityObjectType.FARM, new LinearFunction(20));
                 break;
             case PUBLIC_WELFARE:
-                addFunction(mapEvent, CityParamType.COST_OF_LIVING, new LinearFunction(-10));
-                addFunction(mapEvent, CityParamType.SCHOOL, new LinearFunction(20));
+                addFunction(mapEvent, CityObjectType.COST_OF_LIVING, new LinearFunction(-10));
+                addFunction(mapEvent, CityObjectType.SCHOOL, new LinearFunction(20));
                 break;
             case FREE_EXCHANGE_OF_IDEAS:
-                addFunction(mapEvent, CityParamType.FACTORY, new LinearFunction(20));
+                addFunction(mapEvent, CityObjectType.FACTORY, new LinearFunction(20));
                 break;
             case ANTI_HERESY:
-                addFunction(mapEvent, CityParamType.RELIGIOUS_BUILDING, new LinearFunction(-20));
+                addFunction(mapEvent, CityObjectType.RELIGIOUS_BUILDING, new LinearFunction(-20));
                 break;
             default:
                 break;
         }
     }
 
-    private void addFunction(MapEvent mapEvent, CityParamType cityParamType, Progression function) {
-        eventProgressionFunctions.get(cityParamType).add(function);
+    private void addFunction(MapEvent mapEvent, CityObjectType cityObjectType, Progression function) {
+        eventProgressionFunctions.get(cityObjectType).add(function);
         if (!eventProgressionMap.containsKey(mapEvent)) {
             eventProgressionMap.put(mapEvent, new ArrayList<>());
         }
@@ -80,7 +80,7 @@ public class ProgressionModel {
         for (MapEvent event : eventProgressionMap.keySet()){
             event.setInterval(event.getInterval()-1);
             if (event.getInterval() == 0) {
-                for (CityParamType paramType : eventProgressionFunctions.keySet()) {
+                for (CityObjectType paramType : eventProgressionFunctions.keySet()) {
                     eventProgressionFunctions.get(paramType).removeAll(eventProgressionMap.get(event));
                 }
             }
@@ -89,7 +89,7 @@ public class ProgressionModel {
 
         // For each of the city parameter type, use the default functions if there is no active event. Otherwise,
         // use the functions in eventProgressionFunctions
-        for (CityParamType paramType : eventProgressionFunctions.keySet()) {
+        for (CityObjectType paramType : eventProgressionFunctions.keySet()) {
             if (eventProgressionFunctions.get(paramType).size() == 0) {
                 cityObjects.setQuantity(paramType, defaultProgressionFunctions.get(paramType)
                         .getNextValue(cityObjects.getQuantity(paramType), numMonths));
