@@ -46,16 +46,4 @@ public class CityObjects {
     public void setCapacity(CityParamType paramType, double value) {
         capacityMap.put(paramType, value);
     }
-
-    /**
-     * Determine if the city state is valid
-     * @return
-     */
-    public boolean valid() {
-        if (getQuantity(CityParamType.PERSON) > getQuantity(CityParamType.HOUSE)*2 &&
-                getQuantity(CityParamType.PERSON) < getQuantity(CityParamType.HOUSE)*6) {
-            return true;
-        }
-        return false;
-    }
 }

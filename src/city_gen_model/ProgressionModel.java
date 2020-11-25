@@ -100,9 +100,5 @@ public class ProgressionModel {
                 }
             }
         }
-
-        if (!cityObjects.valid()) {
-            throw new Exception("City State is not valid.");
-        }
     }
 }
