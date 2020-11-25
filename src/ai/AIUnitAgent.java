@@ -64,7 +64,7 @@ public class AIUnitAgent {
             }
         }
 
-        // Control the unit based on made decisions
+        // Control the unit based on made decisions, if a decision is available.
         if (maxDecision != null) {
             unit.moveFormationKeptTo(maxDecision.x, maxDecision.y, maxDecision.facingAngle);
         }
@@ -83,7 +83,6 @@ public class AIUnitAgent {
         // Check whether the units overlap with allies
         // TODO: This could be optimized further, since positional overlapping doesn't have to be recalculated all the
         //  time. Also, overlapping does not need to check with bounding box.
-        // TODO: Also, create something called AI
         factor.overlappingWithAlly = false;
         for (BaseUnit allyUnit : state.allyUnits) {
             if (PhysicUtils.checkPolygonPolygonCollision(
