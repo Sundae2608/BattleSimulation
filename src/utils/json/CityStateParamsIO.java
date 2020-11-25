@@ -1,8 +1,7 @@
 package utils.json;
 
 import city_gen_model.CityParamType;
-import city_gen_model.CityStateParameters;
-import org.json.simple.JSONArray;
+import city_gen_model.CityObjects;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -10,10 +9,10 @@ import org.json.simple.parser.ParseException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class CityStateParamsIO extends JsonIO<CityStateParameters> {
+public class CityStateParamsIO extends JsonIO<CityObjects> {
 
     @Override
-    public CityStateParameters read(String filePath) {
+    public CityObjects read(String filePath) {
         // Initialize the JSON object
         JSONObject jsonObject = null;
         try {
@@ -22,7 +21,7 @@ public class CityStateParamsIO extends JsonIO<CityStateParameters> {
             e.printStackTrace();
         }
 
-        CityStateParameters cityParams = new CityStateParameters();
+        CityObjects cityParams = new CityObjects();
 
         JSONObject cityConfigObject = (JSONObject) jsonObject.get("city_config");
 

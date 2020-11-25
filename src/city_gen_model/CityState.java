@@ -3,22 +3,21 @@ package city_gen_model;
 import city_gen_model.city_events.MapEvent;
 import city_gen_model.city_events.MapEventBroadcaster;
 import city_gen_model.city_events.MapEventListener;
-import model.events.*;
 
 public class CityState extends MapEventListener {
 
-    CityStateParameters cityStateParameters;
+    CityObjects cityObjects;
     ProgressionModel model;
 
-    public CityState(MapEventBroadcaster inputBroadcaster, CityStateParameters cityStateParameters) {
+    public CityState(MapEventBroadcaster inputBroadcaster, CityObjects cityObjects) {
         super(inputBroadcaster);
 
-        this.model = new ProgressionModel(cityStateParameters);
-        this.cityStateParameters = cityStateParameters;
+        this.model = new ProgressionModel(cityObjects);
+        this.cityObjects = cityObjects;
     }
 
-    public CityStateParameters getCityStateParameters() {
-        return cityStateParameters;
+    public CityObjects getCityStateParameters() {
+        return cityObjects;
     }
 
     @Override

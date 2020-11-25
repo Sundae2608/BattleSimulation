@@ -1,6 +1,6 @@
 package utils;
 
-import city_gen_model.CityStateParameters;
+import city_gen_model.CityObjects;
 import javafx.util.Pair;
 import model.GameEnvironment;
 import model.GameStats;
@@ -10,7 +10,6 @@ import model.algorithms.pathfinding.Graph;
 import model.construct.Construct;
 import model.enums.PoliticalFaction;
 import model.events.EventBroadcaster;
-import model.settings.GameSettings;
 import model.surface.*;
 import model.terrain.Terrain;
 import model.units.*;
@@ -110,8 +109,8 @@ public final class ConfigUtils {
     /**
      * Read city state parameter
      */
-    public static CityStateParameters readCityStateParameters(String filePath) throws IOException {
+    public static CityObjects readCityStateParameters(String filePath) throws IOException {
         JsonIO jsonIO = new CityStateParamsIO();
-        return (CityStateParameters) jsonIO.read(filePath);
+        return (CityObjects) jsonIO.read(filePath);
     }
 }

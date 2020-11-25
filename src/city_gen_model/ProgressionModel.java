@@ -10,22 +10,22 @@ import java.util.*;
 
 public class ProgressionModel {
 
-    private CityStateParameters cityStateParameters;
+    private CityObjects cityObjects;
     private Map<CityParamType, Progression> defaultProgressionFunctions;
     private Map<CityParamType, List<Progression>> eventProgressionFunctions;
     private Map<MapEvent, List<Progression>> eventProgressionMap;
 
-    public ProgressionModel(CityStateParameters cityParams) {
+    public ProgressionModel(CityObjects cityParams) {
         defaultProgressionFunctions = new HashMap<>();
         eventProgressionFunctions = new HashMap<>();
         eventProgressionMap = new HashMap<>();
-        cityStateParameters = cityParams;
+        cityObjects = cityParams;
 
         for (CityParamType cityParamType : CityParamType.values()) {
             eventProgressionFunctions.put(cityParamType, new ArrayList<>());
 
-            double relativeGrowthCoefficient = cityStateParameters.getRelativeGrowthCoefficient(cityParamType);
-            double capacity = cityStateParameters.getCapacity(cityParamType);
+            double relativeGrowthCoefficient = cityObjects.getRelativeGrowthCoefficient(cityParamType);
+            double capacity = cityObjects.getCapacity(cityParamType);
 
             defaultProgressionFunctions.put(cityParamType, new LogisticFunction(relativeGrowthCoefficient, capacity));
         }
@@ -91,17 +91,17 @@ public class ProgressionModel {
         // use the functions in eventProgressionFunctions
         for (CityParamType paramType : eventProgressionFunctions.keySet()) {
             if (eventProgressionFunctions.get(paramType).size() == 0) {
-                cityStateParameters.setQuantity(paramType, defaultProgressionFunctions.get(paramType)
-                        .getNextValue(cityStateParameters.getQuantity(paramType), numMonths));
+                cityObjects.setQuantity(paramType, defaultProgressionFunctions.get(paramType)
+                        .getNextValue(cityObjects.getQuantity(paramType), numMonths));
             } else {
                 for (Progression func : eventProgressionFunctions.get(paramType)) {
-                    cityStateParameters.setQuantity(paramType, func.getNextValue(cityStateParameters
+                    cityObjects.setQuantity(paramType, func.getNextValue(cityObjects
                             .getQuantity(paramType), numMonths));
                 }
             }
         }
 
-        if (!cityStateParameters.valid()) {
+        if (!cityObjects.valid()) {
             throw new Exception("City State is not valid.");
         }
     }

@@ -6,12 +6,12 @@ import java.util.Map;
 /**
  * Store quantities, relative growth as well as capacity for each of the CityParameterType
  */
-public class CityStateParameters {
+public class CityObjects {
     Map<CityParamType, Double> quantityMap;
     Map<CityParamType, Double> relativeGrowthCoefficientMap; // Used for logistic function
     Map<CityParamType, Double> capacityMap; // Used for logistic function
 
-    public CityStateParameters() {
+    public CityObjects() {
         quantityMap = new HashMap<>();
         relativeGrowthCoefficientMap = new HashMap<>();
         capacityMap = new HashMap<>();
