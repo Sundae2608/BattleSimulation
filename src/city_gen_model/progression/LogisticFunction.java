@@ -27,4 +27,20 @@ public class LogisticFunction implements Progression {
                 (1 + ((carryingCapacity - currentValue) / currentValue) *
                         Math.pow(Math.E, -1 * relativeGrowthCoefficient * timeInterval));
     }
+
+    public double getCarryingCapacity() {
+        return carryingCapacity;
+    }
+
+    public void setCarryingCapacity(double carryingCapacity) {
+        this.carryingCapacity = carryingCapacity;
+    }
+
+    public double getRelativeGrowthCoefficient() {
+        return relativeGrowthCoefficient;
+    }
+
+    public void setRelativeGrowthCoefficient(double relativeGrowthCoefficient) {
+        this.relativeGrowthCoefficient = relativeGrowthCoefficient;
+    }
 }
