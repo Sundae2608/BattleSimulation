@@ -1,19 +1,22 @@
 package city_gen_model.city_events;
 
+import city_gen_model.CityObjectType;
+import city_gen_model.progression.LogisticFunction;
 import model.events.Event;
 import model.events.EventType;
 
-public class MapEvent {
+import java.util.HashMap;
+import java.util.Map;
+
+public abstract class MapEvent {
 
     int interval; // number of time step that the event takes effect
     double radius;
-    MapEventType mapEventType;
 
-    public MapEvent(MapEventType inputType, double inputX, double inputY, double inputZ,
+    public MapEvent(double inputX, double inputY, double inputZ,
                     int interval, double radius) {
         this.interval = interval;
         this.radius = radius;
-        this.mapEventType = inputType;
     }
 
     public int getInterval() {
@@ -28,5 +31,7 @@ public class MapEvent {
         return radius;
     }
 
-    public MapEventType getMapEventType() { return mapEventType; }
+    public abstract MapEventType getMapEventType();
+
+    public abstract void modifyFunctions(Map<CityObjectType, LogisticFunction> logisticFunctions);
 }

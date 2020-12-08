@@ -5,6 +5,7 @@ import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettin
 import city_gen_model.algorithms.geometry.house_generation.HouseSizeSettings;
 import city_gen_model.algorithms.geometry.house_generation.HouseType;
 import city_gen_model.algorithms.geometry.tree_generation.TreeGenerationSettings;
+import city_gen_model.city_events.FloodEvent;
 import city_gen_model.settings.CitySimulationSettings;
 import city_gen_model.city_events.MapEventBroadcaster;
 import city_gen_model.city_events.MapEventType;
@@ -204,8 +205,7 @@ public class CitySimulation extends PApplet {
                     new CustomProcedure() {
                         @Override
                         public void proc() { eventBroadcaster.broadcastEvent(
-                                new MapEvent(mapEventType,
-                                        0, 0, 0, 10, 500)); }
+                                new FloodEvent(0, 0, 0, 1, 500, 2)); }
                     }));
             i++;
         }
