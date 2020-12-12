@@ -12,10 +12,11 @@ public class ProgressionModel {
     private List<CityEvent> cityEvents;
 
     public ProgressionModel(CityObjects cityObjects) {
-        logisticFunctions = new HashMap<>();
-        cityEvents = new ArrayList<>();
+        this.cityEvents = new ArrayList<>();
         this.cityObjects = cityObjects;
 
+        // Create Logistic functions from city objects
+        this.logisticFunctions = new HashMap<>();
         for (CityObjectType cityObjectType : CityObjectType.values()) {
             double relativeGrowthCoefficient = this.cityObjects.getRelativeGrowthCoefficient(cityObjectType);
             double capacity = this.cityObjects.getCapacity(cityObjectType);
@@ -26,14 +27,14 @@ public class ProgressionModel {
 
     /**
      * Add new progression functions to model.
-     * @param mapEvent
+     * @param cityEvent
      */
-    public void registerEvent(CityEvent mapEvent) {
-        cityEvents.add(mapEvent);
+    public void registerEvent(CityEvent cityEvent) {
+        cityEvents.add(cityEvent);
     }
 
     public void update(int numMonths) {
-        // Remaining city events modify current logistic functions
+        // Modify current logistic functions
         for (CityEvent cityEvent : cityEvents) {
             cityEvent.modifyFunctions(logisticFunctions);
         }
@@ -44,8 +45,7 @@ public class ProgressionModel {
         }
         cityEvents.removeIf(x -> x.getInterval() == 0);
 
-        // For each of the city parameter type, use the default functions if there is no active event. Otherwise,
-        // use the functions in eventProgressionFunctions
+        // Apply functions in logistic function to cityObjects
         for (CityObjectType cityObjectType : CityObjectType.values()) {
             cityObjects.setQuantity(cityObjectType, logisticFunctions.get(cityObjectType).getNextValue(cityObjects
                     .getQuantity(cityObjectType), numMonths));
