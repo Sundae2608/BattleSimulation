@@ -25,9 +25,7 @@ public class ProgressionModel {
     }
 
     /**
-     * Add new progression functions to model
-     * In the next t months (determined by the mapEvent parameter), city state will progress according to the newly
-     * added functions, instead of the default ones. After t steps, the default progression function will be used.
+     * Add new progression functions to model.
      * @param mapEvent
      */
     public void registerEvent(CityEvent mapEvent) {
@@ -35,17 +33,16 @@ public class ProgressionModel {
     }
 
     public void update(int numMonths) {
-        // Decrease the time interval in each map event, and remove the map event if its time interval reaches 0
-        for (CityEvent event : cityEvents) {
-            event.setInterval(event.getInterval() - 1);
-        }
-
-        cityEvents.removeIf(x -> x.getInterval() == 0);
-
         // Remaining city events modify current logistic functions
         for (CityEvent cityEvent : cityEvents) {
             cityEvent.modifyFunctions(logisticFunctions);
         }
+
+        // Decrease the time interval in each map event, and remove the map event if its time interval reaches 0
+        for (CityEvent event : cityEvents) {
+            event.setInterval(event.getInterval() - 1);
+        }
+        cityEvents.removeIf(x -> x.getInterval() == 0);
 
         // For each of the city parameter type, use the default functions if there is no active event. Otherwise,
         // use the functions in eventProgressionFunctions
