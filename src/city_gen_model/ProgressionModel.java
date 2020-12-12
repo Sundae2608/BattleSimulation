@@ -1,6 +1,6 @@
 package city_gen_model;
 
-import city_gen_model.city_events.MapEvent;
+import city_gen_model.city_events.CityEvent;
 import city_gen_model.progression.LogisticFunction;
 
 import java.util.*;
@@ -9,11 +9,11 @@ public class ProgressionModel {
 
     private CityObjects cityObjects;
     private Map<CityObjectType, LogisticFunction> logisticFunctions;
-    private List<MapEvent> mapEvents;
+    private List<CityEvent> cityEvents;
 
     public ProgressionModel(CityObjects cityObjects) {
         logisticFunctions = new HashMap<>();
-        mapEvents = new ArrayList<>();
+        cityEvents = new ArrayList<>();
         this.cityObjects = cityObjects;
 
         for (CityObjectType cityObjectType : CityObjectType.values()) {
@@ -30,20 +30,21 @@ public class ProgressionModel {
      * added functions, instead of the default ones. After t steps, the default progression function will be used.
      * @param mapEvent
      */
-    public void registerEvent(MapEvent mapEvent) {
-        mapEvents.add(mapEvent);
+    public void registerEvent(CityEvent mapEvent) {
+        cityEvents.add(mapEvent);
     }
 
     public void update(int numMonths) {
         // Decrease the time interval in each map event, and remove the map event if its time interval reaches 0
-        for (MapEvent event : mapEvents) {
+        for (CityEvent event : cityEvents) {
             event.setInterval(event.getInterval() - 1);
         }
 
-        mapEvents.removeIf(mapEvent -> mapEvent.getInterval() == 0);
+        cityEvents.removeIf(x -> x.getInterval() == 0);
 
-        for (MapEvent mapEvent : mapEvents) {
-            mapEvent.modifyFunctions(logisticFunctions);
+        // Remaining city events modify current logistic functions
+        for (CityEvent cityEvent : cityEvents) {
+            cityEvent.modifyFunctions(logisticFunctions);
         }
 
         // For each of the city parameter type, use the default functions if there is no active event. Otherwise,
@@ -51,8 +52,6 @@ public class ProgressionModel {
         for (CityObjectType cityObjectType : CityObjectType.values()) {
             cityObjects.setQuantity(cityObjectType, logisticFunctions.get(cityObjectType).getNextValue(cityObjects
                     .getQuantity(cityObjectType), numMonths));
-
         }
-
     }
 }

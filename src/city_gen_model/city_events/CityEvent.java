@@ -8,15 +8,23 @@ import model.events.EventType;
 import java.util.HashMap;
 import java.util.Map;
 
-public abstract class MapEvent {
+public abstract class CityEvent {
 
     int interval; // number of time step that the event takes effect
     double radius;
 
-    public MapEvent(double inputX, double inputY, double inputZ,
+    double positionX;
+    double positionY;
+    double positionZ;
+
+    public CityEvent(double inputX, double inputY, double inputZ,
                     int interval, double radius) {
         this.interval = interval;
         this.radius = radius;
+
+        this.positionX = inputX;
+        this.positionY = inputY;
+        this.positionZ = inputZ;
     }
 
     public int getInterval() {
@@ -31,7 +39,7 @@ public abstract class MapEvent {
         return radius;
     }
 
-    public abstract MapEventType getMapEventType();
+    public abstract CityEventType getCityEventType();
 
     public abstract void modifyFunctions(Map<CityObjectType, LogisticFunction> logisticFunctions);
 }

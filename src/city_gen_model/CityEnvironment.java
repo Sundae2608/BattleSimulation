@@ -2,7 +2,7 @@ package city_gen_model;
 
 import city_gen_model.algorithms.geometry.*;
 import city_gen_model.algorithms.geometry.tree_generation.TreeFactory;
-import city_gen_model.city_events.MapEventBroadcaster;
+import city_gen_model.city_events.CityEventBroadcaster;
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import model.map_objects.House;
 import model.map_objects.Tree;
@@ -55,7 +55,7 @@ public class CityEnvironment {
     HashSet<Tree> trees;
     HashSet<House> houses;
     CityState cityState;
-    MapEventBroadcaster broadcaster;
+    CityEventBroadcaster broadcaster;
 
     // Certain polygons
     Polygon riverPolygon;
@@ -65,7 +65,7 @@ public class CityEnvironment {
 
     public CityEnvironment(CityState cityState,
                            Terrain terrain,
-                           MapEventBroadcaster eventBroadcaster,
+                           CityEventBroadcaster eventBroadcaster,
                            MapGenerationSettings mapGenerationSettings) {
         this.cityState = cityState;
         this.terrain = terrain;

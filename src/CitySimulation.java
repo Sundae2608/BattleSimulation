@@ -5,12 +5,10 @@ import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettin
 import city_gen_model.algorithms.geometry.house_generation.HouseSizeSettings;
 import city_gen_model.algorithms.geometry.house_generation.HouseType;
 import city_gen_model.algorithms.geometry.tree_generation.TreeGenerationSettings;
+import city_gen_model.city_events.CityEventType;
 import city_gen_model.city_events.FloodEvent;
 import city_gen_model.settings.CitySimulationSettings;
-import city_gen_model.city_events.MapEventBroadcaster;
-import city_gen_model.city_events.MapEventType;
-
-import city_gen_model.city_events.MapEvent;
+import city_gen_model.city_events.CityEventBroadcaster;
 import model.map_objects.House;
 import model.settings.MapGenerationMode;
 import model.settings.MapGenerationSettings;
@@ -61,7 +59,7 @@ public class CitySimulation extends PApplet {
     // City variables
     Terrain terrain;
     CityState cityState;
-    MapEventBroadcaster eventBroadcaster;
+    CityEventBroadcaster eventBroadcaster;
     CityEnvironment cityEnvironment;
 
     // Camera
@@ -178,7 +176,7 @@ public class CitySimulation extends PApplet {
 
     public void setup() {
         infoDrawer = new InfoDrawer(this);
-        eventBroadcaster = new MapEventBroadcaster();
+        eventBroadcaster = new CityEventBroadcaster();
 
 
         // Initialize city environment
@@ -199,8 +197,8 @@ public class CitySimulation extends PApplet {
         buttons = new ArrayList<>();
 
         int i = 0;
-        for (MapEventType mapEventType : MapEventType.values()) {
-            buttons.add(new Button(mapEventType.toString(),
+        for (CityEventType cityEventType : CityEventType.values()) {
+            buttons.add(new Button(cityEventType.toString(),
                     width-220, 20+i*30, 200, 25, this,
                     new CustomProcedure() {
                         @Override

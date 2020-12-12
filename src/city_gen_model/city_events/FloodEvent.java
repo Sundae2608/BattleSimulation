@@ -5,7 +5,7 @@ import city_gen_model.progression.LogisticFunction;
 
 import java.util.Map;
 
-public class FloodEvent extends MapEvent {
+public class FloodEvent extends CityEvent {
 
     // Impact of the flood event.
     // The rate of change is reduced based on the value of the impact parameter. If the impact is 2, the rate of change
@@ -18,8 +18,8 @@ public class FloodEvent extends MapEvent {
     }
 
     @Override
-    public MapEventType getMapEventType() {
-        return MapEventType.FLOOD;
+    public CityEventType getCityEventType() {
+        return CityEventType.FLOOD;
     }
 
     @Override

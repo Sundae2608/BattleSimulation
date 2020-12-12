@@ -1,6 +1,6 @@
 package city_gen_model.city_events;
 
-public enum MapEventType {
+public enum CityEventType {
     DESTROY_CITY,
     FLOOD,
     LOWER_TAX,

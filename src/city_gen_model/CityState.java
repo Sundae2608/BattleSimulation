@@ -1,15 +1,15 @@
 package city_gen_model;
 
-import city_gen_model.city_events.MapEvent;
-import city_gen_model.city_events.MapEventBroadcaster;
-import city_gen_model.city_events.MapEventListener;
+import city_gen_model.city_events.CityEvent;
+import city_gen_model.city_events.CityEventBroadcaster;
+import city_gen_model.city_events.CityEventListener;
 
-public class CityState extends MapEventListener {
+public class CityState extends CityEventListener {
 
     CityObjects cityObjects;
     ProgressionModel model;
 
-    public CityState(MapEventBroadcaster inputBroadcaster, CityObjects cityObjects) {
+    public CityState(CityEventBroadcaster inputBroadcaster, CityObjects cityObjects) {
         super(inputBroadcaster);
 
         this.model = new ProgressionModel(cityObjects);
@@ -21,7 +21,7 @@ public class CityState extends MapEventListener {
     }
 
     @Override
-    protected void listenEvent(MapEvent event) {
+    protected void listenEvent(CityEvent event) {
         model.registerEvent(event);
     }
 
