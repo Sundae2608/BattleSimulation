@@ -203,7 +203,7 @@ public class CitySimulation extends PApplet {
                     new CustomProcedure() {
                         @Override
                         public void proc() { eventBroadcaster.broadcastEvent(
-                                new FloodEvent(0, 0, 0, 1, 500, 2)); }
+                                new FloodEvent(0, 0, 0, 1, 500, 50, 2)); }
                     }));
             i++;
         }

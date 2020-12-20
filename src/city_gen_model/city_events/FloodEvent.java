@@ -1,6 +1,7 @@
 package city_gen_model.city_events;
 
 import city_gen_model.CityObjectType;
+import city_gen_model.ProgressionModel;
 import city_gen_model.progression.LogisticFunction;
 
 import java.util.Map;
@@ -17,15 +18,19 @@ public class FloodEvent extends CityEvent {
         this.impact = impact;
     }
 
+    public FloodEvent(double inputX, double inputY, double inputZ, int interval, double radius, int timeDelay, double impact) {
+        super(inputX, inputY, inputZ, interval, radius, timeDelay);
+        this.impact = impact;
+    }
+
     @Override
     public CityEventType getCityEventType() {
         return CityEventType.FLOOD;
     }
 
     @Override
-    public void modifyFunctions(Map<CityObjectType, LogisticFunction> logisticFunctions) {
-        logisticFunctions.get(CityObjectType.HOUSE).
-                setRelativeGrowthCoefficient(logisticFunctions.get(CityObjectType.HOUSE)
-                        .getRelativeGrowthCoefficient()/impact);
+    public void updateModel(ProgressionModel model) {
+        model.setRelativeGrowthCoefficient(CityObjectType.HOUSE,
+                model.getRelativeGrowthCoefficient(CityObjectType.HOUSE)/impact);
     }
 }

@@ -1,6 +1,7 @@
 package city_gen_model;
 
 import city_gen_model.city_events.CityEvent;
+import city_gen_model.city_events.CityEventScheduler;
 import city_gen_model.progression.LogisticFunction;
 
 import java.util.*;
@@ -9,10 +10,11 @@ public class ProgressionModel {
 
     private CityObjects cityObjects;
     private Map<CityObjectType, LogisticFunction> logisticFunctions;
-    private List<CityEvent> cityEvents;
+    private CityEventScheduler cityEventScheduler;
+    private int currentTimeStep;
 
     public ProgressionModel(CityObjects cityObjects) {
-        this.cityEvents = new ArrayList<>();
+        this.cityEventScheduler = new CityEventScheduler();
         this.cityObjects = cityObjects;
 
         // Create Logistic functions from city objects
@@ -23,6 +25,7 @@ public class ProgressionModel {
 
             logisticFunctions.put(cityObjectType, new LogisticFunction(relativeGrowthCoefficient, capacity));
         }
+        this.currentTimeStep = 0;
     }
 
     /**
@@ -30,25 +33,46 @@ public class ProgressionModel {
      * @param cityEvent
      */
     public void registerEvent(CityEvent cityEvent) {
-        cityEvents.add(cityEvent);
+        cityEventScheduler.registerEvent(currentTimeStep + cityEvent.getTimeDelay() + 1, cityEvent);
     }
 
+    /**
+     *
+     * @param numMonths
+     */
     public void update(int numMonths) {
-        // Modify current logistic functions
-        for (CityEvent cityEvent : cityEvents) {
-            cityEvent.modifyFunctions(logisticFunctions);
-        }
+        List<CityEvent> cityEvents = cityEventScheduler.getEvents(currentTimeStep);
 
-        // Decrease the time interval in each map event, and remove the map event if its time interval reaches 0
-        for (CityEvent event : cityEvents) {
-            event.setInterval(event.getInterval() - 1);
+        // Modify current logistic functions
+        if (cityEvents != null) {
+            for (CityEvent cityEvent : cityEvents) {
+                cityEvent.updateModel(this);
+            }
         }
-        cityEvents.removeIf(x -> x.getInterval() == 0);
 
         // Apply functions in logistic function to cityObjects
         for (CityObjectType cityObjectType : CityObjectType.values()) {
             cityObjects.setQuantity(cityObjectType, logisticFunctions.get(cityObjectType).getNextValue(cityObjects
                     .getQuantity(cityObjectType), numMonths));
         }
+
+        // Increase timeStep
+        this.currentTimeStep++;
+    }
+
+    public void setRelativeGrowthCoefficient(CityObjectType objectType, double value) {
+        logisticFunctions.get(objectType).setRelativeGrowthCoefficient(value);
+    }
+
+    public double getRelativeGrowthCoefficient(CityObjectType objectType) {
+        return logisticFunctions.get(objectType).getRelativeGrowthCoefficient();
+    }
+
+    public void setCarryingCapacity(CityObjectType objectType, double value) {
+        logisticFunctions.get(objectType).setCarryingCapacity(value);
+    }
+
+    public double getCarryingCapacity(CityObjectType objectType) {
+        return logisticFunctions.get(objectType).getCarryingCapacity();
     }
 }
