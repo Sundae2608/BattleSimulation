@@ -41,7 +41,11 @@ public class ProgressionModel {
      * @param numMonths
      */
     public void update(int numMonths) {
-        List<CityEvent> cityEvents = cityEventScheduler.getEvents(currentTimeStep);
+        // Get events in the next numMonths
+        List<CityEvent> cityEvents = new ArrayList<>();
+        for (int i = 0; i < numMonths; i++) {
+            cityEvents.addAll(cityEventScheduler.getEvents(currentTimeStep+i));
+        }
 
         // Modify current logistic functions
         if (cityEvents != null) {
@@ -57,7 +61,7 @@ public class ProgressionModel {
         }
 
         // Increase timeStep
-        this.currentTimeStep++;
+        this.currentTimeStep += numMonths;
     }
 
     public void setRelativeGrowthCoefficient(CityObjectType objectType, double value) {
