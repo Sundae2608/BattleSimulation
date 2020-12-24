@@ -2,7 +2,7 @@ package city_gen_model;
 
 import city_gen_model.algorithms.geometry.*;
 import city_gen_model.algorithms.geometry.tree_generation.TreeFactory;
-import city_gen_model.city_events.MapEventBroadcaster;
+import city_gen_model.city_events.CityEventBroadcaster;
 import it.unimi.dsi.util.XoShiRo256PlusRandom;
 import model.map_objects.House;
 import model.map_objects.Tree;
@@ -39,6 +39,9 @@ public class CityEnvironment {
     private static int NUM_VERTICES_INNER_WALL = 16;
     private static int NUM_BLOCKS_OUTER_WALL = 50;
 
+    // Number of time steps that the city advances whenever the simulation advances
+    private final static int TIME_STEPS = 1;
+
     // Settings
     MapGenerationSettings mapGenerationSettings;
 
@@ -52,7 +55,7 @@ public class CityEnvironment {
     HashSet<Tree> trees;
     HashSet<House> houses;
     CityState cityState;
-    MapEventBroadcaster broadcaster;
+    CityEventBroadcaster broadcaster;
 
     // Certain polygons
     Polygon riverPolygon;
@@ -62,7 +65,7 @@ public class CityEnvironment {
 
     public CityEnvironment(CityState cityState,
                            Terrain terrain,
-                           MapEventBroadcaster eventBroadcaster,
+                           CityEventBroadcaster eventBroadcaster,
                            MapGenerationSettings mapGenerationSettings) {
         this.cityState = cityState;
         this.terrain = terrain;
@@ -74,14 +77,14 @@ public class CityEnvironment {
     /**
      * Step function. Move one time step and update the city states.
      */
-    public void step() {
+    public void step() throws Exception {
         // TODO: Put a city parameters called "deltaParams" in the city state. This is a fairly ugly way to calculate
         //  difference in the number of houses.
-        int oldNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE);
-        cityState.update();
-        int deltaNumHouses = cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE) - oldNumHouses;
+        double oldNumHouses = cityState.getCityStateParameters().getQuantity(CityObjectType.HOUSE);
+        cityState.update(TIME_STEPS);
+        double deltaNumHouses = cityState.getCityStateParameters().getQuantity(CityObjectType.HOUSE) - oldNumHouses;
         // TODO: Divide by 4 is somewhat ad hoc. Remove this.
-        int newHouses = deltaNumHouses;
+        int newHouses = (int)deltaNumHouses;
         if (newHouses > 0) {
             // If the number of new houses is positive, we need to build a few new houses.
             for (int i = 0; i < newHouses; i++) {

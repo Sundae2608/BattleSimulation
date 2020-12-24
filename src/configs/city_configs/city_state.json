@@ -1,7 +1,17 @@
 {
     "city_config": {
-        "num_houses": 590,
-        "population": 1000
+        "initial_quantity": {
+            "house": 300,
+            "population": 1000
+        },
+        "growth_rate": {
+            "house": 0.008,
+            "population": 0.01
+        },
+        "capacity": {
+            "house": 1500,
+            "population": 5000
+        }
     },
     "terrain_config": {
         "top_x": 0.0,

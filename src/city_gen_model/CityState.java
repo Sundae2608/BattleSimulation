@@ -1,32 +1,31 @@
 package city_gen_model;
 
-import city_gen_model.city_events.MapEvent;
-import city_gen_model.city_events.MapEventBroadcaster;
-import city_gen_model.city_events.MapEventListener;
-import model.events.*;
+import city_gen_model.city_events.CityEvent;
+import city_gen_model.city_events.CityEventBroadcaster;
+import city_gen_model.city_events.CityEventListener;
 
-public class CityState extends MapEventListener {
+public class CityState extends CityEventListener {
 
-    CityStateParameters cityStateParameters;
+    CityObjects cityObjects;
     ProgressionModel model;
 
-    public CityState(MapEventBroadcaster inputBroadcaster, CityStateParameters cityStateParameters) {
+    public CityState(CityEventBroadcaster inputBroadcaster, CityObjects cityObjects) {
         super(inputBroadcaster);
 
-        this.model = new ProgressionModel(cityStateParameters);
-        this.cityStateParameters = cityStateParameters;
+        this.model = new ProgressionModel(cityObjects);
+        this.cityObjects = cityObjects;
     }
 
-    public CityStateParameters getCityStateParameters() {
-        return cityStateParameters;
+    public CityObjects getCityStateParameters() {
+        return cityObjects;
     }
 
     @Override
-    protected void listenEvent(MapEvent event) {
+    protected void listenEvent(CityEvent event) {
         model.registerEvent(event);
     }
 
-    public void update() {
-        model.update();
+    public void update(int timeSteps) throws Exception {
+        model.update(timeSteps);
     }
 }

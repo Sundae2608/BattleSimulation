@@ -1,15 +1,14 @@
-import city_gen_model.CityParamType;
+import city_gen_model.CityObjectType;
 import city_gen_model.CityEnvironment;
 import city_gen_model.CityState;
 import city_gen_model.algorithms.geometry.house_generation.HouseGenerationSettings;
 import city_gen_model.algorithms.geometry.house_generation.HouseSizeSettings;
 import city_gen_model.algorithms.geometry.house_generation.HouseType;
 import city_gen_model.algorithms.geometry.tree_generation.TreeGenerationSettings;
+import city_gen_model.city_events.CityEventType;
+import city_gen_model.city_events.FloodEvent;
 import city_gen_model.settings.CitySimulationSettings;
-import city_gen_model.city_events.MapEventBroadcaster;
-import city_gen_model.city_events.MapEventType;
-
-import city_gen_model.city_events.MapEvent;
+import city_gen_model.city_events.CityEventBroadcaster;
 import model.map_objects.House;
 import model.settings.MapGenerationMode;
 import model.settings.MapGenerationSettings;
@@ -60,7 +59,7 @@ public class CitySimulation extends PApplet {
     // City variables
     Terrain terrain;
     CityState cityState;
-    MapEventBroadcaster eventBroadcaster;
+    CityEventBroadcaster eventBroadcaster;
     CityEnvironment cityEnvironment;
 
     // Camera
@@ -177,18 +176,18 @@ public class CitySimulation extends PApplet {
 
     public void setup() {
         infoDrawer = new InfoDrawer(this);
-        eventBroadcaster = new MapEventBroadcaster();
+        eventBroadcaster = new CityEventBroadcaster();
 
 
         // Initialize city environment
-        String cityStateParamsConfig = "src/configs/city_configs/city_state.json";
+        String cityObjectConfig = "src/configs/city_configs/city_state.json";
         try {
-            cityState = new CityState(eventBroadcaster, ConfigUtils.readCityStateParameters(cityStateParamsConfig));
+            cityState = new CityState(eventBroadcaster, ConfigUtils.readCityObjects(cityObjectConfig));
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            terrain = ConfigUtils.createTerrainFromConfig(cityStateParamsConfig);
+            terrain = ConfigUtils.createTerrainFromConfig(cityObjectConfig);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -198,14 +197,13 @@ public class CitySimulation extends PApplet {
         buttons = new ArrayList<>();
 
         int i = 0;
-        for (MapEventType mapEventType : MapEventType.values()) {
-            buttons.add(new Button(mapEventType.toString(),
+        for (CityEventType cityEventType : CityEventType.values()) {
+            buttons.add(new Button(cityEventType.toString(),
                     width-220, 20+i*30, 200, 25, this,
                     new CustomProcedure() {
                         @Override
                         public void proc() { eventBroadcaster.broadcastEvent(
-                                new MapEvent(mapEventType,
-                                        0, 0, 0, 10, 500)); }
+                                new FloodEvent(0, 0, 0, 1, 500, 50, 2)); }
                     }));
             i++;
         }
@@ -238,7 +236,11 @@ public class CitySimulation extends PApplet {
         for (Button b : buttons) {
             b.update();
         }
-        cityEnvironment.step();
+        try {
+            cityEnvironment.step();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         /**
          * Update camera
@@ -368,14 +370,14 @@ public class CitySimulation extends PApplet {
         }
 
         infoDrawer.drawTextBox("Number of Houses: " +
-                cityState.getCityStateParameters().getQuantity(CityParamType.HOUSE), 20, INPUT_HEIGHT -20, 200);
+                cityState.getCityStateParameters().getQuantity(CityObjectType.HOUSE), 20, INPUT_HEIGHT -20, 200);
         for (Button b : buttons) {
             b.display();
         }
 
         int i = 0;
-        for (CityParamType cityParamType : CityParamType.values()) {
-            infoDrawer.drawTextBox(cityParamType + ": " + cityState.getCityStateParameters().getQuantity(cityParamType), 20, 20 * i +20, 150);
+        for (CityObjectType cityObjectType : CityObjectType.values()) {
+            infoDrawer.drawTextBox(cityObjectType + ": " + cityState.getCityStateParameters().getQuantity(cityObjectType), 20, 20 * i +20, 150);
             i++;
         }
     }
