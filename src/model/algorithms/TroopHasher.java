@@ -27,7 +27,7 @@ public class TroopHasher {
     // Hash map containing hashed singles.
     private HashMap<Long, ArrayList<BaseSingle>> hashMap;
 
-    // Experiment model.settings
+    // Experiment settings
     private GameSettings gameSettings;
 
     public TroopHasher(int xDivision, int yDivision, GameSettings inputSettings) {
